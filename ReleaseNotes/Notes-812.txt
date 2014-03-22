@@ -1,0 +1,9 @@
+Build #812 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Check For CtrlBreak Between Statements
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Check for CtrlBreak between statements.

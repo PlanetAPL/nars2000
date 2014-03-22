@@ -1,0 +1,10 @@
+Build #803 -- Version 0.0.2.22
+------------------------------
+
+* Fix Bug:  Indexed Assignment to Immediate Var Fails
+
+Directory trunk:
+
+PF_INDEX.C:
+  Fix Bug:  In <ArrayIndexSetNamImmed_EM>, a local var was not properly
+    initialized before it was referenced.

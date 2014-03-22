@@ -1,0 +1,17 @@
+Build #472 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Include credit for Trains to J.
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Include "What's New?" in the menu.
+
+INDEX-BODY.AHTML:
+  Use italics for substitutable function names.
+  Include Partitioned Enclose in new primitive functions.
+  Include assignment of empty vector to system variable.

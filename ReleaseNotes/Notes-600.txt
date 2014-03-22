@@ -1,0 +1,16 @@
+Build #600 -- Version 0.0.2.5
+-----------------------------
+
+* Avoid Screen Flicker With Function Line Numbers
+
+Directory trunk:
+
+EDITFCN.C:
+  Use double buffering when displaying the function line numbers.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  When painting the EC, skip over the left margin (where the
+    function line #s are).

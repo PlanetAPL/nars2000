@@ -1,0 +1,49 @@
+Build #658 -- Version 0.0.2.13
+------------------------------
+
+* Change The Names Of System Labels
+
+Directory trunk:
+
+EXECDFN.C:
+  Change the names of System Labels.
+
+EXECMFN.C:
+  Change the names of System Labels.
+
+EXECMFN.H:
+  Update copyright year.
+  Improve comments.
+  Change the names of System Labels.
+
+EXTERNS.H:
+  Improve comments.
+  Change the names of System Labels.
+
+FH_PARSE.H:
+  Make room for two System Labels on one line.
+  Change the names of System Labels.
+
+PO_DIJOT.C:
+PO_DOT.C:
+PO_SLASH.C:
+  Change the names of System Labels.
+
+SAVEFCN.C:
+  Change the names of System Labels.
+  Use equates for the names of System Labels.
+
+FMTSPEC.H:
+SYNTAXCOLORS.H:
+  Update copyright year.
+  Improve comments.
+
+SYSVARS.C:
+  Use equates for the names of System Labels.
+
+SYSVARS.H:
+  Improve comments.
+  Define equates for the names of System Labels.
+
+TOKENIZE.C:
+  Improve comments.

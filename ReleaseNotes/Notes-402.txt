@@ -1,0 +1,8 @@
+Build #402 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+INIFILE.C:
+  Fix bug:  In <CopyConvertDataOfType>, handle {\x0000}
+    in character vector.

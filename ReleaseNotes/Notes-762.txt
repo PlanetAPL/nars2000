@@ -1,0 +1,10 @@
+Build #762 -- Version 0.0.2.18
+------------------------------
+
+* Implement NULLOP At Lexical Rather Than Parse Time
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Improve comments.
+  Implement NULLOP in the lexical analyzer instead of the parser.

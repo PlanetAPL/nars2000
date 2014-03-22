@@ -1,0 +1,42 @@
+Build #1141 -- Version 0.4.1.xx
+-------------------------------
+
+* Implement -std Switch to )OUT Command
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message.
+
+DISPDBG.C:
+  In <FormatSTE>, make co-requisite change when adding a new member to <STFLAGS>.
+
+DISPLAY.C:
+  In <DisplayTransferVar2>, convert System Var Names to uppercase as some
+    .atf interpreters don't handle lowercase well.
+
+SC_COMMON.C:
+  Define new routine to split out switches.
+
+SC_LIB.C:
+  Note that this module covers )ULIB, too.
+  Update copyright year.
+
+SC_OUT.C:
+  Split off switches and validate them.
+  If -std specified to )OUT, list only those System Vars that are in the EAS.
+
+SYMTAB.H:
+  Define new flag for EAS System Names.
+
+SYSCMDS.C:
+  Update copyright year.
+  Define new routine to report on a switch error.
+
+SYSVARS.C:
+  Include new column in <aSystemNames> to indicate which System Names
+    are in the EAS.
+  In <SymTabAppendOneSysName_EM>, transfer the above flag to the <SYMENTRY> struc.
+
+SYSVARS.H:
+  Define new flag in <SYSNAME> struc.

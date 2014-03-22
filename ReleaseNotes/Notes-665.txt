@@ -1,0 +1,27 @@
+Build #665 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Pass On Operand Axis Token For Certain Operators
+
+Directory trunk:
+
+PO_CMIDDOT.C:
+PO_DITILDE.C:
+  Update copyright year.
+  Rename <lptkAxis>/<lptkAxis2> to operator/operand-specific names.
+
+PO_DIERESIS.C:
+  Rename <lptkAxis>/<lptkAxis2> to operator/operand-specific names.
+  Pass on the operand axis token when calling <ExecFuncOnToken_EM>.
+  Check for operand axis token presence before marking as
+    primitive scalar dyadic.
+
+PO_DOT.C:
+PO_SLASH.C:
+  Rename <lptkAxis>/<lptkAxis2> to operator/operand-specific names.
+  Check for operand axis token presence before marking as
+    primitive scalar dyadic.
+
+PO_JOTDOT.C:
+  Rename <lptkAxis>/<lptkAxis2> to operator/operand-specific names.
+  Pass on the operand axis token when calling <ExecFuncOnToken_EM>.

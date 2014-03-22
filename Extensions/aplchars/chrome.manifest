@@ -1,0 +1,13 @@
+content aplchars                jar:chrome/aplchars.jar!/content/aplchars/
+locale  aplchars    en-US       jar:chrome/aplchars.jar!/locale/en-US/aplchars/
+skin    aplchars    classic/1.0 jar:chrome/aplchars.jar!/skin/classic/aplchars/
+
+style   chrome://global/content/customizeToolbar.xul                     chrome://aplchars/content/aplfonts.css
+style   chrome://global/content/customizeToolbar.xul                     chrome://aplchars/content/aplchars.css
+
+overlay chrome://global/content/customizeToolbar.xul                     chrome://aplchars/content/customizeToolbar.xul
+overlay chrome://messenger/content/messenger.xul                         chrome://aplchars/content/mainWindow.xul
+overlay chrome://editor/content/editorOverlay.xul                        chrome://aplchars/content/editorOverlay.xul
+overlay chrome://messenger/content/mailWindowOverlay.xul                 chrome://aplchars/content/menuOverlay.xul
+overlay chrome://messenger/content/messengercompose/messengercompose.xul chrome://aplchars/content/menuOverlay.xul
+overlay chrome://messenger/content/messengercompose/messengercompose.xul chrome://aplchars/content/msgComposeWindow.xul

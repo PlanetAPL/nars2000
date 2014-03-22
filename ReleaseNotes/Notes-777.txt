@@ -1,0 +1,138 @@
+Build #777 -- Version 0.0.2.19
+------------------------------
+
+* Allow Users To Define Their Own Keyboard Layout
+
+Directory trunk:
+
+COMMON.C:
+  Update copyright year.
+  Define routine to return dialog units in pixels.
+  Define routine to draw a bitmap in a DC.
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Enable OEM resources.
+  Define limit of # chars allowed in Keyboard EditCtrl.
+  Define keyboard-specific data.
+  Use common macros for when returning a result from a dialog.
+  Use a fixed point size font when displaying APL chars in Clear WS Values.
+  Define WM_INITDIALOG handler for Keyboards.
+  Define WM_DRAWITEM handler for keyboards TabCtrl and Layour ComboBox.
+  Define WM_NOTIFY handler for keyboard TabCtrl notifications.
+  Define NM_CUSTOMDRAW handler for keyboard keycaps.
+  Define IDC_APPLY handler for keyboards.
+  Define WM_COMMAND handler for keyboards.
+  Define WM_DESTROY handler for keyboards.
+  Define new routine to handle subclassed EditCtrls.
+  Define new routine to draw a button.
+  Define new routine to display a TabCtrl button.
+  Define new routine to display a keyboard highlighted button.
+  Define new routine to remove the highlight from a keycap button.
+  Define new routine to display a keyboard layout.
+  Define new routine to display or hide certain keyboard keycap buttons.
+  Define new routine to convert from a scancode to an ID.
+  Define new routine to convert from a keyboard char to a scancode.
+  Define new routine to set the font for certain keyboard controls.
+  Define new routine to handle user entry of the name of a new keyboard layout.
+
+DEFINES.H:
+  Update copyright year.
+  Define default keyboard font name, point size, and LOGFONT.
+  Define sample text used in ChooseFont dialog.
+  Define local windows message # for use in highlighting keyboard buttons.
+  Define keyboard state bits.
+  Define wide char routine name for converting to lwercase.
+
+EDIT.RCH:
+  Update copyright year.
+  Remove keyboard Ctrl-key shortcuts from menu items as they might not be used.
+
+EDITFCN.C:
+  Update copyright year.
+  Define DEBUG stmts for debugging keystroke messages.
+  Move KEYDATA struc to <keyboards.h>.
+  Use wide char routine <isspaceW> instead of direct test.
+  Move vars up to routine-local instead of section-local.
+  Define vars local to a Windows message for both DEBUG and non-DEBUG modes.
+  Replace fixed <aCharCodes> used on <WM_CHAR> and <WM_SYSCHAR> with keyboard layouts
+    used on <WM_KEYDOWN> and <WM_SYSKEYDOWN>.
+  Define an comment out <WM_SYSKEYUP> message handler so we have a complete set.
+
+EXTERNS.H:
+  Update copyright year.
+  Move keyboard accelerator handle to <keyboards.h>.
+  Move character codes to <keyboards.h>.
+  Include "Keyboards" as a Customize Property Page.
+  Include "keyboards.h" for keyboard support.
+
+INIFILE.C:
+  Update copyright year.
+  Define section name and key names for reading in/writing out
+    keyboard support from/to .ini file.
+  Define format string used to read in/write out charcter codes
+    for user-defined keyboard layouts.
+  Read in keyboard support from .ini file.
+  In <ReadIniFileGlb> return a result depending upon whether or not the
+    operation succeeded.
+  Fix Bug:  When writing out the []SA index, an incorrect shortcut was taken.
+  Fix Bug:  When writing out the Rebar toolbars, an incorrect shortcut was taken.
+  When writing out the list of Recent Files, write the exact # of such files.
+  Write out keyboard support to .ini file.
+
+KEYBOARDS.H:
+  New file to hold all values for keyboard support.
+
+MAIN.C:
+  In <MyChooseFontHook> if no window title, assume it's <ChooseFont> for Customize
+    in which case we need to hide the size selection windows so the user can't
+    change it.
+  In <MyChooseFontHook>, subclass the Sample Text static control so we can
+    catch undesired changes to the Sample text.
+  Define window proc to handle subclassed static text control from <ChooseFont>.
+  In <ApplyNewFontSM> delete the code to respecify the fonts for the CLEAR WS
+    values Property Page in Customize as we now use a fixed font there.
+  Change call to the Customize dialog from modal to modeless.
+  In <MFWndProc/WM_DESTROY>, if the Customize dialog is active, destroy it and
+    delete the global memory handle for keyboard layouts.
+  In <InitInstance>, comment out the load of keyboard accelerators as they might
+    not be correct.
+  In <WinMain>, if the .ini file read failed, fail the startup.
+  In <WinMain>'s message loop, check for messages for the Customize dialog
+    now that it's modeless.
+
+MAIN.RC:
+  Update copyright year.
+  Note that the defined keyboard accelerators are not used keyboards depending upon
+    the keyboard layout settings.
+  Remove keyboard Ctrl-key shortcuts from menu items as they might not be used.
+  Use equates for the width and height of the Customize dialog and its Property Pages.
+  Change the font for the Customize dialog and its Property Pages to "MS Shell Dlg".
+  Resize the Customize Property Pages as per the equates.
+  In the CLEAR WS Values property Page, widen the trailing text on the lines to
+    accommodate the text when it's Bold.
+  Define a Customize dialog Property Page for keyboard support.
+  Define a dialog template for entering a new keyboard layout name.
+
+MAKEFILE.INC:
+  Update copyright year.
+  Use /nologo switch on calls to RC.
+  Move the location of <makedep.php> to $(NARSROOT).
+
+QF_NC.C:
+  Update copyright year.
+  Note that an underbar may be used as a first char in a name.
+
+RESOURCE.H:
+  Update copyright year.
+  Define IDs for keyboard support.
+
+UNICODE.H:
+  Update copyright year.
+  Define entries for missing light and double line drawing characters,
+    so they may be included in the table of keyboard characters.
+  Define entry for up/down arrows,
+    so they may be included in the table of keyboard characters.
+  Define entry for section symbol, left-shoe-underbar, and right-shoe-underbar
+    so they may be included in the table of keyboard characters.
+  Define corresponding wide string entries to the above characters.

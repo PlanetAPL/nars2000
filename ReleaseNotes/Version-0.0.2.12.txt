@@ -1,0 +1,87 @@
+Version 0.0.2.12 consists of the following Builds:
+
+
+Build #655 -- Version 0.0.2.12
+------------------------------
+
+* Fix Bug:  Wrong Test For Empty When Reducing Empty With UDFO
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Delete dangling <else>.
+
+SC_IN.C:
+  Fix Bug:  In <TransferInverseArr2_EM>, when recreating a variable
+    from its 2 []TF form, the executed code omitted the definition of
+    the variable.
+  Fix Bug:  In <TransferInverseArr2_EM>, after executing the code
+    which defines a variable, free the result so as to maintain a
+    correct Reference Count.
+  Fix typo in comment.
+
+SC_SAVE.C:
+  Fix typo in comment.
+
+
+Build #654 -- Version 0.0.2.12
+------------------------------
+
+* Fix Bug:  Wrong Test For Empty When Reducing Empty With UDFO
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix Bug:  A macro call was omitted when testing for empty
+    result when reducing an empty array with a UDFO.
+
+
+Build #653 -- Version 0.0.2.12
+------------------------------
+
+* Fix Bug:  Invalid Result When Enclosing With Axis An Empty Array
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Fix Bug:  When enclosing with axis an empty array producing
+    another empty array, the low-order bits in the result prototype
+    are not set, yielding an invalid result.
+
+
+Build #652 -- Version 0.0.2.12
+------------------------------
+
+* Hide []Z From Use Other Than When Fixing A Function Via []TF
+
+Directory trunk:
+
+PERTAB.H:
+  Update copyright year.
+  Define Boolean flag to indicate whether or not
+    we're fixing a function via []TF.
+
+QF_TF.C:
+  Save, set, and restore the <bInTF> flag to indicate
+    that we're fixing a function via []TF so tokenize
+    can properly recognize []Z.
+
+TOKENIZE.C:
+  In <fnAlpha>/<fnAlpDone>, mark []Z as an unknown SysName
+    if it's []Z and we're not fixing a function via []TF.
+
+
+Build #651 -- Version 0.0.2.12
+------------------------------
+
+* Allow Variable Spacing Between Characters When Syntax Coloring
+
+Directory trunk:
+
+EDITFCN.C:
+  Change the way syntax coloring handles spacing to
+    allow variable spacing between characters as per
+    Unicode.
+
+VERSION.RC:
+  Increment version to 0.0.2.12.

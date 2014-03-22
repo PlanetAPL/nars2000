@@ -1,0 +1,68 @@
+Build #765 -- Version 0.0.2.18
+------------------------------
+
+* Merge PRIMFLAGS and IDENTFNS Into PRIMFLAGS.
+
+Directory trunk:
+
+EXTERNS.H:
+  Merge the <PRIMFLAGS> and <IDENTFNS> strucs into <PRIMFLAGS>.
+
+GETFNS.C:
+  In <GetPrototypeFcnPtr> pass ptr to the function token rather than
+    <PL_YYSTYPE> as that's all that's needed.
+  Merge <GetIdentityFcnPtr> into <GetPrimFlagsPtr> and delete the former.
+
+IDENTFNS.C:
+  Merge the <PRIMFLAGS> and <IDENTFNS> strucs into <PRIMFLAGS>.
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+
+INITDATA.C:
+  Merge the <PRIMFLAGS> and <IDENTFNS> strucs into <PRIMFLAGS>.
+
+PO_CMIDDOT.C:
+PO_DICIRCLE.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+
+PO_DIERESIS.C:
+PO_DITILDE.C:
+  Merge the <PRIMFLAGS> and <IDENTFNS> strucs into <PRIMFLAGS>.
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+
+PO_DOT.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+  Handle not found case of PRIMFLAGS in <GetPrimFlagsPtr>.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.
+
+PO_JOT.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+
+PO_JOTDOT.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+  Handle not found case of PRIMFLAGS in <GetPrimFlagsPtr>.
+
+PO_SLASH.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+  Handle not found case of PRIMFLAGS in <GetPrimFlagsPtr>.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.
+  Handle blow up from Boolean to Integer.
+
+PO_SLOPE.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+  Handle not found case of PRIMFLAGS in <GetPrimFlagsPtr>.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.
+  Handle blow up from Boolean to Integer.
+  Improve comments.
+
+PRIMFNS.C:
+  Improve comments.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.
+
+PRIMSPEC.C:
+  Define Identity Function for PSDFs.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.

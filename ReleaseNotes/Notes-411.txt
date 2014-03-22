@@ -1,0 +1,9 @@
+Build #411 -- Version 0.0.1.13
+------------------------------
+
+Directory trunk:
+
+FMTSPEC.C:
+  Fix bug:  In <fnSetQual> for a T-format without a following number,
+    the call to <ScanNumberFS> doesn't back off <uChar>, so we need
+    to do that ourselves.

@@ -1,0 +1,24 @@
+Build #906 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Floor And Ceiling On RAT/VFPs Not Working With []CT
+
+Directory trunk:
+
+MPFNS.C:
+  In <mpz_get_sa>, return the low-order 64 bits even if too large.
+  In <mpq_get_sa>, use <mpz_get_sa> on the quotient of numerator
+    to denominator.
+  Improve comments.
+  Implement <mpq_sub_ui> for use in <PrimFnMonDownStileRisR>.
+  In <mpf_get_sa>, convert the VFP to RAT and call <mpq_get_sa>.
+  In <mpf_cmp_ct>, use an algorithm similar to the one in <_CompareCT>.
+
+PF_DSTILE.C:
+  Improve comments.
+  Change algorithm for floor/ceiling on RAT/VFPs to match the one
+    in <_CompareCT>.
+
+PF_USTILE.C:
+  Improve comments.
+  Call the RAT/VFP floor/ceiling code in DownStile for UpStile on RAT/VFPs.

@@ -1,0 +1,50 @@
+Build #793 -- Version 0.0.2.21
+------------------------------
+
+* Implement Customize Category For Specifying Directories
+* Implement [first][-][last] Parameter For )FNS/)LIB/)NMS/)OPS/)VARS
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Include <shlobj.h> for <SHBrowseForFolder>.
+  Implement customize category for specifying directories.
+
+DEFINES.H:
+  Define command line switch char for use in )LIB.
+
+EXTERNS.H:
+INIFILE.C:
+MAIN.RC:
+RESOURCE.H:
+  Implement customize category for specifying directories.
+
+SC_COMMON.C:
+  In <MakeWorkspaceNameCanonical>, ensure there's a backslash
+    between the input and the default directory.
+  Define new function to append a backslash to a string unless
+    there is already one there.
+  Define new function to check for command line switches such as
+    [first][-][last].
+
+SC_FNOV.C:
+  Update copyright year.
+  Implement [first][-][last] parameter for )FNS/)LIB/)NMS/)OPS/)VARS.
+
+SC_LIB.C:
+  Update copyright year.
+  Implement customize category for specifying directories.
+  Implement [first][-][last] parameter for )FNS/)LIB/)NMS/)OPS/)VARS.
+
+SORT.C:
+  Update copyright year.
+  Improve comments.
+  Define <round> routine to do symmetrical rounding.
+  Define comparison routine for LPLPWCHARs.
+  Change the translate tables for <aplcmp> to sort digits before
+    the alphabet so it matches the comparison order used in
+    [first][-][last].
+
+WORKSPACE.H:
+  Update copyright year.
+  Define workspace extensions and their lengths.

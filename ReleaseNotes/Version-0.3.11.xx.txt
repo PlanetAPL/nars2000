@@ -1,0 +1,111 @@
+Version 0.3.11.xx consists of the following Builds:
+
+
+Build #1115 -- Version 0.3.11.xx
+--------------------------------
+
+* Cleanup Code For The {enclose}[{zilde}] Case
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Cleanup code for the {enclose}[{zilde}] case.
+
+
+Build #1114 -- Version 0.3.11.xx
+--------------------------------
+
+* Simplify Code
+
+Directory trunk:
+
+SC_IN.C:
+SC_OUT.C:
+  Simplify code.
+
+
+Build #1113 -- Version 0.3.11.xx
+--------------------------------
+
+* Change Definition Of Rank Operator
+
+Directory trunk:
+
+PO_DIJOT.C:
+  This operator was originally based upon code found in the paper by J. Philip Benkhard,
+    "Extending structure, type, and expression in APL2", ACM SIGAPL APL Quote Quad,
+    v.21 n.4, p.20-38, Aug. 1991, but later was modified to reflect the
+    definition of the Rank operator in the ISO-IEC 13751 Extended APL Standard.
+
+
+Build #1112 -- Version 0.3.11.xx
+--------------------------------
+
+* Extend Dyadic Iota To Scalar Left Arguments
+
+Directory trunk:
+
+PF_IOTA.C:
+  Extend dyadic iota to scalar left arguments to return some reshape of {enclose} {zilde}.
+
+
+Build #1111 -- Version 0.3.11.xx
+--------------------------------
+
+* Fix Bug In Reshape When HEAP FULL
+
+Directory trunk:
+
+MPFNS.C:
+  In <_mpfr_get_ctsx>, check for MPFR infinity and handle.
+
+PF_RHO.C:
+  Handle HEAP FULL in reshape.
+
+SESSMAN.C:
+  Move code to before the vars it references are freed.
+
+
+Build #1110 -- Version 0.3.11.xx
+--------------------------------
+
+* Miscellaneous Name Changes
+
+Directory trunk:
+
+ASSIGN.C:
+  Simplify Assert stmt.
+
+DISPLAY.C:
+EDITFCN.C:
+ERRMSG.C:
+EXECDFN.C:
+EXECFNS.C:
+EXECMFN.C:
+EXECMFN.H:
+GETFNS.C:
+MAIN.C:
+PERTAB.H:
+PF_QUERY.C:
+PO_VARIANT.C:
+QF_ES.C:
+QF_EX.C:
+QF_NL.C:
+QF_VR.C:
+SC_COMMON.C:
+SC_FNOV.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+SC_WSID.C:
+SESSMAN.C:
+SYMTAB.C:
+SYMTAB.H:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+  Use ptr for main <HSHTABSTR> in <pertab.h> to facilitate substitutions for anonymous functions/operators.
+  Use more consistent names such as <lphtsXXX>.
+
+VER.RC:
+  Increment version # to 0.3.11.xx.

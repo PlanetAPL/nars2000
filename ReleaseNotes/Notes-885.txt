@@ -1,0 +1,11 @@
+Build #885 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Respecify []PW When Changing Fonts
+
+Directory trunk:
+
+EDITFCN.C:
+  Move code to respecify new []PW on width change to common subroutine.
+  Call the common code whenever a new font is specified.  This catches font
+    changes which can affect the average character width.

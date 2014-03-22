@@ -1,0 +1,13 @@
+Build #804 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Undo At Start Of Undo Buffer Crashes
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc/WM_UNDO:>, read in ptr to start of
+    Undo buffer and test against it before proceeding to Undo.
+
+VERSION.RC:
+  Increment version to 0.0.2.23.

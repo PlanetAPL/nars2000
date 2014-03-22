@@ -1,0 +1,175 @@
+Version 0.0.1.7 consists of the following Builds:
+
+
+Build #349 -- Version 0.0.1.7
+-----------------------------
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Update copyright year.
+  Fix Bug:  Include additional rule to handle LEAVE/CONTINUE outside of an IF stmt.
+
+CS_PROC.C:
+  Update copyright year.
+  Fix Bug:  Define separate function to handle ENDWHILE stmt (previously we ignored it).
+  Expand comment.
+
+DATATYPE.H:
+  Define largest allowable Unicdoe code point for []UCS DOMAIN ERROR testing.
+  Define bit to mark Selective Specification intermediate array of indices.
+
+DISPLAY.C:
+  Update copyright year.
+  Change comment to reflect new meaning of argument.
+
+GETFNS.C:
+  Update copyright year.
+  Clear ptr type bits inside <GetNextValueGlb> so we don't need to do it outside.
+  Change comment to reflect new meaning of argument.
+  Change the HGLOBAL result of <GetNextValueGlb> to include the ptr type bits so
+    we don't need to set them outside.
+  Fix typo in comment.
+  In <GetNextValueMem> and <GetNextItemMem>, delete the <bExpandSym> and <bGetItem>
+    arguments to <GetNextValueMemSub> as they are no longer used.
+  In <GetNextValueMemSub>, explain the result if both <lphGlbres> and <lpimmTypeRes>
+    are non-NULL.
+  In <GetNextValueMemSub>, replace <bExpandSym> with <lpimmTypeRes NE NULL>.
+  In <GetNextValueMemSub>, delete reference to <bGetItem> as we always return
+    <*lphGlbRes> with the ptr type bits set.
+
+GOTO.C:
+  Update copyright year.
+  Fix Bug:  Avoid referencing a token beyond the number of tokens in the token stream.
+
+PF_COMMA.C:
+  Update copyright year.
+  Mark result of ravel as Selective Specification index array if the right
+    arg is one, too.
+  Fix Bug:  Remove test for fractional axis from calculation of right and left
+    dimensions at and beyond the axis value.
+
+PF_CSLOPE.C:
+  Update copyright year.
+  Mark result of transpose as Selective Specification index array if the right
+    arg is one, too.
+
+PF_CSTILE.C:
+  Update copyright year.
+  Mark result of reverse and rotate as Selective Specification index array if the right
+    arg is one, too.
+
+PF_DTACKJOT.C:
+  Update copyright year.
+  Improve comments.
+  Clear ptr type bits in the HGLOBAL result of <GetNextValueMem> as needed.
+
+PF_EPSILON.C:
+  Update copyright year.
+  Mark result of enlist as Selective Specification index array if the right
+    arg is one, too.
+  Change comment to reflect new meaning of argument.
+  Avoid setting ptr type bits in the HGLOBAL result of <GetNextValueMem>
+    as they are already set.
+  Fix Bug:  In <PrimFnDydEpsilonOther>, the result of <PrimFnDydEqualUnderbar_EM_YY>
+    is used as if it were a Boolean, whereas it actually is a <lpYYRes>.  Instead,
+    save the result, extract the Boolean from it, and free it.
+
+PF_INDEX.C:
+  Avoid setting ptr type bits in the HGLOBAL result of <GetNextValueMem>
+    as they are already set.
+  Change comment to reflect new meaning of argument.
+  Improve comments.
+
+PF_IOTA.C:
+  Update copyright year.
+  Change comment to reflect new meaning of argument.
+  Avoid setting ptr type bits in the HGLOBAL result of <GetNextValueMem>
+    as they are already set.
+
+PF_SLASH.C:
+  Update copyright year.
+  Mark result of replicate as Selective Specification index array if the right
+    arg is one, too.
+
+PF_SLOPE.C:
+  Update copyright year.
+  Mark result of expand as Selective Specification index array if the right
+    arg is one, too.
+
+PF_SQUAD.C:
+  Update copyright year.
+  Improve comments.
+  Clear ptr type bits in the HGLOBAL result of <GetNextValueMem> as needed.
+  In <PrimFnDydSquadGlb_EM_YY>, provide spurious <immTypeSub> argument so as
+    to force <GetNextValueMem> to return <hGlbSub> as an HGLOBAL only.
+  Avoid setting ptr type bits in the HGLOBAL result of <GetNextValueMem>
+    as they are already set.
+
+PL_PARSE.PROTO:
+  Include prototype for new function in <pl_parse.y>.
+
+PL_PARSE.Y:
+  Fix errors in comments.
+  Fix Bug:  Define rule for ENDWHILE stmt which was previously ignored.
+  Fix Bug:  Never test for <lpplLocalVars->bYYERROR> at the top of
+    rule because this might take an erroneous action in the case of a
+    double error.
+  In <pl_yylex>, return separate token for ENDWHILE.
+  In <CheckSelSpec>, mark the index array as special.
+  Define new routine to test for Selective Specification index array
+    before assigning to the named var.
+
+PO_SLOPE.C:
+  Update copyright year.
+  Change comment to reflect new meaning of argument.
+
+QF_DR.C:
+  Update copyright year.
+
+QF_ES.C:
+  Update copyright year.
+  Improve comments.
+
+QF_FX.C:
+  Update copyright year.
+  Change comment to reflect new meaning of argument.
+  Clear ptr type bits in the HGLOBAL result of <GetNextValueMem> as needed.
+
+QF_TF.C:
+  Change comment to reflect new meaning of argument.
+
+QF_UCS.C:
+  Update copyright year.
+  Test for DOMAIN ERROR against maximum Unicode code point value.
+  Fix Bug:  In <SysFnMonUCS_EM_YY> for an APA argument, fix the test
+    for out of range values on a per-value basis instead of the
+    whole right argument.
+
+SC_LOAD.C:
+  Update copyright year.
+  Allow immediate chars to be surrounding by either single or double quotes.
+  Fix Bug:  Skip over trailing blank after an immediate char.
+
+SC_SAVE.C:
+  Fix Bug:  In <SavedWsFormGlbVar> for HETERO arrays, append the simple
+    scalar array header before each simple scalar.
+  Fix Bug:  In <SavedWsFormGlbVar> for NESTED arrays, surround character
+    scalars with quote marks and format as {\uXXXXXX} if non-ASCII.
+
+STARTADDR.H:
+  Update copyright year.
+  Include more addresses for debugging purposes.
+
+STRAND.C:
+  Change comment to reflect new meaning of argument.
+
+SYMTAB.C:
+  Update copyright year.
+  In <SymbolNameToChar>, handle {\uXXXXXX} on input.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Remove trailing period from list item.

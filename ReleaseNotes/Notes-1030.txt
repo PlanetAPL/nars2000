@@ -1,0 +1,10 @@
+Build #1030 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Goto If Target Line # Is Too Large
+
+Directory trunk:
+
+GOTO.C:
+  Update copyright year.
+  Fix Bug:  In <GotoLine_EM>, we don't check to see if the target line # is beyond the last line of the function.

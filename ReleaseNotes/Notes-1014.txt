@@ -1,0 +1,34 @@
+Build #1014 -- Version 0.3.8.xx
+-------------------------------
+
+* Define New []IC Indeterminate Case 0 {log} N ( != 0 or 1)
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Include text for new []IC entry.
+
+EXTERNS.H:
+  Update copyright year.
+  Include index and default value for new []IC entry.
+  Define MPFR pos/neg infinity via function call rather than as a constant entry.
+
+INITDATA.C:
+  Update copyright year.
+  Define MPFR pos/neg infinity via function call rather than as a constant entry.
+
+MPFNS.C:
+  Update copyright year.
+  Improve comments.
+
+MPIFNS.C:
+  Update copyright year.
+  Improve comments.
+  Omit initializing MPFR Pos/Neg infinity as it's not necessary.
+
+PF_CSTAR.C:
+  Update copyright year.
+  Improve comments.
+  In dyadic logarithm, check for indeterminate 0{log}N for N != 0 or 1.
+  In dyadic logarithm, check for complex result and signal a NONCE ERROR.

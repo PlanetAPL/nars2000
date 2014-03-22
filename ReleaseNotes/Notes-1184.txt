@@ -1,0 +1,9 @@
+Build #1184 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle Infinity When Checking For Rational Integer
+
+Directory trunk:
+
+MPFNS.C:
+  In <mpq_integer_p>, check for infinity.

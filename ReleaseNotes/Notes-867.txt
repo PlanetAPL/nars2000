@@ -1,0 +1,17 @@
+Build #867 -- Version 0.0.3.0
+-----------------------------
+
+* Speed Up Alternating Scans
+* Fix Bugs:  If Scan Blows Up, Set Immediate Types And Blow Up Temps
+
+Directory trunk:
+
+PO_SLOPE.C:
+  Speed up alternating scans.
+  Improve comments.
+  Fix Bug:  In case the result blows up, also blow up the right
+    arg token.
+
+TYPEMOTE.C:
+  Fix Bug:  Set the immediate type when promoting types so scan
+    uses the correct type.

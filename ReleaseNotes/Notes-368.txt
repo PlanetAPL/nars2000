@@ -1,0 +1,9 @@
+Build #368 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Improve comments.
+  Surround the body of <ParseCtrlStruc_EM> with __try/__except to handle
+    references to uncommitted virtual memory.

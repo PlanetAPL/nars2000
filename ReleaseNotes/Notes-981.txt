@@ -1,0 +1,17 @@
+Build #981 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug Handling Continuation Lines
+
+Directory trunk:
+
+CONVERT.C:
+  In <ConvertWideToNameLength>, display {slope} instead of actual char so as
+    to allow a backslash to be used as a continuation marker in a plain text
+    workspace file.
+
+INIPARSER.C:
+  Fix bug in handling of continuation lines.
+
+VER.RC:
+  Increment version # to 0.3.8.xx.

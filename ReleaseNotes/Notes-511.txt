@@ -1,0 +1,71 @@
+Build #511-- Version 0.0.2.3
+----------------------------
+
+* Optimize IndexOf and ElementOf on Simple Non-hetero Arrays
+
+Directory trunk:
+
+CONVERT.C:
+  Define <FloatToAplint_CT> function to convert from float to integer
+    using a given comparison tolerance.
+
+EXTERNS.H:
+  Define enum for <FastBoolTrans> columns.
+  Define static var for first two indices into <FastBoolTrans>.
+
+FASTBOOL.C:
+  Use names for column indices into <FastBoolTrans>.
+  Pre-define column index into <FastBoolTrans>.
+
+GETFNS.C:
+  Define <SetQuadIO> to set the current value of []IO.
+
+PF_DELTASTILE.C:
+  Pass Boolean parameter to <PrimFnMonGradeCommon_EM_YY> and
+    <PrimFnDydGradeCommon_EM_YY> to tell the routine to treat the
+    argument as a vector (ravelled) so we don't have to do that
+    ourselves when grading the args to ElementOf or the right arg
+    to IndexOf.
+  Use names for column indices into <FastBoolTrans>.
+
+PF_EPSILON.C:
+  In <PrimFnMonEpsilonGlb_EM_YY>, reformat the call to
+    <PrimFnMonEpsilonGlbCount> to comment each argument.
+  In <PrimFnMonEpsilonGlbCount>, remove spurious comment.
+  In <PrimFnMonEpsilonCount>, reformat the recursive call to
+    <PrimFnMonEpsilonGlbCount> to comment each argument.
+  In <PrimFnDydEpsilon_EM_YY>, define additional routine NvB for
+    <APLINT/APLAPA/APLFLOAT> vs. <APLBOOL>.
+  In <PrimFnDydEpsilon_EM_YY>, expand IvP routine to NvP which
+    now includes floats on the left.
+  In <PrimFnDydEpsilon_EM_YY>, define additional routine NvA for
+    <APLBOOL/APLINT/APLAPA/APLFLOAT> vs. <APLAPA>.
+  In <PrimFnDydEpsilon_EM_YY>, define additional routine NvN for
+    <APLBOOL/APLINT/APLAPA/APLFLOAT> vs. <APLFLOAT> and
+    <APLFLOAT> vs. <APLINT> -- these are the remaining cases for NvN.
+  Simplify the code in <PrimFnDydEpsilonBvB> to a single search
+    for the complement of the first bit.
+  Optimize IvI to grade-up both args and binary search for the
+    values from the left arg in the right.  Use the same algorithm
+    in NvN.
+
+PF_IOTA.C:
+  Fix Bug:  In <PrimFnDydIota_EM_YY>, initialize two vars in case
+    the routine signals an error.
+  In <PrimFnDydIota_EM_YY>, define additional routine BvN for
+    <APLBOOL> vs. <APLINT/APLAPA/APLFLOAT>.
+  In <PrimFnDydIota_EM_YY>, expand PvI routine to PvN which
+    now includes floats on the right.
+  In <PrimFnDydIota_EM_YY>, define additional routine AvN for
+    <APLAPA> vs. <APLBOOL/APLINT/APLAPA/APLFLOAT>.
+  In <PrimFnDydIota_EM_YY>, define additional routine NvN for
+    <APLFLOAT> vs. <APLBOOL/APLINT/APLAPA/APLFLOAT> and
+    <APLINT> vs. <APLFLOAT> -- these are the remaining cases for NvN.
+  Simplify the code in <PrimFnDydIotaBvB> to a single search
+    for the complement of the first bit.
+  Optimize IvI to grade-up both args and binary search for the
+    values from the right arg in the left.  Use the same algorithm
+    in NvN.
+
+RESDEBUG.C:
+  White space changes only.

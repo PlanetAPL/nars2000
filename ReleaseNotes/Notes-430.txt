@@ -1,0 +1,13 @@
+Build #430 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+EXTERNS.H:
+INIFILE.C:
+MAIN.RC:
+RESOURCE.H:
+SYNTAXCOLORS.H:
+  Rename FCNLINES to FCNLINENUMS (and related changes)
+    to better reflect its purpose.

@@ -1,0 +1,11 @@
+Build #653 -- Version 0.0.2.12
+------------------------------
+
+* Fix Bug:  Invalid Result When Enclosing With Axis An Empty Array
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Fix Bug:  When enclosing with axis an empty array producing
+    another empty array, the low-order bits in the result prototype
+    are not set, yielding an invalid result.

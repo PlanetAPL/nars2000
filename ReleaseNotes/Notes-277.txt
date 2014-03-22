@@ -1,0 +1,56 @@
+Build #277 -- Version 0.0.0.17848
+---------------------------------
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Pass the Edit Ctrl window handle to PaintHook so we can determine which char width to use.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD_BODY.PHP:
+  Use PHP code to set the "Last Changed" date.
+  Exclude "nars2000.ver" from files displayed.
+
+
+Directory trunk:
+
+EDITCTRL.H:
+  Pass the Edit Ctrl window handle to PaintHook so we can determine which char width to use.
+
+EDITFCN.C:
+  Pass the Edit Ctrl window handle to PaintHook so we can determine which char width to use.
+  Draw the tab # inside an ellipse, calculating the bounding rectangle, brush and pen types.
+  Draw chars in a line according to FontLink and alternate font using code found on Internet.
+
+EXCEPT.C:
+  No change other than white space.
+
+EXTERNS.H:
+  Change default TabCtrl font name to "Tahoma".
+  Define alternate font name and var.
+  Change default point size for the TabCtrl font.
+
+MAIN.C:
+  Improve comments.
+  In <CreateNewFontCom>, use local var for intermediate calculations
+    in case incoming ptrs are NULL.
+  In <CreatenewFontSM>, define alternate font for use when displaying infinity.
+
+MAKEFILE:
+  Include OLE32.LIB for use with FontLink code.
+
+PERTAB.H:
+  Include <mlang.h> for use with FontLink code.
+  Define PerTabData ptr to FontLink code.
+
+SESSMAN.C:
+  At start of each Session Manager, call CoInitialize to allow the OLE code to work.
+  At start of each Session Manager, get and save in PerTabData the FontLink ptr.
+  At end of each Sseeion Manager, allow re-entrance in case WM_DESTROY is called twice.
+  At end of each Session Manager, release the FontLink ptr.
+  At end of each Session Manager, call CoUninitialize to release OLE resources.
+
+TABCTRL.C:
+  In <DrawTab>, draw the tab # separately inside an ellipse.

@@ -1,0 +1,19 @@
+Build #800 -- Version 0.0.2.22
+------------------------------
+
+* Fix Bug:  Reach Indexing Of ({enclose},2)[{enclose}{zilde} 1] Fails
+
+Directory trunk:
+
+PF_INDEX.C:
+  Update copyright year.
+  Call <ArrayIndexRefNamImmed_EM_YY> only if the name arg is an immediate.
+  In <ArrayIndexValidZilde_EM>, loop through the list arg items as well as
+    their contents.
+  Call <ArrayIndexSetNamImmed_EM> only if the name arg is an immediate.
+
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Include new names.

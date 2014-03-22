@@ -1,0 +1,218 @@
+Version 0.4.3.xx consists of the following Builds:
+
+
+Build #1161 -- Version 0.4.3.xx
+-------------------------------
+
+* Change Default Value In []IC For "!N for integer N < 0"
+
+Directory trunk:
+
+EXTERNS.H:
+  Change the default value in []IC for "!N for integer N < 0" from DOMAIN ERROR to {infinity}.
+
+PF_QDOT.C:
+  In <PrimFnDydQuoteDotFisFvF>, if the result is zero, change it to zero
+    in case it is {neg}0 which can happen if R-L is a negative integer.
+
+
+Build #1160 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug In Dyadic Shriek
+
+Directory trunk:
+
+PF_QDOT.C:
+  If in L!R, R < 0 and R-L is not an integer but is within system CT of an integer, this case
+    mistakenly signals a DOMAIN ERROR.  Eliminating the "within system CT" check
+    fixes the problem.
+
+
+Build #1159 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug In Misplaced EnterCriticalSection Call
+
+Directory trunk:
+
+SYMTAB.C:
+  Define debugging code to catch depth errors with CriticalSection calls.
+  In <_SymTabAppendChar_EM>, fix bug with misplaced <EnterCriticalSection> call.
+
+
+Build #1158 -- Version 0.4.3.xx
+-------------------------------
+
+* Change Version Number Files
+
+Directory trunk:
+
+VER.RC:
+VERSION.RC:
+  Increase the version # to 0.4.3.76.
+
+
+Build #1157 -- Version 0.4.3.xx
+-------------------------------
+
+* Implement Determinant Operator
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define new Magic Operator <#MonDot> for the determinant.
+
+MF_DOT.H:
+  Include Magic Function code for the determinant operator.
+
+PO_DOT.C:
+  Implement monadic derived function from inner product as the determinant operator.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Use GSL determinant code for -.x on BOOL/INT/FLOAT/APAs
+  Use local Gauss/Jordan determinant code for -.x on RAT/VFPs.
+  Use a Magic Operator for all other cases.
+
+
+Build #1156 -- Version 0.4.3.xx
+-------------------------------
+
+* Move Magic Function/Operator Code Into UTF-8 Header Files
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Rename <#MonBox> to <#MonBoxFMT> to include its context.
+
+MF_DIJOT.H:
+MF_DOMINO.H:
+MF_DOT.H:
+MF_DOTDOT.H:
+MF_DSHOE.H:
+MF_IOTA.H:
+MF_IOTAUND.H:
+MF_JOTDOT.H:
+MF_LSHOEUND.H:
+MF_MULTISET.H:
+MF_QUADFMT.H:
+MF_QUADVR.H:
+MF_SECTION.H:
+MF_USHOE.H:
+  New files in UTF-8 format to hold APL magic functions.  Be sure to use
+    a Unicode-aware editor when editing these files.
+
+PF_DOMINO.C:
+PF_DOTDOT.C:
+PF_DSHOE.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_LSHOEUND.C:
+PF_SECTION.C:
+PF_USHOE.C:
+PO_DIJOT.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_MULTISET.C:
+QF_FMT.C:
+QF_VR.C:
+  Move magic function/operator into its own UTF-8 format header file.
+
+
+Build #1155 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug In Domino So As To Disallow Character Arguments
+
+Directory trunk:
+
+PF_DOMINO.C:
+  Update copyright year.
+  Fix bug in Domino so as to disallow character arguments!
+  Improve comments.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+
+Build #1154 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug Handling The Del Token
+
+Directory trunk:
+
+EXECDFN.C:
+  Setup left & right operands (if present) if token is a Del.
+
+EXECFNS.C:
+  Setup left & right operands (if present) if token is a Del.
+  Define routine to setup left & right operands (if present).
+
+FREE.C:
+  In <FreeResultGlobalFcn>, handle token is a Del.
+
+PL_PARSE.Y:
+  In <pl_yylex>, if the token is a Del, return function information only.
+
+
+Build #1153 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Memory Leak
+
+Directory trunk:
+
+IMMEXEC.C:
+  In <ActOnError>, free the result of <lpMemPTD->YYResExec> after displaying it.
+
+
+Build #1152 -- Version 0.4.3.xx
+-------------------------------
+
+* Improve Debugging Tools
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayGlobals>, display RAT/VFP numbers instead of shorthand so we can see which ones are still around.
+  In <DisplayGlobals>, simplify code under <case DFN_HEADER_SIGNATURE>.
+
+
+Build #1151 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bugs When Reallocating Symbol Table
+* Fix Bug  When Reallocating A Token Stream
+
+Directory trunk:
+
+SAVEFCN.C:
+  Avoid clobbering an existing error message having detected an error during Tokenize.
+  Warn instead of failing function fix because of duplicate labels.
+
+SC_IN.C:
+  Avoid extra displays during )IN because of NoDisplay execute results.
+  Correct origin of function line # in error message.
+
+SYMTAB.C:
+  Rename variable from *Size to *Nelm as it actually measures the latter rather than the former.
+  Change VirtualAllocs from MEM_COMMIT | MEM_RESERVE to MEM_COMMIT only.
+  In <SymTabResize>, handle global table resize.
+  Include commented out debugging code for future use.
+
+TOKENIZE.C:
+  In <AppendNewToken_EM>, if the reallocate fails on a token stream, try with a new allocate and copy old memory values to the new location.
+
+
+Build #1150 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug When Saving []EM
+
+Directory trunk:
+
+ERRMSG.C:
+  Fix bug when saving []EM because a ptr may be NULL.
+
+VER.RC:
+  Increment version # to 0.4.3.xx.

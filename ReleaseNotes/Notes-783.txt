@@ -1,0 +1,12 @@
+Build #783 -- Version 0.0.2.20
+------------------------------
+
+* Handle LIMIT ERROR In )SAVE
+
+Directory trunk:
+
+SC_SAVE.C:
+  Update copyright year.
+  Surround )SAVE code with __try/__except to catch LIMIT ERRORs.
+  In __except code, unlock ptr if locked so program exit debugs
+    cleanly.

@@ -1,0 +1,16 @@
+Build #1041 -- Version 0.3.8.xx
+-------------------------------
+
+* Use Longer Period For Random Number Generation Of Integers
+
+Directory trunk:
+
+PF_QUERY.C:
+  Update copyright year.
+  Now that we use a much larger period for Roll and Deal, we need extended
+    precision code to calculate the values.
+
+SYSVARS.H:
+  Update copyright year.
+  Change the modulus for []RL to -1+2*61.
+  Change the seed (primitive root) for []RL to 216928637.

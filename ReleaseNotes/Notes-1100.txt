@@ -1,0 +1,14 @@
+Build #1100 -- Version 0.3.10.xx
+--------------------------------
+
+* Change Default State Of Negative Indices To FALSE
+
+Directory trunk:
+
+EXTERNS.H:
+  Change the default state of negative indices to FALSE.
+  Change <#ifdef RESDEBUG> to <#if RESDEBUG> as the value is always defined to 0 or 1.
+
+PO_DIJOT.C:
+  Update copyright year.
+  Localize []FEATURE in magic functions that use negative indices.

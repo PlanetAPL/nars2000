@@ -1,0 +1,9 @@
+Build #371 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECDFN.C:
+EXECFNS.C:
+  Clear ptr type bits in <ExecDfnGlb_EM_YY>/<ExecFcnGlb_EM_YY> instead
+    of by the caller.

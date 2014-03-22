@@ -1,0 +1,9 @@
+Build #721 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  Catch Overflow When Calculating Array Size
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CalcArraySize>, test for overflow and return MAX_APLINT if so.

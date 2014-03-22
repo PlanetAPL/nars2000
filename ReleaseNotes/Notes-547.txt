@@ -1,0 +1,14 @@
+Build #547 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Double-clicking on a name spelt with an underbar fails
+
+Directory trunk:
+
+EDITFCN.C:
+  In <IzitNameChar>, the individual tests for a valid char in a name
+    missed underbar, so instead of just addding that, the new version
+    uses the existing function <IsValid2ndCharInName> (which includes
+    <IsValid1stCharInName>).  This means that double-clicking on a
+    name that includes an underbar, now displays the function (if any)
+    of that name.

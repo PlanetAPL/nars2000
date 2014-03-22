@@ -1,0 +1,30 @@
+Build #734 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  0 {log} 0 Should Be 1 Not DOMAIN ERROR
+
+Directory trunk:
+
+EXTERNS.H:
+  Change the default value in []IC for 0 {log} 0 from DOMAIN ERROR to 1.
+
+INIFILE.C:
+  Define a new section for Migration issues.
+  Define a new keyname for []IC and 0 {log} 0.
+  Define a new struct for Migration issues.
+  In <ReadIniFileGlb> after reading in the CWS value for []IC, read in
+    the []IC 0 {log} 0 migration level.  If it hasn't been set as yet,
+    change the just read in value to the new default value and increment
+    the old migration level so we don't do this again.
+  In <SaveIniFile>, write out the new Migration Level values.
+
+PF_CSTAR.C:
+  Define a 2 by 2 table of []IC indices for the Boolean vs. Boolean cases.
+  In <PrimFnDydCircleStarFisIvI>, use the above table instead of a
+    SWITCH stmt.
+  In <PrimFnDydCircleStarFisIvI>, check for the L = R case, and return
+    the value 1 as the EAS says to do.
+  In <PrimFnDydCircleStarFisIvI>, check the result for +/- Infinity.
+  In <PrimFnDydCircleStarFisFvF>, move the 2 by 2 table to global.
+  In <PrimFnDydCircleStarFisFvF>, check for the L = R case, and return
+    the value 1 as the EAS says to do.

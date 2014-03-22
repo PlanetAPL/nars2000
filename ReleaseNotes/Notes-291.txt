@@ -1,0 +1,43 @@
+Build #291 -- Version 0.0.0.18585
+---------------------------------
+
+Directory trunk:
+
+APLERRORS.H:
+  Define error messages for )IN and )OUT when handling files.
+
+COMPRO.H:
+  Include new modules SC_IN.C and SC_OUT.C.
+
+EDITFCN.C:
+  Fix bug where a function can't be edited unless it has a value.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Include new modules SC_IN.C and SC_OUT.C.
+
+PF_COLONBAR.C:
+  If the result of integer division fits in an integer,
+    return it.  This is done by declaring the IisIvI routine,
+    returning ARRAY_INT for integer arguments, defining the
+    IisIvI routine which does an integer divide and then tests
+    for integrality by multiplying back.  If it isn't integeral,
+    blow up to FLOAT.
+
+PRIMSPEC.C:
+  Improve comments.
+  Fix bug:  When we blow up, be sure to change the array storage type in
+    the global memory object header.
+
+SC_IN.C:
+  This is just a start.
+
+SC_LOAD.C:
+  Fix bug:  Factor out common flag settings and set .ObjName correctly
+    on system variables.
+
+SC_OUT.C:
+  This is just a start.
+
+SYSCMDS.C:
+  Include new system commands )IN and )OUT.

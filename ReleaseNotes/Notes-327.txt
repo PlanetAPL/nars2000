@@ -1,0 +1,49 @@
+Build #327 -- Version 0.0.0.22029
+---------------------------------
+
+Directory trunk\Extensions\aplchars:
+
+MAKEFILE:
+  Use specific reference to file in <defaults\preferences>
+    rather than <*.*> to avoid having to exclude the <tests> dir.
+
+UPD.INP:
+  Delete leading <chrome\> as we're already in that dir.
+
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Check and grey out the New Tab On Clear/Load checkboxes
+    until I can get them to work.
+
+DISPDBG.C:
+  Delete TKT_COMMENT and renumber other tokens.
+
+EXECDFN.C:
+  Test for and skip over empty function lines.
+
+FH_PARSE.H:
+  Define bit flags for empty function lines.
+
+FH_PARSE.Y:
+  Delete COMMENT and TKT_COMMENT as they are no longer used.
+
+MACROS.H:
+  Define macro <TokenBaseToStart> in terms of macro <ByteAddr>.
+
+PF_IOTA.C:
+  Fix Bug:  Limit setting permutation vector bit for {iota}R to R > 0.
+
+PL_PARSE.Y:
+PRIMFNS.C:
+STRAND.C:
+TOKENIZE.C:
+  Delete TKT_COMMENT as it's no longer used.
+
+SAVEFCN.C:
+  Check for empty line after call to <Tokenize_EM>.
+  Define new routine to check to see if a tokenized line is empty.
+
+TOKENS.H:
+  Delete TKT_COMMENT and renumber other tokens.

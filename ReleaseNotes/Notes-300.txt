@@ -1,0 +1,50 @@
+Build #300 -- Version 0.0.0.19263
+---------------------------------
+
+Directory trunk:
+
+IMMEXEC.C:
+  Fix bug:  For <ImmexecStmt> and <ImmExecStmtInThread>, pass length of string
+    to execute in case the string has an embedded zero.
+  Fix bug:  In <ImmExecStmtInThread>, pass actual string length instead of <lstrlenW>
+    value in case the string has an embedded zero.
+
+PARSE.Y:
+  Fix bug:  For <ImmexecStmt> and <ImmExecStmtInThread>, pass length of string
+    to execute in case the string has an embedded zero.
+
+PERTAB.H:
+  Fix bug:  Define substitution char for empty []PR.
+
+QF_TF.C:
+  Fix bug:  For <TransferInverseArr2>, pass length of string to parse in case it has an
+    embedded zero.
+
+SC_IN.C:
+  Fix bug:  For <TransferInverseArr2>, pass length of string to parse in case it has an
+    embedded zero.
+  Fix bug:  For <ImmexecStmt> and <ImmExecStmtInThread>, pass length of string
+    to execute in case the string has an embedded zero.
+  Fix bug:  Do not remove trailing blanks in <CmdInCopyAndTranslate_EM> so as to allow
+    trailing blanks in a Type 1 entry.
+
+SC_LOAD.C:
+  Fix bug:  For <ImmexecStmt> and <ImmExecStmtInThread>, pass length of string
+    to execute in case the string has an embedded zero.
+
+SESSMAN.C:
+  Fix bug:  Use substitution char for []PR in case it's empty.
+  Fix bug:  For <ImmexecStmt> and <ImmExecStmtInThread>, pass length of string
+    to execute in case the string has an embedded zero.
+
+SYSVARS.C:
+TABCTRL.C:
+  Fix bug:  Use substitution char for []PR in case it's empty.
+
+THREADS.H:
+  Fix bug:  For <ImmexecStmt> and <ImmExecStmtInThread>, pass length of string
+    to execute in case the string has an embedded zero.
+
+TOKENIZE.C:
+  Widen length of string to tokenize to handle incoming APLNELM.
+  In <CharTrans>, treat incoming zero as <COL_UNK> to allow embedded zeros.

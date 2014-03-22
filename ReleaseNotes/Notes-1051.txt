@@ -1,0 +1,17 @@
+Build #1051 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In # Primes <= N
+
+Directory trunk:
+
+PF_PI.C:
+  In <NumPrimes>, factor out the check for argument not a prime.
+  In <NumPrimes>, when searching forwards, break on test for equality.
+  In <NumPrimes>, at end add one to the result to account for the fact that the
+    <NthPrimeTab> is in origin-0.
+  In <PrimFnPiNumPrimes>, use <signum> on the result of <mpz_cmp> as it doesn't
+    always return one of -1, 0, 1.
+
+PRIMES.H:
+  Revert back to the correct origin-0 values of the primes.  Duh!

@@ -1,0 +1,9 @@
+Build #757 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  )ERASE May Incorrectly Mark Names As Not Erased
+
+Directory trunk:
+
+SC_ERASE.C:
+  Fix Bug:  )ERASE may incorrectly mark names as not erased.

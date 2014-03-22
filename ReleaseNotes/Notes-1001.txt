@@ -1,0 +1,9 @@
+Build #1001 -- Version 0.3.8.xx
+------------------------------
+
+* Bug Fix For When Calling Replicate From Reduction
+
+Directory trunk:
+
+PO_SLASH.C:
+  Bug fix for when calling replicate from reduction.

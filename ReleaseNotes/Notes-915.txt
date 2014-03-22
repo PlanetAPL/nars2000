@@ -1,0 +1,9 @@
+Build #915 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  +/'ab' Crashes
+
+Directory trunk:
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY> at the end, handle an error result.

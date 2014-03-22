@@ -1,0 +1,9 @@
+Build #663 -- Version 0.0.2.14
+------------------------------
+
+* Allow :SWITCH As An Alias of :SELECT
+
+Directory trunk:
+
+TOKENIZE.C:
+  Allow :SWITCH as an alias of :SELECT.

@@ -1,0 +1,35 @@
+Build #1018 -- Version 0.3.8.xx
+-------------------------------
+
+* Define New Syntax Class For Point Notation Separators (beEprvx)
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  Include Reset Vars for []FPC.
+  Fix Bug:  Define action for click on []FEATURE radio button in Reset Vars.
+
+EXTERNS.H:
+  Define new syntax class for point notation separators (beEprvx).
+  Fix Bug:  Include additional entries for features omitted in <gSyntClrBGTrans>.
+
+INIFILE.C:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).
+
+MAIN.RC:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).
+  Length groupboxes in Syntax Coloring tab to accommodate new syntax class.
+
+RESOURCE.H:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).
+
+SYNTAXCOLORS.H:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).
+
+TOKENIZE.C:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).

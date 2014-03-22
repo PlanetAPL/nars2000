@@ -1,0 +1,268 @@
+Version 0.0.2.22 consists of the following Builds:
+
+
+Build #803 -- Version 0.0.2.22
+------------------------------
+
+* Fix Bug:  Indexed Assignment to Immediate Var Fails
+
+Directory trunk:
+
+PF_INDEX.C:
+  Fix Bug:  In <ArrayIndexSetNamImmed_EM>, a local var was not properly
+    initialized before it was referenced.
+
+
+Build #802 -- Version 0.0.2.22
+------------------------------
+
+* Implement Multiset Functions And Operator
+
+Directory trunk:
+
+COMPRO.H:
+  Update copyright year.
+  Include prototypes for new files.
+
+CUSTOMIZE.C:
+  Include Multiset symbol in APL chart.
+
+ENUMS.H:
+  Move <ERROR_CODES>, <LINE_NUMS>, and <FLTDISPFMT> from <externs.h>.
+  Define starting line number type for []MS.
+
+EXECDFN.C:
+  Update copyright year.
+  In <ExecDfnOprGlb_EM_YY>, handle line number for []MS label.
+
+EXECFNS.C:
+  Define action for Multiset primitive operator.
+
+EXECMFN.C:
+  Update copyright year.
+  Initialize the various multiset magic functions.
+
+EXECMFN.H:
+  Update copyright year.
+  Define entries for the various multiset magic functions.
+  Define equates for more APL primitives in magic functions.
+
+EXTERNS.H:
+  Move <ERROR_CODES>, <LINE_NUMS>, and <FLTDISPFMT> to <enums.h>.
+
+FH_PARSE.H:
+  Update copyright year.
+  Make room for []MS line #.
+
+GETFNS.C:
+  Update copyright year.
+  Define function to Set []CT.
+
+GRADE.H:
+  Update copyright year.
+  Define <PDIE> struct in common header so it can be used in .pro files.
+  Define <LPMEOCOM> and <LPMIOCOM> typedefs so it can be used in
+    .pro files.
+
+INITDATA.C:
+  Remove fill in for <PrimFnUpShoe_EM_YY> as it's now active.
+  Remove initialization code for operators as they aren't indexed that way
+    and can take up a slot we need for a function.
+  Define action for Multiset primitive functions and operator.
+
+KEYBOARDS.H:
+  Remove Alt-'X', -'Z' and -'m' from available keystrokes as they are now in use.
+  Define symbol locations for Multiset functions and operator.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define entries for new files for Multiset functions and operator.
+
+PF_DSHOE.C:
+  Define identity function for DownShoe.
+  Use BIT0 instead of 1 for left shifts.
+  Define magic function for non-multiset Union.
+
+PF_LSHOEUND.C:
+PF_RSHOEUND.C:
+  New file to implement Subset and Superset functions.
+
+PF_SECTION.C:
+  New file to implement Section function (Multiset Symmetric Difference).
+
+PF_USHOE.C:
+  New file to implement UpShoe function (Intersection).
+
+PO_MULTISET.C:
+  New file to implement multiset operator.
+
+REBAR.C:
+  Document Multiset functions and operator.
+
+SAVEFCN.C:
+  Update copyright year.
+  In <GetSpecialLablelNums>, check for []MS.
+
+STARTADDR.H:
+  Include references for more functions for crash analysis.
+
+SYMBOLNAMES.H:
+  Update copyright year.
+  Define entries for Multiset functions and operator.
+
+TOKENIZE.C:
+  Define lexical value for Multiset function and operator symbols.
+
+UNICODE.H:
+  Define Unicode value for Section and Multiset symbols.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document Multiset operator.
+
+
+Directory trunk\Extensions\aplchars\chrome\content:
+
+EDITOVERLAY.JS:
+  Indicate place for Multiset function and operator symbols on the keyboard.
+
+
+Build #801 -- Version 0.0.2.22
+------------------------------
+
+* Implement All2s Array Predicate
+
+Directory trunk:
+
+DATATYPE.H:
+  Update copyright year.
+  Define All2s array property bit.
+
+MACROS.H:
+  Improve comments.
+  Define macro for detecting All2s arrays
+
+PF_DTACK.C:
+  Update copyright year.
+  Make Representation sensitive to All2s arrays and return Boolean.
+
+PF_RHO.C:
+  Set All2s bit if APA result of a singleton two.
+
+PRIMFNS.C:
+  In <CopyArray_EM>, clear all array properties.
+
+QF_DR.C:
+  Update copyright year.
+  Display All2s property if present.
+
+SC_LOAD.C:
+  Update copyright year.
+  In <LoadWorkspaceGlobal_EM>, clear all array properties.
+  In <LoadWorkspaceGlobal_EM>, check for All2s array property.
+
+SC_SAVE.C:
+  In <AppendArrayHeader>, check for All2s array property.
+
+TOKENIZE.C:
+  In <MergeNumbers>, check for All2s array.
+
+WORKSPACE.H:
+  Define All2s text string for saved workspace.
+
+
+Build #800 -- Version 0.0.2.22
+------------------------------
+
+* Fix Bug:  Reach Indexing Of ({enclose},2)[{enclose}{zilde} 1] Fails
+
+Directory trunk:
+
+PF_INDEX.C:
+  Update copyright year.
+  Call <ArrayIndexRefNamImmed_EM_YY> only if the name arg is an immediate.
+  In <ArrayIndexValidZilde_EM>, loop through the list arg items as well as
+    their contents.
+  Call <ArrayIndexSetNamImmed_EM> only if the name arg is an immediate.
+
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Include new names.
+
+
+Build #799 -- Version 0.0.2.22
+------------------------------
+
+* Include New Keystrokes
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+EDITOROVERLAY.JS:
+  Include new keystrokes.
+
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Include new keystrokes.
+
+
+Build #798 -- Version 0.0.2.22
+------------------------------
+
+* Include Changes Section
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+INDEX-LEFT.HTML:
+  Include "Changes" section for those who want to be notified
+    of changes.
+
+FOOTER.HTML:
+  Update copyright year.
+
+FOOTER-MON.HTML:
+  New file including <footer.html> as well as adding a monitor
+    section.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP
+DOWNLOAD-LEFT.HTML
+  Include "Changes" section for those who want to be notified
+    of changes.
+
+
+Build #797 -- Version 0.0.2.22
+------------------------------
+
+* Use Compose And Composition Consistently
+
+Directory trunk:
+
+EXECFNS.C:
+INITDATA.C:
+PO_DICIRCLE.C:
+PO_JOT.C:
+REBAR.C:
+TOKENIZE.C:
+UNICODE.H:
+  Update copyright year.
+  Use compose and composition consistently
+
+VERSION.RC:
+  Increment version to 0.0.2.22.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Use compose and composition consistently

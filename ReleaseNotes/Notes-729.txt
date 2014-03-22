@@ -1,0 +1,10 @@
+Build #729 -- Version 0.0.2.18
+------------------------------
+
+* Extend PV Bits To Indexed Reference Between PVs
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRefLstSimpGlb_EM_YY>, transfer PV bits from the
+    name arg to the result if a suitable PV index references another PV.

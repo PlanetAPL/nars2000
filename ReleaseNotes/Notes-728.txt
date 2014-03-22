@@ -1,0 +1,40 @@
+Build #728 -- Version 0.0.2.18
+------------------------------
+
+* Implement Compose Operator
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file.
+
+EXECFNS.C:
+  Call Comnpose operator when invoked.
+
+INITDATA.C:
+  Delete unneeded comoments.
+  Define <PrimFnsTab> and <PrimProtoFnsTab> entries for Compose operator.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include makefile entries for the new file.
+
+PO_DICIRCLE.C:
+  Implement Compose operator.
+
+REBAR.C:
+  Document Compose operator.
+
+TOKENIZE.C:
+  Define FSA column for Compose operator.
+
+UNICODE.H:
+  Improve comments.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.HTML:
+  Document Compose operator.

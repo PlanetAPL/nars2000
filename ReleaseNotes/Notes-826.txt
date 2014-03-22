@@ -1,0 +1,14 @@
+Build #826 -- Version 0.0.2.23
+------------------------------
+
+* Optimize Multiset Match And Mismatch
+
+Directory trunk:
+
+GRADE.H:
+  Define typedef for different Multiset Match/Mismatch common routines.
+
+PO_MULTISET.C:
+  Optimize Multiset Match/Mismatch by splitting out the common simple
+    array cases into separate routines.
+  Improve comments.

@@ -1,0 +1,54 @@
+Build #320 -- Version 0.0.0.21881
+---------------------------------
+
+Directory trunk:
+
+CHKESP.C:
+  Fix error in comment.
+
+COMPRO.H:
+  Include <perfmon.pro>.
+
+DEBUG.C:
+  Improve comments.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+
+DEFINES.H:
+  Define class equates for PerfMon.
+
+EDITFCN.C:
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  Insert Performance Monitoring checkpoints.
+
+EXTERNS.H:
+  Define strings for Performance Monitoring.
+
+MAIN.C:
+  Define variables for Performance Monitoring.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  Register class for Performance Monitoring window.
+  Insert Performance Monitoring checkpoints.
+
+MAIN.H:
+  Define # extra bytes in Performance Monitoring class.
+
+MAIN.RC:
+  Define icons for Performance Monitoring window.
+
+MAKEFILE.INC:
+  Define target for RAM Disk.
+  Insert references to build <perfmon.*>.
+
+MAKEFILE.W32:
+  Define RAM Disk drive letter.
+
+PERFMON.C:
+PERFMON.H:
+  Define routines and header for Performance Monitoring.
+
+RESOURCE.H:
+  Define equates for Performance Monitoring.
+
+SESSMAN.C:
+  Insert Performance Monitoring checkpoints.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.

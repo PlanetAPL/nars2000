@@ -1,0 +1,40 @@
+Release #273 -- Version 0.0.0.17548
+-----------------------------------
+
+Directory trunk:
+
+DATATYPE.H:
+  Define maximum & minimum numbers as well as strings.
+
+DISPLAY.C:
+  Fix bug in display of smallest negative integer.  We used to test
+    for negative and if so, store the overbar, negate the number and
+    then display the (supposedly) positive number.  This fails for
+    MIN_APLINT because you can't negate it in the integer domain (it
+    blows up to FP -- in other words, there is one more negative
+    number than there are positive numbers, thus one number can't be
+    negated and this one is it).  Now, we test for that number and
+    string copy the answer to the result.
+
+PF_BAR.C:
+  In Int64{is}-Int64, check for integer overflow (see above discussion).
+  In Int64{is}Int64-Int64, check for integer overflow by using common 64-bit
+    subtraction routine.
+  In Float{is}Int64-Int64, convert both args to float rather than
+    subtract them as Int64 in case of integer overflow.
+
+PF_PLUS.C:
+  In Int64{is}Int64+Int64, check for integer overflow by using common 64-bit
+    addition routine.
+  In Float{is}Int64+Int64, convert both args to float rather than
+    add them as Int64 in case of integer overflow.
+
+PRIMFNS.C:
+  In <iadd64>, simplify check for overflow as the FPU does everything we need.
+  Define <isub64> as counterpart to <iadd64>.
+  In <imul64>, simplify check for overflow as the FPU does everything we need.
+
+QF_DR.C:
+  In <SysFnDydDR_EM_YY>, handle (simple) scalar result by returning an immediate.
+  In <SysFnDR_CharToIntFloat_EM>, handle (simple) scalar result by telling the
+    caller about it and let them deal with it.

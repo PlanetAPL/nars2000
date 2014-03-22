@@ -1,0 +1,12 @@
+Build #1147 -- Version 0.4.2.xx
+-------------------------------
+
+* Fix Bug In )LIB Command
+
+Directory trunk:
+
+SC_COMMON.C:
+  In <MakeWorkspaceNameCanonical>, allow the default dir to be NULL.
+
+SC_LIB.C:
+  Fix bug in <CmdLibCom> when using a directory that has a drive letter or starts in the root.

@@ -1,0 +1,12 @@
+Build #521 -- Version 0.0.2.3
+----------------------------
+
+* Fix Bug:  Integer overflow for {times} reduction not handled correctly
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix Bug:  When calculating reduction on a primitive scalar dyadic
+    function on a simple array, if the result overflows from integer
+    to float along the way the storage type of the result and the
+    temporary right arg are not changed.

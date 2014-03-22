@@ -1,0 +1,10 @@
+Build #907 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Indexing of ((1 2x)1)[2] Fails
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRefLstImm_EM_YY>, handle the case where the indexed item
+    is an immediate.

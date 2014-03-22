@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://aplchars/content/aplfonts.css" type="text/css"?>
+
+<!DOCTYPE overlay [
+<!ENTITY % aplcharsDTD SYSTEM "chrome://aplchars/locale/aplfonts.dtd" >
+%aplcharsDTD;
+<!ENTITY % aplextsDTD  SYSTEM "chrome://aplchars/content/extensions.dtd" >
+%aplextsDTD;
+]>
+
+<overlay id="aplfontsOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <!-- This imports the debugging javascript for this module -->
+    <script type="application/x-javascript"
+            src="chrome://aplchars/content/mydump.js" />
+
+    <script type="application/x-javascript">
+        // Define globals with the names of extension preferences
+        //   because we can't reference the names directly within
+        //   the Javascript file (mainWindow.js).
+    var gAplFontsLabelON           = "&aplfonts.labelON;";
+    var gAplFontsLabelOFF          = "&aplfonts.labelOFF;";
+    var gAplFontsTipON             = "&aplfonts.tipON;";
+    var gAplFontsTipOFF            = "&aplfonts.tipOFF;";
+
+    var gAplCharsRoot              = "&aplchars.root;";
+    var gAplCharsCustomize         = "&aplchars.customize;";
+    var gAplCharsFontsEnabled      = "&aplchars.fontsenabled;";
+    var gAplCharsFontNameRoot      = "&aplchars.fontnameroot;";
+    var gAplCharsFontNameType      = "&aplchars.fontnametype;";
+    var gAplCharsAplFontFamilyId   = "&aplchars.aplfontfamilyid;";
+    var gAplCharsAplFontFamilyName = "&aplchars.aplfontfamilyname;";
+    var gAplCharsOldFontFamilyName = "&aplchars.oldfontfamilyname;";
+    </script>
+
+    <!-- This imports the corresponding javascript for this module -->
+    <script type="application/x-javascript"
+            src="chrome://aplchars/content/mainWindow.js" />
+
+    <!-- This defines the two sizes of buttons. -->
+    <toolbarpalette id="MailToolbarPalette">
+        <toolbarbutton class="toolbarbutton-1"
+                       id="APLFontsNormal"
+                       label="&aplfonts.labelON;"
+                       tooltiptext="&aplfonts.tipON;"
+                       onmouseover="onFocusAPL (true);"
+                       onmouseout="onFocusAPL (false);"
+                       oncommand="onClickAPL (true, true);" />
+        <toolbarbutton class="toolbarbutton-1"
+                       id="APLFontsLarge"
+                       label="&aplfonts.labelON;"
+                       tooltiptext="&aplfonts.tipON;"
+                       onmouseover="onFocusAPL (true);"
+                       onmouseout="onFocusAPL (false);"
+                       oncommand="onClickAPL (true, true);" />
+    </toolbarpalette>
+</overlay>

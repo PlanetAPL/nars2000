@@ -1,0 +1,33 @@
+Build #323 -- Version 0.0.0.21985
+---------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  Fix Bug:  Handle case of <(a){is}10 20> which should assign the whole
+    expression to <a>.
+
+MAKEFILE.INC:
+  Ensure the bundled font gets copied to the target directory.
+
+PF_INDEX.C:
+  In <ArrayIndexSetSingLst_EM>, include <TKT_VARIMMED> along with <TKT_LSTIMMED>
+    to accommodate Selective Assignment (whenever we get it right).
+
+PL_PARSE.Y:
+  Fix Bug:  In <SimpExpr:SelectSpec{is}ArrExpr>, the case of <(a b){is}ArrExpr> was
+    not handled correctly.  Also, the wrong model was used for Selective Specification
+    so it is now removed until I figure it out.
+
+PRIMFNS.C:
+  Fix Bug:  In <CopyGlbAsType_EM>, handle result type of nested for explosion
+    in index assignment of a simple array to a nested array.  In other words,
+    a{is}'abcd' {diamond} a[1]{is}{enclose}10 20 30
+    fails due to this bug.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Withdraw Selective Assignment as I used the wrong model.
+  Withdraw []AF as per IBM suggestion.

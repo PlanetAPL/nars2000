@@ -1,0 +1,12 @@
+Build #482 -- Version 0.0.1.18
+------------------------------
+
+* Fix Bug:  For {times}/{iota}N, the incorrect calculation of the
+    result storage type crashes the system.
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix Bug:  When calculating the storage type of {times} reduction
+    on an APA, the storage type of the result is APA rather than
+    integer because of a missing NELM.

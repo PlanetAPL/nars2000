@@ -1,0 +1,33 @@
+Build #611 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Handle UDFO Via Operator or Train With No Value.
+
+Directory trunk:
+
+DATATYPE.H:
+  Include ptr to UDFO in VFO Header ptrs union as we need to skip
+    a Ref Cnt Incr for that object.
+
+EXECDFN.C:
+EXECFNS.C:
+PO_DIERESIS.C:
+PO_DOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+  Fix Bug:  When executing a UDFO via an operator or Train, test to
+    see if the UDFO does not return a result and signal a VALUE ERROR.
+
+FH_PARSE.H:
+  Define new flag in <DFN_HEADER>.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle the <TKT_FCNNAMED> case.
+  Improve comments.
+
+PRIMFNS.C:
+  Define new routine <IsTknTypeVar> for use in <Set/ClrVFOArraySRCIFlag>.
+  In <Set/ClrVFOArraySRCIFlag>, handle UDFOs.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, handle <SkipRefCntIncr> for UDFOs.

@@ -1,0 +1,11 @@
+Build #901 -- Version 0.0.3.3
+-----------------------------
+
+* Fix Bug:  When Matching Scalar Global Numeric And Simple Numeric Scalar
+
+Directory trunk:
+
+PF_EQUALUND.C:
+  Fix Bug:  When matching a scalar global numeric and a simple numeric scalar
+    or another global numeric scalar, note that we've already moved both of the
+    left and right global memory ptrs to point to the data.

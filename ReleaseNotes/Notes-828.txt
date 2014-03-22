@@ -1,0 +1,9 @@
+Build #828 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Memory Leak When Sizing Tokenized Lines
+
+Directory trunk:
+
+SAVEFCN.C:
+  Fix Bug:  Memory leak when sizing tokenized lines.

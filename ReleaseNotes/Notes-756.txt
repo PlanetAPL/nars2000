@@ -1,0 +1,27 @@
+Build #756 -- Version 0.0.2.18
+------------------------------
+
+* Include Semaphores In Resource Debugging
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayGlobals>, also display open semaphores.
+
+EXECDFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+QF_DL.C:
+SC_RESET.C:
+SESSMAN.C:
+TABCTRL.C:
+  Prefix semaphore APIs with "My" so as to be subject to
+    <resdebug.h> substitutions.
+
+RESDEBUG.C:
+  Define storage for Semaphore information.
+  Define routines for semaphore APIs.
+
+RESDEBUG.H:
+  Define substitutions for local semaphore routines.

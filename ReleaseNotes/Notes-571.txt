@@ -1,0 +1,12 @@
+Build #571 -- Version 0.0.2.4
+-----------------------------
+
+* Allow Unit Inner Dimensions In Inner Product To Extend
+
+Directory trunk:
+
+PO_DOT.C:
+  Allow unit inner dimensions of Inner Product to extend to be
+    conformable with any length inner dimension on the other
+    side.  Only the test for LENGTH ERROR is affected, not
+    the rest of the code.

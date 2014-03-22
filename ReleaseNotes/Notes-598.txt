@@ -1,0 +1,19 @@
+Build #598 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Define New Terminal To Handle N-wise Reduction With Ambiguous Operator
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Define <AmbOpX> to include <AmbOp> and <AmbOpAxis> and
+    use that throughtout.
+  After <MakePrimXXX>, delete <FreeResult> as there's no
+    increment to <RefCnt> in the Make function.
+  Define new rule to handle N-wise reduction of an <AmbOp>.
+  In terminal <AmbOp:>, remove <AmbOpAxis> as that's now part
+    of <AmbOpX>.
+  In terminal <AmbOpAxis: AmbOp[ArrExpr]>, don't call
+    <MakePrimOp3> as that has already been done in <AmbOp>.
+  Define new terminal <AmbOpX:> to include <AmbOp> and
+    <AmbOpAxis>.

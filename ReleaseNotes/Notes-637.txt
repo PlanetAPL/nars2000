@@ -1,0 +1,14 @@
+Build #637 -- Version 0.0.2.9
+-----------------------------
+
+* Fix Bug When Forwarding Function Key Messages
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  When in the Function Editor's Edit Ctrl, send function
+    key messages to the Session Manager via the PTD struc, not
+    hWndParent (which is the Function Editor as we're in the Edit Ctrl).
+
+SESSMAN.C:
+  Fix typo in comment.

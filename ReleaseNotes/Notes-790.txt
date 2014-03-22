@@ -1,0 +1,15 @@
+Build #790 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Don't Save []DM To .ATF File
+
+Directory trunk:
+
+SC_IN.C:
+  Update copyright year.
+  Fix Bug:  Skip over []DM if found in a .atf file (should never
+    have been allowed).
+
+SC_OUT.C:
+  Update copyright year.
+  Fix Bug:  Don't save []DM to a .atf file.

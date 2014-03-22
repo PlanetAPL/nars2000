@@ -1,0 +1,10 @@
+Build #1193 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Limitation In Monadic Format
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  In <PrimFnMonDownTackJot_EM_YY>, handle <LIMIT ERROR> in <lpMemPTD->lpwszFormat> by allocating global memory space
+    and restarting, instead of failing.

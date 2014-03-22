@@ -1,0 +1,18 @@
+Build #1133 -- Version 0.4.0.xx
+-------------------------------
+
+* Split Out Syntax Coloring From Tokenization
+
+Directory trunk:
+
+EDITFCN.C:
+  Use separate FSA routines for Syntax Coloring.
+  Delete CSO re-entrant guard as Syntax Coloring no longer conflicts with Tokenization.
+
+TOKENIZE.C:
+  Define new Syntax Coloring functions in the FSA.
+  Move Syntax Coloring code to separate functions.
+
+TOKENIZE.H:
+  Update copyright year.
+  Define new Syntax Coloring functions in the FSA.

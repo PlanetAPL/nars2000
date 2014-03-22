@@ -1,0 +1,11 @@
+Build #905 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Syntax Coloring Of Local Vs. Global System Vars Wrong
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <IsLocalName>, before checking the given name against the function
+    header, ensure that the parent of the Edit Ctrl window is a Function
+    Editor window.

@@ -1,0 +1,38 @@
+Build #341 -- Version 0.0.1.0
+-----------------------------
+
+Directory trunk:
+
+MAIN.C:
+  Set default cursor to I-beam (as per an Edit Ctrl)
+    instead of Arrow.
+
+NARS2000.VCPROJ:
+  Set subsystem to Windows.
+  Set DEP to TRUE.
+  Set optimization ON for Release.
+  Favor size over speed for Release.
+  Append include dir <U:\include> for <editctrl.c> so it can
+    pick up <windowsx.h>.
+
+QF_SYSVER.C:
+  Use <FILETIME> instead of reading the .exe file header as the
+    former is not dependent on the file format and thus is portable
+    to Win64.
+  Delete <ConvTimeW> as it's no longer needed.
+
+
+Directory trunk\htdocs:
+
+FOOTER.HTML:
+  Insert script to track page views via Google Analaytics.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Use secondary file to download files so we may
+    track it via Google Analytics.
+
+LOADFILE.PHP:
+  New file use to track downloads via Google Analytics.

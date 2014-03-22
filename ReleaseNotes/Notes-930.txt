@@ -1,0 +1,10 @@
+Build #930 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Printing A Selection Not All On Current Page Prints Current Page Only
+
+Directory trunk:
+
+EDITCTRL.C:
+  Printing a selection not all of which fits on the current page
+    prints the selection on the current page only.

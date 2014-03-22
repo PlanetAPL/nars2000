@@ -1,0 +1,9 @@
+Build #1087 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug:  Certain Routines May Fail If Called With Immediate Token
+
+Directory trunk:
+
+GETFNS.C:
+  Fix Bug:  In <GetNextIntegerToken> and <GetNextFloatToken>, handle immediate token input.

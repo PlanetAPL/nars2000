@@ -1,0 +1,7 @@
+Build #276 -- Version 0.0.0.17718
+---------------------------------
+
+Directory trunk:
+
+MAIN.C:
+  Remove <DbgBrk> from Update DlgProc.

@@ -1,0 +1,19 @@
+Build #979 -- Version 0.3.7.xx
+------------------------------
+
+* Fix Bug On WinXP With Workspace, Edit, and Objects Toolbars
+
+Directory trunk:
+
+DEFINES.H:
+  Define local Windows message akin to WM_MOUSELEAVE.
+
+REBAR.C:
+  Use local MYWM_MOUSELEAVE message so we don't confuse the toolbar
+    as to whether the mouse has left the window.
+  Remove calls to <SetCapture> and <ReleaseCapture> as WinXP doesn't
+    handle them well.
+
+WCOM.BAT:
+  Include the parent <qdebug> directory in the PATH so we can pick
+    up QDEBUG32.DLL.

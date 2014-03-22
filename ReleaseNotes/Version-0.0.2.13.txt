@@ -1,0 +1,104 @@
+Version 0.0.2.13 consists of the following Builds:
+
+
+Build #659 -- Version 0.0.2.13
+------------------------------
+
+* Redo Keyboard Mapping To Reflect The New Order Of Keystrokes
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+ABOUT.XUL:
+  Change version #.
+
+EDITOROVERLAY.JS:
+  Redo the keyboard mapping table to reflect the new order
+    of keystrokes.
+
+
+Directory trunk\Extensions\aplchars:
+
+INSTALL.RDF:
+UPDATE.RDF:
+  Change version #.
+
+
+Build #658 -- Version 0.0.2.13
+------------------------------
+
+* Change The Names Of System Labels
+
+Directory trunk:
+
+EXECDFN.C:
+  Change the names of System Labels.
+
+EXECMFN.C:
+  Change the names of System Labels.
+
+EXECMFN.H:
+  Update copyright year.
+  Improve comments.
+  Change the names of System Labels.
+
+EXTERNS.H:
+  Improve comments.
+  Change the names of System Labels.
+
+FH_PARSE.H:
+  Make room for two System Labels on one line.
+  Change the names of System Labels.
+
+PO_DIJOT.C:
+PO_DOT.C:
+PO_SLASH.C:
+  Change the names of System Labels.
+
+SAVEFCN.C:
+  Change the names of System Labels.
+  Use equates for the names of System Labels.
+
+FMTSPEC.H:
+SYNTAXCOLORS.H:
+  Update copyright year.
+  Improve comments.
+
+SYSVARS.C:
+  Use equates for the names of System Labels.
+
+SYSVARS.H:
+  Improve comments.
+  Define equates for the names of System Labels.
+
+TOKENIZE.C:
+  Improve comments.
+
+
+Build #657 -- Version 0.0.2.13
+------------------------------
+
+* Fix Bug:  Comparison Of Version Numbers In Update Check Is Wrong
+
+Directory trunk:
+
+MAIN.C:
+  Instead of comparing the version #s as strings (which fails for
+    x.x.x.8 vs. x.x.x.12), split out the separate numbers, then
+    combine them each into a single number and compare those two
+    numbers.
+
+
+Build #656 -- Version 0.0.2.13
+------------------------------
+
+* Fix Bug:  MemberOf with APA Right Arg Returns Wrong Result
+
+Directory trunk:
+
+PF_EPSILON.C:
+  Fix Bug:  In <PrimFnDydEpsilonNvA_EM> (that is dyadic epsilon Numeric v.
+    APA), a wayward not sign slipped into the code causing it to return an
+    incorrect result.
+
+VERSION.RC:
+  Increment version to 0.0.2.13.

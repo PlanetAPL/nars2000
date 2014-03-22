@@ -1,0 +1,333 @@
+Directory htdocs\download:
+
+INDEX.PHP:
+  Omit hyperlink in menu for current page.
+  Add forums as hyperlink to menu.
+
+Directory htdocs\styles:
+
+COMMON.CSS:
+  Use reverse video for menu item for thecurrent page.
+
+Directory htdocs:
+
+CONTRIBUTORS.AHTML:
+  Omit hyperlink in menu for current page.
+  Add forums as hyperlink to menu.
+
+INDEX.AHTML:
+  Omit hyperlink in menu for current page.
+  Add forums as hyperlink to menu.
+  Turn "Currently Implemented" into "Currently Unimplemented" as it's much smaller.
+  Omit reference to "Open Source".
+  Change symbol used for infinity.
+
+Directory MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Include entry for {infinity}.
+
+Directory trunk:
+
+ASSIGN.C:
+  Check for NoValue when assigning to a name as in a{is}{execute}''.
+
+AXISFNS.C:
+  In CheckAxisOper, test for TknCount instead of FcnCount as it's tokens we're referencing.
+  In CheckAxisOper, if no axis operator found at top level, check lpYYFcn level.
+
+COMPRO.H:
+  Include entries for two new modules.
+
+CONVERT.C:
+  Append parameter to _CompareCT to reflect whether or not we're doing a near-integer compare.
+  Split CompareCT into _CompareCT to use the latter as a callable subroutine.
+  Omit translation of symbol through TranslateFcnOprToChar as that should be done on
+    tkToken.tkData.tkChar only.
+  Include pound sig in list of symbols to convert into {name}s to avoid confusion in saved
+    workspaces which use that symbol specially.
+
+DATATYPE.H:
+  Move macros to <macros.h>.
+
+DFNHDR.Y:
+  To catch errors in a function header, we must abort in the Header:
+    BNF rather than HeaderComm: -- bison complains if we try to
+    propagate the error from the former to the latter.
+
+DISPDBG.C:
+  Use macro for rank and length testing.
+  Append new parameter to <CopySTEName> to return name length.
+  Improve comments.
+
+DISPLAY.C:
+  Use macro for rank and length testing.
+  Use separate defined symbol for infinity display & entry.
+
+DISPLAY.H:
+  Use separate defined symbol for infinity display & entry.
+
+EDITFCN.C:
+  In calls to <Tokenize_EM>, omit <hWndEC> if no error handler.
+  Reformat calls to <Tokenize_EM>.
+
+EXECMFN.C:
+  In calls to <Tokenize_EM>, omit <hWndEC> if no error handler.
+  Reformat calls to <Tokenize_EM>.
+
+EXTERNS.H:
+  Include symbol along with name
+  Change Alt-'f' from underbar to infinity symbol.
+  Reorder Non-Alt key equivalents and include pound symbol.
+
+GETFNS.C:
+  Define <SetQuadRL> function to set the current value of []RL.
+
+GOTO.C:
+  Use macro for rank and length testing.
+
+IMMEXEC.C:
+  Reformat calls to <Tokenize_EM>.
+
+MACROS.H:
+  Move macros to <macros.h>.
+
+MAIN.H:
+  Include "macros.h".
+  Move macros to <macros.h>.
+
+MAKEFILE:
+  Include entries for two new modules.
+
+PF_BAR.C:
+  Use macro for rank and length testing.
+
+PF_COMMA.C:
+  Fix bug in <table> where apllastAxis is calculated in wrong origin.
+  Use macro for rank and length testing.
+  Reformat & comment calls to <MakeSymEntry_EM>.
+
+PF_CSLOPE.C:
+  Use macro for rank and length testing.
+
+PF_CSTAR.C:
+  Check for ± infinity result with both args finite
+    (signal DOMAIN ERROR instead of infinite result).
+
+PF_CSTILE.C:
+  Use macro for rank and length testing.
+  Improve commenting.
+  Fix bug when rotating rank N+1 by rank N where N > 1.
+
+PF_DARROW.C:
+  Use macro for rank and length testing.
+  In <PrimFnDydDownArrow_EM_YY>, fix bug with ''{drop}5
+
+PF_DELTASTILE.C:
+  Use macro for rank and length testing.
+  Fix bug in grade up/down on arrays > 1 when first elements compare equally.
+
+PF_DOMINO.C:
+  Use macro for rank and length testing.
+
+PF_DTACK.C:
+  Use macro for rank and length testing.
+
+PF_DTACKJOT.C:
+  In dyadic format, allow single pair of numbers to apply across all cols.
+
+PF_EPSILON.C:
+  Reformat & comment calls to <MakeSymEntry_EM>.
+
+PF_EQUAL.C:
+  Move <CompareCT> to CONVERT.C.
+
+PF_EQUALUND.C:
+  Use macro for rank and length testing.
+  In <PrimFnDydEqualUnderbarSimple>, fix bug where wrong APA parameters applied
+    as in 1 1 1{match}3{rho}1
+  In <PrimFnDydEqualUnderbarSimple>, fix bug when comparing tweo APAs.
+
+PF_INDEX.C:
+  Reformat & comment calls to <MakeSymEntry_EM>.
+  In <ArrayIndexSetSingLst_EM>, fix bug with indexed assign into
+    sysvar -- don't promote to hetero if empty index,
+    e.g. []LX[{zilde}]{is}12.
+  Clear the type bits in hGlb result after call to <TypePromote_EM>.
+  In <ArrayIndexSetVector_EM>, save immediate type from call to
+    (*SysVarValid) as it's needed later.
+  In <ArrayIndexSetVector_EM>, fix bug where integer right arg not
+    promoted to float, e.g. a{is}1.1 2.2 {diamond} a[1 2]{is}3 4.
+  In <ArrayIndexSetVector_EM>, fix bug where simple right arg into hetero
+    value assigned instead of SymEntry, e.g. a{is}1 'a' {diamond} a[1 2]{is}3 4.
+
+PF_IOTA.C:
+  Use macro for rank and length testing.
+
+PF_QDOT.C:
+  Minor correction of INT to int.
+
+PF_QUERY.C:
+  Change IisF to FisF to handle ?1e30.
+  In <PrimSpecQueryStorageTypeMon>, float right arg returns float result.
+  In <PrimFnMonQueryIisI>, fix bug where roll function []RL not atomic --
+    use temp []RL saved in <PRIMSPEC> struct.
+  In <PrimFnMonQueryIisI>, fix bug where right arg is reduced mod
+    QUADRL_MODULUS -- fails for large integer right args.
+  In <PrimFnMonQueryFisF>, omit check DOMAIN ERROR against 2*53 -- fails
+    for large float right args.
+  In <PrimFnMonQueryFisF>, fix bug where right arg is reduced mod
+    QUADRL_MODULUS -- fails for large float right args.
+  In <PrimFnDydQuery_EM_YY>, fix bug where deal function not atomic --
+    use temp []RL saved in <PRIMSPEC> struct.
+
+PF_RHO.C:
+  Use macro for rank and length testing.
+  In <PrimFnDydRhoLftGlbValid_EM>, fix bug where 1e40 1e40 0{rho}0 fails
+    because of early overflow of NELM.
+
+PF_RSHOE.C:
+  Reformat & comment calls to <MakeSymEntry_EM>.
+  Clear the type bits in hGlb result after call to <TypePromoteGlb_EM>.
+
+PF_SQUAD.C:
+  In <PrimFnDydSquadGlb_EM_YY>, fix bug where unit dimensions are not
+    skipped when comparing rank and length of matching dimensions
+    between index and right arg.
+  Clear the type bits in hGlb result after call to <TypePromoteGlb_EM>.
+  Reformat & comment calls to <MakeSymEntry_EM>.
+
+PF_STAR.C:
+  Check for ± infinity result with both args finite
+    (signal DOMAIN ERROR instead of infinite result).
+
+PF_STILE.C:
+  In <PrimFnDydStileFisFvF>, fix bug where system CT is used instead of []CT.
+
+PF_TILDE.C:
+  In <PrimFnMonTildeBisF>, fix bug where near-integer float is checked
+    for Boolean values, instead of converting it to integer (and also
+    checking for error on conversion and signalling DOMAIN ERROR).
+
+PF_UTACK.C:
+  Move error message calls to common labels.
+  Use macro for rank and length testing.
+  In <PrimFnDydUpTack_EM_YY>, move and improve check for DOMAIN ERROR
+    to allow ''{base}3 and 'a'{base}{zilde}.
+
+PF_UTACKJOT.C:
+  Reformat calls to <Tokenize_EM>.
+
+PO_DIERESIS.C:
+  Reformat & comment calls to <MakeSymEntry_EM>.
+
+PO_DOT.C:
+  Reformat & comment calls to <MakeSymEntry_EM>.
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, fix bug where result is
+    zero identity element, e.g. +/2 0{rho}5.1
+  Reformat & comment calls to <MakeSymEntry_EM>.
+
+PO_SLOPE.C:
+  Reformat & comment calls to <MakeSymEntry_EM>.
+  Omit call to <DbgBrk>.
+
+PRIMSPEC.C:
+  Improve comments.
+  In order to make roll atomic, save and restore the current []RL
+    into/from PRIMSPEC.
+  Reformat & comment calls to <MakeSymEntry_EM>.
+
+PRIMSPEC.H:
+  In order to make roll atomic, save and restore the current []RL
+    into/from PRIMSPEC.
+
+QF_CR.C:
+  Append new parameter to <CopySTEName> to return name length.
+
+QF_DR.C:
+  Move error message calls to common labels.
+
+QF_EA.C:
+  Stub to be finished later.
+
+QF_NL.C:
+  Move error message calls to common labels.
+  Correct type in APPEND_NAME.
+  In <SysFnDydNL_EM_YY>, make <uNameLen> same size as needed
+    for <CopySTEMaMe>.
+  In <SysFnDydNL_EM_YY>, omit test for name chars in left arg --
+    we allow anything there now.
+  In <SysFnDydNL_EM_YY>, fix bug where name length was unassigned
+    where forming result matrix.
+
+QF_TF.C:
+  Stub to be finished later.
+
+SAVEFCN.C:
+  Reformat calls to <Tokenize_EM>.
+
+SC_LOAD.C:
+  Handle []DM specially as its value needs to be transferred,
+    but technically it isn't a var.
+  Variables now working.
+  Still working on functions/operators.
+
+SC_SAVE.C:
+  Make var & fcn <Count> vars per section (SI Level) instead
+    of global -- allocate global memory to hold these values.
+  Move test for STE not MF or LOD up to catch those earlier.
+  Handle []DM specially as its value needs to be transferred,
+    but technically it isn't a var.
+  Save <stGlbData> for later use.
+  Make [Fcns.nnn] entry point to either #iii (in [GlobalFcns]))
+    or [iii.Name].
+  Define <SavedWsFormGlbFcn> to parallel <SavedWsFormGlbVar>.
+  Stub in code to delete #XXXXXXXX=#nnn from symbol table for
+    both fcns & vars.
+
+SC_SI.C:
+  Append new parameter to <CopySTEName> to return name length.
+
+STARTADDR.H:
+  Append more addresses.
+
+SYMTAB.H:
+  Include warning about making corresponding changes between
+    <IMM_TYPES> and macros in <macros.h>.
+  Move macros to <macros.h>.
+  Include warning about making corresponding changes between
+    <NAME_TYPES> and macros in <macros.h>.
+
+SYSVARS.C:
+  Define entries for new system functions ([]EA & []TF).
+  Implement empty vector assignment into certain system vars
+    ([]IO, []CT, []PP, []PW, []RL) restores the system default value.
+  In <ValidateFloat_EM>, fix bug where <lpHeader> used after
+    <lpMemRht> incremented.
+  Use macro for rank and length testing.
+  In <ValidateSetXXX> functions, pass default system value in
+    case of empty vector assignment into the system var.
+
+TOKENIZE.C:
+  Change references of UNDERBAR to INFINITY.
+  Because INFINITY is a variable, we can eliminate some SYNTAX ERRORs.
+
+TYPEMOTE.C:
+  Reformatting.
+
+UNICODE.H:
+  Change references of UNDERBAR to INFINITY.
+
+UNITRANS.H:
+  Translate A-underbar through Z-underbar to a to z for ISO.
+  Fix bug where an ISO quad translates to epsilon-underbar,
+    and after that to zilde.
+  Note that squad is missing from the ISO charset.
+
+WORKSPACES.H:
+  Change keynames from Fcn/Var counts to just count.
+  Change SI Depth to SI Level.
+  Define UserDefined keyname.
+

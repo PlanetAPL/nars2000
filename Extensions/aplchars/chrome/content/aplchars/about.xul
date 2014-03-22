@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://aplchars/locale/about.dtd">
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<dialog title="&about; APL Chars"
+    orient="vertical"
+    autostretch="always"
+    onload="sizeToContent();"
+    buttons="accept"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript"
+    src="chrome://mozapps/content/extensions/extensions.js" />
+
+<!-- Original template by Jed Brown -->
+
+<groupbox align="center" orient="horizontal">
+<vbox>
+  <text value="APL Chars" style="font-weight: bold; font-size: x-large;"/>
+  <text value="&version;0.0.757"/>
+
+  <separator class="thin"/>
+
+  <text value="&createdBy;" style="font-weight: bold;"/>
+  <text value="Bob Smith"/>
+
+  <separator class="thin"/>
+
+  <text value="&homepage;" style="font-weight: bold;"/>
+  <text value="http://www.sudleyplace.com/APL/AplInEmail.ahtml"
+    class="url"
+    onclick="openURL ('http://www.sudleyplace.com/APL/AplInEmail.ahtml');"
+    onmouseover="setCursor ('pointer');"
+    onmouseout="setCursor ('auto');" />
+
+  <separator class="thin"/>
+</vbox>
+</groupbox>
+</dialog>

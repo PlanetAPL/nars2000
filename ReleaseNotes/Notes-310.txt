@@ -1,0 +1,21 @@
+Build #310 -- Version 0.0.0.21742
+---------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+PF_COMMA.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DOMINO.C:
+PF_DTACKJOT.C:
+PF_EQUALUND.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PO_DIERESIS.C:
+QF_UCS.C:
+TYPEMOTE.C:
+  Use BIT0 in place of 0x01 for <uBitMask>.

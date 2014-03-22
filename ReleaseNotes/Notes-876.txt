@@ -1,0 +1,13 @@
+Build #876 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Use Same GMP/MPIR/MPFR Headers As Static Libraries
+
+Directory trunk:
+
+HEADERS.H:
+  Include <mpir.h> as it is needed to define <mp_bitcnt_t>.
+
+MAKEFILE.INC:
+  Set MPIR and MPFR include directories to same files as used
+    in the static libraries.

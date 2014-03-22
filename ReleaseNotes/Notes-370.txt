@@ -1,0 +1,10 @@
+Build #370 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  In <DisplayGlbArr_EM>, when displaying an empty char array,
+    end the line only if it's not the last line or not through Quote-Quad
+    output.  This eliminates the difference in behavior between 0/0 and
+    0/'' when output through Quote-Quad.

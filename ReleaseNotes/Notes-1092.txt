@@ -1,0 +1,21 @@
+Build #1092 -- Version 0.3.10.xx
+--------------------------------
+
+* Use More Consistent Naming Conventions
+
+Directory trunk:
+
+AXISFNS.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_DARROW.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PO_DIERESIS.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+PRIMSPEC.H:
+  Improve comments.
+  Rename <lpMemAxis> and <lpMemGrUp> to <lpMemAxisHead> and <lpMemAxisTail>
+    to better reflect their function.

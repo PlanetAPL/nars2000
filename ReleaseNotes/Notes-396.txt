@@ -1,0 +1,8 @@
+Build #396 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclECPaintHook> when Syntax Coloring, delete the tail of the line
+    to avoid ghosting when the window is resized.

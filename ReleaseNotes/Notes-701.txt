@@ -1,0 +1,12 @@
+Build #701 -- Version 0.0.2.15
+------------------------------
+
+* Fix Bug:  Dyadic Iota Doesn't Handle Left Boolean Not Full Byte Not Found
+
+Directory trunk:
+
+PF_IOTA.C
+  Improve comments.
+  In <PrimFnDydIotaBvB> and <PrimFnDydIotaBvN> if we don't find a right arg
+    value, use the <NotFound> value instead of the value which indicates we
+    didn't find the right arg value as it is always <NBIB> (8).

@@ -1,0 +1,9 @@
+Build #1187 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Encode With All2s on Left And Global Numerics On Right
+
+Directory trunk:
+
+PF_DTACK.C:
+  Fix bug in encode with all2s on left and global numerics on right.

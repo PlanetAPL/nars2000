@@ -1,0 +1,21 @@
+Build #622 -- Version 0.0.2.7
+-----------------------------
+
+* Change The Result Of 4 []AT To Match The IBM Spec.
+
+Directory trunk:
+
+QF_AT.C:
+  Update the copyright year.
+  For 4 []AT, return total size and data size (Total - Header) in the
+    two-element vector result.
+
+QF_SIZE.C:
+  Update the copyright year.
+  Include an additional parameter to <CalcSymEntrySize> so it may be
+    used when calculating the result of 4 []AT.
+  Enhance <CalcSymEntrySize> to return the data size of the object if
+    the caller requested it.
+  Enhance <CalcGlbSize> and rename it to <CalcGlbVarSize> as was done
+    for <CalcSymEntrySize>.
+  Define new routine <CalcGlbFcnSize> to parallel <CalcGlbVarSize>.

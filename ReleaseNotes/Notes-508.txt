@@ -1,0 +1,25 @@
+Build #508-- Version 0.0.2.3
+----------------------------
+
+* Split Out Syntax Coloring for Primitives into Functions, Monadic, and Dyadic Operators.
+
+Directory trunk:
+
+EXTERNS.H:
+  Define names for new Syntax Coloring categories.
+
+INIFILE.C:
+  Define .ini file key names for additional Syntax Color categories.
+
+MAIN.RC:
+  Define new size of dialog box to accommodate new Syntax Color categories.
+  Define entries for new Syntax Color categories.
+
+RESOURCE.H:
+  Define equates in the Customize dialog for new Syntax Color categories.
+
+SYNTAXCOLORS.H:
+  Define default colors for new Syntax Color categories.
+
+TOKENIZE.C:
+  Use new Syntax Color category names as appropriate.

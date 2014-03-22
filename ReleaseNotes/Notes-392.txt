@@ -1,0 +1,8 @@
+Build #392 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMMON.C:
+  In <IsValidHandle>, clear the ptr type bits of the incoming handle so
+    the caller doesn't have to do it.

@@ -1,0 +1,29 @@
+Build #281 -- Version 0.0.0.18243
+---------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Bracket code for use with and without UNISCRIBE returning to
+    the original <DrawTextW> now that I know how to turn on Uniscribe.
+
+MAKEFILE:
+  Define directory for QDEBUG files.
+  Append QDEBUG dir to LIBs.
+  Reference only those Windows libraries we actually use.
+  Use NODEFAULTLIB in all .EXE links.
+
+PERTAB.H:
+  Define UNISCRIBE to remove Font Linking code.
+
+SESSMAN.C:
+  Bracket code for use with and without UNISCRIBE.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Support "gsldir.zip" and "qdebug.zip" as Special Files available for
+    download as developers files.
+  Display Special Files only if displaying all files.
+  Do not show "Recommended" when displaying all files.

@@ -1,0 +1,116 @@
+Build #802 -- Version 0.0.2.22
+------------------------------
+
+* Implement Multiset Functions And Operator
+
+Directory trunk:
+
+COMPRO.H:
+  Update copyright year.
+  Include prototypes for new files.
+
+CUSTOMIZE.C:
+  Include Multiset symbol in APL chart.
+
+ENUMS.H:
+  Move <ERROR_CODES>, <LINE_NUMS>, and <FLTDISPFMT> from <externs.h>.
+  Define starting line number type for []MS.
+
+EXECDFN.C:
+  Update copyright year.
+  In <ExecDfnOprGlb_EM_YY>, handle line number for []MS label.
+
+EXECFNS.C:
+  Define action for Multiset primitive operator.
+
+EXECMFN.C:
+  Update copyright year.
+  Initialize the various multiset magic functions.
+
+EXECMFN.H:
+  Update copyright year.
+  Define entries for the various multiset magic functions.
+  Define equates for more APL primitives in magic functions.
+
+EXTERNS.H:
+  Move <ERROR_CODES>, <LINE_NUMS>, and <FLTDISPFMT> to <enums.h>.
+
+FH_PARSE.H:
+  Update copyright year.
+  Make room for []MS line #.
+
+GETFNS.C:
+  Update copyright year.
+  Define function to Set []CT.
+
+GRADE.H:
+  Update copyright year.
+  Define <PDIE> struct in common header so it can be used in .pro files.
+  Define <LPMEOCOM> and <LPMIOCOM> typedefs so it can be used in
+    .pro files.
+
+INITDATA.C:
+  Remove fill in for <PrimFnUpShoe_EM_YY> as it's now active.
+  Remove initialization code for operators as they aren't indexed that way
+    and can take up a slot we need for a function.
+  Define action for Multiset primitive functions and operator.
+
+KEYBOARDS.H:
+  Remove Alt-'X', -'Z' and -'m' from available keystrokes as they are now in use.
+  Define symbol locations for Multiset functions and operator.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define entries for new files for Multiset functions and operator.
+
+PF_DSHOE.C:
+  Define identity function for DownShoe.
+  Use BIT0 instead of 1 for left shifts.
+  Define magic function for non-multiset Union.
+
+PF_LSHOEUND.C:
+PF_RSHOEUND.C:
+  New file to implement Subset and Superset functions.
+
+PF_SECTION.C:
+  New file to implement Section function (Multiset Symmetric Difference).
+
+PF_USHOE.C:
+  New file to implement UpShoe function (Intersection).
+
+PO_MULTISET.C:
+  New file to implement multiset operator.
+
+REBAR.C:
+  Document Multiset functions and operator.
+
+SAVEFCN.C:
+  Update copyright year.
+  In <GetSpecialLablelNums>, check for []MS.
+
+STARTADDR.H:
+  Include references for more functions for crash analysis.
+
+SYMBOLNAMES.H:
+  Update copyright year.
+  Define entries for Multiset functions and operator.
+
+TOKENIZE.C:
+  Define lexical value for Multiset function and operator symbols.
+
+UNICODE.H:
+  Define Unicode value for Section and Multiset symbols.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document Multiset operator.
+
+
+Directory trunk\Extensions\aplchars\chrome\content:
+
+EDITOVERLAY.JS:
+  Indicate place for Multiset function and operator symbols on the keyboard.

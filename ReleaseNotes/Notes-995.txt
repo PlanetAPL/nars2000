@@ -1,0 +1,11 @@
+Build #995 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug On Empty Hetero/RAT/VFP Compression
+
+Directory trunk:
+
+PF_SLASH.C:
+  When compressing to empty a Hetero, RAT, or VFP array, the result
+    isn't computed correctly which yields an error much later, e.g.
+    0/0 ' ' or 0/1r1 or 0/1v.

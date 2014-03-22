@@ -1,0 +1,11 @@
+Build #592 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Handle -1(2 3)
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  In <PrimFnMonGlb_EM>, -1(2 3) fails because of a missed case.
+  Fix Bug:  When extracting a Boolean from a STE, always mask with BIT0
+    in case there are extra bits set.

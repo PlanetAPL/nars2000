@@ -1,0 +1,12 @@
+Build #620 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Handle Replace Mode Text Caret For All Point Sizes
+
+Directory trunk:
+
+EDITFCN.C:
+  When creating the bitmap used for the Replace Mode text caret,
+    handle the case where the average char width for the SM font
+    is greater than 15 in which case we need to use multiple words
+    in the bitmap for each row of the caret width.

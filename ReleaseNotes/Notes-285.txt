@@ -1,0 +1,45 @@
+Build #285 -- Version 0.0.0.18399
+---------------------------------
+
+Directory trunk:
+
+DISPDBG.C:
+  Define yet another debugging function, this one for
+    displaying a YYRes struc.
+
+EXCEPT.C:
+  If a user encounters a DbgStop, the address reported points to DbgStop
+    which isn't very helpful.  If a breakpoint exception occurs, we display
+    the return address for DbgStop instead which at least gives us a better
+    chance of figuring out where the bug lies.
+
+EXTERNS.H:
+  Define and use value for <DEF_DEFAULTPASTE>.
+
+INIFILE.C:
+  Read in and write out [Options] section.
+
+MAKEPRO.C:
+  Handle lines to be deleted if  they begin with "__forceinline"
+    as they do for /Wp64 (and possibly _WIN64).
+
+STARTADDR.H:
+  Include more addresses for debugging purposes.
+
+STRAND.C:
+  Fix bug:  A subtle error (Lint would have helped) returned an ptr
+    to a struct no longer on the stack.
+
+UNITRANSTAB.H:
+  Fix typo in PC/3270 source char for Z_.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Fix bug in EDIT_EM_ReplaceSel in the case where the parent doesn't
+    always increase the buffer limit enough on overflow (NARS always
+    increases it enough).
+
+WORKSPACE.H:
+  No changes other than white space.

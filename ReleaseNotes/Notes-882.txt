@@ -1,0 +1,17 @@
+Build #882 -- Version 0.0.3.2
+-----------------------------
+
+* Miscellaneous Website Changes
+
+Directory trunk\MediaWiki\extensions:
+
+APL.CSS:
+  Comment the constants.
+  Define class for "note".
+
+INSERTCSS.PHP:
+  Start the extensions in the root.
+  Return a value from the <foreach> loop.
+
+RENDERAPL.PHP:
+  MediaWiki syntax changes for compatibility with new versions.

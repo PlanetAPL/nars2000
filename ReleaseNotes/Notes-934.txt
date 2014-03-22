@@ -1,0 +1,21 @@
+Build #934 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Various Display Bugs
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplVfpFC> if <bFractDigs>, add in <expptr> to <nDigits> to
+    get the # signifcant digits.
+  In <FormatAplVfpFC>, if # is zero, and E-format (nDigits < 0),
+    return 0.000E0 or the like.
+
+PF_DTACKJOT.C:
+  Update copyright year.
+  Improve comments.
+  Ensure <bFractDigs> flag to <FormatAplVfpFC> is 0 for E-format which
+    is always in # significant digits.
+
+SC_SAVE.C:
+  Improve comments.

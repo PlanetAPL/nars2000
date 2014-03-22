@@ -1,0 +1,277 @@
+Version 0.0.2.2 consists of the following Builds:
+
+
+Build #504-- Version 0.0.2.2
+----------------------------
+
+* When a workspace is )SAVEd, save its variable's array properties,
+  too, and restore them on )LOAD.
+
+Directory trunk:
+
+SC_LOAD.C:
+  When a workspace is )LOADed, restore its variable's array properties.
+
+SC_SAVE.C:
+  When )SAVEing a ws, include variable's array properties in the saved ws.
+
+WORKSPACE.H:
+  Define names for existing array properties.
+
+
+Build #503-- Version 0.0.2.2
+----------------------------
+
+* Fix Bug:  When a workspace is loaded that is newer than the
+  current interpreter recognizes, recover without leaving
+  handles unlocked and HGLOBALs doubly freed.
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix Bug:  Initialize local var so it has a known value on exit.
+  Fix Bug:  If failing a )LOAD on a version mismatch, leave through
+    common exit code where locked vars are unlocked.
+
+SESSMAN.C:
+  Fix Bug:  If failing a )LOAD on version mismatch, clear after
+    freeing the HGLOBAL of the ws name.
+
+TABCTRL.C:
+  Use struct value of ws name DPFE in stead of separate local
+    as the struct value is updated when the HGLOBAL is freed.
+
+
+Build #502-- Version 0.0.2.2
+----------------------------
+
+* Allow the user to switch between left- and right- double-click
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Define actions for Reverse Double Click preference.
+  Fix Bug:  Include Check Group and Insert State IDs in User
+    Preference list of IDs which set the Apply button.
+  Remove duplciate code.
+
+DEFINES.H:
+  Define default value for RevDblClk state.
+  Define local message for Right double-click.
+
+EDITFCN.C:
+  Handle switch of right- and left-doubleclick actions.
+
+EXTERNS.H:
+  Note two additional available spots on the keyboard.
+  Define bit and default value for RevDblClk.
+
+INIFILE.C:
+  Read in and write out RevDblClk.
+
+MAIN.RC:
+  Define User Preference text for RevDblClk.
+
+RESDEBUG.C:
+  Remove unused code.
+
+RESOURCE.H:
+  Define ID for RevDblClk.
+
+
+Build #501-- Version 0.0.2.2
+----------------------------
+
+* Strip off trailing CR/LFs from Pasted text.
+
+Directory trunk:
+
+EDITFCN.C:
+  Strip off trailing CR/LFs from Pasted text.
+
+
+Build #500-- Version 0.0.2.2
+----------------------------
+
+* Convert from '\?' and L'\?' constants to #define
+
+Directory trunk:
+
+COMMON.C:
+CONVERT.C:
+CS_PARSE.Y:
+CUSTOMIZE.C:
+DEBUG.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C:
+ERRMSG.C:
+EXTERNS.H:
+FH_PARSE.Y:
+FMTSPEC.C:
+FMTSPEC.H:
+GETFNS.C:
+IMMEXEC.C:
+INIFILE.C:
+MAIN.C:
+PERFMON.C:
+PF_DTACKJOT.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PN_PARSE.Y:
+QF_ERROR.C:
+QF_ES.C:
+QF_FMT.C:
+QF_TF.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_COPY.C:
+SC_DROP.C:
+SC_FNOV.C:
+SC_IN.C:
+SC_INASCII.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+SC_SI.C:
+SC_WSID.C:
+SESSMAN.C:
+SYMTAB.C:
+SYSCMDS.C:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+VER.C:
+VER.RC:
+WEBCOLORS.C:
+  Convert from '\?' and L'\?' constants to #define.
+
+DEFINES.H:
+  Move #defines from <main.h> and <transfer.h> to <defines.h>.
+  Define equates to convert from '\?' and L'\?' constants.
+
+MAIN.H:
+  Move #defines from <main.h> and <transfer.h> to <defines.h>.
+  Delete commented out lines in EXCEPTION_CODES.
+  Delete unused struct GLBHIST.
+  Delete commented out lines in VKSTATE.
+  Fix typo in comment in MAKE_PROTO.
+
+TRANSFER.H:
+  Update copyright year.
+  Move #defines from <main.h> and <transfer.h> to <defines.h>.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Include <defines.h> to pick up moved constants.
+
+
+Build #499-- Version 0.0.2.2
+----------------------------
+
+* Implement )OFF as a synonym for )EXIT
+
+Directory trunk:
+
+SYSCMDS.C:
+  Implement )OFF as a synonym for )EXIT.
+
+
+Build #498-- Version 0.0.2.2
+----------------------------
+
+* Fix Bugs when printing.
+
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  When printing the screen, the average character
+    width is calculated based upon the screen font, not the
+    printer font.
+  Fix Bug:  When printing the screen and syntax coloring, a
+    screen DC is used to display the chars rather than the
+    incoming printer DC.
+
+
+Build #497-- Version 0.0.2.2
+----------------------------
+
+* Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  When sending a <WM_SETFONT> message, use the <MAKELPARAM>
+    macro for the <fRedraw> parameter.
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+  Fix Bug:  When restoring the default Syntax Coloring settings,
+    restore the checkboxes, too.
+
+DEFINES.H:
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+
+EXTERNS.H:
+  Remove unneeded bit struc member <Avail>.
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+
+INIFILE.C:
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+  Fix Bug:  Due to a gap in the #defines for <IDC_FONTS_RADIOxx>
+    a value in <glbSameFontAs> can be out-of-range.
+
+MAIN.C:
+  Whitespace only changes.
+
+MAIN.RC:
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+  Lengthen the GroupBox and each Property Page so as to make
+    room for another Syntax Coloring preference.
+
+RESOURCE.H:
+  Fix Bug:  Due to a gap in the #defines for <IDC_FONTS_RADIOxx>
+    a value in <glbSameFontAs> can be out-of-range.
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+
+
+Build #496-- Version 0.0.2.2
+----------------------------
+
+* Minor changes to EDITCTRL.C.
+
+
+Directory trunk:
+
+VERSION.RC:
+  Increase version # to 0.0.2.2.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Use common inline macro <get_vertical_line_count>.
+  Delete unused DEBUG stmt.
+
+
+Build #495-- Version 0.0.2.2
+----------------------------
+
+* Fix Bug when centering a window.
+
+
+Directory trunk:
+
+COMMON.C:
+  Fix Bug:  Centering a window can position it such
+    that the title bar is off screen.

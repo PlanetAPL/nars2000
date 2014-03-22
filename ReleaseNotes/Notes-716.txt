@@ -1,0 +1,10 @@
+Build #716 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  Display of Floats In Raw Output Isn't Limited By []PP
+
+Directory trunk:
+
+DISPLAY.C
+  In <FormatFloatFC>, if we're displaying raw output, change the
+    precision to []PP and display that many significant digits only.

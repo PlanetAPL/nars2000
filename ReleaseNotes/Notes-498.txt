@@ -1,0 +1,15 @@
+Build #498-- Version 0.0.2.2
+----------------------------
+
+* Fix Bugs when printing.
+
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  When printing the screen, the average character
+    width is calculated based upon the screen font, not the
+    printer font.
+  Fix Bug:  When printing the screen and syntax coloring, a
+    screen DC is used to display the chars rather than the
+    incoming printer DC.

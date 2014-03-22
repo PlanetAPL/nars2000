@@ -1,0 +1,28 @@
+Build #968 -- Version 0.3.6.xx
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix typo in comment.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Change over to the new setup program format.
+  Emphasize the difference between the two Change Detection pages.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Emphasize the difference between the two Change Detection pages.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Remove reference to obsolete <mpf_*> struct.

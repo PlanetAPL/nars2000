@@ -1,0 +1,45 @@
+Directory trunk:
+
+ASSIGN.C:
+  In <AssignName_EM>, when assigning a global to a name, reorganize
+    the code to factor out call to <FreeResultName> and (Fix Bug)
+    clear the immediate flag.
+  Remove all references to <lptkOrig>.
+
+DISPLAY.C:
+  Use <IsZeroDim> for dimensions rather than <IsEmpty>.
+
+MACROS.H:
+  Fix bug in <IsMultiRank> macro.
+
+PARSE.H:
+  Adjust indices to reflect shorter <TOKEN> struct.
+
+PARSE.Y:
+  Move debugging #defines to top to make them easier to turn on/off.
+  In terminal <FcnSpec> define new rules to allow more assignments.
+  In <pl_yylex>, remove setting <.FcnDir> as that's now handled in
+    <SymTabAppendSysName_EM>.
+
+PERTAB.H:
+  Adjust indices to reflect shorter <TOKEN> struct, and hence shorter
+    <PL_YYSTYPE> struct.
+
+PO_DIJOT.C:
+  Remove all references to <lptkOrig>.
+
+PO_DOT.C:
+  Remove all references to <lptkOrig>.
+
+SYSVARS.C:
+  In <SymTabAppendSysName_EM>, set <.FcnDir> when initializing
+    system functions.
+
+TOKENIZE.C:
+  Remove all references to <lptkOrig>.
+
+TOKENS.H:
+  Remove all references to <lptkOrig>.
+
+YYFNS.C:
+  Remove all references to <lptkOrig>.

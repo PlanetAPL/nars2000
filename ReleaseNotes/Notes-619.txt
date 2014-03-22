@@ -1,0 +1,10 @@
+Build #619 -- Version 0.0.2.7
+-----------------------------
+
+* Handle Subdirectory to )LIB
+
+Directory trunk:
+
+SC_LIB.C:
+  If a subdirectory is passed to )LIB, turn it into a
+    canonical format.

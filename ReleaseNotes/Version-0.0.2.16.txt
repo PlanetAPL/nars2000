@@ -1,0 +1,107 @@
+Version 0.0.2.16 consists of the following Builds:
+
+
+Build #710 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Handle Overflow When Copying Initial Undo Buffer
+
+Directory trunk:
+
+EDITFCN.C:
+  In <FEWndProc/WM_CREATE> when copying the initial undo buffer
+    to the local memory, catch buffer overflow page fault.
+
+
+Build #709 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Allow Drv4Func To Be Recursive
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <Drv4Func:>, allow the recursive production of
+    <Drv4Func DydOp RhtOpVal>.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Correct name of system labels to the short form.
+  Include change made to Reshape.
+  Include Multisets in Language Features Wish List.
+
+
+Build #708 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Allow Drv3Func To Be Recursive
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <Drv3Func:>, allow the recursive production of
+    <Drv3Func DydOp RhtOpVal>.
+
+PO_DIJOT.C:
+  Include proper attribution for the code used to implement
+    the Rank operator.
+
+
+Build #707 -- Version 0.0.2.16
+------------------------------
+
+* Allow Non-empty Reshape Of Empty To Fill With Right Arg Prototype
+
+Directory trunk:
+
+PF_RHO.C:
+  Following the lead of Dyalog, the Reshape function when used
+    with an empty right argument and a left argument with no zeroes
+    returns a result (previously a LENGTH ERROR) all of whose elements
+    are the fill element of the right argument.
+
+
+Build #706 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Avoid Display Of Functions In )IN
+
+Directory trunk:
+
+IMMEXEC.C:
+  Pass Edit Ctrl window handle to <ExecSysCmd> so it can set the
+    cursor to it new value (running).
+
+PF_DOMINO.C:
+  Improve comments.
+
+PL_PARSE.Y:
+  In <ArrExprCheckCaller>, save the result for later display unless
+    the expression starts with a "sink" (i.e., display off).  This
+    stops )IN from displaying the function names it creates.
+
+SC_IN.C:
+  Allow result of NOVALUE from <PrinFnMonUpTackJotCSPLParse> as that's
+    what the above change in <pl_parse.y> implies.
+
+SYSCMDS.C:
+  Pass Edit Ctrl window handle to <ExecSysCmd> so it can set the
+    cursor to it new value (running).
+  In <ExecSysCmd>, set the new cursor and update the window so any
+    pending output displays.
+
+
+Build #705 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Type Demotion Of Hetero Scalar Is Unexpected And Fails
+
+Directory trunk:
+
+TYPEMOTE.C:
+  In <TypeDemote>, the case of a hetero scalar is missing.
+
+VERSION.RC:
+  Increment version to 0.0.2.16.

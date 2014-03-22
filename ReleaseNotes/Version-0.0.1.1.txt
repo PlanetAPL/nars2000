@@ -1,0 +1,21 @@
+Version 0.0.1.1 consists of the following Builds:
+
+
+Build #343 -- Version 0.0.1.1
+-----------------------------
+
+Directory trunk:
+
+SC_INASCII.C:
+  Update the copyright year.
+  In <InAsciiFile_EM>, rename <lpwView> to <lpView>
+    as it's not wide.
+  Fix Bug:  In <InAsciiFile_EM>, include EOF (0x1A) case
+    and replace by CR.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Improve wording in Wish List of Datatypes.
+  Note interest in *nix and Mac OS platforms.

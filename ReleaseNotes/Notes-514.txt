@@ -1,0 +1,34 @@
+Build #514-- Version 0.0.2.3
+----------------------------
+
+* Fix Bug:  Wrong error line displayed under certain cirumstances.
+
+Directory trunk:
+
+EDITFCN.C:
+  Before calling EM_GETLINE, get the exact line length as sometimes
+    W doesn't return the line when the length is -1 and gives no error.
+  Delete window handle argument from <LPERRHANDFN>, <Errorhandler>,
+    <ErrorMessageDirect>, and related functions as it is unneeded.
+
+ERRMSG.C:
+EXTERNS.H:
+PL_PARSE.Y:
+  Delete window handle argument from <LPERRHANDFN>, <Errorhandler>,
+    <ErrorMessageDirect>, and related functions as it is unneeded.
+
+IMMEXEC.C:
+  Fix Bug:  When an immediate execution mode expression signals an
+    error during tokenization while a user-defined function/operator
+    is suspended, the SI stack hasn't been setup as yet, and so the
+    error message includes the suspended function name and line
+    instead of the immediate execution line which actually signalled
+    the error.
+  Delete window handle argument from <LPERRHANDFN>, <Errorhandler>,
+    <ErrorMessageDirect>, and related functions as it is unneeded.
+
+TOKENIZE.C:
+  Before calling EM_GETLINE, get the exact line length as sometimes
+    W doesn't return the line when the length is -1 and gives no error.
+  Delete window handle argument from <LPERRHANDFN>, <Errorhandler>,
+    <ErrorMessageDirect>, and related functions as it is unneeded.

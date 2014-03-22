@@ -1,0 +1,9 @@
+Build #1171 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug In DotDot
+
+Directory trunk:
+
+PF_DOTDOT.C:
+  Fix bug in which the result of 1..5x isn't RAT, but APA.

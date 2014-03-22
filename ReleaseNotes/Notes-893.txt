@@ -1,0 +1,9 @@
+Build #893 -- Version 0.0.3.2
+-----------------------------
+
+* Miscellaneous Web Page Changes II
+
+Directory trunk\htdocs\Download:
+
+DOWNLOAD-BODY.PHP:
+  Move the "Display Files" button to the Download Files section.

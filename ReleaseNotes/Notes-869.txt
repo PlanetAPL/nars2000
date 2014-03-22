@@ -1,0 +1,12 @@
+Build #869 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  When Unlocalizing []FPC, set The FPC-Dependent Vars
+
+Directory trunk:
+
+EXECDFN.C:
+  In <UnlocalizeSTEs>, when unlocalizing []FPC, set the FPC-dependent vars.
+
+VERSION.RC:
+  Increment version to 0.0.3.1.

@@ -1,0 +1,19 @@
+Build #626 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Handle []TCNL As Newline
+
+Directory trunk:
+
+AXISFNS.C:
+PRIMSPEC.C:
+  Update copyright year.
+  Use enum type instead of generic type to aid in debugging.
+
+PF_DTACKJOT.C:
+  Improve comments.
+  Handle []TCNL as newline instead of just Carriage Return.
+  Use enum type instead of generic type to aid in debugging.
+
+QF_VR.C:
+  Omit extra []TCLF in definition of []VR as []TCNL does the job now.

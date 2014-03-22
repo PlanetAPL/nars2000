@@ -1,0 +1,24 @@
+Build #549 -- Version 0.0.2.4
+-----------------------------
+
+* Rename <IsTknNamed> to <IsTknTypeNamed> to better reflect its purpose
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayStrand>, use <IsTknImmed> instead of <IsTknNamed> to
+    determine the value displayed.
+
+EXECDFN.C:
+GETFNS.C:
+  Rename <IsTknNamed> to <IsTknTypeNamed> to better reflect its purpose.
+
+PL_PARSE.Y:
+  Use <IsTknTypeNamedVar> instead of <IsTknNamed> to catch named vars only.
+
+PRIMFNS.C:
+  Rename <IsTknNamed> to <IsTknTypeNamed> to better reflect its purpose.
+  Define <IsTknTypeNamedVar> to catch named vars only.
+
+TOKENS.H:
+  Update comments.

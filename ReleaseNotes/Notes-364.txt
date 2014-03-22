@@ -1,0 +1,129 @@
+Build #364 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+DISPLAY.C:
+ERRMSG.C:
+EXCEPT.C:
+GETFNS.C:
+GOTO.C:
+PF_DSHOE.C:
+PF_DTACKJOT.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PO_DIJOT.C:
+PO_SLASH.C:
+PRIMFNS.C:
+QF_EM.C:
+QF_ES.C:
+QF_EX.C:
+QF_FMT.C:
+QF_FX.C:
+QF_NL.C:
+QF_TF.C:
+SC_COPY.C:
+SC_FNOV.C:
+SC_OUT.C:
+SC_SAVE.C:
+SC_WSID.C:
+SYSVARS.C:
+TRANSLATE.C:
+YYFNS.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+
+CS_PARSE.H:
+QF_CR.C:
+QF_DL.C:
+QF_DM.C:
+QF_ERROR.C:
+QF_ET.C:
+QF_LC.C:
+QF_MF.C:
+SC_IN.C:
+SC_LIB.C:
+SC_RESET.C:
+SC_SI.C:
+  Update copyright year.
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+
+CS_PARSE.Y:
+PL_PARSE.H:
+PL_PARSE.PROTO:
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+
+CS_PROC.C:
+  Improve comments.
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+
+DEBUG.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+  Delete commented out code.
+
+EDITFCN.C:
+EXECDFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_LOAD.C:
+SESSMAN.C:
+STRAND.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+
+DISPDBG.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Improve comments.
+
+EXECMFN.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Improve comments.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+
+MAIN.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Rename <GetPerTabHandle> to <GetPerTabPtr> to reflect its change
+    in result.
+
+SYMTAB.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Improve comments.
+  Rename some arguments to better reflect their purpose.
+
+TABCTRL.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+  Rename <GetPerTabHandle> to <GetPerTabPtr> to reflect its change
+    in result.
+
+THREADS.H:
+  Update copyright year.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+  Improve comments.
+
+TOKENIZE.C:
+  Improve comments.
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.

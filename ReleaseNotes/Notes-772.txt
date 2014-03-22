@@ -1,0 +1,24 @@
+Build #772 -- Version 0.0.2.19
+------------------------------
+
+* Fix Bug:  Delta Or DeltaUnderbar In A Function Name Is Mangled On )SAVE
+
+Directory trunk:
+
+DISPDBG.C:
+  After call to <CopySteName> omit writing terminating zero as it's already there.
+
+QF_CR.C:
+  Define new routine to copy a STE and convert it to {name}s.
+
+SC_LOAD.C:
+  In <LoadWorkspaceGlobal_EM>, convert the function name to its wide character
+    form.
+
+SC_SAVE.C:
+  In <SavedWsFormGlbFcn>, copy and convert the function name to its wide character
+    form.
+  After call to <ConvSteName> omit writing terminating zero as it's already there.
+
+SC_SI.C:
+  After call to <CopySteName> omit writing terminating zero as it's already there.

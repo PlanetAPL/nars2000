@@ -1,0 +1,12 @@
+Build #949 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug In Reduction Of RAT/VFP Numbers
+
+Directory trunk:
+
+PO_SLASH.C:
+  When calling <PrimFnDydSiScSiScSub_EM>, don't pass result global memory
+    handle as it doesn't know which element to write into.  By passing NULL,
+    the called routine allocates memory itself which we need to free after
+    we've copied the RAT/VFP.

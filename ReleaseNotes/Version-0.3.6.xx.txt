@@ -1,0 +1,135 @@
+Version 0.3.6.xx consists of the following Builds:
+
+
+Build #968 -- Version 0.3.6.xx
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix typo in comment.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Change over to the new setup program format.
+  Emphasize the difference between the two Change Detection pages.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Emphasize the difference between the two Change Detection pages.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Remove reference to obsolete <mpf_*> struct.
+
+
+Build #967 -- Version 0.3.6.xx
+------------------------------
+
+* Extend Keyboard Table
+* Fix Bug In Scancode Table
+* Define Danish 101 Extended Keyboard
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Fix bug in scan code table for extra key on international keyboards
+    between LShift and Z.
+  In DEBUG mode, add a tooltip for each keycap to show the underlying scancode.
+
+EXECMFN.H:
+SYMBOLNAMES.H:
+  Rename UTF16_POUND as UTF16_NUMBER so we can use the former for a currency symbol.
+
+KEYBOARDS.H:
+  Update copyright year.
+  Extend each keyboard table to include 0x56 as the last defined scancode so as to handle
+    international keyboards.
+  Define Danish extended keyboard layout.
+
+TOKENIZE.C:
+  Rename UTF16_POUND as UTF16_NUMBER so we can use the former for a currency symbol.
+
+UNICODE.H:
+  Define more Unicode points to handle international keyboards.
+  Rename UTF16_POUND as UTF16_NUMBER so we can use the former for a currency symbol.
+
+
+Build #966 -- Version 0.3.6.xx
+------------------------------
+
+* Remove Unused Function
+
+Directory trunk:
+
+HEADERS.H:
+MPFNS.C:
+  Remove unused function <mpfr_init_set_f>.
+
+
+Build #965 -- Version 0.3.6.xx
+------------------------------
+
+* Fix Bug In Syntax Coloring Of Local System Names
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <IsLocalName>, two constant vars are marked as static.
+  In <IsLocalName>, the incoming system name is converted to lower case,
+    but not the target name.  Instead, we just use a case-insensitive
+    compare for system names and a case-sensitive compare for all others.
+
+
+Build #964 -- Version 0.3.6.xx
+------------------------------
+
+* Fix Bug In :FORLCL
+
+Directory trunk:
+
+EDITFCN.C:
+  When DEBUG_WM_CHAR is defined, two vars are mistakenly uninitialized.
+
+EXECDFN.C:
+  In <UnlocalizeSTEs>, fix bug in :FORLCL where the FORLCL STE is
+    mistakenly handled after stripping the function STEs instead of before.
+
+
+Build #963 -- Version 0.3.6.xx
+------------------------------
+
+* Fix Bug In []NREPLACE File Offset
+
+Directory trunk:
+
+QF_NFNS.C:
+  Fix bug in []NREPLACE where the default file offset is zero instead
+    of the current file pointer.
+
+
+Build #962 -- Version 0.3.6.xx
+------------------------------
+
+* Change Version Numbering Scheme
+
+Directory trunk:
+
+MKN.BAT:
+  Increment build # each time the compiler is run.
+
+VER.RC:
+  Change the version numbering scheme to xx.yy.xx.cc where cc is the
+    number of times we ran the compiler.
+
+VERSION.RC:
+  Increment build #.

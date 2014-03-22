@@ -1,0 +1,48 @@
+Build #1162 -- Version 0.4.4.xx
+-------------------------------
+
+* Make Generalized Determinant More General
+
+Directory trunk:
+
+AFOFNS.C:
+  Transfer bMFO flag from ParseLine local vars to SaveFunction local vars.
+
+ASSIGN.C:
+  Set MFO as objname if the name is that of an MFO.
+
+EXECMFN.C:
+  Set DFN_HEADER flag to indicate this is an MFO.
+  Initialize Determinant Operator subroutines and run that program
+    before initializing the Determinant Operator itself.
+
+EXECMFN.H:
+  Define enums and names for the Determinant Operator subroutines.
+
+FH_PARSE.H:
+  Define MFO flags for UDFO local vars.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle named operators.
+
+MF_DOT.H:
+  Change algorithms from "expansion by minors" to permutation-based as per K.E. Iverson.
+
+PL_PARSE.H:
+  Define MFO flags for ParseLine local vars.
+
+PL_PARSE.Y:
+  Because we run MFON_MonDotInit without setting up an SIS, we need to handle NULL lpSISCur.
+  Transfer bMFO flag from UDFO local vars to ParseLine local vars.
+
+PO_DOT.C:
+  Allow non-square matrices using the generalized magic functions.
+
+SAVEFCN.C:
+  In <SaveFunctionLine>, pass bMFO flag to <Tokenize_EM> as needed.
+
+SAVEFCN.H:
+  Define MFO flags for SaveFunction local vars.
+
+VER.RC:
+  Increment version # to 0.4.4.xx.

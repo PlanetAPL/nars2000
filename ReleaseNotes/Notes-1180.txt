@@ -1,0 +1,12 @@
+Build #1180 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Up/Down Stile On Global Numerics Near Zero
+
+Directory trunk:
+
+PF_DSTILE.C:
+  In <PrimFnMonDownStileFisF>, simplify  the code.
+  In <PrimFnMonDownStileRisR> and <PrimFnMonDownStileVisV>, correct missing minus sign.
+  Fix typo in comments.
+  Include commented out debugging code.

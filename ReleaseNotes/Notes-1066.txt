@@ -1,0 +1,11 @@
+Build #1066 -- Version 0.3.9.xx
+-------------------------------
+
+* Fix Bug In Nested vs. Simple Scalar
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  In <PrimFnDydNestSiSc_EM>, Assert and allow global numerics along with other simple arrays.

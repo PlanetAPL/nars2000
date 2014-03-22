@@ -1,0 +1,17 @@
+Build #355 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new file <qf_wa.c>.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Reference new file <qf_wa.obj>.
+
+QF_WA.C:
+  Define new file to handle []WA.
+
+SYSVARS.C:
+  Define entries for new system function []WA.

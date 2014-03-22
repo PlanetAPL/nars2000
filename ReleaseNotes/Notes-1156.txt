@@ -1,0 +1,43 @@
+Build #1156 -- Version 0.4.3.xx
+-------------------------------
+
+* Move Magic Function/Operator Code Into UTF-8 Header Files
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Rename <#MonBox> to <#MonBoxFMT> to include its context.
+
+MF_DIJOT.H:
+MF_DOMINO.H:
+MF_DOT.H:
+MF_DOTDOT.H:
+MF_DSHOE.H:
+MF_IOTA.H:
+MF_IOTAUND.H:
+MF_JOTDOT.H:
+MF_LSHOEUND.H:
+MF_MULTISET.H:
+MF_QUADFMT.H:
+MF_QUADVR.H:
+MF_SECTION.H:
+MF_USHOE.H:
+  New files in UTF-8 format to hold APL magic functions.  Be sure to use
+    a Unicode-aware editor when editing these files.
+
+PF_DOMINO.C:
+PF_DOTDOT.C:
+PF_DSHOE.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_LSHOEUND.C:
+PF_SECTION.C:
+PF_USHOE.C:
+PO_DIJOT.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_MULTISET.C:
+QF_FMT.C:
+QF_VR.C:
+  Move magic function/operator into its own UTF-8 format header file.

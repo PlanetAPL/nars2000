@@ -1,0 +1,10 @@
+Build #1031 -- Version 0.3.8.xx
+-------------------------------
+
+* Remove Spurious Debug Stmt
+
+Directory trunk:
+
+PRIMFNS.C:
+  Update copyright year.
+  Fix Bug:  In <CopySymGlbNumDir_PTBM>, remove spurious debug stmt.

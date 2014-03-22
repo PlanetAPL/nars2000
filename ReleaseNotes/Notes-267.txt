@@ -1,0 +1,21 @@
+Release #267, Version #0.0.0.17516
+----------------------------------
+
+Directory trunk:
+
+COMMON.C:
+  Omit local <strchrW> in favor of library routine <wcschr>.
+
+DTOA.C:
+  Avoid setting <errno> as that's a DOS concept (and not multithreaded).
+
+MAIN.H:
+  Omit local <strchrW> in favor of library routine <wcschr>.
+
+MAKEFILE:
+  Use multithreaded library <libcmt> instead of single threaded <libc>.
+
+PF_DTACKJOT.C:
+  Improve comments.
+  Fix bug in display of {domino}5 2{rho}1 with []PW{is}80.  In some
+    cases, the leading spacing was counted twice.

@@ -1,0 +1,15 @@
+Build #730 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Disclose of (say) 'x' ({zilde}) 'y' Returns An Invalid Array (Empty Heterogeneous)
+
+Directory trunk:
+
+PF_RSHOE.C:
+  Include missing Assertion on the incoming function.
+  Handle {disclose}'x' ({zilde}) 3 differently from
+         {disclose} 3  ({zilde}) 'x' in that while they
+    are both 3 by 0 matrices, their prototypes differ.
+  Fix Bug:  If the result is empty heterogeneous, change
+    it to either char or numeric depending upon the first
+    non-empty (simple scalar) item.

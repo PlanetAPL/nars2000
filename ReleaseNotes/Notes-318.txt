@@ -1,0 +1,77 @@
+Build #318 -- Version 0.0.0.21792
+---------------------------------
+
+Directory trunk:
+
+EXECDFN.C:
+EXECFNS.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DSHOE.C:
+PF_DTACK.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_EQUALUND.C:
+PF_IOTA.C:
+PF_LTACK.C:
+PF_QUERY.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_RTACK.C:
+PF_TILDE.C:
+PF_UARROW.C:
+PF_UTACK.C:
+PF_UTACKJOT.C:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DITILDE.C:
+PRIMSPEC.C:
+QF_AV.C:
+QF_DL.C:
+QF_DM.C:
+QF_DR.C:
+QF_EA.C:
+QF_ERROR.C:
+QF_ES.C:
+QF_ET.C:
+QF_EX.C:
+QF_FX.C:
+QF_LC.:
+QF_MF.C:
+QF_NC.C:
+QF_NL.C:
+QF_SIZE.C:
+QF_SYSID.C:
+QF_SYSVER.C:
+QF_TC.C:
+QF_TF.C:
+QF_TS.C:
+QF_TYPE.C:
+QF_UCS.C:
+TOKENIZE.C:
+  Move error message calls to common labels.
+
+PL_PARSE.Y:
+  In <pl_yyerror>, use equate for error message instead of actual
+    text so we can modify the text by changing just one place.
+
+SYSVARS.H:
+  Include comment about enum length.
+
+MAKEFILE.INC:
+  Include DIR target in PRO target so the directories are created
+    in a fresh start.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Merge WineHQ 1.0.1 into this file.
+
+
+Directory trunk\WineHQ\Include:
+
+WIN.H:
+  Merge WineHQ 1.0.1 into this file.

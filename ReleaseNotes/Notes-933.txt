@@ -1,0 +1,17 @@
+Build #933 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  )COPY Of A Var May Fail If Src WS Internal Name (:nnn) Is Same In Dest WS
+
+Directory trunk:
+
+SC_COPY.C:
+  Update copyright year.
+  Pass flag to <ParseSavedWsVar_EM, to indicate that it's called from
+    the )COPY command.
+
+SC_LOAD.C:
+  Pass flag to <ParseSavedWsVar_EM, to indicate that it's called from
+    the )COPY command.
+  In <ParseSavedWsVar_EM>, load the var from the workspace globals if called
+    from the )COPY command.

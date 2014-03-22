@@ -1,0 +1,10 @@
+Build #1048 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug Erasing []DM And []EM Twice When Closing A Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  Fix Bug introduced in Build #1044 where in <FreeGlobalStorage> we mistakenly erase
+    []DM and []EM outside of the loop through the symbol table where they are erased again.

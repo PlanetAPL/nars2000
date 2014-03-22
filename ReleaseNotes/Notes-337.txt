@@ -1,0 +1,60 @@
+Build #337 -- Version 0.0.0.22737
+---------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+PL_PARSE.Y:
+SESSMAN.C:
+  Set Status Window message.
+
+EXCEPT.C:
+  Include Debug status in crash window.
+
+EXECDFN.C:
+  Set Status Window message.
+  Improve comments.
+
+EXTERNS.H:
+  Define Status Window Idle and Running messages.
+
+MAIN.C:
+  Define new routine to display Status Window message.
+  Use name of variable instead of constant when creating
+    the Status Window.
+
+MAKEFILE.INC:
+  Test for environment variable PARGEN.
+  Define new target DELDEP to delete all .dep files.
+  Use <mkdir> instead of <vdir> in DIR target.
+  Use <PARGEN> instead of <bison> in .y.c rule.
+
+NARS2000.VCPROJ:
+  Define project fiel for use in VC++ Express.
+
+PN_PARSE.Y:
+  Fix Bug:  If the result of Base Point Notation overflows
+    to float, the fall through doesn't restart the ptr <lpszAlphaInt>.
+
+QF_EX.C:
+SC_COPY.C:
+  Improve comments.
+
+
+Directory trunk\Tools:
+
+Delete this directory as it is no longer needed.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note that Base, Euler, and Pi Point Notation has been implemented.
+  Note that Status Window has been implemented.
+  Note that Alt-nnnn has been implemented.
+
+
+Directory trunk\htdocs\styles:
+
+COMMON.CSS:
+  Include other APL fonts for display of APL characters.

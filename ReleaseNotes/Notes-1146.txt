@@ -1,0 +1,12 @@
+Build #1146 -- Version 0.4.2.xx
+-------------------------------
+
+* Fix Bug When Syntax Coloring Jots Followed By White Space
+
+Directory trunk:
+
+TOKENIZE.C:
+  Fix bug when syntax coloring jots followed by white space.
+
+VER.RC:
+  Increment version # to 0.4.2.xx.

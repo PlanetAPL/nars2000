@@ -1,0 +1,8 @@
+Build #449 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  After a Property Page has been initialized, the Group Box
+    text no longer changes when that page is selected again.

@@ -1,0 +1,27 @@
+Build #362 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CalcArraySize>, add in one element to <ARRAY_CHAR> args so we
+    always have a zero-terminated string.
+
+QF_NL.C:
+  Delete superfluous <* sizeof (APLCHAR)> as it's already done by
+    <CalcArraySize>.
+
+SC_COMMON.C:
+  No need to add in an extra 1 to the NELM when allocating ARRAY_CHARs
+    as <CalcArraySize> now does that automatically.
+
+SC_WSID.C:
+  Update copyright year.
+  No need to add in an extra 1 to the NELM when allocating ARRAY_CHARs
+    as <CalcArraySize> now does that automatically.
+
+SYSVARS.C:
+  In <ValidateCharVector_EM>, there's no need to copy right arg to a
+    temp location as it's always zero-terminated.
+  No need to add in an extra 1 to the NELM when allocating ARRAY_CHARs
+    as <CalcArraySize> now does that automatically.

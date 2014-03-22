@@ -1,0 +1,159 @@
+Version 0.0.3.1 consists of the following Builds:
+
+
+Build #878 -- Version 0.0.3.1
+-----------------------------
+
+* Ensure Minimum OS Version Is WinXP
+
+Directory trunk:
+
+MAIN.C:
+  Ensure that the OS is at least WinXP.
+
+
+Build #877 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Use Matrix Inverse Instead Of Matrix Divide In Magic Function For Overdetermined Rational Matrix
+
+Directory trunk:
+
+PF_DOMINO.C:
+  The magic function for inverting overdetermined rational matrices
+    must use the matrix inverse form instead of matrix divide as
+    the version of FLINT we moved back to doesn't solve the system
+    of equations.
+
+REBAR.C:
+  Include non-multiset definition for Subset and Superset tooltips.
+
+
+Build #876 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Use Same GMP/MPIR/MPFR Headers As Static Libraries
+
+Directory trunk:
+
+HEADERS.H:
+  Include <mpir.h> as it is needed to define <mp_bitcnt_t>.
+
+MAKEFILE.INC:
+  Set MPIR and MPFR include directories to same files as used
+    in the static libraries.
+
+
+Build #875 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Restore Text Cursor After Changing To Another Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  Fix Bug:  Restore text cursor after changing to another tab --
+    sometimes it disappears.
+
+
+Build #874 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Ensure That VFP Modulus Result Is Less Than Modulus
+
+Directory trunk:
+
+DISPDBG.C:
+  Don't compile FLINT DEBUG stmts if Win64 (FLINT not available).
+
+INITDATA.C:
+  Omit precision save stmts as they are unused.
+
+MPFNS.C:
+  Remove Assert stmts as they fail on Win64 DEBUG.
+  Fix Bug:  Call <mpf_mod_sub> until the result is less than the modulus
+    as the precision limitations might require that.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Synchronize the 32- and 64-bit versions.
+
+
+Build #873 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Handle Type Promotion To RAT As Exception
+* Fix Bug:  Handle Missing Cases Due To <pi> Forcing Args To RAT
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  Handle <EXCEPTION_RESULT_RAT> in all exception routines where
+    <EXCEPTION_RESULT_VFP> is handled.
+  Fix Bug:  Handle missing cases due to <pi> forcing all numeric args to RAT.
+  Fix Bug:  In <PrimFnDydSiScSiScSub_EM>, when the result is a global numeric,
+    handle the case where the ptr to result global memory handle is non-NULL, but
+    the value is NULL as one in which we need to allocate memory for the result.
+  Improve comments.
+
+
+Build #872 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Fix Memory Overwrite
+* Fix Bug:  Fix Memory Leak
+* Fix Bug:  Divisor Sum Wrong for Prime 2
+
+Directory trunk:
+
+PF_PI.C:
+  Fix Bug:  In <PrimFnDydPiRisRvR>, don't copy the right arg numerator as
+    it is changed by <PrimFnPiCommon>.
+  Fix Bug:  In <PrimFnDydPiRisRvR>, free two MPZs at end to avoid memory leak.
+  Handle <PrimFnDydPiViaVvV> by converting the MPFs to MPQs and calling
+    <PrimFnDydPiRisRvR> directly.
+  Fix Bug:  In <ProcessPrime>, the divisor sum is calculated incorrectly for
+    the prime 2.
+
+
+Build #871 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Handle Long Lines, Part II
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Handle long lines, part II.
+  Improve comments.
+
+
+Build #870 -- Version 0.0.3.1
+-----------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+DISPLAY.C:
+  Improve comments.
+
+MPFNS.C:
+  Include debugging stmts in <mpf_mod>.
+
+PF_STILE.C:
+  Improve comment.
+
+
+Build #869 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  When Unlocalizing []FPC, set The FPC-Dependent Vars
+
+Directory trunk:
+
+EXECDFN.C:
+  In <UnlocalizeSTEs>, when unlocalizing []FPC, set the FPC-dependent vars.
+
+VERSION.RC:
+  Increment version to 0.0.3.1.

@@ -1,0 +1,10 @@
+Build #821 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Parenthesized Expression With Embedded Assignment Not Parsed Correctly
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Improve comments.
+  Fix Bug:  In <ArrValu:  ArrExpr>, don't trigger error if in look ahead.

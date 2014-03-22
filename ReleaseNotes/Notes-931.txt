@@ -1,0 +1,10 @@
+Build #931 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Catenate Of RAT/VFP and FLT Uses Wrong Conversion
+
+Directory trunk:
+
+PF_COMMA.C:
+  In <PrimFnDydComma_EM_YY>, RAT/VFP catenate FLT where the FLT is
+    on the right, promotes the float as if it were an integer.

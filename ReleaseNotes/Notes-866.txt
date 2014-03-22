@@ -1,0 +1,13 @@
+Build #866 -- Version 0.0.3.0
+-----------------------------
+
+* Fix Bug:  Fails When Parsing The Largest (In Magnitude) Negative Number
+
+Directory trunk:
+
+PN_PARSE.Y:
+  In <PN_NumCalc>, when parsing the largest (in magnitude) negative number,
+    we need to subtract instead of add in order to parse this value correctly.
+
+QF_DR.C:
+  In <SysFnDR_ConvertIntToChar>, always set the result.

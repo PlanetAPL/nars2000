@@ -1,0 +1,471 @@
+Version 0.3.10.xx consists of the following Builds:
+
+
+Build #1109 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Multiset Iota, Epsilon, Match With Numeric vs. Char
+
+Directory trunk:
+
+PO_MULTISET.C:
+  Fix bug in Multiset Iota, Epsilon, and Match where one arg is numeric, the other char.
+
+
+Build #1108 -- Version 0.3.10.xx
+--------------------------------
+
+* Document Sequence (DotDot) Function In Language Bar
+
+Directory trunk:
+
+REBAR.C:
+  Change the Language Bar to allow multi-char functions such as Sequence (L"..").
+  Include Sequence (DotDot) function in Language Bar as a separate entry.
+
+
+Build #1107 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Each When Calculating The Result Rank
+
+Directory trunk:
+
+PO_DIERESIS.C:
+  Fix bug introduced in build #1093 where the calculation of the result rank
+    was wrong if neither arg is a singleton and the left arg rank is smaller
+    than the right arg rank.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+
+Build #1106 -- Version 0.3.10.xx
+--------------------------------
+
+* Miscellaneous Cleanup
+
+Directory trunk:
+
+DISPDBG.C:
+  Update the copyright year.
+  Fix bugs in DEBUG table of flag names.
+  Include additional DEBUG Assert stmt.
+  Fix bug in DEBUG display of a function header.
+  Delete trailing semicolons after <MBC> and <MBWC> macros.
+
+EDITFCN.C:
+  Fix bug in <SyntaxColor> where Lock should be Unlock.
+
+MACROS.H:
+  Surround <MBC> and <MBWC> macros with braces so they don't affect the outer syntax.
+
+MAKEFILE.INC:
+  Make build sensitive to the relative timestamps of all LICENSE* files.
+
+QF_EX.C:
+  Update the copyright year.
+  Clean up the code.
+
+QF_FMT.C:
+  Use common #define instead of separate ones.
+
+QF_NFNS.C:
+  Fix bug of missing trailing semicolon.
+
+RESDEBUG.C:
+  Update the copyright year.
+  Delete trailing semicolons after <MBC> and <MBWC> macros.
+
+RESDEBUG.H:
+  Update the copyright year.
+  Document the alternative macro expansions for Memory Management functions.
+
+SC_LOAD.C:
+  Delete trailing semicolons after <MBC> and <MBWC> macros.
+
+STARTADDR.H:
+  Include additional functions for debugging purposes.
+
+SYMTAB.C:
+  Update the copyright year.
+  Delete trailing semicolons after <MBC> and <MBWC> macros.
+
+
+Build #1105 -- Version 0.3.10.xx
+--------------------------------
+
+* Implement Dyadic Iota Underbar (Array Lookup)
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+PF_IOTAUND.C:
+  Define new magic function for Dyadic Iota Underbar.
+
+PO_MULTISET.C:
+  Handle Dyadic Iota Underbar as multiset operand.
+
+PO_VARIANT.C:
+  Dyadic Iota Underbar is now sensitive to both []IO and []CT, so it needs
+    to be handled differently.
+  Move Right Shoe and Pi up to test for left arg as they are not Variant
+    operator shortcuts when called monadically.
+
+REBAR.C:
+  Document Dyadic Iota Underbar in the Language Bar.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document Dyadic Iota Underbar as new primitive function.
+
+
+Build #1104 -- Version 0.3.10.xx
+--------------------------------
+
+* Change Symbol For Tally
+
+Directory trunk:
+
+EXECMFN.H:
+  Include #define for <$QUAD_FEATURE> omitted from Build #1100.
+
+MAIN.C:
+  Change <#ifdef RESDEBUG> to <#if RESDEBUG> omitted from Build #1100.
+
+PF_EQUALUND.C:
+PF_RCARET.C:
+REBAR.C:
+  Change the symbol for the Tally function from right caret to not-equal-underbar.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Change the symbol for the Tally function from right caret to not-equal-underbar.
+
+
+Build #1103 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In {goto} Simple Char
+
+Directory trunk:
+
+GOTO.C:
+  In <GotoLine_EM>, handle the cases where the argument is simple char, or is nested and the first element is simple char.
+
+
+Build #1102 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Display Of Tabs
+
+Directory trunk:
+
+DISPLAY.C:
+  At the end of <DisplayGlbArr_EM> when displaying a result not displayed as raw output up to that point,
+    the amount of space reserved for the formatted area doesn't take into account tab stops.
+
+
+Build #1101 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Scalar Dyadic Functions With FLOAT Result From APA vs. BOOL/INT/APA And Vice Versa
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDydSingMult_EM> and <PrimFnDydMultSing_EM>, handle FLOAT result from APA on the left vs. BOOL/INT/APA on the right and vice versa.
+
+
+Build #1100 -- Version 0.3.10.xx
+--------------------------------
+
+* Change Default State Of Negative Indices To FALSE
+
+Directory trunk:
+
+EXTERNS.H:
+  Change the default state of negative indices to FALSE.
+  Change <#ifdef RESDEBUG> to <#if RESDEBUG> as the value is always defined to 0 or 1.
+
+PO_DIJOT.C:
+  Update copyright year.
+  Localize []FEATURE in magic functions that use negative indices.
+
+
+Build #1099 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug Displaying {zilde} (,1)
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  In <FormatArrSimple>, skip code if empty cols.
+
+
+Build #1098 -- Version 0.3.10.xx
+--------------------------------
+
+* Change URL For Browsing Source On Google Code
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Change the URL for browsing the source code to one that works better on Google Code.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-MENU.HTML:
+  Change the URL for browsing the source code to one that works better on Google Code.
+
+
+Build #1097 -- Version 0.3.10.xx
+--------------------------------
+
+* Extend Singleton Right Args In Replicate And Expand
+
+Directory trunk:
+
+PF_SLASH.C:
+PF_SLOPE.C:
+  Allow a singleton right arg to extend just as a scalar right arg does.
+
+
+Build #1096 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Dyadic Format When Exceeding An Internal Limit
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  In <PrimFnDydDownTackJot_EM_YY>, surround the main code with __try/__except
+    so as to catch LIMIT ERRORs.
+
+
+Build #1095 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Inner Product When Promoting The Result Datatype
+
+Directory trunk:
+
+PO_DOT.C:
+  Update copyright year.
+  In <PrimOpDydDotCommon_EM_YY>, when the result datatype is promoted, I forgot
+    to relock the left and right arguments.
+
+
+Build #1094 -- Version 0.3.10.xx
+--------------------------------
+
+* Simplify []WA Algorithm
+
+Directory trunk:
+
+QF_WA.C:
+  Update copyright year.
+  Use <GlobalMemoryStatusEx> to get available memory instead of allocating
+    it as the latter might cause the page file to grow.
+
+
+Build #1093 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Dyadic Each With High Rank Singletons Vs. Low Rank Non-singletons
+
+Directory trunk:
+
+PO_DIERESIS.C:
+  Fix Bug in calculation of the result rank of high rank singleton args vs. low rank non-singleton args.
+
+
+Build #1092 -- Version 0.3.10.xx
+--------------------------------
+
+* Use More Consistent Naming Conventions
+
+Directory trunk:
+
+AXISFNS.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_DARROW.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PO_DIERESIS.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+PRIMSPEC.H:
+  Improve comments.
+  Rename <lpMemAxis> and <lpMemGrUp> to <lpMemAxisHead> and <lpMemAxisTail>
+    to better reflect their function.
+
+
+Build #1091 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bugs In Enclose With Axis Function
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Improve comments.
+  Rename <lpMemAxis> and <lpMemGrUp> to <lpMemAxisHead> and <lpMemAxisTail>
+    to better reflect their function.
+  Pass additional parameters to <PrimFnMonLeftShoeProto_EM>.
+  Fix Bug in <PrimFnMonLeftShoeGlb_EM_YY> when checking for empty subarrays
+    where the code doesn't take into account multiple axes.
+  Fix bug in <PrimFnMonLeftShoeProto_EM> where the code doesn't take into
+    account multiple axes.
+
+
+Build #1090 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Unique Function
+
+Directory trunk:
+
+PF_DSHOE.C:
+  Fix bug in Unique function where I didn't use []CT when comparing adjacent
+    floating point or VFP values.
+
+
+Build #1089 -- Version 0.3.10.xx
+--------------------------------
+
+* Grade APVs As APVs
+
+Directory trunk:
+
+PF_DELTASTILE.C:
+  Grade an APV and return an APV.
+
+
+Build #1088 -- Version 0.3.10.xx
+--------------------------------
+
+* Include More Shorthand Variant Primitives
+
+Directory trunk:
+
+PF_EQUAL.C:
+  Update copyright year.
+  In <PrimFnDydEqualBisFvF>, simplify the code.
+
+PF_NEQUAL.C:
+  Update copyright year.
+  In <PrimFnDydNotEqualBisFvF>, simplify the code.
+
+PO_VARIANT.C:
+  In <PrimOpVariantCommon_EM_YY>, include more primitives in the list
+    of shorthand variants for []IO and []CT.
+
+
+Build #1087 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug:  Certain Routines May Fail If Called With Immediate Token
+
+Directory trunk:
+
+GETFNS.C:
+  Fix Bug:  In <GetNextIntegerToken> and <GetNextFloatToken>, handle immediate token input.
+
+
+Build #1086 -- Version 0.3.10.xx
+--------------------------------
+
+* Implement Execution Timer In StatusBar
+
+Directory trunk:
+
+COMPRO.H:
+  Include new file's prototypes.
+
+DEFINES.H:
+  Define superclassed class name.
+
+EDITFCN.C:
+EXECDFN.C:
+PL_PARSE.Y:
+SESSMAN.C:
+  Set execution state via a subroutine.
+
+EXTERNS.H:
+  Define new StatusBar part.
+
+MAIN.C:
+  Move all StatusBar code to <statusbar.c>.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include entry for new file.
+
+PERTAB.H:
+  Define pertab entry for starting tick count.
+
+STATUSBAR.C:
+  New file to contain all StatusBar code.
+
+
+Build #1085 -- Version 0.3.10.xx
+--------------------------------
+
+* Use Consistent Windows Class Names
+
+Directory trunk:
+
+CLASSNAMES.H:
+  New file with consistent Windows class names.
+
+CRASH.C:
+DEBUG.C:
+DEFINES.H:
+EDITFCN.C:
+HEADERS.H:
+MAIN.C:
+MAIN.RC:
+PERFMON.C:
+REBAR.C:
+TABCTRL.C:
+  Use consistent Windows class names.
+
+
+Build #1084 -- Version 0.3.10.xx
+--------------------------------
+
+* Licensing and Build Issues
+
+Directory trunk:
+
+LICENSE:
+LICENSE-GPL:
+LICENSE-LGPL:
+  Include the LGPL license text and explain how to build the (L)GPL libraries
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  In DEBUG mode, turn on buffer security checks.
+  Include additional library dependencies as a linker option so the program
+    re-links if any of the dependent libraries are newer.
+
+VER.RC:
+  Increment version # to 0.3.10.xx.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Include new download needed to satisfy (L)GPL licenses.

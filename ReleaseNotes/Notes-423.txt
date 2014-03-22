@@ -1,0 +1,11 @@
+Build #423 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_NC.C:
+  Fix Bug:  In <CalcNameClass>, the test for Magic Functions is no longer
+    on <NAMETYPE_UNK> as they are now in the symbol table.  Instead test
+    for them in the function and operator name types.  This affects the
+    result of []NC and []NL.  Note that there is no separate name class
+    for Magic Functions vs. Magic Operators (such as #DydRank).

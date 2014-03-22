@@ -1,0 +1,105 @@
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Delete definition of Assert at it's no longer a macro.
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message.
+
+COMMON.C:
+  Fix bug if skipping black at EOS.
+
+CONVERT.C:
+  Define new function for common task of converting a name in place.
+
+DATATYPE.H:
+  Include time of last modification in function array header.
+
+EDITFCN.C:
+  Fix bug where second edit of a function doesn't start off with empty undo entry.
+  Omit debug stmt in EM_MAXTEXT -- we'll find out later if it works.
+  Pass &stFlags argument to SymTabAppendName_EM.
+  Skip debug stmt is user presses Ctrl-Y.
+
+ERRMSG.C:
+  Zap HGLOBAL reference after freeing it.
+
+EXECDFN.C:
+  Zap HGLOBAL reference after freeing it.
+
+EXTERNS.H:
+  Define new entry {comma} in aSymbolNames[] to avoid problem in Save/Load workspace.
+
+FREE.C:
+  Zap HGLOBAL reference after freeing it.
+
+INITDATA.C:
+  Change one more reference of underbar to infinity.
+  Delete stub reference for PrimProtoFnDownShoe_EM_YY as there's a real entry
+    (and has been for some time).
+  Delete spurious stub references to PrimProtoFnQuery_EM_YY and PrimProtoFnTilde_EM_YY.
+
+PF_INDEX.C:
+  Zap HGLOBAL reference after freeing it.
+
+QF_DR.C:
+  Implement -1 []DR as conversion routine from char to float (inverse of 1 []DR).
+  Use macro for rank and length testing.
+  Omit "Dyd" from name of generic []DR subroutines.
+  Handle non-float numeric args to FloatToChar.
+
+QF_FX.C:
+  Use local parameters to pass local args to SaveFunctionCom rather than put them
+    in the main struc.
+  Define entries for additional routines (CreationTime/LastModTime/UndoBuffer).
+
+SAVEFCN.C:
+  Use local parameters to pass local args to SaveFunctionCom rather than put them
+    in the main struc.
+  Define entries for additional routines (CreationTime/LastModTime/UndoBuffer).
+
+SAVEFCN.H:
+  Use local parameters to pass local args to SaveFunctionCom rather than put them
+    in the main struc.
+  Define entries for additional routines (CreationTime/LastModTime/UndoBuffer).
+
+SC_LOAD.C:
+  )LOAD finally working.
+
+SC_SAVE.C:
+  Move error message calls to common labels.
+  Catch case where can't create/truncate workspace file (name corrupt?, disk full?, permissions?).
+  Change saved ws format to accomodate )LOAD.
+  Zap HGLOBAL reference after freeing it.
+
+SC_WSID.C:
+  Zap HGLOBAL reference after freeing it.
+
+SESSMAN.C:
+  Pass HWND parameters to LoadWorkspace so it doesn't have to find it.
+
+STARTADDR.H:
+  Append more addresses.
+
+STRAND.C:
+  Copy creation time to lastmod time for function array.
+
+SYMTAB.C:
+  Pass &stFlags argument to SymTabAppendName_EM.
+
+SYSVARS.C:
+  Zap HGLOBAL reference after freeing it.
+
+TOKENIZE.C:
+  Define new col for underbar as its action in names differs from that of infinity.
+  Fix bug in action for overbar (from FSA_INIT, it should not start an alphabetic).
+  Fix bug in action for overbar (from FSA_OVERBAR, only integer, fractional, or infinity are valid).
+  Pass &stFlags argument to SymTabAppendName_EM.
+
+TRANSLATE.C:
+  Define function to translate from NAMETYPE_xxx to IMMTYPE_xxx.
+
+WORKSPACE.H:
+  Define keyname for Last Modification Time.

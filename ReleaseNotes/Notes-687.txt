@@ -1,0 +1,14 @@
+Build #687 -- Version 0.0.2.14
+------------------------------
+
+* Delete Code To Handle Variables As Left Operands
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Delete code which handles a variable as the left operand to a
+    monadic or dyadic operator as it needs to be stranded and as
+    such is handled in <DrvXFunc> terminals.
+
+SESSMAN.C:
+  Insert DEBUG code to check ptrs when at top most SI level.

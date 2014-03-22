@@ -1,0 +1,87 @@
+Build #742 -- Version 0.0.2.18
+------------------------------
+
+* Implement Identity Functions
+
+Directory trunk:
+
+COMPRO.H:
+  Include .pro file for the new source file.
+
+EXECDFN.C:
+  Improve comments.
+  In <ExecDfnGlbProto_EM_YY>, rename local var to more appropriate name.
+  Implement new routine to execute a UDFO in an identity context.
+
+EXECMFN.C:
+  Define entries for new magic functions/operators to handle Rank, Inner
+    and Outer Product in an identity context.
+
+EXECMFN.H:
+  Include new magic functions/operators in MFOE enum.
+
+EXTERNS.H:
+  Define union and structs for identity functions.
+  Define table for identity functions.
+
+GETFNS.C:
+  Define routine to return the ptr to an identity function.
+
+IDENTFNS.C:
+  Define new source file to implement identity functions.
+
+INITDATA.C:
+  Define routine to initialize identity functions.
+  Rename <InitPrimSpec> to <Init1PrimSpec> to be less confusing.
+  Rename <InitPrimFlag> to <Init1PrimFlag> to be less confusing.
+  Rename <InitIdentityElement> to <Init1IdentityElement> to be less confusing.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define entries for new source file.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Move common code to common file.
+
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DOMINO.C:
+PF_DTACK.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+PF_TILDE.C:
+PF_UARROW.C:
+PO_DIERESIS.C:
+PO_DITILDE.C:
+PO_JOTDOT.C:
+  Define identity function for this primitive.
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY>, allow axis immediate and arrays as index lists
+    so we may use them in identity functions.
+
+PO_DIJOT.C:
+  Improve comments.
+
+PO_DOT.C:
+  Define identity function for this primitive.
+  Call the appropriate identity function from the reduction inherent in
+    inner product.
+  Eliminate special cases of identity functions.
+
+PO_SLASH.C:
+  Call the appropriate identity function from monadic and dyadic reduction.
+  Eliminate special cases of identity functions.
+
+PRIMFNS.C:
+  In <AttrsOfToken>, allow axis immediate and array so we may use them
+    in identity functions.
+
+STARTADDR.H:
+  Include additional files and routines.

@@ -1,0 +1,34 @@
+Build #583 -- Version 0.0.2.4
+-----------------------------
+
+* Reduce Screen Flicker
+
+Directory trunk:
+
+DEBUG.C:
+  Define <USEMEMDC_WM_PAINT> to double buffer in WM_PAINT.
+  In <DBWndProc/WM_DRAWITEM>, do not double buffer if
+    <USEMEMDC_WM_PAINT> is defined.
+  In <LclListboxWndProc/WM_PAINT>, double buffer the DC
+    unles there is an incoming DC or no update rectangle.
+
+EDITFCN.C:
+  In <LclECPaintHook> if we're Syntax Coloring, use the
+    incoming DC instead of a new one as we're now double
+    buffering.
+  In <LclEditCtrlWndProc/WM_PAINT>, ensure that the left edge
+    of the line is included in the update region in case
+    Syntax Coloring has to change the color of a previous
+    char not in the original update region.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Uncomment lines with TRACE(), FIXME() and WARN() macros
+    so as to minimize the difference with the original file.
+    These macros don't generate any code, so tehre's no
+    harm in including them.
+  In <EDIT_WM_Paint>, double buffer the output so as to
+    reduce screen flicker.
+  In <EDIT_WM_Size>, don't double buffer as we now do it
+    in <WM_PAINT>.

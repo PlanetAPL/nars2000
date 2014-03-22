@@ -1,0 +1,11 @@
+Build #993 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In []FMT Thousands Separator Insertion
+
+Directory trunk:
+
+QF_FMT.C:
+  In <QFMT_ThousandsSep>, the move up of the fractional part is
+    incorrectly merged into all the moves whereas it should be done
+    once initially, outside the loop.

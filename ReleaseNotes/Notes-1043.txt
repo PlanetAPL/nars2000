@@ -1,0 +1,10 @@
+Build #1043 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Test For Non-NULL Before Using
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Fix Bug introduced in the last build where in <ArrExprCheckCaller> I forgot
+    to test a variable for non-NULL before using it.

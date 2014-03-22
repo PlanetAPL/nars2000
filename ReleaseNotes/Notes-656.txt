@@ -1,0 +1,14 @@
+Build #656 -- Version 0.0.2.13
+------------------------------
+
+* Fix Bug:  MemberOf with APA Right Arg Returns Wrong Result
+
+Directory trunk:
+
+PF_EPSILON.C:
+  Fix Bug:  In <PrimFnDydEpsilonNvA_EM> (that is dyadic epsilon Numeric v.
+    APA), a wayward not sign slipped into the code causing it to return an
+    incorrect result.
+
+VERSION.RC:
+  Increment version to 0.0.2.13.

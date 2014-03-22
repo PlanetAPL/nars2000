@@ -1,0 +1,18 @@
+Build #443 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PERTAB.H:
+  Include <STRAND_LST> and <STRAND_NAM> in the list of arrays to
+    <VirtualAlloc> for each session.
+
+PL_PARSE.Y:
+  In <ParseLine>, delete code to <VirtualAlloc> several arrays each
+    time it's called as that's now done once by the SM.  Instead,
+    initialize the strand Start/Base/Next from the values in PTD
+    or the previous <plLocalVars>.
+
+SESSMAN.C:
+  Include <STRAND_LST> and <STRAND_NAM> in the list of arrays to
+    <VirtualAlloc> for each session.

@@ -1,0 +1,12 @@
+Build #791 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Floating Point Left Arg To Reshape Not Handled Correctly
+
+Directory trunk:
+
+PF_RHO.C:
+  Update copyright year.
+  After validating the left arg, when referencing it again, convert
+    it to integer using the same algorithm as when validating it.
+  Improve comments.

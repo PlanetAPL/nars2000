@@ -1,0 +1,20 @@
+Build #367 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+FH_PARSE.PROTO:
+SAVEFCN.C:
+  Rename <ParseHeader> to <ParseFcnHeader> to better reflect its purpose.
+
+EXECMFN.C:
+  In <Init1MagicFunction>, use <MyGlobalAlloc> instead of <GlobalAlloc>
+    as we do free the storage when we close a tab.
+  Rename <ParseHeader> to <ParseFcnHeader> to better reflect its purpose.
+
+FH_PARSE.Y:
+  Rename <ParseHeader> to <ParseFcnHeader> to better reflect its purpose.
+  Improve comments.
+  Surround the body of <ParseFcnHeader> with __try/__except to handle
+    references to uncommitted virtual memory.

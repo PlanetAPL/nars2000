@@ -1,0 +1,10 @@
+Build #824 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Syntax Coloring May Write Too Many Entries
+
+Directory trunk:
+
+TOKENIZE.C:
+  Fix Bug:  Syntax coloring of ({iota}6){jot}2+a with a dot inserted
+    to the right of the {jot} writes too many entries in memory.

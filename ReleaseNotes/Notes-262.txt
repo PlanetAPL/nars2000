@@ -1,0 +1,187 @@
+Directory trunk:
+
+DATATYPE.H:
+  Fix error in comment.
+
+DISPDBG.C:
+  Expand use of <DisplayFcnGlb> to use in []CR, )LOAD, and )COPY.
+  When displaying monadic or ambiguous operators, don't display
+    a left operand if it's not present (as in, say, f{is}{dieresis}).
+  Use <FormatImmed> instead of <FormatAplInt> for immediate values
+    as they all need not be integer.
+  Use callback to <SavedWsGlbVarConv> if called from )SAVE to save
+    a global var in a function strand into the workspace.
+  Use ellipsis to display an unnamed global var if not using callback.
+  Fix bug in display of TKT_VARARRAY and TKT_VARNAMED vars where
+    the code doesn't back up to the overwritten trailing blank,
+    thus returning the wrong length result.
+  Remove commented out code.
+
+EXECFNS.C:
+  In <ExceFcnGlb_EM_YY>, check for secondary axis operator and signal
+    error if found.
+  Move error message calls to common labels.
+
+EXTERNS.H:
+  Move definition of <lpwNameTypeStr> out of DEBUG-only so it can be used
+    in <DisplayFcnGlb>.
+
+FREE.C:
+  In <FreeResultGlobalDFV>, omit code to clear type bits as that's
+    handled in <GetSignatureGlb>.
+
+GETFNS.C:
+  Define new routines <GetPrototypeFcnPtr> and <GetPrimFlagsPtr> to
+    obtain the respective ptrs.
+
+PARSE.Y:
+  Define new tokens <OP3ASSIGN> and <NAMEOP3ASSIGN> to use when assigning
+    them to a variable.
+  Remove old terminals and rules used for AmbOp handling.
+  Define commented out handling for rule <ArrExpr NAMEOP3> in case it's needed.
+  In rule <MonOp ASSIGN NameAnyOpN> don't free $1 as it's passed on as the result.
+  Define new terminal <AmbOpAssign> to handle assignment of ambiguous operators
+    to a name.
+  In terminal <ArrExpr>, define new rule <CONSTANT ':'> to handle transferring
+    a function strand containing a global var via )LOAD or )COPY, and use
+    callback function to get the actual global memory handle.
+  Merge <MakeNameFcn_YY> and <MakeNameOp123_YY> into one function.
+  In rule <ambOp LeftOper>, convert the first token from AmbOp to MonOp.
+  In <LookaheadAdjacent>, display more detailed debugging info.
+  In <pl_yylex> case <TKT_OP3NAMED>, return <NAMEOP3ASSIGN> if it's followed by
+    an assignment arrow.
+  In <pl_yylex> case <TKT_OP3IMMED>, return <OP3ASSIGN> if it's followed by
+    an assignment arrow.
+  In <pl_yylex> case <TKT_RPAREN>, include case '3' on return from <LookaheadSurround>.
+  In <pl_yylex> cases <TKT_COLON>, <TKT_RBRACE>, and <TKT_LBRACE>, return the
+    appropriate character.  The first case is for handling global vars in
+    function strands.
+  In <AmbOpSwap>, use more general function strand token count function <YYCountFcnStr>
+    to get the actual # tokens in the function strand.
+  In <AmbOpSwap>, use more general axis operator test function <YYIsFcnStrAxis> to
+    test for an axis operator in a function strand.
+  In <AmbOpToFcn>, split cases based upon the token type to handle more cases.
+  Define <AmbOpToOp1> to convert an ambiguous operator to a monadic operator.
+
+PERTAB.H:
+  Include "workspace.h" as we need its definition of some strucs.
+  Define two vars to handle global vars in function strands.
+
+PF_COMMA.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PF_EPSILON.C:
+  Fix typo in comment.
+
+PF_IOTA.C:
+  Fix typo in comment.
+
+PF_RTACK.C:
+  Move error message calls to common labels.
+
+PF_SLASH.C:
+  Move error message calls to common labels.
+
+PF_SLOPE.C:
+  Move error message calls to common labels.
+
+PF_TIMES.C:
+  Move error message calls to common labels.
+
+PO_CMIDDOT.C:
+  Move error message calls to common labels.
+  Use common <GetPrototypeFcnPtr> instead of special code.
+
+PO_DIERESIS.C:
+  Use common <GetPrototypeFcnPtr> instead of special code.
+  Move error message calls to common labels.
+
+PO_DITILDE.C:
+  Use common <GetPrototypeFcnPtr> instead of special code.
+  Move error message calls to common labels.
+
+PO_DOT.C:
+  Use common <GetPrototypeFcnPtr> instead of special code.
+  Move error message calls to common labels.
+
+PO_JOT.C:
+  Use common <GetPrototypeFcnPtr> instead of special code.
+
+PO_JOTDOT.C:
+  Move error message calls to common labels.
+  Use common <GetPrototypeFcnPtr> instead of special code.
+
+PO_SLASH.C:
+  Test for UTF16_xxx as wlll as INDEX_xxx in case we're called from
+    an ambiguous operator converted to a monadic operator.
+  Move error message calls to common labels.
+  Use common <GetPrototypeFcnPtr> instead of special code.
+  Use common <GetPrimFlagsPtr> instead of special code.
+  In <PrimOpDydSlashCommon_EM_YY>, when executing 1 +/ A
+    test for not immediate before copying the right arg global.
+
+PO_SLOPE.C:
+  Test for UTF16_xxx as wlll as INDEX_xxx in case we're called from
+    an ambiguous operator converted to a monadic operator.
+  Use common <GetPrototypeFcnPtr> instead of special code.
+  Move error message calls to common labels.
+  Use common <GetPrimFlagsPtr> instead of special code.
+
+QF_CR.C:
+  When displaying a function strand, don't include the function strand name.
+
+SAVEFCN.C:
+  Remove "workspace.h" as it's now included in "pertab.h".
+
+SC_COPY.C:
+  Remove "workspace.h" as it's now included in "pertab.h".
+  Change from using '#' as the leading symbol for global entries to
+    using FMTCHR_LEAD.
+  Use FMTSTR_GLBCNT instead of hard-coded string.
+
+SC_LOAD.C:
+  Remove "workspace.h" as it's now included in "pertab.h".
+  Use SCANFSTR_xxx instead of hard-coded strings.
+  Use FMTSTR_GLBCNT instead of hard-coded string.
+  Change from using '#' as the leading symbol for global entries to
+    using FMTCHR_LEAD.
+  In <LoadWorkspaceGlobal_EM> when loading a function array, use callback
+    function called from within <ParseLine> to get global vars.
+  Define <LoadWsGlbVarConv> as callback function from <ParseLine>.
+
+SC_SAVE.C:
+  Remove "workspace.h" as it's now included in "pertab.h".
+  Change from using '#' as the leading symbol for global entries to
+    using FMTCHR_LEAD.
+  Use FMTSTR_GLBCNT and FMTSTR_GLBOBJ instead of hard-coded strings.
+  In <SavedWsFormGlbFcn> when saving a function array, use callback
+    function to save any global vars when getting the display form
+    of the function strand.
+  Improve comments.
+  Define <SavedWsGlbVarConv> as callback function from <DisplayFcnSub>.
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY>, use <YYCountFcnStr> to get actual token count in a function strand.
+  In <MakeFcnStrand_EM_YY>, use <DisplayFcnGlb> to get the text line for a function strand.
+  Given that we now calculate the exact token length of a function strand, remove
+    the code to handle re-allocaiton down.
+  Merge <MakeNameFcn_YY> and <MakeNameOp123_YY> into one function.
+  Merge <MakePrimOp1/2/3> into a single common function to avoid duplication of code.
+
+SYSCMDS.C:
+  Allow )SVAE as an alias for )SAVE.
+
+UNICODE.H:
+  Define UTF16_xxx value for horizontal ellipsis.
+
+WORKSPACE.H:
+  Define strings for representing global vars in saved workspaces.
+  Define strucs, etc. for callback functions used in )LOAD, )COPY, and )SAVE.
+
+YYFNS.C:
+  Define <YYCountFcnStr> to count the tokens in a function strand.
+  Define <YYIsFcnStrAxis> to determine whether or not there's an axis
+    operator to a given function strand.
+  In <YYCopyFcn>, split cases where the direct token is a global
+    as it might be a user-defined function/operator as well as
+    a function array.

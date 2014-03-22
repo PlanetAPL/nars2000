@@ -1,0 +1,274 @@
+Build #624 -- Version 0.0.2.7
+-----------------------------
+
+* Implement Rebar Control
+
+Directory trunk:
+
+BISON.RULES:
+  Call <makefile.pro.parse> after generating a new parser.
+
+COMPRO.H:
+  Update copyright year.
+  Include Rebar prototype file.
+
+CRASH.C:
+  Update copyright year.
+  Improve comments.
+
+CUSTOMIZE.C:
+  Make room for one more row of SameFontAs radio buttons.
+  Move TOOLINFOW struct up to the top of <CustomizeDlgProc>, rename it,
+    and change from chars to WCHARs.
+  If not already created, create a font handle for the Font Buttons.
+  Use the Font Buttons handle when displaying the text on the font buttons.
+  Define new font for display of the Language Bar.
+  Fix Bug:  When reading the window text from the Font Button, take into
+    account the zero-terminator.
+  Change the calculation of the rectangle for MDI CLient windows from
+    window to MF client coords.
+  Improve comments.
+  In <WM_DESTROY>, unregister the tooltips we created.
+
+DEBUG.C:
+  Improve comments.
+
+DEFINES.H:
+  Define default font name, logfont, and point size for Font
+    Buttons and Language Bar.
+  Move all window class equates to this file.
+  Define window class names for the Font Window and Language Bar
+    Window in the Rebar ctrl.
+  Define # extra bytes for the Font Window and Language Bar Windows.
+  Define window message #s for Font Window and Language Bar Windows.
+  Move <IMAGE_CX/_CY> equates to <rebar.c>.
+  Define equates for window properties instead of using char strings.
+
+EDITFCN.C:
+  In <SetMarginsFE>, pass down just the Edit Ctrl window handle and
+    calculate the actual margin inside the function rather than by
+    the caller.
+  In Function Editor and Session Manager windows, save as a window
+    property a ptr to the widow's menu positions.
+  When we activate the function editor, give it the focus.
+  Define the window menu position functions for the Function Editor
+    and Session Manager.
+  In <DrawLineNumsFE>, if we're not displaying function line #s, exit.
+  Define routines to show/hide a Rebar band and set the corresponding
+    toolbars menu.
+  Define routine to set the Toggle Function Line #s button state and
+    redraw the margins if necessary.
+  Enhance <ActivateMDIMenu> to show/hide the appropriate toolbars in
+    the Rebar ctrl depending upon the window just activated.
+  In <ActivateMDIMenu>, if it's a FE window, set the current state of
+    the Objects Toolbar's Toggle Fcn Line #s button.
+
+ENUMS.H:
+  Define new file to hold all enums so they may be found more easily.
+  Eventually, more if not all enums will be moved to this file.
+
+EXTERNS.H:
+  Move old <IMAGE_CX/_CY> equates to this file and define new ones for
+    the Rebar ctrl.
+  Define toolbar control structs and vars.
+  Define new window global handles for the Rebar ctrl.
+  Define new image lists for the Rebar ctrl.
+  Move <aSymbolNames_NRows> to <symbolnames.h>.
+  Define global logfont structs for the Font Buttons and Language Bar.
+  Define global HFONT for the Font Buttons and Language Bar.
+  Define global CHOOSEFONT structs for the Language bar.
+  Define global TEXTMETRICW for the Language bar.
+  Define entry for Language Bar font in <FONTENUM> struct.
+  Define prototypes for functions for the Language Bar.
+  Define entry for Language Bar in <fontStruc>.
+  Move global Boolean value for whether or not we've found our
+    default APL font to <externs.h>.
+
+HEADERS.H:
+  Update copyright year.
+  Include <enums.h> in the list of header files.
+
+INIFILE.C:
+  Define section name for [APL Fonts] and [Toolbars].
+  Define keynames for toolbars.
+  Define routine to read/append/write [APL Fonts] section entries.
+  Improve comments.
+  Read in/write out the [Toolbars] section entries.
+
+INITDATA.C:
+  Update copyright year.
+  Replace INDEX_xxx with UTF16_xxx as we no longer need the former.
+
+MAIN.C:
+  Remove unneeded #includes.
+  Move global Boolean value for whether or not we've found our
+    default APL font to <externs.h>.
+  Define more messages for when RegisterClass fails.
+  In <SetStatusParts>, simplify by using <GetActiveEC> instead of
+    <GetActiveMC>.
+  Improve comments.
+  Define routine to return ptr to logfont struct for a SameFontAs font.
+  Define routines to create and apply the font used for the Language Bar
+    in the Rebar ctrl.
+  After creating a new font, communicate font change info to the Rebar
+    ctrl windows via separate routines.
+  Create the Rebar ctrl and all of its child windows.
+
+MAIN.RC:
+  Enable various menu items under File.
+  Define Toolbars menu items under View.
+  Define SameFontAs row for the Language Bar.
+  Define entries for the new Toolbar bitmaps.
+
+MAKEFILE.DEP:
+  Include general license notice.
+
+MAKEFILE.INC:
+  Include general license notice.
+  Test for <MAKEPRO> environment variable.
+  Move common elements from <makefile.w32> and <makefile.w64> into
+    <makefile.inc> so they are defined in one and only one place.
+  Define common version flags.
+  Include the version flags in RCFLAGS.
+  Split out the <??_parse.???> files into a separate file
+    <makefile.pro.parse>.
+  Use environment variable <MAKEPRO> instead of hard coded reference
+    to <makepro.php>.
+  Note the dependence of ICONS on the new Toolbar bitmaps.
+  Include the new file <rebar.c> and all its output files.
+  Expand the list of dependencies for <local.h>.
+
+MAKEFILE.PRO:
+  Include general license notice.
+  Use environment variable <MAKEPRO> instead of hard coded reference
+    to <makepro.php>.
+  Move the <??_parse.???> files to <makefile.pro.parse>.
+
+MAKEFILE.PRO.PARSE:
+  Define new file to define the <??_parse.???> dependencies.
+
+MAKEFILE.SRC:
+  Define <SRC_PARSE> var.
+  Move <??_parse.???> dependencies to <makefile.pro.parse>.
+  Include <rebar.c> and its dependencies.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Update the copyright year.
+  Move common elements from <makefile.w32> and <makefile.w64> into
+    <makefile.inc> so they are defined in one and only one place.
+
+MAKEPRO.PHP:
+  Include general license notice.
+  Improve comments.
+  In lines that begin with a '#' and end with ");", replace the ");" with ")".
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <rebar.c> in the source files.
+
+PF_STILE.C:
+  Update the copyright year.
+  Include <UTF16_STILE2> as an alias of <UTF16_STILE>.
+
+PL_PARSE.Y:
+  Include <NAMEVAR> in <NameAnyOpN> so it may be reassigned with a FcnOpr.
+  Improve comments.
+  In <pl_yylex>, allow assignment of a function/operator/Train to a name
+    already valued as a variable.
+
+PROTOTYPE.RULES:
+  Use environment variable <MAKEPRO> instead of hard coded reference
+    to <makepro.php>.
+
+REBAR.C:
+  Define new file to hold the routines to create and manage the
+    Rebar Ctrl.
+
+RESOURCE.H:
+  Move the <IDMPOS_xxx> and <IDWC_xxx> #defines to <enums.h>.
+  Define equates for the new Toolbar bitmaps.
+  Define equates for the new Toolbar menu entries.
+  Define equates for the function menu entries.
+  Define equates for additional SameFontAs row.
+
+SAVEFCN.C:
+  Remove #fidef DEBUG/#endif around the <lpText> entry in the
+    various <MemVirtStr>s so it may be used in the crash report.
+
+SESSMAN.C:
+  In Function Editor and Session Manager windows, save as a window
+    property a ptr to the widow's menu positions.
+  Enhance <ActivateMDIMenu> to show/hide the appropriate toolbars in
+    the Rebar ctrl depending upon the window just activated.
+  Handle the window message which creates a new function/operator.
+
+SYMBOLNAMES.H:
+  Move <aSymbolNames_NRows> to <symbolnames.h>.
+
+TABCTRL.C:
+  Rename <IMAGE_CX/CY> to <IMAGE_TC_CX/CY> as there are now multiple
+    Image Lists.
+  Rename <CalcWindowRectMC> to <CalcClientRectMC> as that's what it
+    really does, and pass a Boolean parameter to indicate whether or
+    not we should initialize the rectangle from GetClientRect or use
+    the incoming rectangle.
+
+TOKENIZE.C:
+  Treat a lone underbar as an unknown symbol instead of as infinity.
+
+UNICODE.H:
+  Move <aSymbolNames_NRows> to <symbolnames.h>.
+  Define var for left/right arrows so they may be used in the Language Bar
+    tooltips.
+
+VER.C:
+  Update the copyright year.
+  Rename some vars to be consistent with their use elsewhere.
+  Improve comments.
+  Reformat code.
+
+VERSION.RC:
+  Increment the low-order version #.
+
+WEBCOLORS.C:
+  Update the copyright year.
+  Factor out common tooltip vars and switch to WCHARs.
+
+
+Dir trunk\WineHQ:
+
+EDITCTRL.C:
+  Improve comments.
+  In <EDIT_WM_Paint>, handle incoming DC case.
+  In <EDIT_WM_Paint>, don't use memory DC (double buffering)
+    when printing.
+
+LOCAL.H:
+  Include <enums.h>.
+
+
+Dir trunk\Images:
+
+EDIT.BMP:
+OBJECTS.BMP:
+WORKSPACE.BMP:
+  Define new toolbar bitmaps for the associated Rebar bands.
+
+
+Dir trunk\extensions\aplchars:
+
+INSTALL.RDF:
+UPDATE.RDF:
+  Use SSL to install/update for TB 3.0
+
+MAKEFILE:
+  Break out local dir to be updated with .xpi file.
+
+
+Dir trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note that we have implemented dyadic epsilon-underbar (Find).
+  Note that we have implemented a Language Bar.
+  Note that we no longer support Windows 2000.

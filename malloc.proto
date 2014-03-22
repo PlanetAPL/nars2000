@@ -1,0 +1,13 @@
+DLMALLOC_EXPORT void* dlmalloc(size_t);
+DLMALLOC_EXPORT void  dlfree(void*);
+DLMALLOC_EXPORT void* dlcalloc(size_t, size_t);
+DLMALLOC_EXPORT void* dlrealloc(void*, size_t);
+DLMALLOC_EXPORT void* dlrealloc_in_place(void*, size_t);
+DLMALLOC_EXPORT void* dlmemalign(size_t, size_t);
+DLMALLOC_EXPORT int dlposix_memalign(void**, size_t, size_t);
+DLMALLOC_EXPORT void* dlvalloc(size_t);
+DLMALLOC_EXPORT int dlmallopt(int, int);
+DLMALLOC_EXPORT size_t dlmalloc_footprint(void);
+DLMALLOC_EXPORT size_t dlmalloc_max_footprint(void);
+DLMALLOC_EXPORT size_t dlmalloc_footprint_limit();
+DLMALLOC_EXPORT size_t dlmalloc_set_footprint_limit(size_t bytes);

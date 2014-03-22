@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+<Description about="urn:mozilla:extension:{34F189F2-E184-4c2e-8441-D32E4B77B29E}">
+  <em:updates>
+    <Seq>
+      <li>
+    <Description>
+      <em:version>0.0.757</em:version>
+
+      <em:targetApplication><!-- Thunderbird -->
+        <Description>
+          <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
+          <em:minVersion>2.0</em:minVersion>
+          <em:maxVersion>99</em:maxVersion>
+          <em:updateLink>https://ssl4.westserver.net/qualitas.biz/sudleyplace.com/APL/aplchars/aplchars.xpi</em:updateLink>
+        </Description>
+      </em:targetApplication>
+    </Description>
+      </li>
+    </Seq>
+  </em:updates>
+</Description>
+</RDF>

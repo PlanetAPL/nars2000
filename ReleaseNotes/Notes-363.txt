@@ -1,0 +1,14 @@
+Build #363 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXTERNS.H:
+  Delete entry for []Z as it's unused.
+  Improve comments.
+
+PERTAB.H:
+  Delete entry for []Z as it's unused.
+
+SYSVARS.C:
+  Delete entry for []Z as it's unused.

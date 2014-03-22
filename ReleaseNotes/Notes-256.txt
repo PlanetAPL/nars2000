@@ -1,0 +1,46 @@
+Directory trunk:
+
+COMMON.C:
+  Move strchrW to COMMON.C.
+
+DISPLAY.C:
+  Assign, use, and comment upon <lpaplChar> instead of <lpwszFormat>.
+  Fix bug where empty char arrays lock up if <lpwszFormat> has something in it beforehand.
+
+EXTERNS.H:
+  Pass flag to SM if )XLOAD.
+
+MAIN.C:
+  Pass flag to CreateNewTab depending upon whether or not to execute []LX.
+
+PERTAB.H:
+  Save flag for execution of []LX on )LOAD.
+
+REG.C:
+  Omite save/restore of wszLoadDir/wszSaveDir as they get generated during startip.
+
+SC_LOAD.C:
+  Implement )XLOAD using common routine.
+  Start trying to handle non-empty SI on )LOAD.
+
+SESSMAN.C:
+  Move strchrW to COMMON.C.
+  Set <hGlbPTD> at start of <SMWndProc> for all to use.
+  Save flag for execution of []LX on )LOAD.
+  In case <LoadWorkspace> takes a while, wait for three calls to MYWM_INIT_EC before taking action.
+
+SYSCMDS.C:
+  Implement )XLOAD using common routine.
+  Pass flag to CreateNewTab depending upon whether or not to execute []LX.
+
+TABCTRL.C:
+  Pass flag to CreateNewTab depending upon whether or not to execute []LX.
+  Save flag for execution of []LX on )LOAD.
+
+THREADS.H:
+  Save flag for execution of []LX on )LOAD.
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Allow ODSAPI to be called from <editctrl.c>.

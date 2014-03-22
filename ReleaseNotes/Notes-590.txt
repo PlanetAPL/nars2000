@@ -1,0 +1,11 @@
+Build #590 -- Version 0.0.2.4
+-----------------------------
+
+* Cleanup Catenate Identity Function Code
+
+Directory trunk:
+
+PO_DOT.C:
+PO_SLASH.C:
+  Collect common code for catenate reduction identity function
+    from reduction and inner product into a single function.

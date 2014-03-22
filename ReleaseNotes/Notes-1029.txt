@@ -1,0 +1,11 @@
+Build #1029 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Assertion When Freeing A Function Array
+
+Directory trunk:
+
+YYFNS.C:
+  Update copyright year.
+  Fix Bug:  In <UUFreeArray>, if ab item of a function array has already been freed,
+    the Assert fails, so we rearrange the code to avoid that.

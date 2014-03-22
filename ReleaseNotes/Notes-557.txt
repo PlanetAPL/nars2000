@@ -1,0 +1,11 @@
+Build #557 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  When Displaying a Function Array, Handle Case of
+  User-defined Operator
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnSub>, handle case of user-defined operator.
+  Define new function <FillDfnName> to display the name of a UDFO.

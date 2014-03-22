@@ -1,0 +1,21 @@
+Build #951 -- Version 0.0.3.5
+-----------------------------
+
+* Fix Bug When Stranding Named RAT and FLT Vars
+
+Directory trunk:
+
+MAIN.RC:
+  Update copyright year.
+
+NARS2000.64.VCPROJ:
+  Specify ECM include and lib directories.
+
+STRAND.C:
+  Fix bug in conversion table when stranding named RAT and FLT vars.
+
+VER.C:
+  Include version #s for MPIR, MPFR, and GMP in the tooltip.
+
+VERSION.RC:
+  Increment version to 0.0.3.5.

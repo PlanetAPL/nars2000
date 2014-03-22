@@ -1,0 +1,1226 @@
+Build #304 -- Version 0.0.0.21645
+---------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  If we're assigning into a no-value perm, call it a SYNTAX ERROR
+    so as to catch assignment to unknown system names.
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <AssignSelectSpec_EM> to <AssignNamedVars_EM> as it assigns
+    to named vars only.
+  Fix Bug:  In <AssignNamedVars_EM>, initialize <hGlbVal> and <lpMemVal>
+    so as not to fail on (a){is}1 (or any immediate value).
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+AXISFNS.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+COMMON.C:
+  Define common function to fill memory with bits, handling
+    the last byte specially.
+
+CS_PARSE.H:
+  Include FOR stmt identifier so we can branch to an ENDFOR stmt.
+
+CS_PARSE.Y:
+  In <CtrlStruc:>, allow empty in case all entries are coalesced.
+  In <CSRec:>, ignore recursive entries that are not <IfStmt>s.
+  Include comments about possibility of empty <CSCLCSRec>.
+  Save unique identifier in the matching FOR and ENDFOR stmts so we can
+    check on restartability of a branch to an ENDFOR stmt.
+  Fix Bug:  Incorrect token used following ELSE stmt.
+  Handle empty <CSCLCSRec> in <IfStmt>s.
+  Allow :else stmt in ElseIfElse clause of :if stmt.
+  Fix typos in comments.
+  Allow :leave to exit a :case/:caselist stmt.
+  Simplify and expand CCListCS: rule to use CSCLCSRec.
+  Handle empty case in SelectStmt: rule for CCListCS.
+
+CS_PROC.C:
+  Define new routine <CS_SetTokenCLIndex> as part of allowing branch
+    to ENDFOR stmt.
+  Define new routine <FindMatchingForStmt> to find (if any) matching
+    FORSTMT entry.
+  In <CS_ENDFOR_Stmt>, check for unintialized or unmatched nested entry.
+  Fix typo in comment.
+  In <CS_FOR_Stmt_EM>, handle spurious branch to :for stmt while already
+    active (execute CS_DoneFOR> to free old variables).
+  In <CS_FOR_Stmt_EM>, allow branch to ENDFOR stmt.
+  Delete <CS_GOTO_Stmt_EM> and <CS_RETURN_Stmt> as they are emulated.
+  Allow :return and :goto to work in immediate execution mode and quad input
+    by emulating <{goto}0> and <{goto}>, respectively.
+  In <CS_GetNextToken>, fix errors in comments, and use common routine
+    to get <hGlbDfnHdr> which takes into account ImmExec/Quad SI levels.
+  Define new routine <GetDfnHdrHandle> to get the handle of a user-defined
+    function/operator.
+  In <CS_SetNextStmt>, reorganize to point to the actual next stmt rather
+    than the EOS/EOL of that stmt expecting the parser to skip over it.
+    This way, in a :for ... :endfor sequence, the parser never re-parses the
+    :for stmt's EOS/EOL so it can never be interrupted by Ctrl-Break -- thus
+    a restart from a Ctrl-Break never re-executes the :for stmt which would
+    start the loop over again.  Also, note that the preceding token might
+    also be a label separator.
+  In <CS_GetTokenType> and <CS_GetEOSTokenLen>, reduce code volume by
+    calling <CS_GetNextToken> as common routine.
+
+CUSTOMIZE.C:
+  Remove completed items from the ToDo list, and append three new items.
+  Remove declaration of <lpfnOldEditCtrlWndProc> as we now superclass it.
+  Define message to display when exiting from the dialog with unsaved
+    changes.
+  Rename Radio button IDs to be specific to Fonts.
+  Define radio button IDs for ResetVars.
+  Define static var to hold to-be-changed []IC values.
+  Define static var to hold to-be-changed ResetVars.
+  Define static var to hold LTEXT which is too long for a resource file.
+  Comment out debug stmt LCLODSAPI.
+  Clear Bold Static Text font handle on startup.
+  Manage []MF timer value combobox.
+  Create Bold Static Text font for use in CLEAR WS []FC Edit Ctrl.
+  Remove subclassing of Edit Ctrl as we now superclass it.
+  Use <FormatFloat> and <FormatAplint> instead of the FC versions so
+    we use the user-specified Format Control chars.
+  Remove code to format and set initial value of []IO/[]PP/[]PW as
+    the Up-Down Control takes care of that.
+  Initialize the initial section of the []IC comboboxes.
+  Save the current values of []IC in which the changed but not saved
+    values are stored.
+  Comment out Directories, Syntax Coloring, and Tab Colors to be
+    implemented later.
+  Switch references to []IC and []IO so they are in alphabetical order.
+  Initialize the System Vars Reset property page.
+  In <WM_CLOSE>, simulate clicking on the CANCEL button.
+  Remove <WM_NOTIFY> code as it's handled automatically by the Up-Down
+    Control.
+  In <WM_COMMAND/IDOK>, call <EndDialog> instead of <WM_CLOSE> as the
+    latter code now calls <WM_COMMAND>/IDCANCEL>.
+  In <WM_COMMAND/IDCANCEL>, complain if there are unsaved changes.
+  In <WM_COMMAND/IDC_APPLY>, handle CLEAR WS and ResetVars and clear
+    the Apply button.
+  In <WM_COMMAND>, handle notifications for CLEAR WS values and ResetVars.
+  In <WM_DESTROY>, free the Bold Static Text font handle if it's been
+    allocated.
+  Define new routine <GetCLEARWSValue> to handle reading and saving
+    a CLEAR WS value which is a char vector.
+
+DATATYPE.H:
+  Define <APLLIST> as same as <tagTOKEN> as part of simplifying bracket
+    index lists.
+  Define <APLI3264> and <APLU3264> to hold the widest signed and unsigned
+    values on Win32 and Win64 platforms.
+  Define equates for # bits in <ARRAY_CHAR> and <ARRAY_INT>.
+  Define <APLCHAR_SIZE> in terms of <BITS_IN_APLCHAR>.
+  Remove <ARRAY_MIXED>.
+  Define <ARRAY_INIT> as <ARRAY_LENGTH>.
+  Define <LSTARRAY_HEADER> as part of simplifying bracket indexing.
+  Note the size of <NELM> in <VARNAMED_HEADER>.
+
+DEBUG.C:
+  Define new routine <CheckCtrlBreak> for DEBUG version only to allow me to
+    set a breakpoint to determine where the Ctrl-Break is being caught.
+  In <DbgMsg> and <DbgMsgW> ignore the message if no <hGlbPTD> as from
+    <FreeResultGlobalVar> in <LclTabCtrlWndProc>/<TCM_DELETEITEM>.
+  Define new routine <dprintfW9> to display debug test without reference
+    to <gDbgLvl>.
+
+DEFINES.H:
+  Define <DEBUG_REFCNT> or not in this file.
+  Increase limit for formatting so we can at least start to display []AV.
+  Rename <SetEmptyCWS> to <ResetVars>.
+
+DFNHDR.H:
+  Define internal and external function line monitoring strucs for function
+    headers, not function lines.
+  Define <cDfnTypeStr> to amp DFN_TYPES to ASCII chars for display purposes.
+  Define bit in function header to indicate whether or not function line
+    monitoring is on.
+  Use header global for function line monitoring info.
+  Rename ptrs to reflect that they point to tokens.
+  Define a save area for error message text.
+
+DFNHDR.Y:
+  Rename <GetOprName> to <GetOprName_EM> to reflect that it signals an
+    Error Message.
+  Rename ptrs to reflect that they point to tokens.
+  In <fh_yyerror>, format the error message as WCHARs and, if requested,
+    pass the error message back to the caller.
+
+DISPDBG.C:
+  In <DisplayHshTab> and <DisplaySymTab>, change <DbgMsgW2> to <DbgMsgW>
+    as that routine is called from the keyboard only and needs no protection.
+  In <DisplayGlobals>, use #define to maximum length of value/name display.
+  In <DisplayGlobals>, include the case of user-defined functions/operators.
+  In <GetTokenTypeName>, include new list tokens and shorten an error msg.
+
+EDIT.RC:
+  Delete as it's now called <edit.rch>.
+
+EDIT.RCH:
+  Remove DEBUG settings.
+
+EDITFCN.C:
+  In <SetMarginsFE>, use macro to pass left margin width.
+  Remove dependency on old Edit Ctrl WndProc as we now superclass the Edit Ctrl.
+  Upon initial entry into the function editor, set the text cursor to the
+    end of the top line (typically, the function header).
+  In <LclEditCtrlWndProc>, indicate that this WNDPROC is from a superclass.
+  Improve comments.
+  In <LclEditCtrlWndProc>, indicate whether or not called from Master Frame.
+  In <LclEditCtrlWndProc>, handle <WM_CREATE> to set the double-click
+    tick count window property so we can avoid spurious Context Menu.
+  In <LclEditCtrlWndProc>, handle <WM_GETDLGCODE> to force <DLGC_WANTALLKEYS>
+    so we can display APL symbols in single-line Edit Ctrls.
+  In <LclEditCtrlWndProc>, handle spurious WM_RBUTTONUP from overlapping
+    Edit Ctrl windows as a result of a right double-click on a function name.
+  In <LclEditCtrlWndProc>, if WM_SETCURSOR occurs when called from the
+    Master Frame (i.e. Customize), check for invalid <hGlbPTD>.
+  Increase the wait time when distinguishing between Context Menu and
+    Right Double Click.
+  In <WM_RBUTTONDBLCLICK>, <WM_RBUTTONUP>, <WM_SIZE>, <WM_KEYDOWN>,
+    <WM_UNDO>, <EM_CANUNDO>, <WM_CLEAR>, <WM_PASTE>, and <WM_PAINT>,
+    check for called from the Master Frame.
+  In <InsRepCharStr>, pass down value of whether or not we're called from
+    the Master Frame.
+  In <WM_CHAR>, check for <ES_NUMBER> and ensure digits only.
+  In <WM_CHAR>, check for caller is FE for Function Editor-specific
+    keystrokes.
+  In <WM_CHAR> and <WM_SYSCHAR>, remove spurious GlobalLock/Unlock of
+    <hGlbPTD>.
+  Rename <ValidXXX> to <IsValidXXX> to better reflect its Boolean result.
+  Fix Bug:  When Undo moves the text caret to a different line, we need to
+    keep the Session Manager informed so it can keep track of the current
+    line.
+  In <GetCharValue>, use <lpwszGlbTemp> instead of <lpMemPTD->lpwszTemp>
+    so it can be called from Master Frame where there is no <hGlbPTD>.
+
+EXECDFN.C:
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <GetSignatureGlb> as the
+    latter function clears those bits on its own.
+  Move <bExecuting> from global to PerTabData struc.
+  In <ExecDfnOprGlb_EM_YY>, distinguish between SYNTAX and VALENCE ERRORs.
+  In <ExecDfnOprGlb_EM_YY>, distinguish between LEFT and RIGHT RANK, LENGTH,
+    and SYNTAX ERRORs.
+  In <ExecDfnOprGlb_EM_YY>, if we localized a named function as either a
+    left or right operand, handle the opposite process upon termination
+    or error.
+  Rename <Unlocalize> to <UnlocalizeSTEs>.
+  Improve comments.
+  Start/stop function line monitoring at the start and end of a line.
+  If the token # for the current stmt is out of range, skip to the
+    next line.  This is also done in <ParseLine>, but this test is
+    done earlier without incurring all the <ParseLine> overhead in case
+    we need to back up.
+  In <UnlocalizeSTEs>, don't return result as it's always TRUE and no
+    caller checks for it.
+  In <InitFcnSTEs>, simplify the code.
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Define new routine <UninitOprSTEs> to handle unlocalizing a named function
+    or variable as either a left or right operand.
+
+EXECFNS.C:
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <GetSignatureGlb> as the
+    latter function clears those bits on its own.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+EXECMFN.C:
+  Use header global for function line monitoring info.
+
+EXTERNS.H:
+  Change reference to <WS_UTF16_INFINITY> to <L"Infinity"> so it
+    displays correctly in Customize CLEAR WS Value combobox.  This appears
+    to be a problem with Uniscribe which I don't understand.
+  Declare var for CLEAR WS []MF timer value.
+  Rename <SetEmptyCWS>/<SysOrIni> to <ResetVars>.
+  Define Boolean var to indicate whether or not CSOs are defined.
+  In DEBUG mode, define a Critical Section Object for <HshTabFrisk> and
+    for the Resource Debugging functions.
+  Move prototype for <EditWndProcW> to <externs.h> for global reference.
+  Move <bExecuting> from global to PerTabData struc.
+  Expand <aTypePromote> to include an extra row & col for initialization.
+  Comment out unimplemented Customize categories.
+
+FASTBOOL.C:
+  Call <FillBitMemory> instead of <FillMemory> so as to get the
+    last byte right.
+
+FREE.C:
+  In <FreeResultSub>, for TKT_FCNNAMEDs reorganize the code to use
+    <FreeResultGlobalDFLV>, and always free the value as per changes
+    in <parse.y>, but not the name unless the caller requests it.
+  Rename <FreeResultGlobalDFV> to <FreeResultGlobalDFLV> to reflect
+    its handling of lists.
+  Handle lists in <FreeResultSub>.
+  Define <FreeResultGlobalLst> to handle freeing lists.
+  Improve comments.
+  Use <DbgDecrRefCntDir> in stead of <--lpHeader->RefCnt> so as to display
+    the debug message.
+  Remove <ARRAY_LIST> from <FreeResultGlobalVar> as it's now handled
+    in <FreeResultGlobalLst>.
+  In <FreeResultGlobalDfn>, free function line monitoring info HGLOBAL,
+    and delete code to free per line data.
+  In <FreeResultGlobalDfn>, free the function is the RefCnt is zero.
+  In <FreeYYFcn1>, use <FreeResultName> instead of <FreeResult> so the
+    reference count of a named function is decremented.
+  Move <GetSignatureMem> to <GETFNS.C> because it's a GETxxx routine.
+
+GETFNS.C:
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <GetFirstValueGlb> as the
+    latter function clears those bits on its own.
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  In <GetFirstValueGlb>, recognize and handle lists.
+  In <GetNextValueGlb>, recognize and handle lists.
+  Fix typo in comment.
+  In <GetNextValueMemSub>, recognize and handle lists.
+  In <GetGlbPtrs_LOCK>, recognize and handle lists.
+  Fix Bug:  In <GetTokenLineHandle>, an attempt to get the token handle for
+    the last line in a function is not allowed.  This causes a branch to the
+    last line to fail.
+  Define new routine <GetImmedType> to obtain the immediate type from a
+    token, special casing a named var from which the immediate type is
+    obtained from the corresponding STE.
+  Move <GetSignatureMem> to <GETFNS.C> because it's a GETxxx routine.
+
+GOTO.C:
+  Allow branch to ELSE stmt by skipping over it to the next executable stmt.
+  Allow branch to ENDFOR stmt iff its matching FOR stmt has been initialized
+    and is the current entry on the FORSTMT stack.
+
+IMMEXEC.C:
+  Check for unable to create thread and display as LIMIT ERROR.
+  Rename <bQuadPrompt> to <bDispPrompt> (reversing the sense) to cover all
+    prompt displays.
+  Initialize <exitType> in case we fall through without initializing it.
+  Rename <Unlocalize> to <UnlocalizeSTEs>.
+
+INIFILE.C:
+  Include <resource.h> file for <DEF_INIT_CATEGORY>.
+  Rename <SetEmptyCWS>/<SysOrIni> to <ResetVars>.
+  Define keyname for CLEAR WS []MF timer value.
+  Read in CLEAR WS []MF timer value.
+  Write out CLEAR WS []MF timer value.
+
+MACROS.H:
+  Rename <iXXX64> to <_iXXX64>.
+  Define macro to test for a list.
+  Define macro to text for a Direct Name.
+  If <DEBUG_REFCNT> is defined, always display the debug message by
+    using <dprintfW9> instead of <dprintfW>.
+  Define macro to check for Ctrl-Break.
+  Define macro to detect Permutation Vector.
+  Define macro to test for rank 3 or higher rank arrays.
+  Define macro to skip over the list header.
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Define macro to get a signature from a global memory object.
+
+MAIN.C:
+  Move prototype for <EditWndProcW> to <externs.h> for global reference.
+  In tooltip for a Tab Ctrl note whether or not the tab is still running.
+  Superclass the Edit Ctrl so as to simplify its usage.
+  In <WinMain> DEBUG mode, allocate a Critical Section Object for
+    <HshTabFrisk> and for the Resource Debugging function.
+  In <WinMain>, mark CSOs as defined when they are initialized.
+  In <WinMain>, mark CSOs as undfined when they are deleted.
+
+MAIN.H:
+  Define ptr version of enum for tagEXITTYPES.
+  Define equates for words (16-bits) and qwords (64-bits).
+
+MAIN.RC:
+  Include <Unicode.h> to initial font button text.
+  In <IDD_PROPPAGE_CLEARWS_VALUES>, include <ES_NUMBER> in Edit Ctrl
+    styles for numeric-only fields.
+  In <IDD_PROPPAGE_CLEARWS_VALUES>, remove <UDS_ALIGNRIGHT> style
+    from <UPDOWN_CLASS> controls so as not to impinge on the Edit Ctrl space.
+  In <IDD_PROPPAGE_CLEARWS_VALUES>, define entry for CLEAR WS []MF
+    timer value combobox.
+  In <IDD_PROPPAGE_FONTS>, define initial text for font buttons.
+  In <IDD_PROPPAGE_RANGE_LIMITS>, switch references to []IC and []IO
+    so they are in alphabetical order.
+  In <IDD_PROPPAGE_SYSTEM_VAR_RESET>, define contents of the dialog.
+  In <IDD_PROPPAGE_USER_PREFS>, move text to right of Combobox.
+
+NAMECLASS.H:
+  Define new nameclass for Magic Functions.
+
+PARSE.H:
+  Define ptr to token end to detect out-of-range in pl_yyerror.
+  Define bit field for emulating <:return> with <{goto}0>.
+  Define bit field to avoid executing after a YYERROR.
+  Define bit fields to handle Selective Specification.
+  Define TOKEN to save the target SYMENTRY for Selective Specification.
+
+PARSE.Y:
+  Define <YYERROR2> to help avoid executing after a YYERROR.
+  Define explicit targets for left and right brace so as not to be confused
+    with those symbols when used for axis operator.
+  In ParseLine rules, check for Ctrl-Break periodically.
+  Use <YYERROR2> instead of <YYERROR> to remember a <YYERROR> in <lpplLocalVars>.
+  Comment out check for Ctrl-Break at end of stmts to allow a single assignment
+    stmt to be atomic.
+  Remove references to <CS_GOTO> and <CS_RETURN> as they are emulated
+    in <pl_yylex>.
+  Define a common SYNTAX ERROR so the caret points correctly if the error
+    is inside a Control Structure.
+  In <StmtSing: ArrExpr>, check for Ctrl-Break only if the <ArrExpr> is
+    displayable to allow assignment to be atomic.
+  Move many checks for Ctrl-Break into the <!bLookAhead> block so as to make
+    the function/variable/list/name strands and then check for Ctrl-Break.
+  Don't signal a new error if we've already encountered one.
+  Fix Bug:  When assigning to a named var and passing on the right arg as
+    the result, make a temporary copy of the right arg before the assignment
+    so as catch an error from (say)
+      z{is}1 2 {diamond} z[1 2]{is}z
+    where the right arg <z> is incorrectly freed after the assignment is complete
+    because it points to the STE whose contents has been changed.
+  Don't free a name on Validation Only as that function now frees the value.
+  Don't free the token arg to <MakeFcnStrand> as it's now freed by <FreeYYFcn1>
+    after the function is fully used.
+  Improve comments.
+  Don't free a function name in <LeftOper> when unwinding from an error
+    as it hasn't been used as yet.
+  Handle Selective Specification in <SimpExpr: (SelectSpec){is}ArrExpr>.
+  Handle Selective Specification in <SelectSpec:> for all targets except
+    <NameVars>.
+  Move <bExecuting> from global to PerTabData struc.
+  Set ptr to token end to detect out-of-range in pl_yyerror.
+  In <ParseLine>, if the starting token # is non-zero and points to a
+    EOS/EOL token, skip to the end of that statement and start execution there.
+  In <LookaheadAdjacent>, include new list tokens.
+  In <LookaheadDyadicOp>, include new list tokens.
+  In <pl_yylex>, for DEBUG version, initialize additional fields in <lpYYLval>.
+  In <pl_yylex>, don't respecify the token type in the saved token as that
+    creates a problem if the token type changes later as well as when the line
+    is untokenized.
+  In <pl_yylex>, upon encountering <TKT_ASSIGN>, if the next token is <TKT_RIGHTPAREN>,
+    mark as doing Selective Specification unless already doing that.
+  In <pl_yylex>, emulate <CS_GOTO> with ASSIGN, and <CS_RETURN> with <{goto}0>.
+  Fix typos in comments.
+  Fix Bug:  If an unmatched rule occurs and the last token has been
+    processed, the system may crash because we lookahead too far.
+  Rename <Unlocalize> to <UnlocalizeSTEs>.
+  Define new routine <CheckSelSpec_EM> to ensure there's only one name and then
+    to save the name's SYMENTRY (actually the whole TOKEN) and convert the
+    reference to it to <{iota}{rho}Name>.
+
+PERTAB.H:
+  Initialize the []MF timer value from the CLEAR WS value.
+  Move <bExecuting> from global to PerTabData struc.
+  Declare the workspace-specific []MF timer value.
+
+PF_BAR.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  Fix Bug:  Define <PrimFnMonBarFisI> routine to handle negation
+    of the smallest (negative) integer.
+  Fix Bug:  In <PrimFnMonBarAPA_EM>, Handle case of negation of an APA
+    of Smallest Negative Integers.
+  After calling a "_EM" suffixed routine, goto to ERROR_EXIT rather than
+    an error message-specific label unless there's a very good reason to
+    override the "_EM" routine's own error message.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Improve comments.
+
+PF_CIRCLE.C:
+  Rename <iXXX64> to <_iXXX64>.
+
+PF_COMMA.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimFnMonCommaGlb_EM_YY>, check for Ctrl-Break periodically.
+  Use <DbgIncrRefCntDir> in stead of <IncrRefCntDir> so as to display
+    the debug message.
+  In <PrimFnDydComma_EM_YY>, check for Ctrl-Break periodically.
+  Improve comments.
+  Fix error in comment.
+  Fix Bug:  When catenating Booleans, one or both of which is an APA, the
+    APA arg is treated as if it were ARRAY_BOOL as opposed to ARRAY_APA
+    which generates incorrect results.
+
+PF_CSLOPE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimFnDydCircleSlope_EM_YY>, check for Ctrl-Break periodically.
+
+PF_CSTILE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  In <PrimFnMonCircleStile_EM_YY>, check for Ctrl-Break periodically
+  Handle the case of reversing an APV which results in another APV.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimFnDydCircleStile_EM_YY>, check for Ctrl-Break periodically
+
+PF_DARROW.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  In <PrimFnDydDownArrow_EM_YY>, check for Ctrl-Break periodically.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimFnDydDownArrow_EM_YY>, recognize (under-)drop of an APV and
+    handle specially.
+
+PF_DELTASTILE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Fix typo in comment.
+  Define ptr entry for Ctrl-Break in <GRADE_DATA> struc.
+  In <PrimFnMonGradeCommon_EM_YY>, handle failure from <PermVecGrade>
+    and <GRADE_ROUTINE> as it might be interrupted by a Ctrl-Break.
+  In <PrimFnMonGradeCommon_EM_YY>, treat Boolean right arg as a
+    special case.
+  In <PrimFnMonGradeCommon_EM_YY>, check for Ctrl-Break periodically.
+  In <PermVecGrade>, check for Ctrl-Break periodically.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Define new routine <BoolVecGrade> to handel grade of Boolean vectors.
+  In <PrimFnDydGradeCommon_EM_YY>, check for Ctrl-Break periodically.
+  Allow the collating sequence to be as long as []AV in the DEBUG version.
+
+PF_DOMINO.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  In <PrimFnMonDomino_EM_YY>, check for Ctrl-Break periodically.
+  Use macro for rank and length testing.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimFnDydDomino_EM_YY>, check for Ctrl-Break periodically.
+
+PF_DSTILE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PF_DTACK.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  In <PrimFnDydDownTack_EM_YY>, check for Ctrl-Break periodically.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PF_DTACKJOT.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Remove <bRet> as it's no longer needed (result is in <lpYYRes> or it's NULL).
+  Initialize <lpYYRes> to NULL at start.
+  Fix Bug:  Move <__try {> up to encompass calls to <ZeroMemory>.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <AttrsOfGlb> as the
+    latter function clears those bits on its own.
+
+PF_EPSILON.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimFnMonEpsilonGlb_EM_YY>, use <aTypePromote> instead of
+    <aplTypeArr>.
+  In <PrimFnMonEpsilonGlbCopy_EM>, check for Ctrl-Break periodically.
+  In <PrimFnDydEpsilon_EM_YY>, check for Ctrl-Break periodically.
+  In <PrimFnDydEpsilonBvB>, check for Ctrl-Break periodically.
+  Call <FillBitMemory> instead of <FillMemory> so as to get the
+    last byte right.
+  In <PrimFnDydEpsilonIvI>, check for Ctrl-Break periodically.
+  In <PrimFnDydEpsilonCvC>, check for Ctrl-Break periodically.
+  In <PrimFnDydEpsilonOther>, check for Ctrl-Break periodically.
+
+PF_EQUALUND.C:
+  In <PrimFnMonEqualUnderbar_EM_YY>, reorganize the code and check for
+    Ctrl-Break such that we don't have to free the <lpYYRes> in case
+    of error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimFnMonEqualUnderBarGlb>, check for Ctrl-Break periodically.
+  In <PrimFnDydEqualUnderbar_EM_YY>, reorganize the code and check for
+    Ctrl-Break such that we don't have to free the <lpYYRes> in case
+    of error.
+  In <PrimFnDydEqualUnderbarSimple>, check for Ctrl-Break periodically.
+  Optimize comparisons between Booleans to compare 64 bits at a time.
+  Fix Bug:  When comparing Boolean vs. Boolean with more than eight elements,
+    I forgot to increment the right argument at the end of the byte.
+  Fix Bug:  When comparing empty APAs, the offsets and multipliers might not
+    always agree (sometimes the multiplier is zero, sometimes it's one), so
+    we need to test for empty first.  For example,
+    ({iota}0){match}{signum}{iota}0.
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <AttrsOfGlb> as the
+    latter function clears those bits on its own.
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY>, recognize and handle the new list tokens.
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Fix typos in comments.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Change the args to <PrimFnDydSquadGlb_EM> to allow the routine to change the
+    name arg global memory handle and provide a separate arg to
+    return changed global when called for indexed assignment.
+  In <ArrayIndexRefLstSimpGlb_EM_YY>, check for Ctrl-Break periodically.
+  Call <FillBitMemory> instead of <FillMemory> so as to get the
+    last byte right.
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <AttrsOfGlb> as the
+    latter function clears those bits on its own.
+  In <ArrayIndexRefRect_EM_YY>, recognize and handle the new list tokens.
+  In <ListIndexRef_EM_YY>, recognize and handle the new list tokens.
+  In <ArrayIndexSet_EM>, recognize and handle the new list tokens.
+  In <ArrayIndexSet_EM> with the name arg as a non-scalar global handle,
+    only if the name arg handle and the result handle are different, free
+    the name arg handle.
+  In <ArrayIndexSetNamScalar_EM>, recognize and handle the new list tokens.
+  Expand <CopyGlbAsType> to <CopyGlbAsType_EM>.
+  After calling a "_EM" suffixed routine, goto to ERROR_EXIT rather than
+    an error message-specific label unless there's a very good reason to
+    override the "_EM" routine's own error message.
+  In <ArrayIndexSetSingLst_EM>, recognize and handle new list tokens.
+  In <ArrayIndexSetSingLst_EM>, if the name arg is a Boolean-valued APA and
+    the right arg is Boolean, mark the result as Boolean.
+  In <ArrayIndexSetSingLst_EM>, recognize and handle the new list tokens.
+  In <ArrayIndexSetSingLst_EM>, if the result and name arg types are the same
+    and the reference conut on the name arg is 1, increment the reference count
+    and return the name arg handle as the result instead of calling <CopyArray_EM>
+    which might signal an WS FULL.
+  In <ArrayIndexSetSingLst_EM> with immediate index values, use <CopyGlbAsType_EM>
+    instead of <CopyArray_EM> so as to avoid later <TypePromote_EM>.
+  Fix Bug:  In <ArrayIndexSetSingLst_EM>, when indexing an APA vector with an
+    immediate value, the APA is not promoted and is incorrectly returned as the result.
+  In <ArrayIndexSetSingLst_EM>, if <TypePromote> is called, save back the
+    global memory handle in the ptr to the result.
+  Fix Bug:  In <ArrayIndexSetSingLst_EM>, don't call <TypeDemote> because
+    the caller does.  Otherwise, the caller gets confused as to whether or
+    not to free the contents of the named var.
+  Remove unused arg from <ArrayIndexSetRect_EM>.
+  In <ArrayIndexSetRect_EM>, recognize and handle the new list tokens.
+  Fix Bug:  In <ArrayIndexSetRect_EM>, free the old name arg (if it changes) before
+    writing over it.
+  Fix Bug:  In <ArrayIndexReplace_EM>, when index assigning a matrix or higher rank
+    floating point array with an integer array, the integer array is not converted
+    to floating point yielding incorrect results in the indexed positions.
+  In <ArrayIndexReplace_EM>, ensure nested result is treated as HGLOBAL.
+
+PF_IOTA.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  In <PrimFnMonIota_EM_YY>, remove check for LENGTH ERROR as it can't occur.
+  Call <PrimFnMonIotaVector_EM_YY> for length zero args, too.
+  Modify <PrimFnMonIotaVector_EM_YY> to handle length zero args, so that
+    A[{iota}{rho}A] works for scalars, too.
+  In <PrimFnDydIota_EM_YY>, check for Ctrl-Break periodically.
+  In <PrimFnDydIota_EM_YY>, call <TypeDemote> at the end.
+  Handle "index of" special case of PermVec vs. Int.
+
+PF_LSHOE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimFnMonLeftShoeGlb_EM_YY>, check for Ctrl-Break periodically.
+
+PF_PLUS.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  After calling a "_EM" suffixed routine, goto to ERROR_EXIT rather than
+    an error message-specific label unless there's a very good reason to
+    override the "_EM" routine's own error message.
+
+PF_QDOT.C:
+  Rename <iXXX64> to <_iXXX64>.
+
+PF_QUERY.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use macro to generate the next value of []RL so it can be called
+    from different places.
+  Use macro for the Linear Congruential Generator.
+  In <PrimFnDydQuery_EM_YY>, avoid calling <PrimFnMonQueryIisI> so as
+    to eliminate save back into <lpMemPTD->lpSymQuadRL>.
+  In <PrimFnDydQuery_EM_YY>, check for Ctrl-Break periodically.
+  In <PrimFnDydQuery_EM_YY>, reorganize the code and check for
+    Ctrl-Break such that we don't have to free the <lpYYRes> in case
+    of error.
+  Mark the result of Deal as a PermVec if the left and right args are equal.
+  Fix Bug:  Remove the reference to <lpYYRes> before it is initialized.
+
+PF_RHO.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Move error message calls to common labels.
+  In <PrimFnDydRhoRhtCopyData>, check for Ctrl-Break periodically.
+  In <PrimFnDydRhoRhtGlbCopyData_EM>, check for Ctrl-Break periodically.
+
+PF_RSHOE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  In <PrimFnMonRightShoeGlb_EM_YY>, initialize <hGlbSub>/<lpMemSub>
+    to NULL so we can unlock them in case we exit with an error such
+    as Ctrl-Break.
+  In <PrimFnMonRightShoeGlb_EM_YY>, check for Ctrl-Break periodically.
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <AttrsOfGlb> as the
+    latter function clears those bits on its own.
+  In <PrimFnDydRightShoeGlb_EM_YY>, special case if the result is simple
+    non-heterogeneous.
+  In <PrimFnDydRightShoeGlbGlb_EM_YY>, check for Ctrl-Break periodically.
+  Fix Bug:  In <PrimFnMonRightShoeGlb_EM_YY>, save prototype into the
+    empty result only if it's nested.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PF_RTACK.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+
+PF_SLASH.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Fix typo in comment.
+  Remove dependence on <bRet> of marking the result as valid or not --
+    the result is in <lpYYRes> or it's NULL.
+  In <PrimFnDydSlash_EM_YY>, check for Ctrl-Break periodically.
+  Allow '' as a left arg to L/R.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PF_SLOPE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  In <PrimFnDydSlope_EM_YY>, check for Ctrl-Break periodically.
+  Remove dependence on <bRet> of marking the result as valid or not --
+    the result is in <lpYYRes> or it's NULL.
+  Allow '' as a left arg to L\R.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Fix Bug:  When expanding an APA, Hetero, or Nested multirank rght arg,
+    the wrong loop limit was used which terminates the loop prematurely
+    incorrectly leaving some elements as zero.
+
+PF_SQUAD.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Change the args to <PrimFnDydSquadGlb_EM> to allow the routine to change the
+    name arg global memory handle and provide a separate arg to
+    return changed global when called for indexed assignment.
+  Improve comments.
+  In <PrimFnDydSquadGlb_EM_YY>, check for Ctrl-Break periodically
+  In <PrimFnDydSquadGlb_EM_YY>, skip over the left arg header and dimensions
+    depending upon whether or not the left arg is a list or var.  This
+    is needed for the switch from <GetNextValueGlb> to <GetNextValueMem>.
+  Switch from <GetNextValueGlb> to <GetNextValuemem> so as to avoid a
+    GlobalLock/Unlock in the innner loop.
+  In <PrimFnDydSquadGlb_EM_YY>, check for empty list arg when validating
+    the left arg.
+  Fix Bug:  In <PrimFnDydSquadGlb_EM_YY> when ignoring unit dimensions
+    for ArrayIndexSet, don't branch to LENGTH_EXIT before unlocking the
+    global.
+  Fix Bug:  In <PrimFnDydSquadGlb_EM_YY> when ignoring unit dimensions
+    for ArrayIndexSet, check for no more dimensions in index as well as
+    in set arg.
+  In <PrimFnDydSquadGlb_EM_YY>, reorganize the code to draw together
+    assign vs. reference code blocks.
+  Fix Bug:  In <PrimFnDydSquadGlb_EM_YY>, free <CopyArray_EM> of <hGlbRht>
+    if ending in error.
+  Check to see if we should zero <*lphGlbRes> on error exit.
+  After calling a "_EM" suffixed routine, goto to ERROR_EXIT rather than
+    an error message-specific label unless there's a very good reason to
+    override the "_EM" routine's own error message.
+
+PF_STAR.C:
+  Rename <iXXX64> to <_iXXX64>.
+
+PF_TIMES.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  After calling a "_EM" suffixed routine, goto to ERROR_EXIT rather than
+    an error message-specific label unless there's a very good reason to
+    override the "_EM" routine's own error message.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PF_UARROW.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimFnDydUpArrow_EM_YY>, check for Ctrl-Break periodically.
+  In <PrimFnDydUpArrow_EM_YY>, recognize (under-)take of an APV and
+    handle specially.
+
+PF_USTILE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PF_UTACK.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  In <PrimFnDydUpTack_EM_YY>, check for Ctrl-Break periodically.
+
+PF_UTACKJOT.C:
+  Rename <Unlocalize> to <UnlocalizeSTEs>.
+
+PO_DIERESIS.C:
+  In <PrimOpMonDieresisCommon_EM_YY>, check for Ctrl-Break periodically.
+  Fix Bug:  In <PrimOpMonDieresisCommon_EM_YY>, assignment into .ImmType
+    is ARRAY_TYPES rather than IMM_TYPES.
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <PrimOpDydDieresisCommon_EM_YY>, check for Ctrl-Break periodically.
+  Fix Bug:  In <PrimOpDydDieresis_EM_YY>, free the left & right tokens
+    (if present) before acting on an error.
+
+PO_DIJOT.C:
+  In <PrimOpDieresisJotCommon_EM_YY>, check for Ctrl-Break periodically.
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <AttrsOfGlb> as the
+    latter function clears those bits on its own.
+
+PO_DOT.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  In <PrimOpDydDotCommon_EM_YY>, check for Ctrl-Break periodically.
+  Special case inner product for simple non-hetero arrays with primitive scalar
+    dyadic functions.
+  Improve comments.
+  Fix Bug:  In <PrimOpDydDotCommon_EM_YY> when the result is empty and the right
+    arg is immediate, the lefthand values are filled in instead of the righthand
+    values, thus causing the system to crash.
+  Fix Bug:  In <PrimOpDydDotCommon_EM_YY> when the result is empty, don't store
+    into the result unless it's a nested prototype.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PO_JOTDOT.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  In <PrimOpDydJotDotCommon_EM_YY>, check for Ctrl-Break periodically.
+  Speed up outer product by special casing scalar dyadic functions.
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, optimize reduction on Primitive Dyadic
+    Scalar functions.
+  Rename <iXXX64> to <_iXXX64>.
+  In <PrimOpMonSlashCommon_EM_YY>, include test for <lpPrimFlags> before
+    referencing it.
+  In <PrimOpMonSlashCommon_EM_YY>, optimize +/ on APAs.
+  In <PrimOpMonSlashCommon_EM_YY>, define and use flag indicating Primitive
+    Scalar Dyadic function.
+  In <PrimOpMonSlashCommon_EM_YY>, remove references to <uDimRes> as it is
+    no longer used.
+  In <PrimOpMonSlashCommon_EM_YY>, check for Ctrl-Break periodically.
+  Fix Bug:  When reducing a named scalar var, the code fails to take into
+    account the indirection to the SYMENTRY.
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  In <PrimOpDydSlashCommon_EM_YY>, check for Ctrl-Break periodically.
+
+PO_SLOPE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  In <PrimOpMonSlopeCommon_EM_YY>, check for Ctrl-Break periodically.
+
+PRIMFNS.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64> and define <iXXX64> as a macro which
+    calls <_iXXX64> with a trailing NULL parameter.
+  In <TokenTypeFV>, recognize and handle the new list tokens.
+  In <AttrsOfToken>, recognize and handle the new list tokens.
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <AttrsOfGlb> as the
+    latter function clears those bits on its own.
+  In <AttrsOfGlb>, clear the ptr type bits of the incoming arg.
+  In <AttrsOfGlb>, recognize and handle the new list tokens.
+  In <StorageType>, use <aTypePromote> instead of <aplTypeArr>,
+    replace <ARRAY_MIXED> with <ARRAY_HETERO>, and handle case of ARRAY_CHARs
+    with functions Equal and Not-Equal.
+  In <PrimScalarFnDydAllocate_EM>, initialize the result at the start.
+  In <MakeMonPrototype_EM>, use <FreeResultGlobalVar> instead of <xxGlobalFree>
+    so as to free subarrays in a nested arg.
+  If <DEBUG_REFCNT> is defined, always display the debug message by
+    using <dprintfW9> instead of <dprintfW>.
+  Clear the PermVec bits in <CopyArray_EM> as we're changing the array.
+  Expand <CopyGlbAsType> to <CopyGlbAsType_EM> and handle APAs.
+  Fix bug:  In <CopyGlbAsType_EM>, use cast of LPAPLINT instead of LPAPLFLOAT
+    when converting from Boolean to float.
+  Define <IsGlobalTypeArray> for non-DEBUG platform.
+  In <IsGlobalTypeArray>, recognize and handle lists and named vars strand.
+  In <CalcArraySize>, use <APLLIST> for <ARRAY_LIST> and add in the
+    LSTARRAY_HEADER separately.
+  In <IsTknImmed>, include immediate lists.
+
+PRIMSPEC.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Delete commented out code.
+  In <PrimProtoFnScalar_EM_YY>, call <GetImmedType> to get each arg's
+    immediate type in case one of the args is a named var.
+  Fix Bug:  In <PrimFnMon_EM_YY>, assignment into .ImmType is ARRAY_TYPES
+    rather than IMM_TYPES.
+  Fix Bug:  In <PrimFnMon_EM_YY>, if a Primitive Scalar Monadic function
+    overflows (e.g., -SmallestNegativeInteger), the restart label
+    doesn't reset the immediate type in the result.
+  In <PrimFnMonGlb_EM>, check for Ctrl-Break periodically.
+  In <PrimFnMonGlb_EM>, handle case of overflow from an APA.
+  In <PrimFnDydSimpNest_EM>, check for Ctrl-Break periodically.
+  In <PrimFnDydNestSimp_EM>, check for Ctrl-Break periodically.
+  In <PrimFnDydSingMult_EM>, check for Ctrl-Break periodically.
+  In <PrimFnDydSingMult_EM> and <PrimFnDydSimpSimp_EM>, use <FreeResultGlobalVar>
+    instead of <xxGlobalFree> so as to free subarrays in a nested arg.
+  In <PrimFnDydMultSing_EM>, check for Ctrl-Break periodically.
+  In <PrimFnDydSimpSimp_EM>, check for Ctrl-Break periodically.
+
+QF_AV.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_CR.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use <CopyMemory> instead of <MoveMemory> when non-overlapping.
+
+QF_DL.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_DM.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_DR.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Remove -2 and -1 as argumentrs in favor of using 1 and 2
+    and testing the right arg for char vs. numeric.
+  Define equates for 8- and 32-bit chars.
+  Rename equate for 16-bit chars to include that suffix.
+  Define equates for 8-, 16-, and 32-bit ints.
+  Rename equate for 64-bit integers to include that suffix.
+  Redefine bit width of complex & hypercomplex #s.
+  Renumber IDs for Hetero, Nested, & List to use the same ID for both widths.
+  Renumber ID for Rational to be sequential with preceding IDs.
+  Define equate for extended precision numbers.
+
+QF_EM.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_ET.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_EX.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Fix error in comment.
+  Use macro for rank and length testing.
+  Rename <ValidXXX> to <IsValidXXX> to better reflect its Boolean result.
+  Fix Bug:  In <SysFnMonEX_EM_YY> for matrix args, shift each bit result over
+    so it doesn't look like all but the first, ninth, ... name isn't erased.
+  Fix Bug:  In <ExpungeName>, don't free global if there's no value.
+  Rename <FreeResultGlobalDFV> to <FreeResultGlobalDFLV> to reflect
+    its handling of lists.
+
+QF_FX.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Set error display flag to FALSE so we DO NOT display errors
+    in a <MessageBox> for []FX.
+
+QF_LC.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_MF.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Define new module to manage function line monitoring info.
+
+QF_NC.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Fix error in comment.
+  Use macro for rank and length testing.
+  Rename <ValidXXX> to <IsValidXXX> to better reflect its Boolean result.
+  Correct the rules for a valid name.
+  Define new nameclass for Magic Functions.
+  In <CalcNumIds>, disallow matrix arg if no multiple names.
+
+QF_NL.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_SIZE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use macro for rank and length testing.
+  Use header global for function line monitoring info.
+
+QF_SYSID.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_SYSVER.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+
+QF_TC.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+
+QF_TF.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use <CopyMemory> instead of <MoveMemory> when non-overlapping.
+  Set error display flag to FALSE so we DO NOT display errors
+    in a <MessageBox> for []TF.
+
+QF_TS.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+
+QF_TYPE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_UCS.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Fix Bug:  When converting Boolean to UCS-2, I forgot to shift the selected bit
+    (as a mask value) down to a 1 or 0, thus producing incorrect results.
+
+REFCNT.C:
+  For debugging reference count bugs, define <hGlbRC1> and <hGlbRC2>
+    to aid in trapping changes to vars reference counts.
+  Bracket RefCnt debug statements with <DEBUG_REFCNT> instead of <DEBUG>
+    to be consistent with elsewhere in the program.
+  If <DEBUG_REFCNT> is defined, always display the debug message by
+    using <dprintfW9> instead of <dprintfW>.
+  Define new routine <GetRefCntGlb> to return a global memory handle's
+    reference count.
+
+RESDEBUG.C:
+  In <_SaveObj> pass in the filename arg (if any) and save it in memory.
+  In <_SaveObj>/<_DeleObj>, avoid recursive entry by use of a Critical
+    Section Object (only if defined).
+  In <_DeleObj>, change decrement code to be similar to increment code in <_SaveObj>,
+    and catch case where we exceed <MAXOBJ>.
+  Define and use a new routine <OverLapMemory> to handle moves where the
+    memory overlaps destructively and on purpose.
+  Rename <_LastLock> to <_LastTouch> to reflect that it does more than
+    display info about the last place the object was locked.
+  In <_LastTouch>, pass in flag indicating whether or not the memory was locked
+    and display allocation info only if not locked.
+  In <MyGlobalAlloc>, if there's a WS FULL, display the global memory entries.
+
+RESOURCE.H:
+  Redefine equates for Customize property pages to make the implemented
+    page equates sequential.
+  Define equate for []MF timer value combobox.
+  Define equates for button text in Customize Fonts property page.
+  Define equates for Customize System Var Reset property page.
+
+SAVEFCN.C:
+  Set error display flag to TRUE so we display errors
+    in a <MessageBox> for Function Editor save.
+  When calling <ParseHeader>, pass down the <DisplayErr> flag from
+    the caller.
+  Use header global for function line monitoring info.
+  If <ParseHeader> returns an error, copy the error message text
+    to the caller's buffer.
+  Upon encountering an error, ensure that the focus returns to the Function
+    Editor window (if any).
+
+SAVEFCN.H:
+  Define bit field to mark whether or not the caller of <SaveFunctionCom>
+    wants errors displayed in a <MessageBox>.
+  Define a save area for error message text.
+
+SC_COPY.C:
+  Rename <FreeResultGlobalDFV> to <FreeResultGlobalDFLV> to reflect
+    its handling of lists.
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+
+SC_ERASE.C:
+  Rename <ValidXXX> to <IsValidXXX> to better reflect its Boolean result.
+
+SC_INASCII.C:
+  Continue processing files after an error.
+  Do not display the text if the last call to <InAsciiFile_EM> failed.
+  Set error display flag to FALSE so we DO NOT display errors
+    in a <MessageBox> for )INASCII.
+  On error, display a line in the Session Manager with the error message text.
+  On error, after displaying the text so far, re-initialize the buffer
+    with the leading text.
+
+SC_LOAD.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <FreeResultGlobalDFV> to <FreeResultGlobalDFLV> to reflect
+    its handling of lists.
+  Set error display flag to TRUE so we display errors
+    in a <MessageBox> for )LOAD.
+
+SC_SAVE.C:
+  Write out []MF timer value for the workspace.
+  Note that we still need to write out function line monitoring info.
+  Omit call to <ClrPtrTypeDirAsGlb> on arg to <AttrsOfGlb> as the
+    latter function clears those bits on its own.
+
+SC_SI.C:
+  If we're in the non-DEBUG version and the function at this SI level
+    is a Magic Function, don't mention it.
+
+SESSMAN.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Move <bExecuting> from global to PerTabData struc.
+  In <SMWndProc>, now that EditCtrl is a superclass, there's no need
+    to subclass it.
+
+SORT.C:
+  In <sift_in>, check for Ctrl-Break periodically.
+
+STARTADDR.H:
+  Move prototype for <EditWndProcW> to <externs.h> for global reference.
+  Remove references to <CS_GOTO> and <CS_RETURN> as they are emulated.
+  Include references to <CS_ENDFOR_Stmt> and <CS_FOR_Stmt_EM>.
+  Expand <CopyGlbAsType> to <CopyGlbAsType_EM>.
+  Include more addresses for debugging purposes.
+
+STRAND.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Fix Bug:  When resetting the Strand Base, the calculation was off.
+    This causes a crash under certain circumstances.
+  In <MakeVarStrand_EM_YY>, replace <return NULL;> with <goto ERROR_EXIT;>
+    so as to allow it to be chosen as an exit when debugging.
+  In <MakeVarStrand_EM_YY>, recognize and handle the new list tokens.
+  In <MakePrimOp123_YY>, call <CopyPL_YYSTYPE_EM_YY> instead of <YYCopy>
+    to allow call to <FreeResultName> in <parse.y>.
+  In <MakeList_EM_YY>, recognize and handle the new list tokens.
+  In <CopyToken_EM>, handle Direct Function/Operator now that
+    <MakePrimOp123_YY> calls <CopyPL_YYSTYPE_EM_YY>.
+  In <CopyToken_EM>, recognize and handle the new list tokens.
+
+SYMBOLNAMES.H:
+  Fix Bug:  Remove {ln} as an alias of {star}.
+  Define {find} as an alias for {epsilonunderbar}.
+  Define {hoot}/{paw}/{av136} as aliases for {dieresisjot}.
+  Define {holler}/{hoof} as aliases for {dieresiscircle}.
+  Define {ln} as an alias of {circlestar}/{log}.
+
+SYMTAB.C:
+  In <HshTabFrisk>, avoid recursive entry by use of a Critical Section Object.
+  Use <CopyMemory> instead of <MoveMemory> when non-overlapping.
+  Fix Bug:  When looking up a symbol table entry, under certain circumstances
+    it's possible to mistake one name for another when we don't test the char
+    after the last for being invalid in a name.
+  Move error message calls to common labels.
+
+SYMTAB.H:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Note dependency of <NAMETYPEMASK_xx> on <NAME_TYPES>.
+  Note length of <stData>.
+
+SYMTRANS.C:
+  In <FcnTrans>, remove duplicate entries which correctly appear in <OprTrans>.
+
+SYSVARS.C:
+  Define entry for []MF.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Rename <SetEmptyCWS>/<SysOrIni> to <ResetVars>.
+
+SYSVARS.H:
+  Define length of DEF_QUADFC_CWS.
+  Define default value for []MF timer value.
+
+TABCTRL.C:
+  Now that EditCtrl is a superclass, we don't need to subclass.
+  If the tab is still running, don't allow it to be closed.
+  In <TCM_DELETEITEM>, now that EditCtrl is a superclass, there's no need
+    to unhook the subclassed control.
+
+TOKENIZE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Rename <iXXX64> to <_iXXX64>.
+  After setting the token type to <TKT_VARNAMED>, insert a commented
+    out line setting the immediate type to <IMMTYPE_ERROR>.
+  In <fnAlpDone>/<fnDirIdent>, if the name isn't found, return ptr
+    to <steNoValue> so as to avoid errors during tokenization.
+  Fix Bug:  In <fnDotDone>, call <InitAccumvars> so to wipe out the
+    saved dot.  This causes 1+.{times}0.5 1 to fail.
+  In <Untokenize>, recognize and handle the new list tokens.
+  Rename <ValidXXX> to <IsValidXXX> to better reflect its Boolean result.
+
+TOKENS.H:
+  Define and document the new list tokens.
+
+TRANSLATE.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+
+TYPEMOTE.C:
+  Use <aTypePromote> instead of <aplTypeArr>.
+  Fix typo in comment.
+  In <DemoteData> include assertions about the demoted data.
+  In <TypePromote_EM>, clear the high-order bytes of a Boolean when converting
+    to an integer.
+  Fix Bug:  In <TypePromoteGlb_EM>, handle promotion of Boolean APA to Boolean.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In <TypePromoteGlb_EM>, return the result with the PtrType bits so
+    the caller doesn't need to clear them.
+
+UNICODE.H:
+  Define equate for checkmark.
+
+WORKSPACE.H:
+  Define keyname for workspace-specific []MF timer value.
+
+YYFNS.C:
+  Renumber <IMM_TYPES> enum to make 0 the error entry so as to
+    catch the common fill value as an error.
+  Fix Bug:  In <YYCopyFcn>, note whether or not we used <YYFcn> and use that
+    flag instead of <TknCount> which could be 1 even if we don't use <YYFcn>.
+  In <YYCopyFcn>, increment the reference counts of all functions in the array
+    before copying it to local memory.
+  Define new routine <IncrFcnMem> to increment recursively the reference counts
+    in the function array argument.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  In <EDIT_PaintLine>, clear the bottom half line to avoid ghosting.
+  In <EDIT_PaintText>, call <lpPaintHook> in single-line Edit Ctrls.
+  In <EDIT_WM_ContextMenu>, check for <CF_PRIVATEFIRST> clipboard format
+    along with <CF_TEXT>.
+  Remove FIXME comments which have been fixed.
+  Fix Bug:  In <EDIT_WM_SetText>, comment out test whose consequence
+    was already commented out.  This means that the test actually applied
+    (incorrectly) to the following statement, thus causing WM_SETTEXT to
+    append rather than replace.
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Acknowledge Bob Bernecky's contribution of the test cases from his APEX compiler
+    and his contribution of the Array Predicates idea.
+  Acknowledge Dave Durgee's invaluable testing of the original beta release.
+
+INDEX-BODY.AHTML:
+  Indicate support for Selective Assignment.
+  Indicate support for the system functions []AF and []MF.
+  Reorganize display of []CR, []DR, and []TF.
+  Indicate support for the system commands )IN, )INASCII, and )OUT.
+  Indicate that some Array Predicates are supported.
+  Indicate the need for multiple character widths to support Unicode.
+  Include the rest of the scalar system vars in the list of range limited vars.

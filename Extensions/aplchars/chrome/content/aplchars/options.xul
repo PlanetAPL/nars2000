@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!DOCTYPE prefwindow [
+<!ENTITY % aplOptionsDTD SYSTEM "chrome://aplchars/locale/options.dtd">
+%aplOptionsDTD;
+<!ENTITY % aplextsDTD    SYSTEM "chrome://aplchars/content/extensions.dtd" >
+%aplextsDTD;
+]>
+
+<prefwindow id="aplcharsPreferences"
+            xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+            title="&prefwindow.title;"
+            ondialogaccept="savePrefsAPL ();" >
+
+    <!-- This imports the debugging javascript for this module -->
+    <script type="application/x-javascript"
+            src="chrome://aplchars/content/mydump.js" />
+
+    <script type="application/x-javascript">
+        // Define globals with the names of extension preferences
+        //   because we can't reference the names directly within
+        //   the Javascript file (options.js).
+    var gAplCharsRoot               = "&aplchars.root;";
+    var gAplCharsCharsEnabled       = "&aplchars.charsenabled;";
+    var gAplCharsKeyboardLayout     = "&aplchars.keyboardlayout;";
+    var gAplCharsAplFontFamilyId    = "&aplchars.aplfontfamilyid;";
+    var gAplCharsAplFontFamilyName  = "&aplchars.aplfontfamilyname;";
+    </script>
+
+    <!-- This imports the corresponding javascript for this module -->
+    <script type="application/x-javascript"
+            src="chrome://aplchars/content/options.js" />
+
+    <prefpane id="pane1" label="&prefwindow.title;">
+      <groupbox>
+        <caption label="&prefwindow.keyboardlayout;" />
+        <radiogroup id="keyboardlayout">
+          <radio id="NARS2000" label="NARS2000 (APL+Win)" />
+          <radio id="DyalogUS" label="Dyalog (US)"        />
+        </radiogroup>
+      </groupbox>
+
+      <groupbox>
+        <caption label="&prefwindow.aplfontfamily;" />
+        <radiogroup id="aplfontfamily">
+          <radio id="APL2"         label="APL2 Unicode"          value="APL2 Unicode Italic" />
+          <radio id="APL385"       label="APL385 Unicode"        value="APL385 Unicode"      />
+          <radio id="MicroAPL"     label="MicroAPL APLX Upright" value="APLX Upright"        />
+          <radio id="SImPL"        label="SImPL"                 value="SImPL"               />
+          <radio id="SImPL-medium" label="SImPL Medium"          value="SImPL medium"        />
+        </radiogroup>
+      </groupbox>
+
+      <checkbox id="charsenabled"
+                label="&prefwindow.charsenabled;" />
+
+      <button label="&prefwindow.aboutbutton;" oncommand="displayAboutAPL ();" />
+  </prefpane>
+</prefwindow>

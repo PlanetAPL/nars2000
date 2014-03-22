@@ -1,0 +1,35 @@
+Build #502-- Version 0.0.2.2
+----------------------------
+
+* Allow the user to switch between left- and right- double-click
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Define actions for Reverse Double Click preference.
+  Fix Bug:  Include Check Group and Insert State IDs in User
+    Preference list of IDs which set the Apply button.
+  Remove duplciate code.
+
+DEFINES.H:
+  Define default value for RevDblClk state.
+  Define local message for Right double-click.
+
+EDITFCN.C:
+  Handle switch of right- and left-doubleclick actions.
+
+EXTERNS.H:
+  Note two additional available spots on the keyboard.
+  Define bit and default value for RevDblClk.
+
+INIFILE.C:
+  Read in and write out RevDblClk.
+
+MAIN.RC:
+  Define User Preference text for RevDblClk.
+
+RESDEBUG.C:
+  Remove unused code.
+
+RESOURCE.H:
+  Define ID for RevDblClk.

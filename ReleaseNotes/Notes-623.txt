@@ -1,0 +1,21 @@
+Build #623 -- Version 0.0.2.7
+-----------------------------
+
+* Allow System Commands To Use Double Quotes Around The Drive, Path, Filename
+
+Directory trunk:
+
+COMMON.C:
+  Update copyright year.
+  Define new routine <SipToCharDQW> to use when parsing system
+    command lines.
+
+SC_COPY.C:
+SC_DROP.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SC_WSID.C:
+  When processing the command line of a system command, allow
+    the drive, path, and filename to be enclosed in double quotes
+    so it may be parsed properly.

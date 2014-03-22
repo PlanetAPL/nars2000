@@ -1,0 +1,42 @@
+Build #299 -- Version 0.0.0.19258
+---------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include new module <customize.c>
+
+CUSTOMIZE.C:
+  New module for Customize screens.
+
+EXTERNS.H:
+  Define strucs, etc. for Customize screens.
+
+GETFNS.C:
+  Fix bug:  When I put code into <GetGlbPtrs_LOCK> to return the
+    longest value all the time, I forgot that that routine could
+    be called with a list which doesn't have a longest.  This caused
+    that routine to fail on a DbgStop when called with a list such as
+    A[2;].
+
+INIFILE.C:
+  Read in/write out [SameFontAs] section.
+
+MACROS.H:
+  Define macro for lists.
+
+MAIN.C:
+  Define response to Customize menu selection.
+
+MAIN.RC:
+  Define resources for Customize screen.
+
+MAKEFILE.INC:
+  Split out common elements from MAKEFILE.W32 & MAKEFILE.W64.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Split out common elements from MAKEFILE.W32 & MAKEFILE.W64.
+
+RESOURCE.H:
+  Define resources for Customize screen.

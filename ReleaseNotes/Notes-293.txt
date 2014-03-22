@@ -1,0 +1,87 @@
+Build #293 -- Version 0.0.0.18678
+---------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototypes for new module.
+
+DISPLAY.C:
+  Widen string passed to <CheckVirtAlloc>.
+
+EXCEPT.C:
+  Widen string passed to <CheckVirtAlloc>.
+  Collect common code into <CheckPTDVirtStr> for multiple uses.  This
+    might actually fix a nasty bug which causes )SAVE to crash leaving
+    a vanishing short trail for debugging.
+  Format and display CR2 in Crash Control window.
+
+EXTERNS.H:
+  Correct []IC documentation on L * _ that it applies to L<=-1 not L<-1.
+
+INIFILE.C:
+  Implement OptionFlags.bBackupOnLoad & OptionFlags.bBackupOnSave and
+    read and write these flags from/to <nars2000.ini>.
+
+MAIN.H:
+  Move workspace #defines to <workspace.h>.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Define new action DELPRO to delete all .pro files.
+  Include new module (SC_COMMON.C).
+
+PARSE.Y:
+  Widen string passed to <CheckVirtAlloc>.
+  Fix bug where <LookaheadDyadicOp> fails when it encounters a
+    TKT_FCNNAMED token (such as a system function).
+
+PF_QUERY.C:
+  Fix bug where monadic query on a float returns a float; instead it
+    should return an int.  This fix involves defining the routine IisF
+    instead of FisF, and changing the monadic storage result to INT
+    from FLOAT.  To ease maintenance, the IisF routine calls the IisI
+    routine to generate the actual result.  Ultimately, I'd like to
+    change the modulus from the prime (2*31)-1 to the prime (2*61)-1
+    but I need to find a "good" primitive root.
+
+PF_STAR.C:
+  Check for special case of (|1) * R instead of just 1 * R so it doesn't
+    blow up to FLOAT.
+  Fix bug where L * _ for L < -1 was subject to []IC.  The correct
+    range is L <= -1.
+
+SC_COMMON.C:
+  New module which collects various common routines in the LOAD/SAVE/COPY
+    group.
+  Define a new routine <MakeWorkspaceBackup> which makes a backup of a
+    workspace file into a file named either filename.load.bak.ws.nars
+    or filename.save.bak.ws.nars, subject to OptionFlags.  These files
+    are generated on every load and/or save so that if that operation
+    goes awry, you have a backup minus your work after the last save.
+    As the old timers may recall, "Thunderstorms in Bethesda, )SAVE often".
+
+SC_DROP.C:
+  Include "workspace.h" explicitly because we moved some equates from <main.h>
+    into <workspace.h>.
+
+SC_FNOV.C:
+  Display global names only.
+  Fix bug where an extra line is inserted into the output causing double-spacing.
+
+SC_LOAD.C:
+  Move #defines to common <workspace.h> file.
+  Make a backup of the workspace before every )LOAD command, if requested.
+  Widen string passed to <CheckVirtAlloc>.
+  Move routines to common module <sc_common.c>.
+
+SC_SAVE.C:
+  Move routines to common module <sc_common.c>.
+  Make a backup of the workspace before every )SAVE command, if requested.
+  Collect tail end of )SAVE processing to a separate routine which can
+    be called from the (new) exception handler around )SAVE.  This gives
+    us a better chance of having a less corrupt workspace in case the
+    )SAVE goes awry.
+
+WORKSPACE.H:
+  Move #defines to common <workspace.h> file.

@@ -1,0 +1,53 @@
+Build #610 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Reference Count For Trains Incorrect
+
+Directory trunk:
+
+DATATYPE.H:
+  Update copyright year.
+  Define new flag in <FCNARRAY_HEADER>.
+  Define variable/function/operator header ptrs union.
+
+DISPDBG.C:
+  Improve comments.
+  In <DisplayGlobals>, surround the function array with parens unless
+    it's a Train.
+  Fix Bug:  The display of a Train one of whose elements is a derived
+    function (hence, multiple element), displays the first element only.
+  In <DisplayFcnSub> for Function Arrays, use <DisplayFcnMem> to display
+    rather than <DisplayFcnSub> so as to handle Trains.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle <TKT_FCNIMMED> case.
+
+MAKEPRO.PHP:
+  Improve comments.
+  Fix prototype stmts.
+
+PL_PARSE.Y:
+  Ensure all <YYFree>s are followed by setting the ptr to NULL.
+  When calling <MakeFcnStrand>/<PushFcnStrand> when working with
+    Trains set the <SkipRefCntIncr> flag so as not to introduce a
+    memory leak when the Train goes through its final call to
+    <MakeFcnStrand> as the <LeftOper> is instantiated.
+
+PRIMFNS.C:
+  In <CopyArray_EM> for Function Arrays, increment the top level
+    reference count as that's where Trains come in.
+  Define <IsTknTypeFcnOpr> to determine if a token type is a fcn/opr.
+  Rename <SetVarArraySRCIFlag> to <SetVFOArraySRCIFlag> to encompass
+    fcn/opr as well as var and rename vars within the new function to
+    reflect the dual meaning.
+  Rename <ClrVarArraySRCIFlag> to <ClrVFOArraySRCIFlag> for the same
+    reasons as above.
+
+REFCNT.C:
+  Update copyright year.
+  In <ChangeRefCntDir_PTB>, check for and handle the <SkipRefCntIncr>
+    flag for function arrays, too.
+
+STRAND.C:
+  Rename <ClrVarArraySRCIFlag> to <ClrVFOArraySRCIFlag>.
+  Improve comments.

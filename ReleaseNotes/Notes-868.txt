@@ -1,0 +1,12 @@
+Build #868 -- Version 0.0.3.0
+-----------------------------
+
+* Fix Bug:  Handle Output Of Long Lines
+
+Directory trunk:
+
+INITDATA.C:
+  Fix commented out stmt.
+
+PF_DTACKJOT.C:
+  Fix Bug:  Handle output of long lines.

@@ -1,0 +1,48 @@
+Build #561 -- Version 0.0.2.4
+-----------------------------
+
+* Change Binding Strength For Strands To The Right Of A Dyadic
+  Operator
+
+Directory trunk:
+
+FREE.C:
+  In <FreeResultSub>, handle incoming character and numeric strands.
+  In <FreeResultGlobalFcn>, use <LPFCNARRAY_HEADER> instead of
+    a cast to aid in debugging.
+
+PL_PARSE.Y:
+  Define new tokens that correspond to various variables to the
+    right of a dyadic operator.
+  Define new terminal <Drv5Func> for use in
+    <ArrExpr: ArrExpr Drv5Func StrandInst> and
+    <LeftOper: (Drv5Func)>.
+  Define new rule that allows assignment of <Drv3Func> to a name.
+  Split out assignment to a name of <MonOp Drv1Func> and
+    <MonOp Drv3Func>.
+  Split out assignment to a name of <AmbOp Drv2Func> and
+    <AmbOp Drv3Func>.
+  In any rule with <error> and a <LeftOper>, free the <LeftOper>
+    only if it is not a named function/operator.
+  Include in <ArrExpr:> the rules <ArrExpr Drv3Func> and
+    <ArrExpr Drv4Func>.
+  Define new terminals <SingOp2Var:> and <StrandOp2> to collect
+    possible variable targets to the right of a dyadic operator.
+  Include in <SelectSpec:> the rule <SelectSpec Drv3Func>.
+  Define new rule <Drv3Func:> for use in <FcnSpec:> and
+    <ArrExpr:> becuase the strand on the right is bound to the
+    dyadic operator.
+  Augment new rule <Drv4Func:> for use in <FcnSpec:>,
+    <ArrExpr:  ArrExpr Drv4Func> and <LeftOper: MonOp Drv4Func>.
+  Define new rule <Drv5Func:> for use in
+    <ArrExpr: ArrExpr Drv5Func StrandInst> and <LeftOper: (Drv5Func)>.
+  In <LookAheadDyadicOp>, handle right grouping tokens by
+    ignoring them rather than skipping over the entire group.
+  In <pl_yylex>, check for an adjacent dyadic operator upon
+    encountering a VARIMMED, VARARRAY (return <OP2CONSTANT>),
+    VARNAMED (return OP2NAMEVAR>), CHRSTRAND (return <OP2CHRSTRAND>)
+    or NUMSTRAND (return <OP2NUMSTRAND>).
+
+PRIMFNS.C:
+  Define new function to determine whether or not a token type is
+    that of a named function/operator.

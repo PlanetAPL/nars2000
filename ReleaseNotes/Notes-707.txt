@@ -1,0 +1,12 @@
+Build #707 -- Version 0.0.2.16
+------------------------------
+
+* Allow Non-empty Reshape Of Empty To Fill With Right Arg Prototype
+
+Directory trunk:
+
+PF_RHO.C:
+  Following the lead of Dyalog, the Reshape function when used
+    with an empty right argument and a left argument with no zeroes
+    returns a result (previously a LENGTH ERROR) all of whose elements
+    are the fill element of the right argument.

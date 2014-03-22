@@ -1,0 +1,10 @@
+Build #985 -- Version 0.3.8.xx
+------------------------------
+
+* Allow Empty Vector For Default Conversion In Native File Functions
+
+Directory trunk:
+
+QF_NFNS.C:
+  Allow an empty vector to be used to indicate the default conversion
+    code(s) for various native file functions.

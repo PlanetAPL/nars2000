@@ -1,0 +1,81 @@
+Build #961 -- Version 0.0.3.5
+-----------------------------
+
+* Implement Native File Functions
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define new error messages related to native file functions.
+
+COMPRO.H:
+  Include prototype file for native file functions.
+
+ENUMS.H:
+  Define enum for the common routine for []NERASE, []NRENAME, and []NRESIZE.
+
+EXTERNS.H:
+  Include new column for <FastBoolTrans> to reverse the bits in a byte.
+  Define native file functions structures.
+
+HEADERS.H:
+  Include <stdio.h> and <qf_dr.h> in all headers.
+
+MACROS.H:
+  Define typedefs and macros for native file functions.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Include new file <qf_nfns.c> and related files.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <qf_nfns.c>.
+
+PERTAB.H:
+  Include global memory handle for native file functions structures.
+
+PRIMFNS.C:
+  Split apart <CalcDataSize> from <CalcArraySize>.  Originally, I thought I needed this
+    for native file functions, but I changed my mind.
+
+QF_DR.C:
+  Omit <qf_dr.h> as it's now in <headers.h>.
+
+QF_DR.H:
+  Reorganize entries for an enum instead of successive #defines.
+
+QF_NFNS.C:
+  New file to implement native file functions.
+
+SORT.C:
+  Update copyright year.
+  Define new sort function for sorting 8-byte integers.
+
+STARTADDR.H:
+  Include names of native file functions.
+
+SYSVARS.C:
+  Remove references to prototype functions as we no longer need them.
+  Include native file functions.
+
+TABCTRL.C:
+  In <FreeGlobalStorage>, also free the data associated with native file functions.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Remove duplicate reference to infinity.
+  Include references to native file functions.
+  Remove reference to []SGL.
+
+
+Directory trunk\MediaWiki\extensions:
+
+APL.CSS:
+  Define new class for native file function header lines.
+
+RENDERAPL.PHP:
+  Allow class="...> inside <apl> and <apll> tags.

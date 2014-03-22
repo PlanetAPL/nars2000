@@ -1,0 +1,111 @@
+Build #288 -- Version 0.0.0.18546
+---------------------------------
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message for attempt to restart non-restartable code.
+
+COMPRO.H:
+  Include new Crash Control module.
+
+EDITFCN.C:
+  When Pasting APL chars, deal with text formats only as some of the others
+    are problematic (e.g. Enhanced Meta Files).
+
+EXCEPT.C:
+  Implement Crash Control window which also displays a BackTrace.
+
+EXECDFN.C:
+  Put localization code into a separate function <LocalizeAll> so it can be
+    used in multple places.
+  Omit local __try/__except code as it's now handled by a global exception handler.
+
+EXTERNS.H:
+  Define various Crash Control variables and functions.
+
+GOTO.C:
+  Fix bug where an out of range goto target (< 0 or > 0x7FFFFFFF) was incorrectly
+    treated as {goto}{zilde}.
+  Check for {goto} non-restartable code (signal error message).
+
+IMMEXEC.C:
+  When returning from an Immediate Execution Mode statement, if there's an
+    active Quad Prompt, remember that fact, and avoid double prompt.
+  Pass Restartable flag to <FillSISNxt>.
+
+MAIN.C:
+MAIN.H:
+MAIN.RC:
+  Define various Crash Control variables and functions.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Omit /Ox optimization flag while we're debugging with Crash Control
+    as that flag makes backtraces through the stack impossible.
+  Include new Crash Control module.
+
+PARSE.Y:
+PF_UTACKJOT.C:
+  Pass Restartable flag to <FillSISNxt>.
+
+PERTAB.H:
+  Save in PTD struc the EBP register on a crash.
+
+PRIMFNS.C:
+  Omit local __try/__except code as it's now handled by a global exception handler.
+
+RESOURCE.H:
+  Define various Crash Control variables and functions.
+
+SC_LOAD.C:
+  Start to handle non-empty SI on )LOAD -- there's more to do.
+
+SC_SAVE.C:
+  Fix bug where we don't remove the global entry for []DM in the [Globals] section of a saved ws.
+  For the SI stack, don't bother listing the local variables as we have that info from other sources.
+
+SC_SI.C:
+  If )SI code is called from )SAVE, don't return debug entries.
+  Use SECTNAME_SI instead of constant.
+
+SESSMAN.C:
+  If a loaded workspace was saved with an outstanding Quad input prompt, check for it on the
+    initial load and display an appropriate prompt.
+
+SIS.H:
+  Define restartable flag for each SI level.
+
+STARTADDR.H:
+  Include more addresses for debugging purposes.
+
+WORKSPACE.H:
+  Define new section name.
+
+YYFNS.C:
+  Omit local __try/__except code as it's now handled by a global exception handler.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Implement Ctrl-Home and Ctrl-End in the edit control.
+
+
+Directory trunk\MediaWiki\extensions:
+
+APL.CSS:
+  White space changes only.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Reorganize text.
+  Include <Fonts> section.
+
+INDEX-LEFT.HTML:
+  Include <Fonts> section.
+
+LICENSE.HTML:
+  Fix typo.

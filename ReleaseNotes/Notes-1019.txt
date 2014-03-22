@@ -1,0 +1,29 @@
+Build #1019 -- Version 0.3.8.xx
+-------------------------------
+
+* Enhance ECM Factoring By Using Additional Methods.
+
+Directory trunk:
+
+MPIFNS.C:
+  Use MPIR-specific typdefs for return values to avoid data loss on x64 systems.
+
+PF_PI.C:
+  Update copyright year.
+  Improve comments.
+  Fix Bug:  If ECM finds a factor, it might not be prime so try to factor it.
+  Enhance ECM factoring by using P-1 and P+1 methods.
+  Use MPIR-specific typedefs for return values to avoid data loss on x64 systems.
+  Fix bug in <NumPrimes>.
+
+PF_QDOT.C:
+PF_STAR.C:
+  Update copyright year.
+  Use MPIR-specific typedefs for return values to avoid data loss on x64 systems.
+
+PRIMES.H:
+  Convert table of primes to origin-0.
+
+VER.C:
+  Update copyright year.
+  Display ECM version # in the About box.

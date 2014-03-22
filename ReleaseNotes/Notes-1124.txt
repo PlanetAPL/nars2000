@@ -1,0 +1,58 @@
+Build #1124 -- Version 0.4.0.xx
+-------------------------------
+
+* Reorganize Parser Functions Moving Ancillary Functions To <??_proc.c>
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototypes for new files.
+
+CS_PARSE.Y:
+  Omit unnecessary #include.
+
+EXTERNS.H:
+  Move Point Notation prototypes from <pn_parse.y> for use in <pn_proc.c>.
+
+FH_PARSE.PROTO:
+  Remove obsolete prototypes moved to <fh_proc.pro>.
+
+FH_PARSE.Y:
+  Update copyright year.
+  Omit unnecessary #includes.
+  Move all ancillary functions to <fh_proc.c>.
+
+FH_PROC.C:
+  Define new file to hold ancillary functions.
+  Move all ancillary functions to <fh_proc.c>.
+
+HEADERS.H:
+  Reorganize headers for new dependencies.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include entries for new files.
+
+PL_PARSE.PROTO:
+  Remove obsolete prototypes moved to <pl_proc.pro>.
+
+PL_PARSE.Y:
+  Omit unnecessary #includes.
+  Move all ancillary functions to <pl_proc.c>.
+
+PL_PROC.C:
+  Define new file to hold ancillary functions.
+  Move all ancillary functions to <pl_proc.c>.
+
+PN_PARSE.PROTO:
+  Remove obsolete prototypes moved to <pn_proc.pro>.
+
+PN_PARSE.Y:
+  Omit unnecessary #includes.
+  Move all ancillary functions to <pn_proc.c>.
+
+PN_PROC.C:
+  Define new file to hold ancillary functions.
+  Move all ancillary functions to <pn_proc.c>.

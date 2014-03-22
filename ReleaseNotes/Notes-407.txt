@@ -1,0 +1,11 @@
+Build #407 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+PF_DARROW.C:
+QF_SYSID.C:
+UNISCRIBE.H:
+  Update copyright year.

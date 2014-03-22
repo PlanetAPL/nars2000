@@ -1,0 +1,196 @@
+Build #298 -- Version 0.0.0.19235
+---------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+COMMON.C:
+CONVERT.C:
+DEBUG.C:
+DFNHDR.Y:
+EDITFCN.C:
+EXECDFN.C:
+EXECMFN.C:
+FASTBOOL.C:
+FREE.C:
+GETFNS.C:
+GOTO.C:
+IMMEXEC.C:
+MAIN.C:
+MAIN.H:
+MAKEPRO.C:
+PARSE.H:
+PARSE.Y:
+PF_BAR.C:
+PF_COMMA.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DSTILE.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_LSHOE.C:
+PF_NDCARET.C:
+PF_NUCARET.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_QUERY.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_TILDE.C:
+PF_TIMES.C:
+PF_USTILE.C:
+PF_UTACKJOT.C:
+PO_CMIDDOT.C:
+PO_DICIRCLE.C:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DITILDE.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+PRIMSPEC.H:
+QF_CR.C:
+QF_DR.C:
+QF_ES.C:
+QF_ET.C:
+QF_EX.C:
+QF_NC.C:
+QF_NL.C:
+QF_UCS.C:
+RESDEBUG.C:
+SAVEFCN.C:
+SAVEFCN.H:
+SC_COPY.C:
+SC_DROP.C:
+SC_FNOV.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_RESET.C:
+SC_SAVE.C:
+SC_SI.C:
+SC_WSID.C:
+SESSMAN.C:
+STRAND.C:
+SYSCMDS.C:
+SYSVARS.C:
+TABCTRL.C:
+THREADS.H:
+TYPEMOTE.C:
+YYFNS.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+
+CRASH.C:
+  Forgot to add it before.
+
+DISPDBG.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Rename/type <lpGlbName> as <lpwGlbName> to reflect its type (LPWCHAR).
+
+DISPLAY.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Fix bug:  When displaying an immediate float via 2 []TF, I used the
+    wrong minus sign (BAR vs. OVERBAR), so negative values or values
+    in exponential format with a negative exponent are displayed with
+    the wrong minus sign.
+  When displaying a function via 2 []TF, pass down a pointer to a
+    FILETIME timestamp the value for which is obtained from the
+    function.  Thus, when called from )OUT, the function timestamp
+    may be written out to the .atf file.
+
+EXCEPT.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Use indirection and/or <UlongToPtr> to allow cast to work in
+    _win64 environment.
+
+EXTERNS.H:
+  Define default values for <bClosingLamp>, range limited []vars,
+    and empty assignments to []vars.
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+
+INIFILE.C:
+  Define equates for [RangeLimits] and [SetEmptyCWS] sections.
+  Define equate for <ClosingLamp> keyname.
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Read in/write out <ClosingLamp> value and [RangeLimits] and
+    [SetEmptyCWS] sections.
+
+MAKEFILE.W64:
+  Uncomment line which checks for 64-bit problems.
+
+PF_RHO.C:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Remove commented out code.
+  Improve comments.
+
+QF_TF.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Pass NULL ptr to <DisplayTransferFcn2> as we don't need the
+    function's creation time.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+
+SC_COMMON.C:
+  Open file for workspace backup in binary mode to copy the old ws.
+  Use cast to allow to work in _win64 environment.
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+
+SC_ERASE.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Rename/type <lpGlbName> as <lpwGlbName> to reflect its type (LPWCHAR).
+
+SC_IN.C:
+  Move equates about transfer files to their own header file.
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+
+SC_OUT.C:
+  Implement )OUT.
+
+SORT.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Replace == with EQ and != with NE.
+
+SYMTAB.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Rename/type <lpGlbName> as <lpwGlbName> to reflect its type (LPWCHAR).
+
+TOKENIZE.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Make <fnComDone> sensitive to <OptionFlags.bClosingLamp>.
+
+TRANSFER.H:
+  Collect equates for transfer files.
+
+TRANSLATE.C:
+  Use UBOOL/LPUBOOL (unsigned BOOL) instead of BOOL/LPBOOL
+    to avoid bugs when shifting.
+  Fix bug:  The translation from NARS charset to the APL2 charset
+    was brain dead.
+
+VER.C:
+  Replace == with EQ and != with NE.

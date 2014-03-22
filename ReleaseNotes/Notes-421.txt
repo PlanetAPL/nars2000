@@ -1,0 +1,19 @@
+Build #421 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+DATATYPE.H:
+  Define APLU3264 and APLI3264.
+  Handle error condition for not _WIN32 and not _WIN64.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Use (APLU3264) (LONG_PTR) instead of (long) as cast for _WIN64
+    compatibility.
+
+LOCAL.H:
+  Define APLU3264 and APLI3264.
+  Handle error condition for not _WIN32 and not _WIN64.

@@ -1,0 +1,10 @@
+Build #1217 -- Version 0.4.6.xx
+-------------------------------
+
+* Disallow Conversion Of Floats >= 2*53 To Integer
+
+Directory trunk:
+
+CONVERT.C:
+  Update copyright year.
+  In <FloatToAplint_SCT>, check for floats >= 2*53 and return FALSE if found.

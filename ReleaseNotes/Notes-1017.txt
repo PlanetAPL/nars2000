@@ -1,0 +1,29 @@
+Build #1017 -- Version 0.3.8.xx
+-------------------------------
+
+* Document Move Of Source Code To Google Code
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Document move of source code to Google Code.
+
+FOOTER-MON.HTML:
+FOOTER.HTML:
+LICENSE-BODY.HTML:
+  Update copyright year.
+
+INDEX-BODY.AHTML:
+  Document move of source code to Google Code.
+  Use link to appropriate page for Release and Feature pages.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Use link to appropriate page for Release and Feature pages.
+
+DOWNLOAD-MENU.HTML:
+  Document move of source code to Google Code.

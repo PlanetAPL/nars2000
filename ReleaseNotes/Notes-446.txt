@@ -1,0 +1,26 @@
+Build #446 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Save Customize dialog handle in global for later testing.
+  Zap Customize global handle in WM_DESTROY to indicate that the
+    dialog is no longer active.
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc>, don't call <SetStatusXXX> if our parent is MF.
+  In <LclEditCtrlWndProc>, handle VK_INSERT so as to allow Replace
+    Mode in Customize dialog's Edit Ctrls.
+  In <InsRepCharStr>, allow INS/REP to work if parent is not MF
+    (e.g., Customize dialog).
+
+EXTERNS.H:
+  Define global to hold the Customize dialog handle if it is active.
+
+MAIN.C:
+  Fix Bug:  In <ApplyNewFontSM> if the Customize dialog is active,
+    refont that dialog's Edit Ctrl and ComboBox controls.
+
+VERSION.RC:
+  Bump version #.

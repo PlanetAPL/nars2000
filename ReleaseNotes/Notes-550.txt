@@ -1,0 +1,12 @@
+Build #550 -- Version 0.0.2.4
+-----------------------------
+
+* Rename File Menu From &Load to &Open
+
+Directory trunk:
+
+MAIN.RC:
+  Rename file menu from &Load to &Open.
+
+SYSCMDS.C:
+  Define )OPEN as synonym for )LOAD.

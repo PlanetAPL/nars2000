@@ -1,0 +1,30 @@
+Build #1054 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Change WSID In Tab When Changing []WSID
+
+Directory trunk:
+
+ASSIGN.C:
+  Update copyright year.
+  Execute post-validation function after assigning to a sysvar.
+
+EXTERNS.H:
+  Define prototype for sysvar post-validation function.
+
+PF_INDEX.C:
+  Rename <SysVarValid> to <SysVarValidNdx> to avoid conflict with the name of
+    the post-validation function ptr.
+  Execute post-validation function after assigning to a sysvar.
+
+SC_COMMON.C:
+SC_WSID.C:
+  Update copyright year.
+  Pass arg of NULL to <NewTabName> if using the name from the current tab.
+
+SYSVARS.C:
+  Define new function to do post-validation for []WSID.
+  Fill in post-validation functions for all sysvars.
+
+TABCTRL.C:
+  Pass arg of NULL to <NewTabName> if using the name from the current tab.

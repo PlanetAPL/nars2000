@@ -1,0 +1,22 @@
+Build #563 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  More RefCnt Problems
+
+Directory trunk:
+
+YYFNS.C:
+  Improve comments.
+  In <YYCopy>, transfer more data from one struc to another when
+    in DEBUG mode.
+  In <YYCountFcnStr>, include more assertions for function arrays.
+  Fix Bug:  In <YYCopyFcn> when making a direct copy, transfer the
+    <YYCoptArray> flag.
+  Fix Bug:  In <YYCopyFcn> when copying a var or axis array, don't
+    increment the refCnt as that was done when the array was created.
+  In <IncrFcnMem>, increment a ptr rather than index it so as to make
+    debugging easier.
+  Fix Bug:  In <IncrFcnMem> for function arrays items which are
+    themselves var or fcn arrays, recurse only when the item is
+    not a UDFO so as not to double increment the RefCnt.
+  Fix Bug:  In <IncrFcnMem> for a UDFO, increment the RefCnt.

@@ -1,0 +1,10 @@
+Build #463 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+FMTSPEC.C:
+FMTSPEC.H:
+  Coalesce the various leading text delimiters into one column.
+  Fix Bug:  In <fnSetQual> and <CharTransFS>, the cases of text
+    delimiters for single and double quote were omitted.

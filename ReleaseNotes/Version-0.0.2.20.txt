@@ -1,0 +1,321 @@
+Version 0.0.2.20 consists of the following Builds:
+
+
+Build #788 -- Version 0.0.2.20
+------------------------------
+
+* Make Apply Button Work In Keyboards Font Selection
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Reorganize data section.
+  Move keyboard font handle to data section from static var so it can
+    be used by <SetKeybFont> when called from <MyChooseFontHook>.
+  Display Tooltip for Keyboards Font button.
+  Handle request for Tooltip text for Keyboards Font button.
+  Move set of Property Page handle to inside <SetKeybFont> so it may be
+    called from <MyChooseFontHook> if the user clicks on the Apply button.
+
+MAIN.C:
+  In <MyChooseFontHook> include a handler for when the user clicks on the
+    Apply button and set the keyboard fonts.
+
+
+Build #787 -- Version 0.0.2.20
+------------------------------
+
+* Fix Bug:  Calculate Printer Metrics Correctly
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Display Tooltip for Fonts Static Text and Buttons.
+  Comment out Theme functions we don't use.
+  Improve comments.
+  Use new routine <GetLogPixelsY> to return commonly used value.
+  As the Customize dialog is now modeless, use <DestroyWindow> to end the
+    dialog instead of <EndDialog>.
+  Rename <IDC_FONTx> to <IDC_FONTSx> to be consistent with other Fonts names.
+  Define new routine to handle subclassing of Fonts Static Text controls to
+    relay mouse events to the Tooltip control.
+  Define new routine to return a ptr to a string that describes the Font Weight.
+
+EDITFCN.C:
+  Fix Bug:  In <LclECPaintHook> when printing, convert the printer point size
+    from screen coords to printer coords.
+
+MAIN.C:
+  Use new routine <GetLogPixelsY> to return commonly used value.
+  Remove DC parameter from <CreateNewFontCom> as it's no longer used.
+  Remove <GetPrinterDC> as it's no longer used.
+
+MAIN.RC:
+  Rename <IDC_FONTx> to <IDC_FONTSx> to be consistent with other Fonts names.
+  Define equates for Fonts Static Text labels.
+
+RESOURCE.H:
+  Rename <IDC_FONTx> to <IDC_FONTSx> to be consistent with other Fonts names.
+  Define equates for Fonts Static Text labels.
+
+
+Build #786 -- Version 0.0.2.20
+------------------------------
+
+* Fix Bug:  Set Owner Of ChooseFont Dialog To Avoid Problems
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  The owner listed in the ChooseFontW struc for the various fonts must be
+    changed to that of the Fonts property page so that the Customize dialog
+    can't be closed with the ChooseFontW dialog open.
+  Use <TTN_GETDISPINFOW> consistently instead of <TTN_NEEDTEXTW>.
+  In <TTN_GETDISPINFOW:>, if the <TOOLINFOW> struc used <TTF_IDISHWND>, we must
+    convert the <idCtl> to its corresponding <CtrlID>.
+
+MAIN.C:
+  Use <TTN_GETDISPINFOW> consistently instead of <TTN_NEEDTEXTW>.
+  Now that the Customize dialog is modeless, we must check for it already being
+    open and disallow a second copy.
+
+WEBCOLORS.C:
+  Use <TTN_GETDISPINFOW> consistently instead of <TTN_NEEDTEXTW>.
+
+
+Build #785 -- Version 0.0.2.20
+------------------------------
+
+* Use Themes For Display Of Ownerdrawn Buttons In Customize Dialog
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Use Themes to display the keycap buttons.
+  Improve comments.
+  Remove code to remove the highlight on a keycap button as we now
+    use OwnerDraw to paint the buttons.
+  Separate more keyboard layout names into Glb and Lcl versions
+    so a final Cancel changes nothing after the last Apply.
+  Delete the code to create, use, and destroy a special font for
+    the Fonts buttons, which are no longer ownerdrawn.
+  Provide Tooltips for the Keyboard Layout Combobox and special
+    Keycaps.
+  Draw the Keycap buttons ourselves in WM_DRAWITEM.  Previously,
+    I used NMCUSTOMDRAW, but Wine doesn't support that so I changed.
+  Handle <WM_THEMECHANGED>.
+  If the user clicks on a special Keycap, beep and ignore.
+  Allow BS in the Unicode Edit Ctrl.
+
+DEFINES.H:
+  Remove unused MYWM_xxx message.
+  Define additional single- and wide-chars.
+
+EDITFCN.C:
+  Use equates instead of numbers.
+
+EXTERNS.H:
+  Remove font handle for the Font buttons as we no longer need it.
+  Remove initial value from <uNumRecentFiles> as we no longer need it.
+
+INIFILE.C:
+  When reading in the # Recent Files from the .ini file, set the default
+    to zero as it represents the # of files in the .ini file, which is zero
+    at the start.
+  When allocating glkobal memory for the Recent Files, use <DEF_RECENTFILES>
+    as that's the maximum we keep track of.
+  Separate more keyboard layout names into Glb and Lcl versions
+    so a final Cancel changes nothing after the last Apply.
+
+KEYBOARDS.H:
+  Separate more keyboard layout names into Glb and Lcl versions
+    so a final Cancel changes nothing after the last Apply.
+
+MAIN.C:
+  ToolTip => Tooltip.
+  Move <MFWndProc/TCN_SELCHANGE:> code to new function so it may be called
+    separately.
+  In <MFWndProc/WM_CLOSE:>, if the Customize dialog is still open,
+    check ask it to close and if the user doesn't want to, fail the return.
+  Remove font handle for the Font buttons as we no longer need it.
+  Define new function to handle <MFWndProc/TCN_SELCHANGE:>.
+
+MAIN.RC:
+  Change the Font buttons to use constant text and not be ownerdrawn.
+  Change the Keyboards property page Keycap buttons to be ownerdrawn.
+
+REBAR.C:
+  Update copyright year.
+  Improve comments.
+  Change from <_TrackMouseEvent> to <SetCapture/ReleaseCapture> as
+    Wine doesn't handle the former well.
+  Create separate Tooltip windows for the toolbars so we don't need to
+    avoid leakage of parameters between the various uses.
+  In <LclWS_ED_OWToolbarWndProc>, handle <WM_SETFONT>.
+  In <LclWS_ED_OWToolbarWndProc>, handle <WM_LBUTTONUP>.
+  In <LclWS_ED_OWToolbarWndProc/WM_DESTROY:>, destroy the Tooltip
+    window instead of deleting the various tools.
+  Define a new function to set the maximum tip width to depend upon the
+    Tooltip font in use.
+
+RESOURCE.H:
+  Remove <xxx_BUTTON_TEXT> defines as they are no longer used.
+
+SC_COMMON.C:
+  Update copyright year.
+  In <SaveRecentWSID>, append new WSID to end of short list if room.
+
+TABCTRL.C:
+  Update copyright year.
+  In <LclTabCtrlWndProc/TCM_DELETEITEM:>, call common routine to effect
+    <TCN_SELCHANGE>.
+
+
+Build #784 -- Version 0.0.2.20
+------------------------------
+
+* Allow NONCE ERRORs From RaiseException
+
+Directory trunk:
+
+ENUMS.H:
+EXCEPT.C:
+PRIMSPEC.C:
+  Update copyright year.
+  Include NONCE ERROR in list of recognized exceptions.
+
+
+Build #783 -- Version 0.0.2.20
+------------------------------
+
+* Handle LIMIT ERROR In )SAVE
+
+Directory trunk:
+
+SC_SAVE.C:
+  Update copyright year.
+  Surround )SAVE code with __try/__except to catch LIMIT ERRORs.
+  In __except code, unlock ptr if locked so program exit debugs
+    cleanly.
+
+
+Build #782 -- Version 0.0.2.20
+------------------------------
+
+* Return In []WA The Actual Value Of The Last Successful Allocation
+
+Directory trunk:
+
+QF_WA.C:
+  Update copyright year.
+  Improve comments.
+  Return actual value of the last successful allocation.
+
+
+Build #781 -- Version 0.0.2.20
+------------------------------
+
+* Fix Bugs:  Keyboard Handling Of Ctrl-C, -X, -V, -Z, -Y Incomplete
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  When Applying the current keyboard state, be sure to save it into the
+    active keyboard layout.
+  Replace <return FALSE;> with <DlgMsgDone> macro.
+  Flip the test for when to clear the character mapping for CXV, ZY, and SEQ.
+  When changing a character on a keycap, don't save into the active keyboard
+    layout -- that's the job for the Apply button.
+
+INIFILE.C:
+  Improve comments.
+  When reading in the value of the UseZY flag, save it into UseZY not UseCXV.
+
+
+Build #780 -- Version 0.0.2.20
+------------------------------
+
+* Correct Left vs. Right Operands In Operator
+
+Directory trunk:
+
+PO_CMIDDOT.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DICIRCLE.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DIERESIS.C:
+  Correct left vs. right when talking about operands.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DIJOT.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DITILDE.C:
+  Update copyright year.
+  Improve comments.
+  In <PrimIdentOpDieresisTilde_EM_YY>, ensure that the left
+    operand is a function.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DOT.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_JOT.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_JOTDOT.C:
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_SLASH.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_SLOPE.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+
+Build #779 -- Version 0.0.2.20
+------------------------------
+
+* Allow NoValue Results From Each and Outer Product Operators
+
+Directory trunk:
+
+PO_DIERESIS.C:
+  Update copyright year.
+  Define var to count # VALUE ERRORs.
+  When checking for NoValue, allow it to pass.
+  Remove PTR_REUSED code as that's handled by <FreeResultGlobalIncompleteVar>.
+  Pass ptr to NoValue counter to <ExecFuncOnToken_EM>.
+  If all results are NoValue, return a NoValue result; if some are and
+    some aren't, signal a VALUE ERROR.
+  In <ExecFuncOnToken_EM>, upon encountering a NoValue result, increment the
+    NoValue counter instead of return an error.
+
+PO_JOTDOT.C:
+  Update copyright year.
+  Define var to count # VALUE ERRORs.
+  Pass ptr to NoValue counter to <ExecFuncOnToken_EM>.
+  If all results are NoValue, return a NoValue result; if some are and
+    some aren't, signal a VALUE ERROR.
+
+VERSION.RC:
+  Increment version to 0.0.2.20.

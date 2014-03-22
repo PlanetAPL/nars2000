@@ -1,0 +1,21 @@
+Build #914 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  'a'<'b' Crashes
+
+Directory trunk:
+
+MACROS.H:
+  Update copyright year.
+  Define macro to detect <ARRAY_ERROR> and use it in <IsSimple> and
+    friends so that they don't return TRUE for that argument.
+
+PF_RSHOE.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+  Update copyright year.
+  Use <IsErrorType> macro instead of <EQ ARRAY_ERROR>.

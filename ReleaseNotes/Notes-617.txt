@@ -1,0 +1,42 @@
+Build #617 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Prompt Displays Before Error Message in Execute Primitive
+
+Directory trunk:
+
+ERRMSG.C:
+  Display function name and line # in error message along with
+    as many execute symbols as there are nested executes.
+
+IMMEXEC.C:
+  Call <PrimFnMonUpTackJotCSPLParse> instead of <ImmExecStmt> when
+    executing []ALX or []ELX so as not to introduce a spurious
+    immediate execution mode SIS level.
+
+MAIN.C:
+  Use unique debugging numbers on calls to <DisplayPrompt> so we can
+    tell them apart when debugging.
+
+MAIN.H:
+  Update copyright year.
+  Define new EXITTYPE_xxx so as to distinguish between executing []ALX
+    or []ELX vs. other executes.
+
+PF_UTACKJOT.C:
+  If we just returned from executing []ALX/[]ELX, don't display the
+    prompt as we haven't displayed the result as yet.
+
+PL_PARSE.Y:
+  Call <PrimFnMonUpTackJotCSPLParse> instead of <ImmExecStmt> when
+    executing []ALX or []ELX so as not to introduce a spurious
+    immediate execution mode SIS level.
+  Pass on as the exit type whether or not we just returned from
+    executing []ALX or []ELX so the caller can avoid an untimely
+    display of the prompt.
+
+SC_IN.C:
+SC_LOAD.C:
+  Call <PrimFnMonUpTackJotCSPLParse> instead of <ImmExecStmt> when
+    executing data or function assignments so as not to introduce
+    a spurious immediate execution mode SIS level.

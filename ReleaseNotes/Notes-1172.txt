@@ -1,0 +1,13 @@
+Build #1172 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug In Variant Operator With []PP And Left Operand Of Format Primitive
+
+Directory trunk:
+
+GETFNS.C:
+  Rename <SetQuadPP> to <SetQuadPPV> as it is used for VFPs.
+  In <SetQuadPPV> limit the value to <DEF_MAX_QUADPPVFP> as this function is used to restore []PP for VFPs.
+
+PO_VARIANT.C:
+  When reading/restoring []PP, use the VFP functions instead of the ones for 64-bit doubles.

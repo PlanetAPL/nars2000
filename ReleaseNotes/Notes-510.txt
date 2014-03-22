@@ -1,0 +1,51 @@
+Build #510-- Version 0.0.2.3
+----------------------------
+
+* Implement system label []IDENTITY.
+
+Directory trunk:
+
+DEFINES.H:
+  Fix definitions of BIT1 - BIT7.
+
+EXECDFN.C:
+  Rename <startLineNum> to <startLineType> when it refers to the enum.
+  When calling a user-defined function/operator at <LINENUM_IDENTITY>,
+    ignore absence of left arg.
+  In <ExecDfnOprGlb_EM_YY>, do not default to line one if no []PROTOTYPE.
+
+EXECFNS.C:
+  Reformat code.
+  Rename <startLineNum> to <startLineType> when it refers to the enum.
+
+EXECMFN.C:
+  Rename <startLineNum> to <startLineType> when it refers to the enum.
+  Pass additional parameter to <GetSpecialLabelNums> to indicate whether
+    or not to display error messages, and check the return code for error.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Fix Bug:  The directory for "??_parse.c" files was fixed at the Debug
+    dir instead of the OutDir.
+
+PO_SLASH.C:
+  Remove references to CATIDENT as it's now working.
+  In <PrimOpMonSlashCommon_EM_YY>, calculate whether or not the left
+    operand is a user-defined function/operator
+  In <PrimOpMonSlashCommon_EM_YY>, if appropriate, call the user-defined
+    function/operator at []IDENTITY to get the identity element.
+
+PRIMFNS.C:
+  In <IsTknImmed>, include additional immediate token.
+
+SAVEFCN.C:
+  Pass additional parameter to <GetSpecialLabelNums> to indicate whether
+    or not to display error messages, and check the return code for error.
+  In <GetSpecialLablelNums>, check for duplicate labels and return error
+    if found.
+
+SYSVARS.C:
+  Define entry for []IDENTITY.
+
+TOKENS.H:
+  In <TKFLAGS>, omit name from otherwise anonymous bit field.

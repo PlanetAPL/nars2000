@@ -1,0 +1,7 @@
+Build #435 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Finish partitioned enclose (dyadic enclose).

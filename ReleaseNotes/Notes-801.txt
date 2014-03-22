@@ -1,0 +1,42 @@
+Build #801 -- Version 0.0.2.22
+------------------------------
+
+* Implement All2s Array Predicate
+
+Directory trunk:
+
+DATATYPE.H:
+  Update copyright year.
+  Define All2s array property bit.
+
+MACROS.H:
+  Improve comments.
+  Define macro for detecting All2s arrays
+
+PF_DTACK.C:
+  Update copyright year.
+  Make Representation sensitive to All2s arrays and return Boolean.
+
+PF_RHO.C:
+  Set All2s bit if APA result of a singleton two.
+
+PRIMFNS.C:
+  In <CopyArray_EM>, clear all array properties.
+
+QF_DR.C:
+  Update copyright year.
+  Display All2s property if present.
+
+SC_LOAD.C:
+  Update copyright year.
+  In <LoadWorkspaceGlobal_EM>, clear all array properties.
+  In <LoadWorkspaceGlobal_EM>, check for All2s array property.
+
+SC_SAVE.C:
+  In <AppendArrayHeader>, check for All2s array property.
+
+TOKENIZE.C:
+  In <MergeNumbers>, check for All2s array.
+
+WORKSPACE.H:
+  Define All2s text string for saved workspace.

@@ -1,0 +1,10 @@
+Build #996 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug With {uparrow} On Empty RAT or VFP
+
+Directory trunk:
+
+GETFNS.C:
+  In <GetFirstValueGlb>, if the array is an empty RAT or VFP, return a
+    Boolean type and a NULL ptr so the caller doesn't try to use it.

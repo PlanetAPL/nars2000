@@ -1,0 +1,452 @@
+Build #303 -- Version 0.0.0.20466
+---------------------------------
+
+Directory trunk:
+
+APLERRORS.H:
+  Define text for DESTINATION ERROR.
+
+ASSIGN.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+COMPRO.H:
+  Reference new modules.
+
+CONVERT.C:
+  In <ConvertWideToNameLength>, omit space from one-to-one conversions
+    and instead use {space} so that trailing blanks are explicit in saved
+    workspaces and .ini files.
+  In <ConvertNameInPlace>, if a {name} is not matched in our tables, copy
+    the {name} as is to the result.
+
+CS_PARSE.H:
+  New header for Control Structures.
+
+CS_PARSE.Y:
+  New bison file for Control Structures.
+
+CS_PROC.C:
+  New C file for Control Structures.
+
+CUSTOMIZE.C:
+  Standardize on Edit Ctrl in comments.
+  Extend <lpwUnitrans> to <uniTransStr> to handle all elements in parallel.
+  Rename <IDC_CLEARWS_FC> to <IDC_CLEARWS_FC_EC> to reflect the Edit Control
+    it uses.
+  Use single save area for old edit ctrl address when subclassing abd save
+    the value as a window property.
+  Remove subclassing of edit ctrl for []IO (don't know why I did it in
+    the first place).
+  Remove ClosingLamp as a user preference.
+  Include DefaultCopy as a user preference.
+  Handle differences between Copy & Paste choices w.r.t. strings in the
+    ComboBox as well as translation to and from of the indices.
+  Define stubs for other Edit Ctrl boxes -- to be designed later.
+
+DATATYPE.H:
+  Define new bits in an array header for Permutation Vectors (origin-0 and -1).
+
+DEBUG.C:
+  Use equates for Thread Types ('DB', etc.).
+
+DEFINES.H:
+  Standardize on Edit Ctrl in comments.
+  Define values for allocation, increment, and maximum sizes of Control Structure
+    and FOR stmt stacks.
+  Remove ClosingLamp as a user preference.
+  Include DefaultCopy as a user preference.
+  Define value for empty []PR.
+  Define values for Thread Types.
+
+DFNHDR.H:
+  Standardize on Edit Ctrl in comments.
+  Correct the bit length in struct tagFH_YYSTYPE so it doesn't overflow to
+    another dword.
+
+DFNHDR.Y:
+  Standardize on Edit Ctrl in comments.
+  Improve comments.
+  In <fh_yyerror>, fix typo in temporary array size.
+
+DISPDBG.C:
+  Standardize on Edit Ctrl in comments.
+  Define externs for use with global allocations.
+  In <DisplayGlobals>, change <DbgMsgW2> to <DbgMsgW> as that routine
+    is called from the keyboard only and needs no protection.
+  In <DisplayTokens>, change <DbgMsgW2> to <DbgMsgW> as that routine
+    already tests for <gDbgLvl>.
+  In <GetTokenTypeName>, define entries for new CS tokens.
+
+DISPLAY.C:
+  Fix Bug:  In <DisplayGlbArr_EM>, when displaying a matrix each
+    of whose rows is wider then []PW, the second and subsequent rows
+    start off indented.
+
+EDIT.RC:
+  Include menu entry for Customize.
+
+EDIT.RCH:
+  Renamed file from <edit.rc> so as to avoid Visual Studio complaints.
+
+EDITCTRL.H:
+  Standardize on Edit Ctrl in comments.
+  Define (local) message # for Copy APL.
+
+EDITFCN.C:
+  Standardize on Edit Ctrl in comments.
+  When editing a function, place the text caret at the start of the buffer.
+  Pass on Copy APL message to the Edit Ctrl.
+  In <LclEditCtrlWndProc>, if it's called from a Master Frame thread,
+    get the address of the preceding Edit Ctrl from the window property.
+  Display Wait cursor if we're busy.
+  Fix Bug:  In <LclEditCtrlWndProc> message <MYWM_IZITNAME>, after retreiving
+    the line contents, ensure the line is properly terminated.
+  In <LclEditCtrlWndProcc> message <WM_SYSCHAR>, avoid using Caps Lock key
+    as shift toggle when the Alt key is pressed.
+  Handle Copy to multiple platform targets.
+  In order to support Control Structures, pass function line # to <Tokenize_EM>.
+
+ERRMSG.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Improve comments.
+  Fix Bug:  In <ErrorMessageDirect>, take into account the difference
+    between origin-0 and -1 for the error caret.
+  Fix Bug:  In ErrorMessageSetCharIndex>, test for valid <lpplLocalVars>
+    before using it.
+
+EXCEPT.C:
+  Use <INT_PTR> or <UINT_PTR> instead of <__int3264>.
+
+EXECDFN.C:
+  Standardize on Edit Ctrl in comments.
+  In <ExecDfnOprGlb_EM_YY>, set the cursor and flags to indicate we're busy,
+    and restore it at the end.
+  In order to support Control Structures, pass to <ParseLine> the starting
+    line & token #s, user-defined function/operator global memory handle,
+    and flags.
+  In <DisplayFcnLine>, change <DbgMsgW2> to <DbgMsgW> and precede it all with
+    a test of <gDbgLvl>.
+  In <Unlocalize>, define <lpSISCur> so as to shorten some lines.
+  In <Unlocalize>, free pending FOR stmt global vars.
+
+EXECMFN.C:
+  Standardize on Edit Ctrl in comments.
+  Improve comments.
+  In <Init1MagicFunction>, change arg from <lpMemPTD> to <hGlbPTD> and lock/unlock
+    PTD memory.
+  In <Init1MagicFunction>, save ptr to CS stack for later use.
+  In order to support Control Structures, pass function line # to <Tokenize_EM>.
+  After tokenizing each function line, call <ParseCtrlStruc_EM> to parse the
+    line for Control Structures.
+
+EXTERNS.H:
+  Define Boolean variable to indicate whether or not we're executing so as to
+    display the proper mouse cursor.
+  Define variables to hold idle and busy cursors.
+  Move <aSymbolNames> to separate file (symbolnames.h) so it can be edited
+    without requiring a build of every file.
+  In <tagOPTIONFLAGS> struct, remove ClosingLamp and include DefaultCopy.
+
+GETFNS.C:
+  In <GetFirstValueImm>, remove arg of <lpSymGlb> and set it to NULL wherever called.
+  Define new routines <GetNextValueTokenIntoToken> and <GetNextValueTokenIntoNamedVarToken>
+    for use with Control Structures.
+  Rename <GetValueIntoToken> to <GetNextValueMemIntoToken> to better reflect its function.
+  Use equates for Thread Types ('DB', etc.).
+  Define routine <GetTokenLineHandle> for use with Control Structures.
+
+GOTO.C:
+  In <GotoLine_EM>, check to see if the target is a non-restartable Control Structure line
+    and signal DESTINATION ERROR if so.
+
+IMMEXEC.C:
+  Standardize on Edit Ctrl in comments.
+  Use equates for Thread Types ('DB', etc.).
+  In order to support Control Structures, pass function line # to <Tokenize_EM>.
+  After tokenizing the immediate execution mode line, call <ParseCtrlStruc_EM> to parse the
+    line for Control Structures.
+  In order to support Control Structures, pass to <ParseLine> the starting
+    line & token #s, user-defined function/operator global memory handle,
+    and flags.
+  Allow <EXITTYPE_NONE> as result because that's what Control Structures return.
+  Push common code into subroutine <ActOnError> so it can be called from different locations.
+
+INIFILE.C:
+  Remove ClosingLamp as a User Preference.
+  Include DefaultCopy as a user preference.
+  Use special value to indicate that []PR is empty.
+  In <CopyConvertDataOfType>, if a {name} is not matched in our tables, copy
+    the {name} as is to the result.
+  Write out all character-valued system vars surrounded by single quotes.
+
+MACROS.H:
+  Move macro <TokenBaseToStart> from <tokens.h> to <macros.h>.
+
+MAIN.C:
+  Pass on Copy APL message to the Edit Ctrl.
+  Use proper macro when loading a cursor.
+  Load and save busy & idle cursors for later use.
+  Use equates for Thread Types ('DB', etc.).
+
+MAIN.RC:
+  Change to use renames file from <edit.rc> to <edit.rch> so as to avoid
+    Visual Studio complaints.
+  Move common menu item for Customize into <edit.rch>.
+  Rename <IDC_CLEARWS_FC> to <IDC_CLEARWS_FC_EC> to reflect the Edit Control
+    it uses.
+  Remove ClosingLamp as a User Preference.
+  Include DefaultCopy as a user preference.
+
+MAKEFILE.INC:
+  Include new files.
+
+MAKEPRO.C:
+  If the temporary prototype output file is empty, create an empty .pro file.
+
+PARSE.H:
+  Define additional flags and values in <PLLOCALVARS> to handle Control Structures.
+
+PARSE.Y:
+  Define new tokens for Control Structures.
+  In StmtMult:error, if the reset flag is for {goto}, mark as a SYNTAX ERROR.
+  Define rules for handling Control Structures.
+  In StmtSing:ArrExpr, move common code into <ArrExprCheckCaller>.
+  In StmtSing:ArrEspr ASSIGN, call <ArrExprCheckCaller> to handle Excute/Quad result.
+  Improve comments.
+  In StrandInst:StrandRec IndexListBR, free the array being indexed.
+  In order to support Control Structures, pass to <ParseLine> the starting
+    line & token #s, user-defined function/operator global memory handle,
+    and flags.
+  In <ParseLine>, set the cursor and flags to indicate we're busy,
+    and restore it at the end.
+  Use equates for Thread Types ('DB', etc.).
+  In <ParseLine>, if the starting token # is out of range, exit immediately.
+  Handle non-zero starting token #s.
+  Standardize on Edit Ctrl in comments.
+  In <LookAheadAdjacent> and <lookAheadDyadicOp>, handle Control Structure tokens.
+  In <pl_yylex>, handle restart of the line by returning a Diamond token.
+  In <pl_yylex>, test for executing only one stmt in TKT_EOS.
+  In <pl_yylex>, handle Control Structure tokens.
+
+PERTAB.H:
+  Standardize on Edit Ctrl in comments.
+  Define entries for managing the Control Structure stack.
+
+PF_CSTILE.C:
+  Copy PV0 & PV1 bits from right arg to the result for both monadic
+    and dyadic cases.
+
+PF_DELTASTILE.C:
+  Copy PV0 & PV1 bits to grade function and to the result.
+  If the right arg is a Permutation Vector, grade it specially.
+
+PF_INDEX.C:
+  Fix bug:  In <ArrayIndexSetVector_EM>, handle an APA sublist.
+
+PF_IOTA.C:
+  For monadic iota, mark the result as either PV0 or PV1.
+
+PF_SQUAD.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Fix bug:  In <PrimFnDydSquadGlb_EM_YY>, the code to copy dimensions
+    was not executed if indexed assignment on a non-singleton.  This
+    prevented <lpMemLimLft> from being initialized.
+
+PF_UTACKJOT.C:
+  Delete <utjThread> as it is no longer used.
+  Move error message calls to common labels.
+  Improve comments.
+  Move common code into <PrimFnMonUpTackJotCSPLParse>.
+
+PO_DIERESIS.C:
+  Move error message calls to common labels.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Rename <GetValueIntoToken> to <GetNextValueMemIntoToken> to better reflect its function.
+
+PO_JOTDOT.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Rename <GetValueIntoToken> to <GetNextValueMemIntoToken> to better reflect its function.
+
+PO_SLASH.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Rename <GetValueIntoToken> to <GetNextValueMemIntoToken> to better reflect its function.
+
+PO_SLOPE.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Rename <GetValueIntoToken> to <GetNextValueMemIntoToken> to better reflect its function.
+
+PRIMFNS.C:
+  In <TokenTypeFV>, handle Control Structure tokens.
+  In <FillSISNxt>, fill in the FOR stmt stack ptrs.
+
+PRIMSPEC.C:
+  In <GetFirstValueImm>, remove arg of <lpSymGlb> and set it to NULL wherever called.
+
+QF_NC.C:
+  Move error message calls to common labels.
+  Move code to validate the 1st char in a variable name to <Valid1stCharInName>.
+  Move code to validate the 2nd char in a variable name to <Valid2ndCharInName>.
+
+QF_SYSVER.C:
+  Test result from <CreateFileW> against <INVALID_HANDLE_VALUE>, not zero.
+
+QF_UCS.C:
+  Change #include "lmits.h" to #include <limits.h>.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+RESDEBUG.C:
+  Split global var references into <GlobalAlloc/GlobalFree> and <GlobalLock/GlobalUnlock>.
+
+RESDEBUG.H:
+  Pass to <MyGlobalAlloc> the source filename.
+  Split global var references into <GlobalAlloc/GlobalFree> and <GlobalLock/GlobalUnlock>.
+
+RESOURCE.H:
+  Define equates for Copy APL to tareget platforms.
+  Rename <IDC_CLEARWS_FC> to <IDC_CLEARWS_FC_EC> to reflect the Edit Control
+    it uses.
+  Remove ClosingLamp as a user preference.
+  Include DefaultCopy as a user preference.
+
+SAVEFCN.C:
+  Standardize on Edit Ctrl in comments.
+  Improve comments.
+  Define routines for handling function save from )INASCII.
+  In order to support Control Structures, pass function line # to <Tokenize_EM>.
+  After tokenizing each function line, call <ParseCtrlStruc_EM> to parse the
+    line for Control Structures.
+
+SAVEFCN.H:
+  Define routines for handling function save from )INASCII.
+
+SC_COPY.C:
+  Standardize on Edit Ctrl in comments.
+  Improve comments.
+
+SC_IN.C:
+  Standardize on Edit Ctrl in comments.
+  Move error message calls to common labels.
+
+SC_INASCII.C:
+  New module to handle the )INASCII system command.
+
+SC_LOAD.C:
+  Standardize on Edit Ctrl in comments.
+  Improve comments.
+
+SESSMAN.C:
+  Standardize on Edit Ctrl in comments.
+  Include entry for Control Structure and FOR stmt stack in Virtual Memory allocations.
+  In <DisplayPrompt>, mark as no longer executing (so the idle cursor will display).
+  Improve comments.
+  Allocate space for the Control Structure stack.
+  Allocate space for the FOR stmt stack.
+  Fix bug:  If we load a workspace not from the command line and it fails, handle as failure.
+  Handle <WM_SETCURSOR> message to set a busy cursor if we're executing.
+  Pass Copy APL message to the Edit Ctrl.
+  After freeing the virtual allocations, zap the ptrs in the PerTabData so they
+    can't be reused.
+
+SIS.H:
+  Include the value of the next token # in the SIS header.
+  Include the FOR stmt ptrs in the SIS header.
+
+STARTADDR.H:
+  Include more addresses for debugging purposes.
+
+STRAND.C:
+  In <MakeVarStrand_EM_YY>, handle Control Structure tokens.
+
+SYMBOLNAMES.H:
+  Move <aSymbolNames> to separate file (symbolnames.h) so it can be edited
+    without requiring a build of every file.
+
+SYMTAB.C:
+  In <InitSymbolNamesValues>, because we may use multiple names for a char,
+    append the first one only.
+
+SYSCMDS.C:
+  Define new system command )INASCII.
+  Fix bug:  In <ExecSysCmd>, delete trailing blanks so that ")COPY foo "
+    works even if it has a trailing blank.
+
+SYSVARS.H:
+  Change the default for []PR in a clear ws from a char to a string so
+    that it can be used in <inifile.c>.
+
+TABCTRL.C:
+  Use equates for Thread Types ('DB', etc.).
+  Standardize on Edit Ctrl in comments.
+  Fix bug:  Change sense of test for when to free the global []PR.
+
+THREADS.H:
+  Delete <utjThread> as it is no longer used.
+  Standardize on Edit Ctrl in comments.
+
+TOKENIZE.C:
+  Define new FSA column to handle Control Structures.
+  Define new FSA row to distinguish Start-of-Stmt from Initial State.
+  Define save area for Control Structure variables.
+  Define typedef for Action Functions.
+  Define FSA actions for new row (FSA_SOS).
+  Define FSA actions for new column (COL_CTRLSTRUC).
+  Allow statement labels on lines with Control Structures.
+  Define FSA action for Control Structures.
+  Remove ClosingLamp as a user preference.
+  In <fnDiaDone>, count in another stmt, reset the initial char,
+    and skip over leading blanks after the diamond.
+  In order to support Control Structures, pass function line # to <Tokenize_EM>.
+  In <Untokenize_EM>, handle Control Structure tokens.
+  In <AppendNewToken_EM>, also append a new CS token.
+  In <CharTrans>, check for Control Structures.
+  In <GetColName>, handle Control Structures.
+
+TOKENS.H:
+  Define new tokens for Control Structures.
+  Move <TKT_VARARRY> from after <TKT_LENGTHp1> to before as it can be generated
+    by <Tokenize_EM>.
+  Change the width of TknType from 6 to 7 to reflect all the extra tokens.
+  Define an anonymous structure for use with Control Structure tokens to keep
+    track of the line, stmt, and token #.
+  Move macro <TokenBaseToStart> from <tokens.h> to <macros.h>.
+
+TYPEMOTE.C:
+  Fix bug:  In <TypeDemote>, handle case of APA simple scalar.
+  Move error message calls to common labels.
+
+UNICODE.H
+  Define equate to indicate that we've already loaded this header file so it can
+    be included without concern for duplication.
+
+UNITRANSHDR.H:
+  Change <lpwUnitrans> to <uniTransStr> to reflect the name change in <customize.c>.
+
+UNITRANSTAB.H:
+  Define equates for <NA> and <SAME> to distinguish between no valid translation
+    and same translation.
+  Mark table with <SAME> if the translation is one-to-one.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Define entries for Copy APL menu.
+  Replace <__int3264> with <INT_PTR> or <UINT_PTR> as appropriate.
+
+LOCAL.H:
+  Replace <__int3264> with <INT_PTR> or <UINT_PTR> as appropriate.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Indicate that Control Structures are now supported.
+  Remove references to ClosingLamp.
+  Indicate that []TF takes additional left args.
+  Include Extended Precision numbers on Datatype Wish List.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Ignore <robots.txt>.

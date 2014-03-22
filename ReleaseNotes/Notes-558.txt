@@ -1,0 +1,15 @@
+Build #558 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  The Display of Floating Point Numbers Sometimes
+  Doesn't Display Correctly
+
+Directory trunk:
+
+DISPLAY.C:
+  In <DisplayGlbArr_EM>, remove references to []PW as it isn't used.
+  In <FormatFloatFC>, rename <bIntegral> to <bPowerOfTwo> as that's
+    what is represents.
+  In <FormatFloatFC>, when displaying raw floating point numbers,
+    don't change the <dtoaMode> from <DTOAMODE_SHORT_RND> as that'll
+    provide maximum precision in minimum width.

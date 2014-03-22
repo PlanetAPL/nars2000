@@ -1,0 +1,9 @@
+Build #1125 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix Bug In Rank Operator Definition
+
+Directory trunk:
+
+PO_DIJOT.C:
+  Fix bug in definition of Rank operator.

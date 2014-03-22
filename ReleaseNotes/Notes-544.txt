@@ -1,0 +1,9 @@
+Build #544 -- Version 0.0.2.4
+-----------------------------
+
+* Display more data in DEBUG window
+
+Directory trunk:
+
+DISPDBG.C:
+  Display more data in DEBUG window.

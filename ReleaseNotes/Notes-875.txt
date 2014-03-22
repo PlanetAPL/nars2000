@@ -1,0 +1,10 @@
+Build #875 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Restore Text Cursor After Changing To Another Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  Fix Bug:  Restore text cursor after changing to another tab --
+    sometimes it disappears.

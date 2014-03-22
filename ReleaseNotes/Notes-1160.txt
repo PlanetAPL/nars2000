@@ -1,0 +1,11 @@
+Build #1160 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug In Dyadic Shriek
+
+Directory trunk:
+
+PF_QDOT.C:
+  If in L!R, R < 0 and R-L is not an integer but is within system CT of an integer, this case
+    mistakenly signals a DOMAIN ERROR.  Eliminating the "within system CT" check
+    fixes the problem.

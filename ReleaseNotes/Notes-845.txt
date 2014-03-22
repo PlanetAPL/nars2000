@@ -1,0 +1,14 @@
+Build #845 -- Version 0.0.2.23
+------------------------------
+
+* Improve Error Message
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message for PATH NOT FOUND.
+
+SC_OUT.C:
+  If <fopenW> returns an error, signal a PATH NOT FOUND error message
+    as we are creating the file if it's non-existant so it can't be
+    FILE NOT FOUND.

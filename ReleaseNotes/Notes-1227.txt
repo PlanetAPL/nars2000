@@ -1,0 +1,65 @@
+Build #1227 -- Version 0.4.6.xx
+-------------------------------
+
+* Accumulate Numeric Constant Strand All At Once
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define error message for "Unknown PN_PARSE error".
+
+DEFINES.H:
+  Define name for one-byte substitutions in <pn_parse.y> for Overbar and Infinity.
+  Move common defines to <defines.h> rather duplicate them in two files.
+
+DISPLAY.C:
+  Move common defines to <defines.h> rather duplicate them in two files.
+  In <FormatAplRatFC>, check for +/- infinity before calling mpz_/mpq_ functions as they might clobber the infinity value.
+
+MPIFNS.C:
+  Update copyright year.
+  Move common defines to <defines.h> rather duplicate them in two files.
+  In <mpq_set_inf>, free and zero the incoming argument if it's not infinity instead of just freeing it.
+
+PN_PARSE.H:
+  Update copyright year.
+  Define new value in <PNNUMTYPE> enum for the initialization state.
+  Define macros to test for the FLT and RAT cases.
+  In <PN_YYSTYPE> struc, rename var to conform to its associated string.
+  Define new <PN_VECTOR> struc to handle accumulation of a vector of numeric constants.
+  In <PNLOCALVARS> struc, define additional fields to support vector of numeric constants.
+
+PN_PARSE.Y:
+  Update copyright year.
+  In <PN_YYSTYPE> struc, rename var to conform to its associated string.
+  In <DecConstants>, <VfpConstants>, and <RatConstants> handle the various infinities in one routine.
+  Improve comments.
+  Define new terminals to handle accumulating a vector of numeric constants.
+  For the <PN_actXXX> routines, define one to use as the identity function.
+  In <PN_MAT> define an initialization state.
+  In <ParsePointNotation>, delete trailing blanks in order to simplify the LALR grammar.
+  In <pn_yylex> handle 'x' suffix before a space.
+
+PN_PROC.C:
+  Update copyright year.
+  In <PN_NumCalc>, <PN_MakeEulerPoint>, <PN_MakeBasePoint>, <PN_MakeEulerPoint>, <PN_MakeExpPoint>, <PN_MakePiPoint>, and <PN_MakeVfpPoint>,
+    handle second pass through after common storage type has been determined.
+  Define new routine <PN_VectorAcc> to accumulate a new numeric constant into a vector.
+  Define new routine <PN_VectorRes> to create the final vector result.
+  Define new routine <PN_SetInfinity> to create the appropriate type of infinity.
+
+STARTADDR.H:
+  Update copyright year.
+  Define entries for the routines in <pn_proc.c>.
+
+TOKENIZE.C:
+  Update copyright year.
+  Define an additional FSA row for accumulating a vector of numeric constants.
+  In <fnPointDone>, handle scalar vs. vector result.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Delete <MergeNumbers> as it's now handled in <pn_parse.y>.
+
+TOKENIZE.H:
+  Update copyright year.
+  Define an additional FSA row for accumulating a vector of numeric constants.

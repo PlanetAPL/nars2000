@@ -1,0 +1,23 @@
+Build #1104 -- Version 0.3.10.xx
+--------------------------------
+
+* Change Symbol For Tally
+
+Directory trunk:
+
+EXECMFN.H:
+  Include #define for <$QUAD_FEATURE> omitted from Build #1100.
+
+MAIN.C:
+  Change <#ifdef RESDEBUG> to <#if RESDEBUG> omitted from Build #1100.
+
+PF_EQUALUND.C:
+PF_RCARET.C:
+REBAR.C:
+  Change the symbol for the Tally function from right caret to not-equal-underbar.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Change the symbol for the Tally function from right caret to not-equal-underbar.

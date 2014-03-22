@@ -1,0 +1,15 @@
+#APLFontsNormal {
+  list-style-image: url("chrome://aplchars/content/aplfontsON24-unsel.png");
+}
+
+toolbar[iconsize="small"] #APLFontsNormal {
+  list-style-image: url("chrome://aplchars/content/aplfontsON16-unsel.png");
+}
+
+#APLFontsLarge {
+  list-style-image: url("chrome://aplchars/content/aplfontsON30-unsel.png");
+}
+
+toolbar[iconsize="small"] #APLFontsLarge {
+  list-style-image: url("chrome://aplchars/content/aplfontsON24-unsel.png");
+}

@@ -1,0 +1,42 @@
+Build #365 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CS_PROC.C:
+DEBUG.C:
+DISPDBG.C:
+EXCEPT.C:
+EXECDFN.C:
+FH_PARSE.Y:
+FREE.C:
+IMMEXEC.C:
+MACROS.H:
+PF_UTACK.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_SLASH.C:
+PRIMFNS.C:
+SC_LOAD.C:
+SESSMAN.C:
+STARTADDR.H:
+STRAND.C:
+SYMTAB.C:
+TABCTRL.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+  Rename <dprintfW>/<dprintfW9> to <dprintfWL9>/<dprintfWL0> to better
+    reflect the debug level they require to display.
+
+PRIMSPEC.C:
+REFCNT.C:
+  Update copyright year.
+  Rename <dprintfW>/<dprintfW9> to <dprintfWL9>/<dprintfWL0> to better
+    reflect the debug level they require to display.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Rename <dprintfW>/<dprintfW9> to <dprintfWL9>/<dprintfWL0> to better
+    reflect the debug level they require to display.

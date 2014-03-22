@@ -1,0 +1,12 @@
+Build #705 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Type Demotion Of Hetero Scalar Is Unexpected And Fails
+
+Directory trunk:
+
+TYPEMOTE.C:
+  In <TypeDemote>, the case of a hetero scalar is missing.
+
+VERSION.RC:
+  Increment version to 0.0.2.16.

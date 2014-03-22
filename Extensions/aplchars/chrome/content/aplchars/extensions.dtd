@@ -1,0 +1,10 @@
+<!ENTITY aplchars.root                  "extensions.aplchars.">
+<!ENTITY aplchars.customize             "customize"           >
+<!ENTITY aplchars.charsenabled          "charsenabled"        >
+<!ENTITY aplchars.keyboardlayout        "keyboardlayout"      >
+<!ENTITY aplchars.fontsenabled          "fontsenabled"        >
+<!ENTITY aplchars.fontnameroot          "fontnameroot"        >
+<!ENTITY aplchars.fontnametype          "fontnametype"        >
+<!ENTITY aplchars.aplfontfamilyid       "aplfontfamilyid"     >
+<!ENTITY aplchars.aplfontfamilyname     "aplfontfamilyname"   >
+<!ENTITY aplchars.oldfontfamilyname     "oldfontfamilyname"   >

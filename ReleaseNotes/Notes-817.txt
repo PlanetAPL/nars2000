@@ -1,0 +1,30 @@
+Build #817 -- Version 0.0.2.23
+------------------------------
+
+* Implement More Control Structures
+
+Directory trunk:
+
+APLERRORS.H:
+  Define error message text for Assertion Error.
+
+CS_PARSE.Y:
+  Update copyright year.
+  Define grammar for Assert. ContinueIf, and LeaveIf tokens.
+
+CS_PROC.C:
+  Define CS actions for Assert, ContinueIf, and LeaveIf tokens.
+
+MACROS.H:
+PRIMFNS.C:
+  Delete <GetImmTypeFcn> function in favor of an line macro.
+
+PL_PARSE.Y:
+  Define parse actions for Assert, ContinueIf, and LeaveIf tokens.
+
+TOKENIZE.C:
+  Define token class for Assert, ContinueIf, and LeaveIf tokens.
+
+TOKENS.H:
+  Update copyright year.
+  Define Assert, ContinueIf, and LeaveIf tokens.

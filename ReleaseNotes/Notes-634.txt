@@ -1,0 +1,12 @@
+Build #634 -- Version 0.0.2.9
+-----------------------------
+
+* Fix Bug:  Allow Certain Derived Functions To Be Used With Monadic Ops
+
+PL_PARSE.Y:
+  Fix Bug:  Split out monadic left operands from the dyadics so as to
+    allow <Drv1Func>/<Drv3Func>/<Drv4Func>s to be used as the operand
+    to a monadic operator.
+  Improve comments.
+  Split out <(error)>/<(Drv1Func)>/<(Drv5Func)> from <LeftOper> and
+    move them into <ParenFunc>.

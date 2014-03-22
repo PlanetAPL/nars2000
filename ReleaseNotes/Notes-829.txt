@@ -1,0 +1,11 @@
+Build #829 -- Version 0.0.2.23
+------------------------------
+
+* Reduce The Volume Of CS Parse Code
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Combine <CONTINUE SOSStmts> and <CONTINUEIF NSS> as well as
+    <LEAVE SOSStmts> and <LEAVEIF NSS> into their own semantic
+    actions so as to reduce the volume of CS parse code.

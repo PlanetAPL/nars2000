@@ -1,0 +1,54 @@
+Build #1223 -- Version 0.4.6.xx
+-------------------------------
+
+* Implement Crash Server
+
+Directory trunk:
+
+COMPRO.H:
+  Update copyright year.
+  Include prototype file for new module.
+
+CRASHSERVER.CPP:
+  Define new module for initialization of Crash Server.
+
+CRASHSERVER.PROTO:
+  Define prototype file for Crash Server.
+
+DEFINES.H:
+  Update copyright year.
+  Define macros for file names and line numbers as wide chars.
+
+EXCEPT.C:
+  Update copyright year.
+  Omit body of <CheckException> if non-DEBUG so the Crash Server can handle it.
+
+MAIN.C:
+  Update copyright year.
+  Instantiate the Crash Server at startup.
+  Omit exception handling if non-DEBUG around message loop so the Crash Server can handle it.
+
+MAIN.RC:
+  Update copyright year.
+  In About dialog box, make room for version # of the Crash Server DLL.
+
+MAKEFILE.INC:
+MAKEFILE.PRO:
+MAKEFILE.SRC:
+  Update copyright year.
+  Include tests for MakeDep and Crash Server environment vars.
+  Set compiler flags for integration of Crash Server into program.
+
+MAKEPRO.PHP:
+  Delete this file and move it up one level to %NARSROOT%.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include Crash Server source files.
+
+VER.C:
+  Update copyright year.
+  In the About box, display the version # of the Crash Server DLL.
+
+WCOM.BAT:
+  Set the MakeDep and Crash Server environment vars.

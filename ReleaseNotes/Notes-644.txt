@@ -1,0 +1,27 @@
+Build #644 -- Version 0.0.2.10
+------------------------------
+
+* Update Indices In Header Files
+
+Directory trunk:
+
+CS_PARSE.H:
+  Update length of TOKEN struc.
+
+DATATYPE.H:
+  Update length of VARARRAY_HEADER struc items.
+
+FH_PARSE.H:
+  Update copyright year.
+  Update length of TOKEN struc.
+
+HEADERS.H:
+  Pack strucs to 4 bytes on _WIN32 and 8 bytes on _WIN64.
+
+PL_PARSE.H:
+  Update copyright year.
+  Update length of TOKEN struc.
+
+TOKENS.H:
+  Update copyright year.
+  Correct item lengths in LOCATION, TOKEN_DATA, and TOKEN strucs.

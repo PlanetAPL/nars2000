@@ -1,0 +1,9 @@
+Build #843 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Handle Defined Fns As Operator Operands
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitFcnSTEs>, handle defined functions as operator operands.

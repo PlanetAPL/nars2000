@@ -1,0 +1,18 @@
+Build #1064 -- Version 0.3.9.xx
+-------------------------------
+
+* Use Parent Window Handle In All MessageBox Calls
+
+Directory trunk:
+
+CUSTOMIZE.C:
+EXCEPT.C:
+INIFILE.C:
+MACROS.H:
+MAIN.C:
+SAVEFCN.C:
+SC_COPY.C:
+SC_LOAD.C:
+UPDATES.C:
+  Use a parent window handle in all MessageBox calls so the MessageBox window
+    closes when the app closes.

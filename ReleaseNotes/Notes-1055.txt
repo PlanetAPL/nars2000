@@ -1,0 +1,11 @@
+Build #1055 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  IotaUnderbar On Multirank APAs Crashes
+
+Directory trunk:
+
+PF_IOTAUND.C:
+  Update copyright year.
+  For monadic IotaUnderbar, if the arg is a multirank APA, calculate
+    the next repetition value appropriately.

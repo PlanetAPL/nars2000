@@ -1,0 +1,22 @@
+Build #733 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Release Semaphore On )RESET
+
+Directory trunk:
+
+EXECDFN.C:
+  Zero semaphore handle in PerTabData struc just in case anyone looks at it.
+
+IMMEXEC.C:
+  Fix Bug:  In <ImmExecStmtInThread>, when returning from a )RESET, if
+    there's a pending exit semaphore, release it.  Without this fix,
+    closing a tab with a suspended function can wait forever for the
+    hExitphore semaphore to be released.
+
+MAKEPRO.PHP:
+  Strip out "static ..." lines.
+
+TABCTRL.C:
+  In <LclTabCtrlWndProc/TCM_DELETEITEM>, close the handle as we done with
+    this tab.

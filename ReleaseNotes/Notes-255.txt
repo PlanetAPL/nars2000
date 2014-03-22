@@ -1,0 +1,43 @@
+Directory trunk:
+
+EXCEPT.C:
+  Improve comments.
+  Switch on actual exception code rather than calling MyGetExceptionCode in case hGlbPTD is invalid.
+
+MAIN.H:
+  Define new window message to display error message from )LOAD fail.
+
+PERTAB.H:
+  Rename PTD TabIndex as there's now a previous value, too.
+  Define save area for previous tab index in case of )LOAD fail.
+
+SAVEFCN.C:
+  In the <SF_NumLinesXX> functions, emphasize that we subtract 1 from the rsult so as not to include the function header.
+
+SC_LOAD.C:
+  Rename PTD TabIndex as there's now a previous value, too.
+  Move lock/unlock of PTD to a narrower focus.
+  For WS NOT FOUND, display the error message in the caller's SM window.
+
+SESSMAN.C:
+  Improve comments.
+  In <ReplaceLine>, change the incoming arg from hWndSM to hWndEC as we use the former only to get the latter.
+  In <SMWndProc> WM_CREATE failure, use common label which reverses the Edit Control subclassing.
+  Define new window message to display error message from )LOAD fail.
+  In <SMWndProc> WM_DESTROY, move the GlobalFree of hGlbPTD to the end of <CreatenewTabInThread>.
+
+TABCTRL.C:
+  Initialize <iCurTab> in case we bail out early.
+  Change initialization of <bRet> to FALSE so we can rely on it in case we bail out early.
+  Save the previous tab index in case we fail on )LOAD.
+  At end of <CreateNewTabInThread>,
+    unlock <hGlbPTD>,
+    delete the outgoing tab,
+    unhook <LclEditCtrlWndProc>,
+    show the incoming windows, and
+    set the focus to the incoming SM.
+  In TCM_DELETEITEM,
+    ensure lpSymTab is valid before accessing it,
+    ensure hWndSM is valid before using it,
+    move DB, SM, and MC window destroy to <CreateNewTabInThread>,
+  Rename PTD TabIndex as there's now a previous value, too.

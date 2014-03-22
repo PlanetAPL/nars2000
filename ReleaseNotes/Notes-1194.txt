@@ -1,0 +1,9 @@
+Build #1194 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Limitation In Monadic Pi
+
+Directory trunk:
+
+PF_PI.C:
+  In <ResizeFactorStruc>, if reallocation fails, allocate new global memory space.

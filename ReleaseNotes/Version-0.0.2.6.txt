@@ -1,0 +1,62 @@
+Version 0.0.2.6 consists of the following Builds:
+
+
+Build #603 -- Version 0.0.2.6
+-----------------------------
+
+* Fix Bug When Drawing Function Line Numbers
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  When drawing function line numbers, the background
+    sometimes is not be fully filled in resulting in a vertical
+    black line between the line numbers and the function text.
+
+
+Build #602 -- Version 0.0.2.6
+-----------------------------
+
+* Implement Find
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new file <pf_epsund.c>.
+
+INITDATA.C:
+  Remove EpsilonUnderbar from TO DO list.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include new file <pf_epsund.c>.
+
+PF_EPSUND.C:
+  New file to implement Find.
+
+PF_EQUALUND.C:
+  Include additional parameter to <PrimFnDydEqualUnderbarSimple> and
+    <PrimFnDydEqualUnderbarNested> to avoid skipping over the header.
+  Improve comments.
+  In <PrimFnDydEqualUnderbarSimple> and <PrimFnDydEqualUnderbarNested>,
+    don't skip over the header if not present.
+
+PRIMFNS.C:
+  In <IncrOdometer>, return a Boolean result which is TRUE iff the
+    increment wrapped back to the start (all 0s).
+
+
+Build #601 -- Version 0.0.2.6
+-----------------------------
+
+* Fix Bug:  Define New Terminal To Handle Another Dyadic Case With StrandOp1
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Define new rule to handle another dyadic case with <StrandOp1>.
+
+VERSION.RC:
+  Increment version to 0.0.2.6.

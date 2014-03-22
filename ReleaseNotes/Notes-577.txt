@@ -1,0 +1,11 @@
+Build #577 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Memory Leak When Indexing A Strand
+
+Directory trunk:
+
+PL_PARSE.Y:
+  When indexing a variable, there is no matching RefCnt decrement
+    when the value goes through strand processing, so we need to
+    set the <SkipRefCntIncr> flag.

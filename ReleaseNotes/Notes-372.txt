@@ -1,0 +1,26 @@
+Build #372 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECDFN.C:
+PL_PARSE.Y:
+  Improve comments.
+  When exiting via semaphore, don't call <SendCursorMsg> as it references
+    a message loop in another (blocked) thread.
+
+FREE.C:
+  Improve comments.
+  Rename some arguments to better reflect their purpose.
+  Breakout code to free elements of a <DFN_HEADER> struc into a separate
+    function so it may be called from other places.
+
+SESSMAN.C:
+  In <DisplayPrompt>, when exiting via semaphore, release the semaphore
+    without displaying the prompt.
+
+TABCTRL.C:
+  Improve comments.
+  In <LclTabCtrlWndProc/TCM_DELETEITEM>, if the SymTab ptr is valid,
+    first call )RESET to clear the SI stack, then run through the
+    SymTab/HshTab and free all global entries.

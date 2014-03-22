@@ -1,0 +1,90 @@
+Build #536 -- Version 0.0.2.4
+-----------------------------
+
+* Implement {jot} As An Operand To Monadic and Dyadic Operators
+
+Directory trunk:
+
+DISPDBG.C:
+  Define entry for new token TKT_FILLJOT.
+  In <DisplayFcnSub>, treat FILLJOT the same as FCNIMMED.
+
+EXECDFN.C:
+  In <ExecDfnOprGlb_EM_YY>, if the left or right operand is FILLJOT,
+    leave the operand undefined.
+  In <UninitOprSTEs>, treat FILLJOT the same as FCNIMMED.
+  In <UninitOprSTEs>, check for NOVALUE before decrementing a refcnt.
+
+FREE.C:
+  In <FreeResultSub>, treat FILLJOT the same as FCNIMMED.
+  In <FreeResultGlobalFcn>, treat FILLJOT the same as FCNIMMED.
+
+MACROS.H:
+  Define macro for detecting FILLJOT.
+
+PL_PARSE.PROTO:
+  In <LookaheadAdjacent>, define additional Boolean argument
+    to indicate whether or not to look beyond a {jot}.
+
+PL_PARSE.Y:
+  Define new token FILLJOT returned from <pl_yylex>.
+  In <Drv1Func>, define new rule for <FILLJOT DydOp StrandInst>.
+  In <Drv1Func>, define new rule for <FILLJOT DydOp Drv1Func>.
+  In <Drv2Func>, define new rule for <StrandInst DydOp FILLJOT>.
+  In <Drv2Func>, define new rule for <FILLJOT DydOp AxisFunc>.
+  In <LeftOper>, define new rule for <MonOp FILLJOT>.
+  In <LeftOper>, define new rule for <RightOper DydOp FILLJOT>.
+  In <LeftOper>, define new rule for <FILLJOT DydOp LeftOper>.
+  In <LeftOper>, define new rule for <FILLJOT DydOp FILLJOT>.
+  In <LookaheadAdjacent>, define additional Boolean argument
+    to indicate whether or not to look beyond a {jot}.
+  In <LookaheadAdjacent>, handle FILLJOT as next token type.
+  Simplify calls to <LookaheadDyadicOp> as it returns TRUE
+    and FALSE only.
+  In <LookaheadDyadicOp>, treat FILLJOT the same as FCNIMMED.
+  In <pl_yylex> when handling <TKT_VARNAMED>, be sure to return
+    something if we fall through.  This isn't a bug (as yet),
+    just good coding practice.
+
+PO_CMIDDOT.C:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DITILDE.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+  Check for FILLJOT and signal a SYNTAX ERROR if present.
+
+PO_JOTDOT.C:
+  Minor text changes.
+  When monadic JotDot is called, signal a VALENCE ERROR
+    not a SYNTAX ERROR.
+  Check for FILLJOT and signal a SYNTAX ERROR if present.
+
+PRIMFNS.C:
+  In <TokenTypeFV>, treat FILLJOT the same as FCNIMMED.
+
+STRAND.C:
+  In <FreeStrand>, treat FILLJOT the same as FCNIMMED.
+  In <MakeVarStrand_EM_YY>, treat FILLJOT the same as FCNIMMED.
+  Define new routine <MakeFillJot_YY> to create a <PL_YYSTYPE>
+    entry for  FILLJOT.
+  In <CopyToken_EM>, treat FILLJOT the same as FCNIMMED.
+
+TOKENIZE.C:
+  In <Untokenize>, treat FILLJOT the same as FCNIMMED.
+  In <AppendNewToken_EM>, treat FILLJOT the same as FCNIMMED.
+
+TOKENS.H:
+  Define new token for FILLJOT.
+
+YYFNS.C:
+  In <IncrFcnMem>, treat FILLJOT the same as FCNIMMED.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note that []IDENTITY is implemented.
+  Include additional Power Operator cases:  f{power}N and f{power}{jot}.

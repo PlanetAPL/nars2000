@@ -1,0 +1,19 @@
+Build #788 -- Version 0.0.2.20
+------------------------------
+
+* Make Apply Button Work In Keyboards Font Selection
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Reorganize data section.
+  Move keyboard font handle to data section from static var so it can
+    be used by <SetKeybFont> when called from <MyChooseFontHook>.
+  Display Tooltip for Keyboards Font button.
+  Handle request for Tooltip text for Keyboards Font button.
+  Move set of Property Page handle to inside <SetKeybFont> so it may be
+    called from <MyChooseFontHook> if the user clicks on the Apply button.
+
+MAIN.C:
+  In <MyChooseFontHook> include a handler for when the user clicks on the
+    Apply button and set the keyboard fonts.

@@ -1,0 +1,58 @@
+Build #780 -- Version 0.0.2.20
+------------------------------
+
+* Correct Left vs. Right Operands In Operator
+
+Directory trunk:
+
+PO_CMIDDOT.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DICIRCLE.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DIERESIS.C:
+  Correct left vs. right when talking about operands.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DIJOT.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DITILDE.C:
+  Update copyright year.
+  Improve comments.
+  In <PrimIdentOpDieresisTilde_EM_YY>, ensure that the left
+    operand is a function.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_DOT.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_JOT.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_JOTDOT.C:
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_SLASH.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.
+
+PO_SLOPE.C:
+  Update copyright year.
+  Change the labels for errors due to operands to include
+    the word OPERAND.

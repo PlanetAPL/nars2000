@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="Prototype Rule"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="Prototype Rule"
+			DisplayName="Prototype Rule"
+			CommandLine="php $(MAKEPRO) $(InputName).c $(OutDir)\$(InputName).pro"
+			Outputs="$(OutDir)$(InputName).pro"
+			FileExtensions="*.pro"
+			ExecutionDescription="Generate Prototype for $(InputName)"
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

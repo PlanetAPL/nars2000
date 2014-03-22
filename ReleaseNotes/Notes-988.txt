@@ -1,0 +1,10 @@
+Build #988 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Scan With Alternating Functions On Multi-dimensional Arrays
+
+Directory trunk:
+
+PO_SLOPE.C:
+  Fix bug in scan using alternating functions on multi-dimensional arrays
+    where the original function isn't restored at the beginning of each new vector.

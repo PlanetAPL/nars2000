@@ -1,0 +1,32 @@
+Build #602 -- Version 0.0.2.6
+-----------------------------
+
+* Implement Find
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new file <pf_epsund.c>.
+
+INITDATA.C:
+  Remove EpsilonUnderbar from TO DO list.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include new file <pf_epsund.c>.
+
+PF_EPSUND.C:
+  New file to implement Find.
+
+PF_EQUALUND.C:
+  Include additional parameter to <PrimFnDydEqualUnderbarSimple> and
+    <PrimFnDydEqualUnderbarNested> to avoid skipping over the header.
+  Improve comments.
+  In <PrimFnDydEqualUnderbarSimple> and <PrimFnDydEqualUnderbarNested>,
+    don't skip over the header if not present.
+
+PRIMFNS.C:
+  In <IncrOdometer>, return a Boolean result which is TRUE iff the
+    increment wrapped back to the start (all 0s).

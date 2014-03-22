@@ -1,0 +1,13 @@
+Build #975 -- Version 0.3.7.xx
+------------------------------
+
+* Implement Buddy Window In Progress Bar For Percentage Display
+
+Directory trunk:
+
+DEFINES.H:
+  Define message #s for buddy window.
+
+PROGBAR.C:
+  Improve comments.
+  Implement buddy window for percentage display.

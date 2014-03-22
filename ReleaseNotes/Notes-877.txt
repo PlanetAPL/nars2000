@@ -1,0 +1,15 @@
+Build #877 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Use Matrix Inverse Instead Of Matrix Divide In Magic Function For Overdetermined Rational Matrix
+
+Directory trunk:
+
+PF_DOMINO.C:
+  The magic function for inverting overdetermined rational matrices
+    must use the matrix inverse form instead of matrix divide as
+    the version of FLINT we moved back to doesn't solve the system
+    of equations.
+
+REBAR.C:
+  Include non-multiset definition for Subset and Superset tooltips.

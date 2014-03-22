@@ -1,0 +1,12 @@
+Build #398 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECDFN.C:
+  Reorganize code.
+  In <UnlocalizeSTEs>, include <NAMETYPE_OP3> as possible name type
+    of a function to unlocalize.
+  Fix bug:  If we're localizing a system var which has a global
+    memory handle, increment its reference count as we retain the global
+    value over localization.

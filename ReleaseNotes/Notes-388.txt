@@ -1,0 +1,9 @@
+Build #388 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Modify #MonFMT Magic Function to reduce the # blanks columns between
+    boxes within a box from two to one (new line #51).
+  Remove blanks lines from the function and renumber the lines.

@@ -1,0 +1,17 @@
+Build #921 -- Version 0.0.3.4
+-----------------------------
+
+* Miscellaneous Build Fixes
+
+Directory trunk:
+
+DISPDBG.C:
+  Update copyright year.
+  Avoid harmless warning of unreferenced var.
+
+PF_CIRCLE.C:
+PF_DOMINO.C:
+PF_QDOT.C:
+  Update copyright year.
+  Change GSL include files to use <Set INCLUDE=> search path
+    instead of local dirs so we use global versions for common files.

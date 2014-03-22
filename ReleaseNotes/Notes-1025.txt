@@ -1,0 +1,12 @@
+Build #1025 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Display Of Certain Nested Arrays
+
+Directory trunk:
+
+DISPLAY.C:
+  When displaying a nested vector of multirow nested arrays, only the first
+    row is displayed because the loop limit is the # top level rows instead
+    of the # formatted rows.  This necessitates defining a new temp struc
+    to hold the Nxt and End char values.

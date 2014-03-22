@@ -1,0 +1,22 @@
+Build #786 -- Version 0.0.2.20
+------------------------------
+
+* Fix Bug:  Set Owner Of ChooseFont Dialog To Avoid Problems
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  The owner listed in the ChooseFontW struc for the various fonts must be
+    changed to that of the Fonts property page so that the Customize dialog
+    can't be closed with the ChooseFontW dialog open.
+  Use <TTN_GETDISPINFOW> consistently instead of <TTN_NEEDTEXTW>.
+  In <TTN_GETDISPINFOW:>, if the <TOOLINFOW> struc used <TTF_IDISHWND>, we must
+    convert the <idCtl> to its corresponding <CtrlID>.
+
+MAIN.C:
+  Use <TTN_GETDISPINFOW> consistently instead of <TTN_NEEDTEXTW>.
+  Now that the Customize dialog is modeless, we must check for it already being
+    open and disallow a second copy.
+
+WEBCOLORS.C:
+  Use <TTN_GETDISPINFOW> consistently instead of <TTN_NEEDTEXTW>.

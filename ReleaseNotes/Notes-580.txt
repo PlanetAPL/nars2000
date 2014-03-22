@@ -1,0 +1,10 @@
+Build #580 -- Version 0.0.2.4
+-----------------------------
+
+* Ensure That The Result Of Calling UDFO At []PROTOTYPE Is A Prototype
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecDfnGlbProto_EM_YY>, capture the result of calling the UDFO
+    at []PROTOTYPE and run it through []TYPE.

@@ -1,0 +1,26 @@
+Build #565 -- Version 0.0.2.4
+-----------------------------
+
+* Paint Lines In DEBUG Window In Contrasting Color If RefCnt > 1
+
+Directory trunk:
+
+DEBUG.C:
+  Define foreground and background colors for RefCnt > 1 lines.
+  Mark the Listbox in the DEBUG window as owner drawn and with strings.
+  Define actions for <WM_MEASUREITEM> and <WM_DRAWITEM> in response to
+    the owner drawn Listbox, avoiding screen flicker by drawing into a
+    memory DC.
+  In <DBWndProc/MYWM_DBGMSGW>, transfer any leading <UTF16_REFCNT_GT1>
+    character to the beginning of the string saved in the Listbox so
+    it can be tested for easily in the <WM_DRAWITEM> code.
+  In <LclListboxWndProc> define new message handler for <WM_ERASEBKGND>
+    to reduce screen flicker.
+
+DEFINES.H:
+  Define character and string which marks the RefCnt >1 lines.
+
+DISPDBG.C:
+  For DEBUG window displays that show a RefCnt and that RefCnt is > 1,
+    prefix the line with a special character to indicate that fact so
+    the line may be displayed in a contrasting color.

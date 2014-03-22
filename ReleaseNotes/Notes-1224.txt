@@ -1,0 +1,10 @@
+Build #1224 -- Version 0.4.6.xx
+-------------------------------
+
+* Find Bugs In Temp Variable Re-use
+
+Directory trunk:
+
+DISPLAY.C:
+  Update copyright year.
+  Use <xxx_TEMP_OPEN> macros within <DisplayGlbArr_EM> to catch bugs.

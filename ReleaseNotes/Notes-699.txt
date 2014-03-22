@@ -1,0 +1,14 @@
+Build #699 -- Version 0.0.2.15
+------------------------------
+
+* Display Full 64-bit Registers In Crash Window
+
+Directory trunk:
+
+EXCEPT.C:
+  Display full 64-bit registers in crash window by using %p
+    instead of %016X.
+
+STARTADDR.H:
+  Define <chkstk> depending upon 32- or 64-bits.
+  Include additional files and routines.

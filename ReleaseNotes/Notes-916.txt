@@ -1,0 +1,11 @@
+Build #916 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Deleting Non-current Tab Loses Focus For Current Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  Update copyright year.
+  In <LclTabCtrlWndProc>/TCM_DELETEITEM, change order in which events occur so
+    as to get current tab's ID correctly.

@@ -1,0 +1,10 @@
+Build #456 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+CS_PROC.C:
+  Fix Bug:  In <CS_ENDWHILE_Stmt>, if we're not stopping execution,
+    be sure to restart as the WHILE stmt is not a single token and
+    we'll get a SYNTAX ERROR if the entire WHILE/ENDWHILE stmt appears
+    on a single line.

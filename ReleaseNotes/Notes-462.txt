@@ -1,0 +1,9 @@
+Build #462 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+DISPDBG.C:
+  Fix Bug:  In <DisplayGlobals>, the conditions on which the entry
+    is displayed were too restrictive.
+  When a global entry has no known signature, display its size.

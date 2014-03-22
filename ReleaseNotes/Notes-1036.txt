@@ -1,0 +1,10 @@
+Build #1036 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug Displaying Hetero Array With Global Numeric
+
+Directory trunk:
+
+DISPLAY.C:
+PF_DTACKJOT.C:
+  Fix Bug:  Display of a hetero array with a global numeric isn't handled.

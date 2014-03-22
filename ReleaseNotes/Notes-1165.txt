@@ -1,0 +1,39 @@
+Build #1165 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Memory Leaks
+
+Directory trunk:
+
+ASSIGN.C:
+  Improve comments.
+
+DISPDBG.C:
+  Fix typo in <astFlagNames>.
+  Improve comments.
+  In <DisplayFcnSub>, handle Del and DelDel.
+
+EXECMFN.C:
+  In <ExecNilMFO>, erase the function after executing it.
+
+FREE.C:
+  In <FreeResultGlobalDfn>, don't handle permanent (i.e. MFOs) specially
+    as we need to delete them and their resources from HSHTABSTRs.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle Del and DelDel.
+
+SC_LOAD.C:
+  In <CheckGlobals>, order []vars alphabetically, and include []FEATURE.
+
+SESSMAN.C:
+  Rename <InitSystemVars> to <InitSysVars> to parallel <CopySysVars> and <DeleSysVars>.
+  In <SMWndProc>/WM_DESTROY, delete sys vars from the HSHTABSTRs in <PerTabData>.
+
+STARTADDR.H:
+SYSVARS.C:
+  Rename <InitSystemVars> to <InitSysVars> to parallel <CopySysVars> and <DeleSysVars>.
+
+TABCTRL.C:
+  In <FreeGlobalStorage>, free the HshTabs & SymTabs for MFOs.
+  In <FreeGlobalStorage>, at the end free []EM.

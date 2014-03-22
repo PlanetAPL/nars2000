@@ -1,0 +1,22 @@
+Build #274 -- Version 0.0.0.17550
+---------------------------------
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Change the format of the start of the first line in each Notes file from
+    "Release #nnn --" to "Build #nnn --".
+
+DOWNLOAD-MENU.HTML:
+  Append an extra space at the end of the menu so the text doesn't abut
+    against the end.
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+  Append an extra space at the end of the menu so the text doesn't abut
+    against the end.
+
+INDEX-MENU.HTML:
+  Append an extra space at the end of the menu so the text doesn't abut
+    against the end.

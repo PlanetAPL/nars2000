@@ -1,0 +1,11 @@
+Build #759 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Don't Fail Tokenization With Misspelled System Label Name
+
+Directory trunk:
+
+SAVEFCN.C:
+  Fix Bug:  If a System Label name is misspelled, we fail <GetSpecialLabelNums>
+    and hence, tokenization, whereas we want to succeed (and mark the label
+    as a VALUE ERROR) so as to allow the function to be defined.

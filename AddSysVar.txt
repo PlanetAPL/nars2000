@@ -1,0 +1,19 @@
+TO ADD A NEW SYSVAR
+
+* In sysvars.h, define DEF_QUADxx_CWS.
+
+* In sysvars.c, include the appropriate entry in <InitSystemVars>
+  for both the <aSysVarValidSet/Ndx> array as well as the
+  <if (!Assign...)> sequence to assign its default value.
+* In sysvars.c, define the appropriate <ValidateXX_EM>.
+* In sysvars.c, define the appropriate entry in <aSystemNames> table.
+* In sysvars.c, define the appropriate entry in <MakePermVars> (if needed).
+* In sysvars.c, define the appropriate entry the <ptdSysVarSym> array in <InitSystemNames>.
+
+* In externs.h, define the appropriate entry for hGlbQuadXX_CWS.
+* In externs.h, define the appropriate entry in enum tagSYS_VARS.
+
+* In reg.c, define an appropriate entry for <lpszRegStrGlbFCName>.
+* In reg.c, define an appropriate entry in <ReadRegGlb>.
+* In reg.c, define an appropriate entry in <SaveEnvironment>.
+

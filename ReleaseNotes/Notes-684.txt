@@ -1,0 +1,11 @@
+Build #684 -- Version 0.0.2.14
+------------------------------
+
+* Insert Double Quotes In Makefiles To Handle Paths With Spaces, Part II
+
+Directory trunk:
+
+NARS2000.32.vcproj:
+NARS2000.64.vcproj:
+  Surround the tool paths with double quotes to handle paths with
+    embedded spaces.

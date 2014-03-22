@@ -1,0 +1,110 @@
+Build #348 -- Version 0.0.1.6
+-----------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  Update copyright year.
+  In <AssignName_EM>, define token type for when assigning a Train.
+
+DISPDBG.C:
+  Update copyright year.
+  Align debug output.
+  In <DisplayFcnGlb> and <DisplayFcnSub>, handle display of Trains.
+  In <DisplayFcnSub>, move <TKT_OP[1|2|3]NAMED> to bottom and explain.
+
+EDITFCN.C:
+  Update copyright year.
+  In <CreateFcnWindow>, handle Trains.
+  In <SyntaxColor>, save string length in case we're selecting from
+    the middle of a comment.
+  In <WM_RBUTTONDBLCLK>, handle Trains and let through any name so
+    we display an error message if the name isn't editable instead
+    of ignoring the double click.
+
+EXECFNS.C:
+  Update copyright year.
+  In <ExecFcnGlb_EM_YY>, handle Trains.
+  Define new routine <ExecTrain_EM_YY> to handle Trains.
+
+MACROS.H:
+  In <IsNameTypeName>, handle Trains so )NMS displays them.
+
+PF_LTACK.C:
+  Update copyright year.
+  Define behavior of monadic Left Tack as returning the right arg.
+
+PF_RTACK.C:
+  Update copyright year.
+  Define behavior of monadic Right Tack as returning the right arg.
+
+PL_PARSE.H:
+  Update copyright year.
+  Define bit in <PL_YYSTYPE> to indicate that this stack element is a Train.
+
+PL_PARSE.Y:
+  Define new token for Named Train.
+  Fix Bug:  When assigning a function, monadic, dyadic, or ambiguous operator
+    there is a memory leak because we didn't free a result.
+  Rename <NAMETYPE_TRAIN> to <NAMETYPE_TRN>.
+  Incldue <NAMETRN> in allowed names for assignment to a name.
+  Fix Bug:  Define additional rule in <Drv1Func> to allow a <Drv1Func> on the
+    left of a function strand.
+  Allow <NAMETRN> as a <LeftOper>.
+  Finish rules for Trains.
+  Allow <NAMETRN> as a <RightOper>.
+  In <SymbTypeVFO> and <pl_yylex>, use switch stmt to handle <NAMETYPE_xxx>s
+    so as to trap new types, and handle Trains at the same time.
+
+QF_EX.C:
+  Update copyright year.
+  In <EraseableName>, allow Trains.
+
+QF_TF.C:
+  Update copyright year.
+  In <SysFnDydTF2_EM_YY>, handle Trains.
+
+SC_OUT.C:
+  Update copyright year.
+  In <CmdOut_EM>, handle Trains.
+
+SC_SAVE.C:
+  Update copyright year.
+  In <CmdSave_EM>, handle Trains.
+
+STRAND.C:
+  Update copyright year.
+  Fix typo.
+  Improve comments.
+  In <MakeFcnStrand_EM_YY>, handle Trains.
+
+SYMTAB.H:
+  Update copyright year.
+  Define <NAMETYPE_TRN> for Trains.
+
+TOKENIZE.C:
+  Fix Bug:  In <fnComDone>, use actual computed string length instead
+    of <lstrlenW> value because the routine might be called in the middle
+    of a comment in which case the allocated SyntaxColor buffer is of
+    one length, and the string might be longer.
+  In <Tokenize_EM>, save string length in case we're selecting from
+    the middle of a comment.
+
+TOKENIZE.H:
+  Update copyright year.
+  Define save area for actual string length.
+
+TRANSLATE.C:
+  Update copyright year.
+  In <TranslateNameTypeToImmType>, handle Trains.
+
+YYFNS.C:
+  Update copyright year.
+  Rename <lpYYBase> to <lplpYYBase> as it's really a ptr to a ptr.
+  Fix Bug:  In <IncrFcnMem>, handle the case where a function strand
+    has a variable in it such as 1{jot}+.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Avoid compiling memory DC code if we're not using it.

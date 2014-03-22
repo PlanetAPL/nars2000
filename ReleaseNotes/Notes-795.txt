@@ -1,0 +1,11 @@
+Build #795 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Quad Input Not Handled Correctly
+
+Directory trunk:
+
+IMMEXEC.C:
+  Update copyright year.
+  In <ImmExecStmtInThread>, handle an exit type of DISPLAY
+    the same as NODISPLAY so as to catch Quad Input the same.

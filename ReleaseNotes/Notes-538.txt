@@ -1,0 +1,13 @@
+Build #538 -- Version 0.0.2.4
+-----------------------------
+
+* Display More Detail About Globals In Debug Window
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayGlobals> when displaying numeric arrays, display up to the
+    first three values (followed by an ellipsis if more values are present)
+    and display APA arrays as Off+Mulx{iota}NELM.
+  In <DisplayGlobals>, convert the sequence of if/else/if/else/... stmts
+    to a single switch stmt.

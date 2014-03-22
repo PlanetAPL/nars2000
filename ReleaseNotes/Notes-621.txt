@@ -1,0 +1,74 @@
+Build #621 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Handle Trains Via An Invisible Monadic Operator
+
+Directory trunk:
+
+DEBUG.C:
+  When creating the ListBox in the Debug window, switch from owner-draw
+    fixed to variable and handle WM_MEASUREITEM so we can change the line
+    height when the font changes.
+
+DISPDBG.C:
+  In <DisplayFcnGlb>, mark globals with an asterisk if they have the
+    SRCI flag set.
+  In <DisplayFcnSub>, avoid display of invisible Train monadic operator.
+  Remove unnecessary cast.
+  In <DisplayStrand>, mark globals with an asterisk if they have the
+    SRCI flag set.
+
+EXECDFN.C:
+  In <UnlocalizeSTEs>, handle the case where a SYMENTRY to be unlocalized
+    is a Train.
+
+EXECFNS.C:
+  In <ExecFcnGlb_EM>, skip over invisible Train monadic operator.
+  In <ExecOp1_EM_YY>, handle invisible Train monadic operator.
+
+FREE.C:
+  Update copyright year.
+  In <FreeResultGlobalDFLV>, simplify the code.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Omit <compro.h> from the build so as to reduce the # times the whole
+    project gets rebuilt.
+
+PL_PARSE.Y:
+  When initializing a Train, always start with an invisible monadic
+    operator, and include it in the count.
+
+PRIMFNS.C:
+  In <CopyArray_EM>, when copying function arrays, increment the RefCnt
+    iff the item is a UDFO; otherwise, make a fresh copy of the item.
+  In <Set/ClrVFOArraySRCIFlag>, check for immediates and just return
+    because otherwise <GetGlobalPtrs_LOCK> won't handle them well.
+  Define <GetVFOArraySRCIFlag> to return the state of the SRCI flag
+    for use in <dispdbg.c>.
+
+SESSMAN.C:
+  When debugging, change the relative heights of the DB and SM windows.
+
+STRAND.C:
+  Remove unnecessary cast.
+  Remove unused last parameter to <YYCopyFcn>.
+  In <MakeNameFcnOpr_YY>, rename some vars and reformat the code.
+  Define new routine to make a Train monadic operator.
+
+UNICODE.H:
+  Define index for invisible Train monadic operator.
+
+YYFNS.C:
+  In <YYCountFcnStr>, use existing function to determine whether or not
+    a token type is that of a named Fcn or Opr, and rename some vars.
+  In <YYCountFcnStr>, for function arrays, split cases between UDFOs
+    function strands, and Trains handling them differently so as to
+    match the way those are handled in <YYCopyFcn>.
+  In <YYIsFcnStrAxis>, omit the unused last parameter, rename some vars,
+    handle the case where the function base is invalid,
+  In <YYCopyFcn>, rename some vars, recurse through function strands
+    but not UDFOs nor Trains, and add into the token count result rather
+    than assigning to it so as to allow the caller to use the same var
+    when accumulating over multiple items.
+  Omit <IncrFcnTkn> and <IncrFcnMem> as they are not longer called.

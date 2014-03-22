@@ -1,0 +1,31 @@
+Build #330 -- Version 0.0.0.22225
+---------------------------------
+
+Directory trunk:
+
+PN_PARSE.H:
+  Include additional numeric types of Complex, Quaternion,
+    Octonion, Rational, and Extended.
+  Make room in the YYSTYPE and PNLOCALVARS strucs for the
+    above results.
+
+PN_PARSE.Y:
+  Support additional numeric types of Complex, Quaternion,
+    Octonion, Rational, and Extended.
+  Simplify the arguments to Euler and Pi Point Notation
+    to a single terminal.
+  Support Rational Point Notation as an argument to Base,
+    Euler, and Pi Point Notation.
+  Handle Extended numbers specially in <pn_yylex>.
+  Handle NONCE ERROR in <pn_yyerror>.
+
+PO_DIJOT.C:
+  Change <$X> to <$Y> to fit the documentation.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Minor editing.
+  Give credit for the Point Notation idea to the designers of J.
+  Change the link for Array Predicates to point to the NARS2000 Wiki.

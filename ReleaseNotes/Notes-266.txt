@@ -1,0 +1,69 @@
+Release #266, Version #0.0.0.17507
+----------------------------------
+
+Directory trunk:
+
+DATATYPE.H:
+  Label BPE_VEC and set APA value to 64 as we need it in []DR.
+
+DISPDBG.C
+  Handle immediate named vars.
+
+MAIN.C:
+  Set rounding precision to 64 instead of 53 as we need that for 64-bit integers.
+
+PARSE.Y:
+  Protect rule <CONSTANT ':'> from LookAhead.
+  Save ptrs so we can unlock <hGlbPTD> early.
+  Signal SYNTAX ERROR if not converting.
+
+PF_COLONBAR.:
+  Fix bug in reciprocal, where negative infinity right arg returned negative zero.
+    Instead, check for infinite right arg and return 0.
+
+PF_DOMINO.C:
+  Fix bug where {domino} scalar returned a one-element vector.  Now it returns a scalar.
+
+PO_CMIDDOT.C:
+PO_DICIRCLE.C:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DITILDE.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+  Ensure that the left operand is a function.
+
+PRIMFNS.C:
+  Move <BytesIn> from <QF_DR.C> to here.
+  In <iadd64>, set rounding precision to 64 bits as we need it for 64-bit integers.
+  In <imul64>, set rounding precision to 64 bits as we need it for 64-bit integers.
+  In both functions, clean up the code to check for overflow and if <lpbRet> is defined,
+    always assign a result to it (TRUE or FALSE).
+  In <imul64> define but comment out an alternate routine to check for overflow.
+
+QF_DR.C:
+  Allow conversion from/to APA.
+  Move <BytesIn> from here to <PRIMFNS.C>.
+  Use <BytesIn> to calculate bytes to move by <CopyMemory>.
+
+SC_DROP.C:
+SC_LIB.C:
+SC_SAVE.C:
+SC_WSID.C:
+  Zap trailing blanks in the argument.
+
+SC_LOAD.C:
+  Zap trailing blanks in the argument.
+  Zap LoadWsGlbVarXXX in PERTAB after use.
+
+TOKENIZE.C:
+  Delete obsolete comments.
+
+TYPEMOTE.C:
+  Use <BytesIn> to calculate bytes to move by <CopyMemory>.
+
+UNITRANS.H:
+  Clean up the table by using <NA> instead of <0x0000>.

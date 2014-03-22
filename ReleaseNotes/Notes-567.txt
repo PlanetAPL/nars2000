@@ -1,0 +1,17 @@
+Build #567 -- Version 0.0.2.4
+-----------------------------
+
+* Fix RefCnt Bug When Calling Niladic User-Defined Or System Functions
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Mark <USRFN0>, SYSFN0>, and <(ArrExpr)> as skipping the
+    next IncrRefCnt because there is no matching DecrRefCnt
+    to offset the IncrRefCnt> in <MakeVarStrand_EM_YY>.
+
+PRIMFNS.C:
+  Rename <SetVarArraySkipRefCntFlag> to <SetVarArraySRCIFlag>.
+  In <SetVarArraySRCIFlag>, handle check for SYMENTRY value in
+    case it's called on a UDFO which doesn't return a value.
+  Improve comments.

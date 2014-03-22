@@ -1,0 +1,10 @@
+Build #1158 -- Version 0.4.3.xx
+-------------------------------
+
+* Change Version Number Files
+
+Directory trunk:
+
+VER.RC:
+VERSION.RC:
+  Increase the version # to 0.4.3.76.

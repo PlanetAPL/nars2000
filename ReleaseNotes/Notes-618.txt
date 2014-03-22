@@ -1,0 +1,44 @@
+Build #618 -- Version 0.0.2.7
+-----------------------------
+
+* Display The Default Prompt More Centrally
+
+Directory trunk:
+
+IMMEXEC.C:
+  Append new struc entry for use in <WaitForimmExecStmt>.
+  In <WaitForImmExecStmt>, if there's no next level to be
+    signalled, display the default prompt.
+  In <ImmExecStmt>, pass on to <WaitForImmExecStmt> the Edit
+    Ctrl window handle so it can be used to display the default
+    prompt.
+  In <ImmExecStmtInThread>, remove code which displays the
+    default prompt as well as related code as that's now done
+    more centrally.
+  In <ActOnError>, if the result of executing []ELX is DISPLAY
+    or NODISPLAY and there's a result in <YYResExec>, display it.
+
+PF_UTACKJOT.C:
+  In <PrimFnMonUpTackJotCommon_EM_YY>, handle the case of
+    EXITTYPE_RETURNxLX.
+  In <PrimFnMonUpTackJotCSPLParse>, don't display the default
+    prompt as that's now done more centrally.
+  In <PrimFnMonUpTackJotPLParse>, clean up the code.
+  Remove unnecessary cast.
+
+PL_PARSE.Y:
+  If the return from "LeftOper ArrExpr" is from executing []ELX,
+    abort execution as the result has been displayed.
+  In <ParseLine>, move duplicate declarations to the top so
+    they may be used commonly.
+  In <ParseLine> after executing the line, handle the
+    EXITTYPE_RETURNxLX case.
+  In <ParseLine>, don't restore the previous value of <PlLocalVars>
+    until after executing []ALX or []ELX so it may be used by
+    that code.
+  In <ParseLine> after executing []ALX/[]ELX if the result is
+    DISPLAY or NODISPLAY and there's a result in <YYResExec>,
+    display it.
+  In <ParseLine>, don't display the default prompt as that's now
+    done more centrally.
+  Improve comments.

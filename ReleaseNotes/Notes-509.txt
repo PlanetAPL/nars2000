@@ -1,0 +1,42 @@
+Build #509-- Version 0.0.2.3
+----------------------------
+
+* Generate the correct identity element for catenate reduction empty
+
+Directory trunk:
+
+EDITFCN.C:
+  Define additional arg to <CopyGlbMemory> to use <MyGlobalAlloc> so it can
+    be used in <CopyArray_EM>.
+
+EXECFNS.C:
+  Define new function <ExecFcnStrLine_EM_YY> to allow passing of starting
+    line # type.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle <TKT_FCNARRAY> case.
+  In <GetPrototypeFcnPtr>, split out FCNARRAY_HEADERs from DFN_HEADERs.
+
+PF_COMMA.C:
+  Improve comments.
+  Goto ERROR_EXIT instead of returning directly so as to maintain
+    a common exit point.
+  Include additional assertion about the incoming function.
+
+PO_DIERESIS.C:
+  Get the operand axis token along with the operator axis token and
+    use them in the appropriate places.
+
+PO_DITILDE.C:
+  Update copyright year.
+  Fix errors in comments.
+
+PO_SLASH.C:
+  Generate the correct identity elenment for catenate reduction empty.
+  Call user-defined fucntion/operator at []IDENTITY if reducing empty.
+
+PRIMFNS.C:
+  Define additional arg to <CopyGlbMemory> to use <MyGlobalAlloc> so it can
+    be used in <CopyArray_EM>.
+  In <CopyArray_EM>, split out arrays of variables from arrays of functions.
+  Define new routine to determine if a token is a user-defined function/operator.

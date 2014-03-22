@@ -1,0 +1,82 @@
+Build #852 -- Version 0.0.2.23
+------------------------------
+
+* Move Clearing Of Ptr Type Bits into MyGlobalLock/MyGlobalUnlock/...
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+COMMON.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C:
+EXECDFN.C:
+FREE.C:
+GETFNS.C:
+INIFILE.C:
+PF_COMMA.C:
+PF_CSTILE.C:
+PF_DSHOE.C:
+PF_EPSILON.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_LSHOE.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_MULTISET.C:
+PO_SLASH.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_AT.C:
+QF_CR.C:
+QF_FMT.C:
+QF_FX.C:
+QF_MF.C:
+QF_NL.C:
+QF_TF.C:
+RESDEBUG.H:
+SC_IN.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SC_WSID.C:
+STRAND.C:
+SYMTRANS.C:
+TABCTRL.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+YYFNS.C:
+  Move clearing ptr type bits into MyGlobalLock/...
+
+REFCNT.C:
+  Move clearing ptr type bits into MyGlobalLock/...
+  In <ChangeRefCntDir_PTB>, we no longer need to check for incrementing when
+    clearing the <SkipRefCntIncr> flag.
+
+RESDEBUG.C:
+  Pass filename to <MyGlobalReAlloc>.
+  Fix Bug:  In <MyGlobalReAlloc>, if the return address is different from the
+    original address, delete the old and save the new.
+
+SAVEFCN.C:
+  Fix Bug:  In <SF_UndoBufferLW>, the wrong function was used in an Assert stmt.
+  Move clearing ptr type bits into MyGlobalLock/...
+  Fix Bug:  In <SaveFunctionLine>, there's a memory leak when sizing a function
+    because we fail to call <Untokenize>.
+
+STARTADDR.H:
+  Define more entry points to aid in debugging.
+
+SYSVARS.C:
+  Change the hi/lo value args in <ValidateInteger_EM> and <ValidateIntegerTest>
+    to <APLINT> from <UINT> so we can accommodate wider values.
+  Move clearing ptr type bits into MyGlobalLock/...
+  Clean up the format of certain ?: stmts.
+  Move various stmts that set common values outside the switch stmt.
+
+TRANSLATE.C:
+  Move <TranslateQuadICIndex> from <primspec.c> to <translate.c>.

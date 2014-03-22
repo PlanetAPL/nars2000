@@ -1,0 +1,11 @@
+Build #586 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Crash When Displaying A Boolean Numeric Strand
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnSub>, when displaying a Boolean-valued numeric
+    strand, the individual elements are accessed as if they
+    were integers, not Booleans.

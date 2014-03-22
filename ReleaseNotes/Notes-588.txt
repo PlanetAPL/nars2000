@@ -1,0 +1,9 @@
+Build #588 -- Version 0.0.2.4
+-----------------------------
+
+* Include APL2 Unicode Font In APL Chars Choices
+
+Directory trunk\Extensions\chrome\aplchars:
+
+OPTIONS.XUL:
+  Include the APL2 Italic Unicode font in the set of font choices.

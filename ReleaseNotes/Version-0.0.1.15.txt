@@ -1,0 +1,302 @@
+Version 0.0.1.15 consists of the following Builds:
+
+
+Build #443 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PERTAB.H:
+  Include <STRAND_LST> and <STRAND_NAM> in the list of arrays to
+    <VirtualAlloc> for each session.
+
+PL_PARSE.Y:
+  In <ParseLine>, delete code to <VirtualAlloc> several arrays each
+    time it's called as that's now done once by the SM.  Instead,
+    initialize the strand Start/Base/Next from the values in PTD
+    or the previous <plLocalVars>.
+
+SESSMAN.C:
+  Include <STRAND_LST> and <STRAND_NAM> in the list of arrays to
+    <VirtualAlloc> for each session.
+
+
+Build #442 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Split out display of scalars/vectors from higher rank arrays.
+  Simplify the code by using negative indices.
+
+
+Build #441 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+DISPLAY.H:
+  Move the DEBUG version signatures of the <FMTxxxSTR>s to the end so
+    as to have the same offsets in the non-DEBUG and DEBUG versions
+    as well as make it easier to find bugs that show up in the non-DEBUG
+    version only.
+
+PF_DTACKJOT.C:
+  Fix Bug:  In <CompileArrNestedGlb>, when displaying an array such as
+      1 (0 0{rho}0)
+    although there are no columns in the second element, nonetheless
+    <lpFmtColStr> is used even though it's invalid.  This causes the
+    ptr to increment an element in the preceding <FMTROWSTR> instead
+    of the expected <FMTCOLSTR> and results in too many empty rows in
+    the display.  This bug evidences itself only in the non-DEBUG
+    version because the DEBUG version starts each <FMTxxxSTR> entry
+    with a signature which is what the incorrect ptr increments,
+    harmlessly.
+
+
+Build #440 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Fix Bug:  While fixing one but, I introduced another such that the
+    display of multi-dimensional arrays failed.
+
+
+Build #439 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  In <PrimFnDydNestSimp_EM> and <PrimFnDydMultSing_EM>,
+    APAs were missing from the list of storage types such that a
+    stmt such as
+      1 (1 2) + {iota}2
+    crashes the system.
+
+
+Build #438 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+EXECMFN.H:
+  Define additional equates for primitive functions.
+
+QF_FMT.C:
+  Improve display of nested arrays by arranging the boxes as per
+    their shape.
+
+
+Build #437 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+DISPDBG.C:
+  Define and use debug level vars to help debugging.
+  Improve comments.
+  Define new strand array classes <STRAND_LST> and <STRAND_NAM>
+    so they have their own save area.
+  Rename <lpYYStrandXXXX[]> to <lpYYStrArrXXXX[]>
+    for XXXX=Start, Base, and Next
+
+PL_PARSE.H:
+  Define new strand array classes <STRAND_LST> and <STRAND_NAM>
+    so they have their own save area.
+
+PL_PARSE.Y:
+  Rename <lpYYStrandXXXX[]> to <lpYYStrArrXXXX[]>
+    for XXXX=Start, Base, and Next
+  Define new strand array classes <STRAND_LST> and <STRAND_NAM>
+    so they have their own save area.
+  Fix Bug:  Set the strand base for the <lpYYStrArrStart[]> ptrs.
+
+STRAND.C:
+  Rename <lpYYStrandXXXX[]> to <lpYYStrArrXXXX[]>
+    for XXXX=Start, Base, and Next
+  Pass <lpplLocalVars> to <StripStrand> so we don't have to look it up.
+  Fix Bug:  In <StripStrand> after stripping the most recent strand
+    from the stack, the address from which the next strand base
+    is taken is incorrectly calculated such that, say,
+      ((,1) 'ab') 1
+    is computed as a three-element vector instead of two-elements.
+
+
+Build #436 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+MACROS.H:
+PRIMFNS.C:
+STARTADDR.H:
+  Move <CopySymGlbDirAsGlb> and <CopySymGlbInd> from functions
+    to macros.
+
+
+Build #435 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Finish partitioned enclose (dyadic enclose).
+
+
+Build #434 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PF_SQUAD.C:
+  Fix Bug:  Uninitialized variable can confuse indexed replacement.
+
+
+Build #433 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  In <PrimFnDydSimpNest_EM> and <PrimFnDydSingMult_EM>,
+    APAs were missing from the list of storage types such that a
+    stmt such as
+      ({iota}2) + 1 (1 2)
+    crashes the system.
+
+
+Build #432 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <MakeMonPrototype_EM>, optimize the code.
+
+
+Build #431 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+EDITFCN.C:
+EXTERNS.H:
+INIFILE.C:
+MAIN.RC:
+RESOURCE.H:
+SESSMAN.C:
+SYNTAXCOLORS.H:
+  Allow the window background color to be changed via Syntax Coloring.
+
+
+Build #430 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+EXTERNS.H:
+INIFILE.C:
+MAIN.RC:
+RESOURCE.H:
+SYNTAXCOLORS.H:
+  Rename FCNLINES to FCNLINENUMS (and related changes)
+    to better reflect its purpose.
+
+
+Build #429 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  In <FormatArrNested>, optimize code.
+  Fix Bug:  In <FormatArrNested> when displaying (say)
+    2 2{rho}(2 1{rho}0) 'a' 100 'b'
+    the value 100 is displayed on the wrong row because we
+    didn't skip to the next row starting at the rightmost
+    position across all rows so far.
+
+
+Build #428 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+DISPLAY.H:
+  Define COLTYPE enum so we can tell when a column being displayed
+    is all character.
+  Define separate count of fractional digits which is propagated up.
+  Use up two bits in the ColStr to save info on the col type.
+
+PF_DTACKJOT.C:
+  In each FormatArrXXX routine, set the column type (COLTYPE_xxx).
+  In <PropagateRowColCount>, propagate the # fractional digits if
+    there's only one column so we can use the overall fractional digit
+    count to align decimal points.
+  In <PropagateRowColCount>, propagate the column type up one level so
+    we can tell if a column is all character (and thus left-justify it).
+  Improve comments.
+  In <FormatArrSimple>, align decimal points and exponent separators
+  In <FormatArrNestedCon>, align the decimal points.
+  In <FormatArrNestedGlb>, don't right-justify the item if the column
+    is all character.
+
+
+Build #427 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  When pasting text into NARS2000, the code to
+    save the existing formats used the wrong connector
+    so it didn't save any existing format.
+
+
+Build #426 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_CR.C:
+  Omit negative left args to []CR as Magic Functions are well identified
+    by the leading # in the name.
+
+
+Build #425 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_CR.C:
+  When the result of 1 []CR is empty, make it 0{rho}{enclose}''
+    instead of '' so as to be consistent with non-empty nested
+    vector results.
+
+
+Build #424 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_VR.C:
+  Add new module.
+
+
+Build #423 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_NC.C:
+  Fix Bug:  In <CalcNameClass>, the test for Magic Functions is no longer
+    on <NAMETYPE_UNK> as they are now in the symbol table.  Instead test
+    for them in the function and operator name types.  This affects the
+    result of []NC and []NL.  Note that there is no separate name class
+    for Magic Functions vs. Magic Operators (such as #DydRank).

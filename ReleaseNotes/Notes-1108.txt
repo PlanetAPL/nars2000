@@ -1,0 +1,10 @@
+Build #1108 -- Version 0.3.10.xx
+--------------------------------
+
+* Document Sequence (DotDot) Function In Language Bar
+
+Directory trunk:
+
+REBAR.C:
+  Change the Language Bar to allow multi-char functions such as Sequence (L"..").
+  Include Sequence (DotDot) function in Language Bar as a separate entry.

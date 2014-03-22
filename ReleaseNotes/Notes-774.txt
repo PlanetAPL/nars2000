@@ -1,0 +1,10 @@
+Build #774 -- Version 0.0.2.19
+------------------------------
+
+* Fix Bug:  Wrong Sense Used On Boolean Flag So That APA {iota} APA Fails
+
+Directory trunk:
+
+PF_IOTA.C:
+  Update copyright year.
+  Fix Bug:  Wrong sense used on Boolean flag, so that APA {iota} APA fails.

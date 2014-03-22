@@ -1,0 +1,50 @@
+Build #488-- Version 0.0.2.0
+----------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk:
+
+DBGBRK.ASM:
+  Define FPU Status Word record for exception testing.
+  Define <iAsmAdd64>, <iAsmSub64>, and <iAsmMul64> for both
+    32- and 64-bit platforms where the 64-bit version uses
+    integer registers.
+
+DBGBRK.PRO:
+  Put prototypes into separate file.
+
+DTOA.C:
+  Set FPU precision on 32-bit platform only.
+
+MAIN.C:
+  Remove change of rounding precision as it isn't used here anymore.
+
+MAKEFILE.INC:
+  Set compiler flags for WINVER, etc.
+  Define ZIP target and associated actions.
+  Split out ZIP action from EXE target actions.
+
+NARS2000.32.SLN:
+NARS2000.64.SLN:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define new files (derived from NARS2000.sln and NARS2000.vcproj)
+    for separate 32- and 64-bit platforms.
+
+NARS2000.EXE.MANIFEST32:
+  Fix Bug:  Used wrong value for processor architecture.
+
+PRIMFNS.C:
+  Move 32-bit assembler code into separtate file (DBGBRK.ASM) to
+    make it parallel with the 64-bit version.
+
+VER.RC:
+VERSION.RC:
+  Change version # to 0.0.2.0 for 64-bit version.
+
+
+Directory trunk\htdocs:
+
+DOWNLOAD-BODY.PHP:
+  Handle both 32- and 64-bit platforms.

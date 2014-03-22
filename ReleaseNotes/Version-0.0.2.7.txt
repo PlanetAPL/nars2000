@@ -1,0 +1,967 @@
+Version 0.0.2.7 consists of the following Builds:
+
+
+Build #627 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Cast For 64-bit Systems
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix cast for 64-bit systems.
+
+
+Build #626 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Handle []TCNL As Newline
+
+Directory trunk:
+
+AXISFNS.C:
+PRIMSPEC.C:
+  Update copyright year.
+  Use enum type instead of generic type to aid in debugging.
+
+PF_DTACKJOT.C:
+  Improve comments.
+  Handle []TCNL as newline instead of just Carriage Return.
+  Use enum type instead of generic type to aid in debugging.
+
+QF_VR.C:
+  Omit extra []TCLF in definition of []VR as []TCNL does the job now.
+
+
+Build #625 -- Version 0.0.2.7
+-----------------------------
+
+* Include SolutionDir Message
+
+Directory trunk:
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <SolutionDir> message.
+
+
+Build #624 -- Version 0.0.2.7
+-----------------------------
+
+* Implement Rebar Control
+
+Directory trunk:
+
+BISON.RULES:
+  Call <makefile.pro.parse> after generating a new parser.
+
+COMPRO.H:
+  Update copyright year.
+  Include Rebar prototype file.
+
+CRASH.C:
+  Update copyright year.
+  Improve comments.
+
+CUSTOMIZE.C:
+  Make room for one more row of SameFontAs radio buttons.
+  Move TOOLINFOW struct up to the top of <CustomizeDlgProc>, rename it,
+    and change from chars to WCHARs.
+  If not already created, create a font handle for the Font Buttons.
+  Use the Font Buttons handle when displaying the text on the font buttons.
+  Define new font for display of the Language Bar.
+  Fix Bug:  When reading the window text from the Font Button, take into
+    account the zero-terminator.
+  Change the calculation of the rectangle for MDI CLient windows from
+    window to MF client coords.
+  Improve comments.
+  In <WM_DESTROY>, unregister the tooltips we created.
+
+DEBUG.C:
+  Improve comments.
+
+DEFINES.H:
+  Define default font name, logfont, and point size for Font
+    Buttons and Language Bar.
+  Move all window class equates to this file.
+  Define window class names for the Font Window and Language Bar
+    Window in the Rebar ctrl.
+  Define # extra bytes for the Font Window and Language Bar Windows.
+  Define window message #s for Font Window and Language Bar Windows.
+  Move <IMAGE_CX/_CY> equates to <rebar.c>.
+  Define equates for window properties instead of using char strings.
+
+EDITFCN.C:
+  In <SetMarginsFE>, pass down just the Edit Ctrl window handle and
+    calculate the actual margin inside the function rather than by
+    the caller.
+  In Function Editor and Session Manager windows, save as a window
+    property a ptr to the widow's menu positions.
+  When we activate the function editor, give it the focus.
+  Define the window menu position functions for the Function Editor
+    and Session Manager.
+  In <DrawLineNumsFE>, if we're not displaying function line #s, exit.
+  Define routines to show/hide a Rebar band and set the corresponding
+    toolbars menu.
+  Define routine to set the Toggle Function Line #s button state and
+    redraw the margins if necessary.
+  Enhance <ActivateMDIMenu> to show/hide the appropriate toolbars in
+    the Rebar ctrl depending upon the window just activated.
+  In <ActivateMDIMenu>, if it's a FE window, set the current state of
+    the Objects Toolbar's Toggle Fcn Line #s button.
+
+ENUMS.H:
+  Define new file to hold all enums so they may be found more easily.
+  Eventually, more if not all enums will be moved to this file.
+
+EXTERNS.H:
+  Move old <IMAGE_CX/_CY> equates to this file and define new ones for
+    the Rebar ctrl.
+  Define toolbar control structs and vars.
+  Define new window global handles for the Rebar ctrl.
+  Define new image lists for the Rebar ctrl.
+  Move <aSymbolNames_NRows> to <symbolnames.h>.
+  Define global logfont structs for the Font Buttons and Language Bar.
+  Define global HFONT for the Font Buttons and Language Bar.
+  Define global CHOOSEFONT structs for the Language bar.
+  Define global TEXTMETRICW for the Language bar.
+  Define entry for Language Bar font in <FONTENUM> struct.
+  Define prototypes for functions for the Language Bar.
+  Define entry for Language Bar in <fontStruc>.
+  Move global Boolean value for whether or not we've found our
+    default APL font to <externs.h>.
+
+HEADERS.H:
+  Update copyright year.
+  Include <enums.h> in the list of header files.
+
+INIFILE.C:
+  Define section name for [APL Fonts] and [Toolbars].
+  Define keynames for toolbars.
+  Define routine to read/append/write [APL Fonts] section entries.
+  Improve comments.
+  Read in/write out the [Toolbars] section entries.
+
+INITDATA.C:
+  Update copyright year.
+  Replace INDEX_xxx with UTF16_xxx as we no longer need the former.
+
+MAIN.C:
+  Remove unneeded #includes.
+  Move global Boolean value for whether or not we've found our
+    default APL font to <externs.h>.
+  Define more messages for when RegisterClass fails.
+  In <SetStatusParts>, simplify by using <GetActiveEC> instead of
+    <GetActiveMC>.
+  Improve comments.
+  Define routine to return ptr to logfont struct for a SameFontAs font.
+  Define routines to create and apply the font used for the Language Bar
+    in the Rebar ctrl.
+  After creating a new font, communicate font change info to the Rebar
+    ctrl windows via separate routines.
+  Create the Rebar ctrl and all of its child windows.
+
+MAIN.RC:
+  Enable various menu items under File.
+  Define Toolbars menu items under View.
+  Define SameFontAs row for the Language Bar.
+  Define entries for the new Toolbar bitmaps.
+
+MAKEFILE.DEP:
+  Include general license notice.
+
+MAKEFILE.INC:
+  Include general license notice.
+  Test for <MAKEPRO> environment variable.
+  Move common elements from <makefile.w32> and <makefile.w64> into
+    <makefile.inc> so they are defined in one and only one place.
+  Define common version flags.
+  Include the version flags in RCFLAGS.
+  Split out the <??_parse.???> files into a separate file
+    <makefile.pro.parse>.
+  Use environment variable <MAKEPRO> instead of hard coded reference
+    to <makepro.php>.
+  Note the dependence of ICONS on the new Toolbar bitmaps.
+  Include the new file <rebar.c> and all its output files.
+  Expand the list of dependencies for <local.h>.
+
+MAKEFILE.PRO:
+  Include general license notice.
+  Use environment variable <MAKEPRO> instead of hard coded reference
+    to <makepro.php>.
+  Move the <??_parse.???> files to <makefile.pro.parse>.
+
+MAKEFILE.PRO.PARSE:
+  Define new file to define the <??_parse.???> dependencies.
+
+MAKEFILE.SRC:
+  Define <SRC_PARSE> var.
+  Move <??_parse.???> dependencies to <makefile.pro.parse>.
+  Include <rebar.c> and its dependencies.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Update the copyright year.
+  Move common elements from <makefile.w32> and <makefile.w64> into
+    <makefile.inc> so they are defined in one and only one place.
+
+MAKEPRO.PHP:
+  Include general license notice.
+  Improve comments.
+  In lines that begin with a '#' and end with ");", replace the ");" with ")".
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <rebar.c> in the source files.
+
+PF_STILE.C:
+  Update the copyright year.
+  Include <UTF16_STILE2> as an alias of <UTF16_STILE>.
+
+PL_PARSE.Y:
+  Include <NAMEVAR> in <NameAnyOpN> so it may be reassigned with a FcnOpr.
+  Improve comments.
+  In <pl_yylex>, allow assignment of a function/operator/Train to a name
+    already valued as a variable.
+
+PROTOTYPE.RULES:
+  Use environment variable <MAKEPRO> instead of hard coded reference
+    to <makepro.php>.
+
+REBAR.C:
+  Define new file to hold the routines to create and manage the
+    Rebar Ctrl.
+
+RESOURCE.H:
+  Move the <IDMPOS_xxx> and <IDWC_xxx> #defines to <enums.h>.
+  Define equates for the new Toolbar bitmaps.
+  Define equates for the new Toolbar menu entries.
+  Define equates for the function menu entries.
+  Define equates for additional SameFontAs row.
+
+SAVEFCN.C:
+  Remove #fidef DEBUG/#endif around the <lpText> entry in the
+    various <MemVirtStr>s so it may be used in the crash report.
+
+SESSMAN.C:
+  In Function Editor and Session Manager windows, save as a window
+    property a ptr to the widow's menu positions.
+  Enhance <ActivateMDIMenu> to show/hide the appropriate toolbars in
+    the Rebar ctrl depending upon the window just activated.
+  Handle the window message which creates a new function/operator.
+
+SYMBOLNAMES.H:
+  Move <aSymbolNames_NRows> to <symbolnames.h>.
+
+TABCTRL.C:
+  Rename <IMAGE_CX/CY> to <IMAGE_TC_CX/CY> as there are now multiple
+    Image Lists.
+  Rename <CalcWindowRectMC> to <CalcClientRectMC> as that's what it
+    really does, and pass a Boolean parameter to indicate whether or
+    not we should initialize the rectangle from GetClientRect or use
+    the incoming rectangle.
+
+TOKENIZE.C:
+  Treat a lone underbar as an unknown symbol instead of as infinity.
+
+UNICODE.H:
+  Move <aSymbolNames_NRows> to <symbolnames.h>.
+  Define var for left/right arrows so they may be used in the Language Bar
+    tooltips.
+
+VER.C:
+  Update the copyright year.
+  Rename some vars to be consistent with their use elsewhere.
+  Improve comments.
+  Reformat code.
+
+VERSION.RC:
+  Increment the low-order version #.
+
+WEBCOLORS.C:
+  Update the copyright year.
+  Factor out common tooltip vars and switch to WCHARs.
+
+
+Dir trunk\WineHQ:
+
+EDITCTRL.C:
+  Improve comments.
+  In <EDIT_WM_Paint>, handle incoming DC case.
+  In <EDIT_WM_Paint>, don't use memory DC (double buffering)
+    when printing.
+
+LOCAL.H:
+  Include <enums.h>.
+
+
+Dir trunk\Images:
+
+EDIT.BMP:
+OBJECTS.BMP:
+WORKSPACE.BMP:
+  Define new toolbar bitmaps for the associated Rebar bands.
+
+
+Dir trunk\extensions\aplchars:
+
+INSTALL.RDF:
+UPDATE.RDF:
+  Use SSL to install/update for TB 3.0
+
+MAKEFILE:
+  Break out local dir to be updated with .xpi file.
+
+
+Dir trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note that we have implemented dyadic epsilon-underbar (Find).
+  Note that we have implemented a Language Bar.
+  Note that we no longer support Windows 2000.
+
+
+Build #623 -- Version 0.0.2.7
+-----------------------------
+
+* Allow System Commands To Use Double Quotes Around The Drive, Path, Filename
+
+Directory trunk:
+
+COMMON.C:
+  Update copyright year.
+  Define new routine <SipToCharDQW> to use when parsing system
+    command lines.
+
+SC_COPY.C:
+SC_DROP.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SC_WSID.C:
+  When processing the command line of a system command, allow
+    the drive, path, and filename to be enclosed in double quotes
+    so it may be parsed properly.
+
+
+Build #622 -- Version 0.0.2.7
+-----------------------------
+
+* Change The Result Of 4 []AT To Match The IBM Spec.
+
+Directory trunk:
+
+QF_AT.C:
+  Update the copyright year.
+  For 4 []AT, return total size and data size (Total - Header) in the
+    two-element vector result.
+
+QF_SIZE.C:
+  Update the copyright year.
+  Include an additional parameter to <CalcSymEntrySize> so it may be
+    used when calculating the result of 4 []AT.
+  Enhance <CalcSymEntrySize> to return the data size of the object if
+    the caller requested it.
+  Enhance <CalcGlbSize> and rename it to <CalcGlbVarSize> as was done
+    for <CalcSymEntrySize>.
+  Define new routine <CalcGlbFcnSize> to parallel <CalcGlbVarSize>.
+
+
+Build #621 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Handle Trains Via An Invisible Monadic Operator
+
+Directory trunk:
+
+DEBUG.C:
+  When creating the ListBox in the Debug window, switch from owner-draw
+    fixed to variable and handle WM_MEASUREITEM so we can change the line
+    height when the font changes.
+
+DISPDBG.C:
+  In <DisplayFcnGlb>, mark globals with an asterisk if they have the
+    SRCI flag set.
+  In <DisplayFcnSub>, avoid display of invisible Train monadic operator.
+  Remove unnecessary cast.
+  In <DisplayStrand>, mark globals with an asterisk if they have the
+    SRCI flag set.
+
+EXECDFN.C:
+  In <UnlocalizeSTEs>, handle the case where a SYMENTRY to be unlocalized
+    is a Train.
+
+EXECFNS.C:
+  In <ExecFcnGlb_EM>, skip over invisible Train monadic operator.
+  In <ExecOp1_EM_YY>, handle invisible Train monadic operator.
+
+FREE.C:
+  Update copyright year.
+  In <FreeResultGlobalDFLV>, simplify the code.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Omit <compro.h> from the build so as to reduce the # times the whole
+    project gets rebuilt.
+
+PL_PARSE.Y:
+  When initializing a Train, always start with an invisible monadic
+    operator, and include it in the count.
+
+PRIMFNS.C:
+  In <CopyArray_EM>, when copying function arrays, increment the RefCnt
+    iff the item is a UDFO; otherwise, make a fresh copy of the item.
+  In <Set/ClrVFOArraySRCIFlag>, check for immediates and just return
+    because otherwise <GetGlobalPtrs_LOCK> won't handle them well.
+  Define <GetVFOArraySRCIFlag> to return the state of the SRCI flag
+    for use in <dispdbg.c>.
+
+SESSMAN.C:
+  When debugging, change the relative heights of the DB and SM windows.
+
+STRAND.C:
+  Remove unnecessary cast.
+  Remove unused last parameter to <YYCopyFcn>.
+  In <MakeNameFcnOpr_YY>, rename some vars and reformat the code.
+  Define new routine to make a Train monadic operator.
+
+UNICODE.H:
+  Define index for invisible Train monadic operator.
+
+YYFNS.C:
+  In <YYCountFcnStr>, use existing function to determine whether or not
+    a token type is that of a named Fcn or Opr, and rename some vars.
+  In <YYCountFcnStr>, for function arrays, split cases between UDFOs
+    function strands, and Trains handling them differently so as to
+    match the way those are handled in <YYCopyFcn>.
+  In <YYIsFcnStrAxis>, omit the unused last parameter, rename some vars,
+    handle the case where the function base is invalid,
+  In <YYCopyFcn>, rename some vars, recurse through function strands
+    but not UDFOs nor Trains, and add into the token count result rather
+    than assigning to it so as to allow the caller to use the same var
+    when accumulating over multiple items.
+  Omit <IncrFcnTkn> and <IncrFcnMem> as they are not longer called.
+
+
+Build #620 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Handle Replace Mode Text Caret For All Point Sizes
+
+Directory trunk:
+
+EDITFCN.C:
+  When creating the bitmap used for the Replace Mode text caret,
+    handle the case where the average char width for the SM font
+    is greater than 15 in which case we need to use multiple words
+    in the bitmap for each row of the caret width.
+
+
+Build #619 -- Version 0.0.2.7
+-----------------------------
+
+* Handle Subdirectory to )LIB
+
+Directory trunk:
+
+SC_LIB.C:
+  If a subdirectory is passed to )LIB, turn it into a
+    canonical format.
+
+
+Build #618 -- Version 0.0.2.7
+-----------------------------
+
+* Display The Default Prompt More Centrally
+
+Directory trunk:
+
+IMMEXEC.C:
+  Append new struc entry for use in <WaitForimmExecStmt>.
+  In <WaitForImmExecStmt>, if there's no next level to be
+    signalled, display the default prompt.
+  In <ImmExecStmt>, pass on to <WaitForImmExecStmt> the Edit
+    Ctrl window handle so it can be used to display the default
+    prompt.
+  In <ImmExecStmtInThread>, remove code which displays the
+    default prompt as well as related code as that's now done
+    more centrally.
+  In <ActOnError>, if the result of executing []ELX is DISPLAY
+    or NODISPLAY and there's a result in <YYResExec>, display it.
+
+PF_UTACKJOT.C:
+  In <PrimFnMonUpTackJotCommon_EM_YY>, handle the case of
+    EXITTYPE_RETURNxLX.
+  In <PrimFnMonUpTackJotCSPLParse>, don't display the default
+    prompt as that's now done more centrally.
+  In <PrimFnMonUpTackJotPLParse>, clean up the code.
+  Remove unnecessary cast.
+
+PL_PARSE.Y:
+  If the return from "LeftOper ArrExpr" is from executing []ELX,
+    abort execution as the result has been displayed.
+  In <ParseLine>, move duplicate declarations to the top so
+    they may be used commonly.
+  In <ParseLine> after executing the line, handle the
+    EXITTYPE_RETURNxLX case.
+  In <ParseLine>, don't restore the previous value of <PlLocalVars>
+    until after executing []ALX or []ELX so it may be used by
+    that code.
+  In <ParseLine> after executing []ALX/[]ELX if the result is
+    DISPLAY or NODISPLAY and there's a result in <YYResExec>,
+    display it.
+  In <ParseLine>, don't display the default prompt as that's now
+    done more centrally.
+  Improve comments.
+
+
+Build #617 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Prompt Displays Before Error Message in Execute Primitive
+
+Directory trunk:
+
+ERRMSG.C:
+  Display function name and line # in error message along with
+    as many execute symbols as there are nested executes.
+
+IMMEXEC.C:
+  Call <PrimFnMonUpTackJotCSPLParse> instead of <ImmExecStmt> when
+    executing []ALX or []ELX so as not to introduce a spurious
+    immediate execution mode SIS level.
+
+MAIN.C:
+  Use unique debugging numbers on calls to <DisplayPrompt> so we can
+    tell them apart when debugging.
+
+MAIN.H:
+  Update copyright year.
+  Define new EXITTYPE_xxx so as to distinguish between executing []ALX
+    or []ELX vs. other executes.
+
+PF_UTACKJOT.C:
+  If we just returned from executing []ALX/[]ELX, don't display the
+    prompt as we haven't displayed the result as yet.
+
+PL_PARSE.Y:
+  Call <PrimFnMonUpTackJotCSPLParse> instead of <ImmExecStmt> when
+    executing []ALX or []ELX so as not to introduce a spurious
+    immediate execution mode SIS level.
+  Pass on as the exit type whether or not we just returned from
+    executing []ALX or []ELX so the caller can avoid an untimely
+    display of the prompt.
+
+SC_IN.C:
+SC_LOAD.C:
+  Call <PrimFnMonUpTackJotCSPLParse> instead of <ImmExecStmt> when
+    executing data or function assignments so as not to introduce
+    a spurious immediate execution mode SIS level.
+
+
+Build #616 -- Version 0.0.2.7
+-----------------------------
+
+* Handle UTF16_TILDE2 The Same As UTF16_TILDE.
+
+Directory trunk:
+
+INITDATA.C:
+PF_TILDE.C:
+SYMBOLNAMES.H:
+  Handle UTF16_TILDE2 the same as UTF16_TILDE.
+
+TOKENIZE.C:
+  In <fnPointAcc>, use equates instead of symbols for numeric
+    constant parsing.  This change should have been included
+    in Build #614.
+  Handle UTF16_TILDE2 the same as UTF16_TILDE.
+  Map UTF16_STILETILDE as a monadic operator (not as yet implemented).
+
+TRANSLATE.C:
+  In <TranslateNARSToAPL2>, map UTF16_TILDE and UTF16_STILE to
+    corresponding one-byte chars.
+
+UNICODE.H:
+  Handle UTF16_TILDE2 the same as UTF16_TILDE.
+  Improve comments.
+
+
+Build #615 -- Version 0.0.2.7
+-----------------------------
+
+* Merge INDEX_xxx and UTF16_xxx For Primitive Functions
+
+Directory trunk:
+
+EXECFNS.C:
+  Replace INDEX_xxx with UTF16_xxx for primitive functions as we no
+    longer need the former.  We still need them for operators as
+    functions and operators share the same table <PrimProtoFnsTab>.
+
+EXTERNS.H:
+  Update copyright year.
+  Widen the primitive function and operator tables by one bit so we
+    don't need to use the INDEX_xxx equates for primitive functions.
+
+INITDATA.C:
+PL_PARSE.Y:
+PO_DIJOT.C:
+SYMTRANS.C:
+TRANSLATE.C:
+UNICODE.H:
+  Update copyright year.
+  Replace INDEX_xxx with UTF16_xxx for primitive functions as we no
+    longer need the former.  We still need them for operators as
+    functions and operators share the same table <PrimProtoFnsTab>.
+
+
+Build #614 -- Version 0.0.2.7
+-----------------------------
+
+* Use Equates Instead Of Symbols For Numeric Constant Parsing
+
+Directory trunk:
+
+DEFINES.H:
+  Define equate for infinity symbol and overbar as single-byte chars
+    for use in <pn_parse.y>.
+
+PN_PARSE.Y:
+  Update copyright year.
+  Define token name for overbar symbol instead of using symbol.
+  Use equates for overbar and infinity symbols instead of symbols.
+
+
+Build #613 -- Version 0.0.2.7
+-----------------------------
+
+* Define User Preference For Display Of Function Line #s
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Reformat long lines.
+  Define User Preference for default display of function line #s.
+
+DEFINES.H:
+  Define default initial value for display of function line #s.
+  Define current function line # display state in window extra bytes.
+
+EDITFCN.C:
+  When setting the Edit Ctrl left margin, take into account the
+    current function line # display state.
+  Initialize the current function line # display state.
+  When drawing the function line #s, take into account the current
+    function line # display state.
+
+EXTERNS.H:
+  Define entry in <OPTIONFLAGS> for default display of function line #s.
+
+INIFILE.C:
+  Update copyright year.
+  Define keyname for the default display of function line #s.
+  Handle read in/write out default display of function line #s option.
+  Improve comments.
+
+MAIN.RC:
+  Update copyright year.
+  Use proper escape symbols for Windows header files.
+  Define User Preference for default display of function line #s.
+
+RESOURCE.H:
+  Update copyright year.
+  Improve comments.
+  Omit unused Icon IDs.
+  Define User Preference for default display of function line #s.
+
+
+Build #612 -- Version 0.0.2.7
+-----------------------------
+
+* Catch LIMIT ERROR on )SAVE
+
+Directory trunk:
+
+DEFINES.H:
+  Update copyright year.
+  Increase size of temp storage.
+
+DISPLAY.C:
+EDITFCN.C:
+EXECMFN.C:
+EXTERNS.H:
+SESSMAN.C:
+  Remove #ifdef DEBUG from around virtual memory allocation so it
+    appears in the crash window for non-DEBUG cases.
+
+EXCEPT.C:
+  Display text of source for each virtual memory allocation in the
+    crash window for non-=DEBUG cases.
+
+EXTERNS.H:
+  Update copyright year.
+  Remove #ifdef DEBUG from around virtual memory allocation so it
+    appears in the crash window for non-DEBUG cases.
+  Include Alt-f (Underbar) in list of duplicated symbols.
+  Define Alt-space as space so we don't need to release that key
+    in mid-typing.
+
+MAIN.C:
+  Update copyright year.
+  Improve comments.
+  Remove #ifdef DEBUG from around virtual memory allocation so it
+    appears in the crash window for non-DEBUG cases.
+
+SC_SAVE.C:
+  Catch LIMIT ERROR on )SAVE.
+
+
+Build #611 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Handle UDFO Via Operator or Train With No Value.
+
+Directory trunk:
+
+DATATYPE.H:
+  Include ptr to UDFO in VFO Header ptrs union as we need to skip
+    a Ref Cnt Incr for that object.
+
+EXECDFN.C:
+EXECFNS.C:
+PO_DIERESIS.C:
+PO_DOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+  Fix Bug:  When executing a UDFO via an operator or Train, test to
+    see if the UDFO does not return a result and signal a VALUE ERROR.
+
+FH_PARSE.H:
+  Define new flag in <DFN_HEADER>.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle the <TKT_FCNNAMED> case.
+  Improve comments.
+
+PRIMFNS.C:
+  Define new routine <IsTknTypeVar> for use in <Set/ClrVFOArraySRCIFlag>.
+  In <Set/ClrVFOArraySRCIFlag>, handle UDFOs.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, handle <SkipRefCntIncr> for UDFOs.
+
+
+Build #610 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug:  Reference Count For Trains Incorrect
+
+Directory trunk:
+
+DATATYPE.H:
+  Update copyright year.
+  Define new flag in <FCNARRAY_HEADER>.
+  Define variable/function/operator header ptrs union.
+
+DISPDBG.C:
+  Improve comments.
+  In <DisplayGlobals>, surround the function array with parens unless
+    it's a Train.
+  Fix Bug:  The display of a Train one of whose elements is a derived
+    function (hence, multiple element), displays the first element only.
+  In <DisplayFcnSub> for Function Arrays, use <DisplayFcnMem> to display
+    rather than <DisplayFcnSub> so as to handle Trains.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle <TKT_FCNIMMED> case.
+
+MAKEPRO.PHP:
+  Improve comments.
+  Fix prototype stmts.
+
+PL_PARSE.Y:
+  Ensure all <YYFree>s are followed by setting the ptr to NULL.
+  When calling <MakeFcnStrand>/<PushFcnStrand> when working with
+    Trains set the <SkipRefCntIncr> flag so as not to introduce a
+    memory leak when the Train goes through its final call to
+    <MakeFcnStrand> as the <LeftOper> is instantiated.
+
+PRIMFNS.C:
+  In <CopyArray_EM> for Function Arrays, increment the top level
+    reference count as that's where Trains come in.
+  Define <IsTknTypeFcnOpr> to determine if a token type is a fcn/opr.
+  Rename <SetVarArraySRCIFlag> to <SetVFOArraySRCIFlag> to encompass
+    fcn/opr as well as var and rename vars within the new function to
+    reflect the dual meaning.
+  Rename <ClrVarArraySRCIFlag> to <ClrVFOArraySRCIFlag> for the same
+    reasons as above.
+
+REFCNT.C:
+  Update copyright year.
+  In <ChangeRefCntDir_PTB>, check for and handle the <SkipRefCntIncr>
+    flag for function arrays, too.
+
+STRAND.C:
+  Rename <ClrVarArraySRCIFlag> to <ClrVFOArraySRCIFlag>.
+  Improve comments.
+
+
+Build #609 -- Version 0.0.2.7
+-----------------------------
+
+* Define Another Resource Debugging Function
+
+Directory trunk:
+
+ERRMSG.C:
+YYFNS.C:
+  Use <MyGlobalHandle> instead of <GlobalHandle>.
+
+RESDEBUG.C:
+  Update copyright year.
+  Define <_MyGlobalHandle> function to catch more resource errors.
+
+RESDEBUG.H:
+  Update copyright year.
+  Define <MyGlobalHandle> for DEBUG and non-DEBUG cases.
+
+
+Build #608 -- Version 0.0.2.7
+-----------------------------
+
+* Obtain PTD Ptr Via Subroutine So We Can Handle Odd Cases
+
+Directory trunk:
+
+ASSIGN.C:
+DEBUG.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C
+ERRMSG.C:
+EXCEPT.C:
+EXECDFN.C:
+EXECFNS.C:
+EXECMFN.C:
+GETFNS.C:
+GOTO.C:
+IMMEXEC.C:
+PF_DSHOE.C:
+PF_DTACKJOT.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_DIJOT.C:
+PO_SLASH.C:
+PRIMFNS.C:
+QF_CR.C:
+QF_DL.C:
+QF_DM.C:
+QF_EM.C:
+QF_ERROR.C:
+QF_ES.C:
+QF_ET.C:
+QF_EX.C:
+QF_FMT.C:
+QF_FX.C:
+QF_LC.C:
+QF_MF.C:
+QF_NL.C:
+QF_TF.C:
+QF_VR.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_COPY.C:
+SC_FNOV.C:
+SC_IN.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_RESET.C:
+SC_SAVE.C:
+SC_SI.C:
+SC_WSID.C:
+SESSMAN.C:
+STRAND.C:
+SYMTAB.C:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+YYFNS.C:
+  Update copyright year.
+  Obtain PTD Ptr via subroutine so we can handle odd cases.
+
+
+Build #607 -- Version 0.0.2.7
+-----------------------------
+
+* Define Tools Directory
+
+Directory \:
+
+TOOLS:
+  Define Tools directory to hold global tools.
+
+
+Build #606 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug When Parsing 1 []TF 'a b'
+
+Directory trunk:
+
+QF_TF.C:
+  In <SysFnDydTF1_EM_YY> when parsing 1 []TF 'a b', a SWITCH stmt
+    falls through to a defstop instead of branching to the empty
+    case because the blank after the 'a' is interpreted as marking
+    the inverse translation case and the following char is not one
+    of 'FCN'.
+
+
+Build #605 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug When Translating UpCaret (0x2227) For []TF or )OUT
+
+Directory trunk:
+
+TRANSLATE.C:
+  In <TranslateNARSToAPL2>, when translating an UpCaret to APL2
+    if the char is not found, make it a circumflex (^).
+
+
+Build #604 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug When Returning A Multiple Name Result From A UDFO
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <MakeMonPrototype_EM_PTB>, use direct reference to item instead
+    of through function.
+  In <MakeMonPrototype_EM_PTB>, use macro around a LPSYMENTRY before
+    saving in result.
+  Fix Bug:  In <CopySymGlbDir_PTB>, when given a named STE, convert
+    it to a value-specific unnamed STE.  That way, the named STE
+    may be changed without affecting the return value.
+  Change <CopyImmSymEntry_EM> to use a named equate instead of -1.
+  In <CopyArray_EM>, use macro around a LPSYMENTRY before saving in
+    result.
+
+STRAND.C:
+  Change <CopyImmSymEntry_EM> to use a named equate instead of -1.
+  In <MakeVarStrand_EM_YY>, use macro around a LPSYMENTRY before
+    saving in result.
+
+SYMTAB.C:
+  In <MakeSymEntry_EM>, allow NULL ptr to function token.
+  In <CopyImmSymEntry_EM>, use named equate instead of -1.
+  In <CopyImmSymEntry_EM>, allow NULL ptr to function token.
+
+SYMTAB.H:
+  Define named equate to use instead of -1.

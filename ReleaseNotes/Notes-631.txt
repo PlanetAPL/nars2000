@@ -1,0 +1,13 @@
+Build #631 -- Version 0.0.2.8
+-----------------------------
+
+* Fix Bug:  Omit Unneeded LFs in []DM
+
+Directory trunk:
+
+ERRMSG.C:
+  Fix Bug:  In conjunction with no longer needing a Linefeed to
+    accompany a CR on output, we need to omit LFs in []DM.
+
+TOKENIZE.C:
+  Fix error in comment.

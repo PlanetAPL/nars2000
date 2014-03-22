@@ -1,0 +1,8 @@
+Build #386 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+QF_FX.C:
+  Free global on error.
+  Use <FreeResultGlobalIncompleteVar> to free an incomplete var.

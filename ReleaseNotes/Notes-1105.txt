@@ -1,0 +1,29 @@
+Build #1105 -- Version 0.3.10.xx
+--------------------------------
+
+* Implement Dyadic Iota Underbar (Array Lookup)
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+PF_IOTAUND.C:
+  Define new magic function for Dyadic Iota Underbar.
+
+PO_MULTISET.C:
+  Handle Dyadic Iota Underbar as multiset operand.
+
+PO_VARIANT.C:
+  Dyadic Iota Underbar is now sensitive to both []IO and []CT, so it needs
+    to be handled differently.
+  Move Right Shoe and Pi up to test for left arg as they are not Variant
+    operator shortcuts when called monadically.
+
+REBAR.C:
+  Document Dyadic Iota Underbar in the Language Bar.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document Dyadic Iota Underbar as new primitive function.

@@ -1,0 +1,27 @@
+Build #918 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  During Tokenize, Allow LFs Inside String Constants
+* Fix Bug:  Allow '\0' In Execute String If Inside String Constant
+
+Directory trunk:
+
+DEFINES.H:
+  Update copyright year.
+  Increase length of strings for execute.
+
+IMMEXEC.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+QF_EA.C:
+QF_EC.C:
+SC_IN.C:
+SC_LOAD.C:
+  Update copyright year.
+  Pass string length to execute functions to allow '\0' inside
+    string constants.
+
+TOKENIZE.C:
+  Update copyright year.
+  In <Tokenize_EM> when checking for a line continuation char,
+    ensure it's not inside a string constant.

@@ -1,0 +1,33 @@
+Build #491-- Version 0.0.2.1
+----------------------------
+
+* Fix Bug:  In a CLEAR WS, choosing Save from the File menu crashes
+  the system.
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  In <ForceSendCursorMsg>, handle call from Master Frame
+    menu where there's no PerTabData ptr.
+
+MAIN.C:
+  Fix Bug:  In <EditWndProcSM/WM_COMMAND/IDM_SAVE_WS>, handle call
+    from Master Frame menu where there's no PerTabData ptr.  Also,
+    upon return, check for the type of prompt to display.
+
+MAKEFILE.INC:
+  White space changes only.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Fix Bug:  Disable String Pooling as it doesn't allow a write into
+    the trailing zero of L"".
+
+SESSMAN.C:
+  Fix Bug:  In <GetThreadSMEC>, handle call from Master Frame menu
+    where there's no PerTabData ptr.
+  Fix Bug:  In <DisplayPrompt>, handle call from Master Frame menu
+    where there's no PerTabData ptr.
+
+VERSION.RC:
+  Change version # to 0.0.2.1 for next release.

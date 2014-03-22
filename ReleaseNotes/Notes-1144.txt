@@ -1,0 +1,9 @@
+Build #1144 -- Version 0.4.1.xx
+-------------------------------
+
+* Miscellaneous Build Changes
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Include /Oy- in compile flags.

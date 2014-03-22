@@ -1,0 +1,23 @@
+Build #857 -- Version 0.0.2.23
+------------------------------
+
+* Miscellaneous Changes Prior To Release
+
+Directory trunk:
+
+MAIN.C:
+  Delete initialization of VFP constants in <main.c> and
+    wait until the tab is initialized.
+
+PF_DTACKJOT.C:
+  Fix Bug:  In <FormatArrSimple>, handle hetero arrays, too.
+
+SESSMAN.C:
+  Move initialization of PTD vars to after the has table has been
+    filled in, at which time initialize the VFP constants, too.
+
+SYSVARS.H:
+  Change the system default value for []FPC to 53 (the minimum
+    acceptable value).
+  Change the minimum acceptable value for []FPC to 53 as that's
+    what MPFR uses.

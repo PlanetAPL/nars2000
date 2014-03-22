@@ -1,0 +1,20 @@
+Build #682 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Avoid Duplicate Counting When Copying A Function Array
+
+Directory trunk:
+
+STRAND.C:
+  In <YYCopyFcn>, remove TopLvl flag as it's no longer needed.
+
+YYFNS.C:
+  Split <YYCountFcnStr> into two parts <YYCountFcnStr/YYCountFcnGlb>
+    so as to avoid duplicate counting by diving into global memory
+    handles without looking at the outer token count as it isn't
+    relevant.
+  In <YYCopyFcn>, remove TopLvl flag as it's no longer needed.
+  Split <YYCopyFcn> into two parts <YYCopyFcn/YYCopyGlbFcn>
+    so as to avoid duplicate counting by diving into global memory
+    handles without looking at the outer token count as it isn't
+    relevant.

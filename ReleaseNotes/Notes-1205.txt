@@ -1,0 +1,14 @@
+Build #1205 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Find With Scalar Right Argument
+
+Directory trunk:
+
+GETFNS.C:
+  Update copyright year.
+  Fix typos in comments.
+
+PF_EPSUND.C:
+  Update copyright year.
+  Fix bug in <PrimFnDydEpsilonUnderbar_EM_YY> to handle scalar right argument.

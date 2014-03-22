@@ -1,0 +1,12 @@
+Build #662 -- Version 0.0.2.14
+------------------------------
+
+* Widen Syntax Color Categories To Avoid Truncation Of Names
+
+Directory trunk:
+
+EXTERNS.H:
+  Expand the wording of Syntax Color categories.
+
+MAIN.RC:
+  Widen the Syntax Color categories so we don't truncate names.

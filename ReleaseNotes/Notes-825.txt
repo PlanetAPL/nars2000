@@ -1,0 +1,130 @@
+Build #825 -- Version 0.0.2.23
+------------------------------
+
+* Save Tokenized Lines At End Of UDFO Header
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define error message for Syntax Error In Function Line.
+
+CS_PARSE.Y:
+  Define shortened token for EOS NEC SOS.
+
+CS_PROC.C:
+  Update copyright year.
+  In <CS_ChangeTokenType>, <CS_ChainTokens>, <CS_SetTokenCLIndex>,
+    and <CS_SELECT_Stmt_EM> use offset to tokenized line to find it.
+  Pass ptr to token header to <PrimFnMonUpTackJotPLParse> instead of
+    global memory handle.
+  In <CS_GetToken_COM>, return offset from UDFO header to tokenized line
+    instead of global memory handle.
+
+DISPDBG.C:
+  In <DisplayTokens>, pass ptr to token header instead of global
+    memory handle.
+  In <GetTokenTypeName>, name <TKT_UNUSED> and include names for
+    <TKT_CONTINUEIF> and <TKT_LEAVEIF>.
+
+EDITFCN.C:
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, use offset to tokenized line to find it.
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+
+EXECMFN.C:
+  Size the tokenized lines beforehand so we know how much to allocate
+    for the UDFO header.
+
+FH_PARSE.H:
+  In <tagFCNLINE> replace the glolbal memory handle for the tokenized line
+    header with an offset from the start of the UDFO.
+  In <tagDFN_HEADER>, include offset to start of tokenized lines.
+  In <tagFHLOCALVARS>, replace <UNION_TOKEN> with ptr to tokenized line header.
+
+FH_PARSE.Y:
+  Update copyright year.
+  Replace references to <t2> with a ptr to the tokenized line header.
+
+FREE.C:
+  Replace references to the tokenized line global memory handle with
+    the offset to the tokenized line header.
+
+GETFNS.C:
+  Delete function <GetTokenLineHandle> as we no longer need it.
+
+GOTO.C:
+  Update copyright year.
+  Replace references to the tokenized line global memory handle with
+    the offset to the tokenized line header.
+
+IMMEXEC.C:
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+
+PF_UTACKJOT.C:
+  Pass ptr to token header to <PrimFnMonUpTackJotPLParse> instead of
+    global memory handle.
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+
+PL_PARSE.H:
+  Update copyright year.
+  In <tagPLLOCALVARS>, replace <UNION_TOKEN> with ptr to tokenized line header.
+  In <tagPLLOCALVARS> replace the glolbal memory handle for the tokenized line
+    header with a ptr to the tokenized line header.
+
+PL_PARSE.PROTO:
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+  Define prototypes for additional functions.
+
+PL_PARSE.Y:
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+  In <DisplayTokens>, pass ptr to token header instead of global
+    memory handle.
+  Replace references to <t2> with a ptr to the tokenized line header.
+
+QF_AT.C:
+  Update copyright year.
+  In <CalcSymEntrySize>, replace call to <MyGlobalSize> with calculation
+    of the size as we no longer have a global memory handle.
+
+SAVEFCN.C:
+  In <SaveFunctionCom>, use generic error message rather than format string.
+  Size the tokenized lines beforehand so we know how much to allocate
+    for the UDFO header.
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+  Define new function to size/save a UDFO tokenized line.
+  In <GetSpecialLabelNums>, use offset to tokenized line to find it.
+
+STARTADDR.H:
+  Include additional function names.
+
+TOKENIZE.C:
+  Remove <UTLockAndSet> as it's replaced by one line now.
+  Replace references to <t2> with a ptr to the tokenized line header.
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+  In <AppendNewCSToken_EM>, use addtional coalescing to reduce the size
+    of the CS stack.
+
+TOKENIZE.H:
+  Update copyright year.
+  Replace references to <t2> with a ptr to the tokenized line header.
+
+TOKENS.H:
+  In <tagTOKEN_TYPES>, define zero entry and eliminate <TKT_FIRST>,
+    <TKT_LENGTHp1>, and <TKT_LENGTH>.
+  In <tagTOKEN_TYPES>, define new token <TKT_ENS> for CS stack coalescing.
+  Delete <tagUNION_TOKEN> as we no longer need it.

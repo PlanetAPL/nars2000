@@ -1,0 +1,12 @@
+Build #597 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Always Display Names That Can't Be Erased
+
+Directory trunk:
+
+SC_ERASE.C:
+  Fix Bug:  If a name isn't erased, always display a message.
+
+SC_LIB.C:
+  Use macro instead of API function.

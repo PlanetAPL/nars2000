@@ -1,0 +1,18 @@
+Build #781 -- Version 0.0.2.20
+------------------------------
+
+* Fix Bugs:  Keyboard Handling Of Ctrl-C, -X, -V, -Z, -Y Incomplete
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  When Applying the current keyboard state, be sure to save it into the
+    active keyboard layout.
+  Replace <return FALSE;> with <DlgMsgDone> macro.
+  Flip the test for when to clear the character mapping for CXV, ZY, and SEQ.
+  When changing a character on a keycap, don't save into the active keyboard
+    layout -- that's the job for the Apply button.
+
+INIFILE.C:
+  Improve comments.
+  When reading in the value of the UseZY flag, save it into UseZY not UseCXV.

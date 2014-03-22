@@ -1,0 +1,25 @@
+Build #738 -- Version 0.0.2.18
+------------------------------
+
+* Define Consistent Wide Character Names For Various Routines
+
+Directory trunk:
+
+COMMON.C:
+CUSTOMIZE.C:
+DEFINES.H:
+FMTSPEC.C:
+INIFILE.C:
+MAIN.C:
+QF_TF.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_COPY.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+  Use wide char name with W suffix instead of other less memorable name.
+
+CS_PROC.C:
+  Improve comments.

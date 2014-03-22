@@ -1,0 +1,11 @@
+Build #1065 -- Version 0.3.9.xx
+-------------------------------
+
+* Fix Bugs In Match
+
+Directory trunk:
+
+PF_EQUALUND.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  In various places where we compare a float with another datatype directly, they should be compared within []CT.

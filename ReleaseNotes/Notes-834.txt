@@ -1,0 +1,23 @@
+Build #834 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Handle System Functions As Operands
+
+Directory trunk:
+
+DATATYPE.H:
+  Define pseudo-header signature for system functions.
+
+EXECDFN.C:
+  Improve comments.
+  In <InitFcnSTEs>, when initializing a non-immediate single
+    token function, copy all of the flags from the source STE
+    to the destination STE.
+
+GETFNS.C:
+  In <GetPrimFlagsPtr>, when encountering an internal function,
+    return a ptr to an all-zero (static) entry.
+
+PRIMFNS.C:
+  In <GetSignatureGlb_PTB>, if the object is an internal function,
+    return a pseudo-header signature.

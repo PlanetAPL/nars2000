@@ -1,0 +1,11 @@
+Build #438 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+EXECMFN.H:
+  Define additional equates for primitive functions.
+
+QF_FMT.C:
+  Improve display of nested arrays by arranging the boxes as per
+    their shape.

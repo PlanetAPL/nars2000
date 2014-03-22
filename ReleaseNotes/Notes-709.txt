@@ -1,0 +1,18 @@
+Build #709 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Allow Drv4Func To Be Recursive
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <Drv4Func:>, allow the recursive production of
+    <Drv4Func DydOp RhtOpVal>.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Correct name of system labels to the short form.
+  Include change made to Reshape.
+  Include Multisets in Language Features Wish List.

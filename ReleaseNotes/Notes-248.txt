@@ -1,0 +1,20 @@
+Directory trunk\htdocs\download:
+
+INDEX.PHP:
+  Allow download of Release Notes for each release.
+
+Directory trunk:
+
+EXCEPT.C:
+  Display exception info even if DEBUG defined.
+  Improve comments.
+  Change name from _DisplayException to DisplayException as there's no longer a substitution based upon #ifdef DEBUG
+  Handle case where running under debugger which uses separate JMP points on each address.
+
+MAIN.H:
+  Define MBW and MBWC in case we need to display WCHAR messages.
+  Delete #ifdef DEBUG substitution of DisplayException.
+
+STARTADDR.H:
+  Display exception info even if DEBUG defined.
+  Include additional files and routines.

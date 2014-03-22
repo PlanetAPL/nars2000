@@ -1,0 +1,14 @@
+Build #827 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Dyadic Format Can Return {neg}0
+
+Directory trunk:
+
+DISPLAY.C:
+  Update copyright year.
+  Fix Bug:  Handle case of negative number that rounds to {neg)0.
+
+PF_DTACKJOT.C:
+  Update copyright year.
+  Test for both global memory handle and ptr before unlocking.

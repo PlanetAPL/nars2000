@@ -1,0 +1,12 @@
+Build #880 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Blow Up !R and L!R To VFP If Non-integral
+
+Directory trunk:
+
+PF_QDOT.C:
+  In <PrimFnMonQuoteDotRisR>, blow up to VFP if non-integral or numerator too large.
+
+SC_LOAD.C:
+  Fix typo.

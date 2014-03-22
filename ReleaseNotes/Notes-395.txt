@@ -1,0 +1,11 @@
+Build #395 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DEBUG.C:
+  In <LclListboxWndProc>, make <IDM_CUT> work and change <IDM_DELETE>
+    to <IDM_DELETEALL>, and <IDM_CUT> to <IDM_DELETE>.
+
+RESOURCE.H:
+  Define ID for <IDM_DELETEALL>.

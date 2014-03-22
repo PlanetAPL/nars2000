@@ -1,0 +1,10 @@
+Build #889 -- Version 0.0.3.2
+-----------------------------
+
+* Fill With Trailing Zeros In Dyadic Format For Numbers Between -1 and 1
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatFloatFC> for F-format display of numbers between -1 and 1,
+    fill with trailing zeros or underflow chars.

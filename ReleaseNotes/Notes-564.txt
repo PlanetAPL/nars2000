@@ -1,0 +1,81 @@
+Build #564 -- Version 0.0.2.4
+-----------------------------
+
+* Suffix Macros And Functions With _PTB To Indicate Sensitivity
+  To Ptr Type Bits
+
+Directory trunk:
+
+ASSIGN.C:
+DISPDBG.C:
+REFCNT.C:
+SC_SAVE.C:
+YYFNS.C:
+  Suffix <CopySymGlbDir>/>CopySymGlbInd>/<GetSignatureGlb>/
+    <DbgIncrRefCntDir>/<DbgDecrRefCntDir>/<IsGlobalTypeArray>/
+    <IsGlbTypeXxxYyy>/<MakeMonPrototype_EM>/<MakeDydPrototype_EM>/
+    <FillToken> with _PTB to indicate sensitivity to Ptr Type Bits.
+  Use macro <GetSignatureMem> instead of direct code.
+
+AXISFNS.C:
+DISPLAY.C:
+EXECDFN.C:
+EXECFNS.C:
+FREE.C:
+MACROS.H:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_EPSILON.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_LSHOE.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_DIERESIS.C:
+PO_DOT.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_MF.C:
+QF_SIZE.C:
+QF_TYPE.C:
+SC_IN.C:
+SC_LOAD.C:
+STARTADDR.H:
+STRAND.C:
+SYSVARS.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+  Suffix <CopySymGlbDir>/>CopySymGlbInd>/<GetSignatureGlb>/
+    <DbgIncrRefCntDir>/<DbgDecrRefCntDir>/<IsGlobalTypeArray>/
+    <IsGlbTypeXxxYyy>/<MakeMonPrototype_EM>/<MakeDydPrototype_EM>/
+    <FillToken> with _PTB to indicate sensitivity to Ptr Type Bits.
+
+GETFNS.C:
+  Suffix <CopySymGlbDir>/>CopySymGlbInd>/<GetSignatureGlb>/
+    <DbgIncrRefCntDir>/<DbgDecrRefCntDir>/<IsGlobalTypeArray>/
+    <IsGlbTypeXxxYyy>/<MakeMonPrototype_EM>/<MakeDydPrototype_EM>/
+    <FillToken> with _PTB to indicate sensitivity to Ptr Type Bits.
+  Define new routine <GetSignatureGlb_PTB> to indicate it is
+    sensitive to Ptr Type Bits.
+
+PF_QDOT.C:
+  Improve comments.
+
+PO_SLASH.C:
+  Suffix <CopySymGlbDir>/>CopySymGlbInd>/<GetSignatureGlb>/
+    <DbgIncrRefCntDir>/<DbgDecrRefCntDir>/<IsGlobalTypeArray>/
+    <IsGlbTypeXxxYyy>/<MakeMonPrototype_EM>/<MakeDydPrototype_EM>/
+    <FillToken> with _PTB to indicate sensitivity to Ptr Type Bits.
+  Delete routine <SymGlbToToken> as it's unused.
+
+QF_CR.C:
+  Use macro <GetSignatureMem> instead of direct code.
+  In <CopyStename>, insert more <Assert> statements.

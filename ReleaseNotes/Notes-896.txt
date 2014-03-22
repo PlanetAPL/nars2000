@@ -1,0 +1,11 @@
+Build #896 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Match Of Simple Or Nested Global Numerics
+
+Directory trunk:
+
+PF_EQUALUND.C:
+  Fix Bug:  In <PrimFnDydEqualUnderbarSimple>, if either argument is a
+    scalar global numeric, its global memory ptr isn't moved to point to
+    its data.

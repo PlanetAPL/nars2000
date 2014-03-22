@@ -1,0 +1,11 @@
+Build #513-- Version 0.0.2.3
+----------------------------
+
+* Optimize Unique
+
+Directory trunk:
+
+PF_DSHOE.C:
+  Optimize unique (monadic down shoe) for simple non-hetero args.
+  Rename magic function labels for the Unique function to a common
+    standard for magic functions.

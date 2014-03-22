@@ -1,0 +1,20 @@
+Build #543 -- Version 0.0.2.4
+-----------------------------
+
+* Change The Binding Strength of Left Brackets and Its Lefthand Token
+
+Directory trunk:
+
+PL_PARSE.PROTO:
+  Change the return of <AmbOpSwap> from <BOOL> to <UBOOL> so we
+    always use unsigned BOOLs.
+
+PL_PARSE.Y:
+  Introduce a new rule to handle A[B] as a separate token within a
+    strand so it has a higher binding strength than strands, moving
+    to this rule the corresponding actions from <StrandInst>.  This
+    moves us closer to APL2's binding strength rules, although
+    1 2 3[1] still works -- APL2 requires parens as in (1 2 3)[1].
+
+PRIMFNS.C:
+  In <TokenTypeFV>, mark <TKT_STRAND> as a Var.

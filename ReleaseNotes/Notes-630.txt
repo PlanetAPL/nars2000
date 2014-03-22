@@ -1,0 +1,12 @@
+Build #630 -- Version 0.0.2.8
+-----------------------------
+
+* Use Environment Variable to Locate Certain Executables
+
+Directory trunk:
+
+BISON.RULES:
+MASM64.RULES:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Use an environment variable to locate nmake.exe and ml64.exe.

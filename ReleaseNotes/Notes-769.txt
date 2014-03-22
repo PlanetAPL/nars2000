@@ -1,0 +1,40 @@
+Build #769 -- Version 0.0.2.19
+------------------------------
+
+* Implement Recent Files for )LOAD/)XLOAD/)COPY
+
+Directory trunk:
+
+COMPRO.H:
+  Remove <qf_size.*> as that file was deleted in an earlier build.
+
+DEFINES.H:
+  Define the default value for the # recent files to keep.
+
+EXTERNS.H:
+  Define vars for Recent Files global memory handle and count.
+
+INIFILE.C:
+  Read and write the RecentFiles section of the .ini file.
+
+MAIN.C:
+  Respond to the WM_NOTIFY when the dropdown box is clicked for
+    )LOAD/)XLOAD/)COPY.
+  Respond to the WM_COMMAND when a workspace is selected from the
+    )LOAD/)XLOAD/)COPY menu of recent files.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Remove <qf_size.*> as that file was deleted in an earlier build.
+
+RESOURCE.H:
+  Define menu IDs for )LOAD/)XLOAD/)COPY menu base.
+
+SC_COMMON.C:
+  In <SaveNewWsid_EM>, call <SaveRecentWSID> to save the current
+    WSID in the list of recent files.
+  Define new routine <SaveRecentWSID> to save the current WSID
+    in the list of recent files.
+
+VERSION.RC:
+  Increment version to 0.0.2.19.

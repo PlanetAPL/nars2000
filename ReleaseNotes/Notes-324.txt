@@ -1,0 +1,17 @@
+Build #324 -- Version 0.0.0.21985
+---------------------------------
+
+Directory trunk\Extensions:
+
+Define routines for an extension to Mozilla Thunderbird to simplify
+entering APL characters in an email message.
+
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Define targets and directories for making <aplchars.xpi>.
+
+MAKEFILE.W32:
+  Define Dir\Path\filename.ext of the 7-zip program for use
+    in making <aplchars.xpi>.

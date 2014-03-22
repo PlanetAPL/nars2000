@@ -1,0 +1,9 @@
+Build #958 -- Version 0.0.3.5
+-----------------------------
+
+* Change Algorithm Used For Primality Test
+
+Directory trunk:
+
+PF_PI.C:
+  Change from <mpz_probable_prime_p> to <mpz_likely_prime_p> as the latter is faster.

@@ -1,0 +1,20 @@
+Build #948 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bugs In Rational GCD/LCM
+
+Directory trunk:
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Remove all references to FLINT as we no longer use it.
+
+PF_DCARET.C:
+PF_UCARET.C:
+  Update the copyright year.
+  In <PrimFnDydDownCaretRisRvR> and <PrimFnDydUpCaretRisRvR>, initialize
+    the result before passing it to <mpz_gcd>/<mpz_lcm>.
+  In <PrimFnDydDownCaretRisRvR> and <PrimFnDydUpCaretRisRvR>, pass both
+    args, not just the left one twice.
+  In <PrimFnDydDownCaretRisRvR> and <PrimFnDydUpCaretRisRvR>, when the
+    left arg is negative change the sign of the result, not the left arg.

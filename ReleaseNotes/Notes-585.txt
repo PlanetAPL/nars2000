@@ -1,0 +1,25 @@
+Build #585 -- Version 0.0.2.4
+-----------------------------
+
+* Define Window Text Foreground Color Customize Attribute
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  When applying a new Tab Ctrl font, also resize each of the
+    MDI Client windows as the size of the Tab Ctrl has changed.
+
+EDITFCN.C:
+  Fix typo in comment.
+  Define new function to determine if a window handle is that
+    of an MDI Client window.
+
+MAIN.C:
+  Fix Bug:  In <InitChooseFont>, don't respecify a font height
+    unless it is unset (0), in which case calculate the corresponding
+    point size.
+
+TABCTRL.C:
+  Define new function to calculate the window rectangle for the
+    MDI Client windows.
+  Replace separate code with call to <CalcWindowRectMC>.

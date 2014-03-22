@@ -1,0 +1,16 @@
+Build #753 -- Version 0.0.2.18
+------------------------------
+
+* Improve Text In Language Bar; Overcome Windows Bug
+
+Directory trunk:
+
+REBAR.C:
+  Improve text in language bar for Lev, Dex, Underbar, and Quad.
+  Reorganize language bar to put operators next to each other.
+  Overcome Windows API bug with TTM_SETTITLE in that it uses a font
+    that can't be changed and doesn't display all chars.  Instead, I
+    rolled my own title.
+
+UNICODE.H:
+  Define additional Line Drawing Characters.

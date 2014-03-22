@@ -1,0 +1,33 @@
+Build #1044 -- Version 0.3.8.xx
+-------------------------------
+
+* Implement []NLOCK
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message for FILE NOT LOCKED.
+
+PERTAB.H:
+  Define handle for a wait event.
+
+QF_NFNS.C:
+  Update copyright year.
+  Open files with file overlapped flag so as to enable file locking timeouts.
+  Enable previously commented-out code to Lock/Unlock a file.
+  Fix Bug:  test against Rht instead of Lft.
+  Include new code to handle timeouts.
+  Improve comments.
+
+SESSMAN.C:
+  Update copyright year.
+  Signal waiting event on Ctrl-Break.
+
+SYSVARS.C:
+  Update copyright year.
+  Enable []NLOCK as a system function.
+
+TABCTRL.C:
+  Update copyright year.
+  In <FreeGlobalStorage>, signal a pending wait event.
+  In <FreeGlobalStorage>, free []DM and []EM storage.

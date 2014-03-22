@@ -1,0 +1,12 @@
+Build #1116 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Bug In Definition Of Array Lookup Function
+
+Directory trunk:
+
+PF_IOTAUND.C:
+  Fix bug in definition of array lookup function.
+
+VER.RC:
+  Increment version # to 0.3.12.xx.

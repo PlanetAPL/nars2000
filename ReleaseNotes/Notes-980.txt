@@ -1,0 +1,15 @@
+Build #980 -- Version 0.3.7.xx
+------------------------------
+
+* Fix Bug On WinXP vs. Win7 Systems With Customize Keyboard Display
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix bug on WinXP vs. Win7 systems due to a message order different
+    from each other.  To overcome this difference, we must resort to
+    <SendMessage> instead of <PostMessage> when initializing the
+    property pages.
+
+STARTADDR.H:
+  Include more entry points.

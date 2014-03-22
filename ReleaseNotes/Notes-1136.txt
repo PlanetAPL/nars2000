@@ -1,0 +1,271 @@
+Build #1136 -- Version 0.4.0.xx
+-------------------------------
+
+* Implement Anonymous Functions/Operators
+* Handle STACK FULL Via EXCEPTION_STACK_OVERFLOW
+
+Directory trunk:
+
+AFOFNS.C:
+  New module to hold AFO-specific functions.
+
+APLERRORS.H:
+  Delete <ERRMSG_STACK_OVERFLOW> in favor of <ERRMSG_STACK_FULL>.
+
+ASSIGN.C:
+  In <AssignName_EM>, handle assigning Name{is}{AFO}
+  In <GetNameType>, handle AFOs.
+
+COMPRO.H:
+  Include prototype file for new module.
+
+CS_PARSE.H:
+  Update the copyright year.
+  Rename old Boolean flag.
+  Include new Boolean flag for a main stmt ctrl struc so as to disallow them in AFOs.
+
+CS_PARSE.PROTO:
+  Fill in missing prototypes.
+
+CS_PARSE.Y:
+  Include <cs_parse.proto> instead of individual prototypes.
+  Rename <ERRMSG_STACK_OVERFLOW> to <ERRMSG_STACK_FULL>.
+  In <cs_yylex>, mark ctrl strucs so as to disallow them in AFOs.
+  Rename old Boolean flag.
+
+DISPDBG.C:
+  In <GetTokenTypeName>, handle new tokens.
+  In <DisplayFcnSub>, handle AFOs.
+
+DISPLAY.C:
+  Define new routine to handle display in AFOs.
+
+EDITFCN.C:
+  In <FEWndProc>, move common code to <FreeVirtUnlink>.
+  Define new argument to <Tokenize_EM> to handle AFOs.
+  Pass all zero <SF_Fcns> to <Tokenize_EM>.
+
+ENUMS.H:
+  Improve comments.
+  Delete <EXCEPTION_STACK_FULL> in favor of <EXCEPTION_STACK_OVERFLOW>.
+  Move <DFN_TYPES> from <fh_parse.h> to <enums.h> so we can use it in prototypes.
+  Move <PTDMEMVIRTENUM> from <sessman.c> to <enums.h> so we can use it in prototypes.
+
+EXCEPT.C:
+  Delete <EXCEPTION_STACK_FULL> in favor of <EXCEPTION_STACK_OVERFLOW>.
+
+EXECDFN.C:
+  In <ExecDfnOprGlb_EM_YY>, if executing an AFO, activate/restore the local <HASHTABSTR>,
+    and pass the AFOs flag to the <SiS>
+  Define new argument to <Tokenize_EM> to handle AFOs.
+  In <ExecuteFunction_EM_YY>, handle non-displayable results from AFOs.
+
+EXECFNS.C:
+  In <ExecuteFn0>, handle niladic AFOs.
+  In <ExecFunc_EM_YY>, handle AFOs.
+  In <ExecFuncStrLine_EM_YY>, handle AFOs.
+
+EXECMFN.C:
+  Delete argument to <AllocSymTab> to initialize constant STEs as we do it always now.
+  For local <HASHTABSTR>s, ensure system names are defined locally.
+  Define new argument to <Tokenize_EM> to handle AFOs.
+
+EXECMFN.H:
+  Define new shorthands for various symbols.
+
+EXTERNS.H:
+  Define new CSO for use in <symtab.c> with HshTabs.
+  As we changed the flags in <TKFLAGS>, make corresponding change to <tkZero> and <tkBlank>.
+
+FH_PARSE.H:
+  Move <DFN_TYPES> from <fh_parse.h> to <enums.h>.
+  Define new flags for AFOs in <DFN_HEADER>.
+  Define local <HASHTABSTR> in <DFN_HEADER> for use with AFOs.
+  Improve comments.
+  Define new flags for AFOs in <FHLOCALVARS>.
+
+FH_PARSE.PROTO:
+  Fill in missing prototypes.
+
+FH_PARSE.Y:
+  Include <fh_parse.proto> instead of individual prototypes.
+  Improve comments.
+  In <fh_yylex>, handle AFOs.
+
+FREE.C:
+  Update copyright year.
+  In <FreeResNNU>, disallow freeing AFOs.
+  In <FreeResultSub>, <FreeResultGlobalDfn>, and <FreeResultGlobalFcn>, handle AFOs.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle AFOs.
+  Simplify <GetSteZero>, <GetSteOne>, <GetSteBlank> by using the value in the local <HASHTABSTR>.
+  Simplify <Get/SetQuadXX> functions by using fewer intermediate vars.
+  In <GetPrimFlagsPtr>, handle AFOs.
+  Include debug stmt in <GetSignatureGlb>.
+
+HEADERS.H:
+  Re-order headers to handle various dependencies.
+
+IDENTFNS.C:
+  Update copyright year.
+  Move <steXXXX> entries from <pertab.h> to <symtab.h> for localization purposes.
+
+IMMEXEC.C:
+  Define #defines for display of []DM.
+  Define new argument to <Tokenize_EM> to handle AFOs.
+  In <ImmExecStmtInThread>, handle additional exit types.
+
+MAIN.C:
+  Initialize a critical section object.
+
+MAIN32.DEF:
+MAIN64.DEF:
+  Omit NAME attribute as it conflicts with /OUT:name
+  Increase the size of the stack.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Define entries for new module.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include new module <afofns.c>.
+
+PERTAB.H:
+PF_UARROW.C:
+PO_SLASH.C:
+  Move <steXXXX> entries from <pertab.h> to <symtab.h> for localization purposes.
+
+PF_UTACKJOT.C:
+  Handle <EXITTYPE_STOP> as in <STACK FULL> instead of No Value.
+  Define new argument to <Tokenize_EM> to handle AFOs.
+
+PL_PARSE.H:
+  Define new fields in <PL_YYSTYPE> and <PLLOCALVARS> strucs for AFOs.
+
+PL_PARSE.PROTO:
+  Fill in missing prototypes.
+
+PL_PARSE.Y:
+  Remove <DEF_MAX_EXEC_DEPTH> in favor of testing for <EXCEPTION_STACK_OVERFLOW>.
+  Include <pl_parse.proto> instead of individual prototypes.
+  Define new terminals for AFOs.
+  Improve comments.
+  Handle AFOs in the LALR parser semantics.
+  Delete <EXCEPTION_STACK_FULL> in favor of <EXCEPTION_STACK_OVERFLOW>.
+  In <pl_yylex>, handle AFOs.
+
+PL_PROC.C:
+  Define new argument to <LookaheadAdjacent> to indicate whether or not to treat a Jot as an operator.
+  In <LookaheadAdjacent>, <LookaheadDyadicOp>, <LookbehindOp>, and <ArrExprCheckCaller>, handle AFOs.
+  Define new routine to search up the SIS chain for a user-defined function/operator.
+
+PN_PARSE.PROTO:
+  Fill in missing prototypes.
+
+PN_PARSE.Y:
+  Include <pn_parse.proto> instead of individual prototypes.
+
+PRIMFNS.C:
+  In <TokenTypeFV>, <CopyArray_EM>, <IsTknTypeFcnOpr>, and <IsTknImmed>, handle AFOs.
+  Move <steXXXX> entries from <pertab.h> to <symtab.h> for localization purposes.
+  Define new routine to determine whether or not there is a non-execute AFO up the SIS chain.
+  Define new routine to determine if a token type is that of an AFO.
+
+PRIMSPEC.C:
+  In <PrimFnValueError_EM>, append name (if any).
+
+QF_AT.C:
+  In AttributeExecProp>, handle AFOs as Magic Functions/Operators.
+
+QF_CR.C:
+QF_VR.C:
+  Handle AFOs.
+
+QF_EX.C:
+  Disallow expunge of AFOs special names.
+
+REBAR.C:
+  Document AFOs in the Language Bar.
+
+SAVEFCN.C:
+  Define AFO function header templates.
+  Handle AFOs when called from <SaveFunctionCom>.
+  Define new argument to <Tokenize_EM> to handle AFOs.
+  Improve comments.
+  Delete argument to <AllocSymTab> to initialize constant STEs as we do it always now.
+  In <SaveFunctionLine>, if saving an AFO call <Tokenize_EM> twice, once with surrounding braces to set valence flags,
+    and once to save the token stream for the line.
+
+SAVEFCN.H:
+  Update copyright year.
+  Define new flags for AFOs in <SF_FCNS>.
+  Define new fields in <LW_PARAMS> struc for AFOs when called from <SaveFunctionCom>.
+
+SC_LOAD.C:
+  In <LoadWorkspaceGlobal_EM>, handle AFOs.
+
+SC_SAVE.C:
+  For AFOs, write out flag.
+
+SESSMAN.C:
+  Move <PTDMEMVIRTENUM> from <sessman.c> to <enums.h> so we can use it in prototypes.
+  Delete argument to <AllocSymTab> to initialize constant STEs as we do it always now.
+  In <WM_DESTROY>, handle AFOs.
+  In <WM_DESTROY>, move common code to <FreeVirtUnlink>.
+  Define new routine to free and relink HshTabs.
+
+SIS.H:
+  Update copyright year.
+  Define new flags for AFOs in <SIS_HEADER>.
+
+STARTADDR.H:
+  Include additional names.
+
+STRAND.C:
+  Handle AFOs.
+
+SYMTAB.C:
+  In <HshTabResize_EM>, handle resizing of GlobalAlloc tables.
+  Use new CSO to enable multi-thread synchronization.
+  Define local-only versions of various Symbol Table functions.
+  Move <steXXXX> entries from <pertab.h> to <symtab.h> for localization purposes.
+  Define new routine to free hash and symbol tables.
+
+SYMTAB.H:
+  Handle AFOs.
+  Move <steXXXX> entries from <pertab.h> to <symtab.h> for localization purposes.
+
+SYSVARS.C:
+  Remove unnecessary quad functions.
+  Define local versions of various routines.
+  Define new routines to copy and delete system vars so we start an AFO with current values.
+
+TABCTRL.C:
+  Ensure <lpMemPTD->htsPTD> is valid before using it to point to <lpSymTab>.
+
+TOKENIZE.C:
+  Include FSA rows and columns to handle AFOs.
+  Use local symbol table routines.
+  Handle []Z specially as it's the return value from AFOs.
+  In <Tokenize_EM>, catch any exception, cleanup, and pass it on.
+  Define new routine to test for AFOs special names and aliases.
+
+TOKENIZE.H:
+  Update copyright year.
+  Include FSA rows and columns to handle AFOs.
+  Define new fields in <TKLOCALVARS> struc for AFOs.
+
+TOKENS.H:
+  Define new tokens for AFOs.
+  Improve comments.
+  Define new flags in <TKFLAGS> for AFOs.
+  Define new anonymous struct inside <TOKEN_DATA> to handle AFOs.
+
+UNICODE.H:
+  Define new values for AFOs.
+
+WORKSPACE.H:
+  Update copyright year.
+  Define new keyword for AFOs.

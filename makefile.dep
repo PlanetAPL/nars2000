@@ -1,0 +1,50 @@
+# /***************************************************************************
+#     NARS2000 -- An Experimental APL Interpreter
+#     Copyright (C) 2006-2013 Sudley Place Software
+#
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# ***************************************************************************/
+
+# This makefile generates the file <dep.txt>
+#   for inclusion in <makefile.inc>.
+
+
+!include makefile.src
+
+WS=WineHQ^\
+MS=$(NARSROOT)msieve^\
+
+!ifndef O
+!    error makefile.dep:  Macro O is not defined.
+!endif
+
+
+ALL:    INITIAL         \
+        DEP             \
+        ENDING
+
+DEP:    $(SRC:???=dep)  \
+        $(O)main.dev    \
+        $(O)ver.dev     \
+        $(O)version.dev
+    @deptxt.bat $(O)dep.txt $(**F)
+
+INITIAL:
+    if exist $(O)dep.txt del $(O)dep.txt
+
+$(SRC:???=dep) $(O)main.dev $(O)ver.dev $(O)version.dev:    makefile.dep
+    @depinit.bat $@
+
+ENDING:
+    @echo .

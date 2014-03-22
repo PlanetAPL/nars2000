@@ -1,0 +1,42 @@
+Build #613 -- Version 0.0.2.7
+-----------------------------
+
+* Define User Preference For Display Of Function Line #s
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Reformat long lines.
+  Define User Preference for default display of function line #s.
+
+DEFINES.H:
+  Define default initial value for display of function line #s.
+  Define current function line # display state in window extra bytes.
+
+EDITFCN.C:
+  When setting the Edit Ctrl left margin, take into account the
+    current function line # display state.
+  Initialize the current function line # display state.
+  When drawing the function line #s, take into account the current
+    function line # display state.
+
+EXTERNS.H:
+  Define entry in <OPTIONFLAGS> for default display of function line #s.
+
+INIFILE.C:
+  Update copyright year.
+  Define keyname for the default display of function line #s.
+  Handle read in/write out default display of function line #s option.
+  Improve comments.
+
+MAIN.RC:
+  Update copyright year.
+  Use proper escape symbols for Windows header files.
+  Define User Preference for default display of function line #s.
+
+RESOURCE.H:
+  Update copyright year.
+  Improve comments.
+  Omit unused Icon IDs.
+  Define User Preference for default display of function line #s.

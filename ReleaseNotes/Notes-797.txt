@@ -1,0 +1,25 @@
+Build #797 -- Version 0.0.2.22
+------------------------------
+
+* Use Compose And Composition Consistently
+
+Directory trunk:
+
+EXECFNS.C:
+INITDATA.C:
+PO_DICIRCLE.C:
+PO_JOT.C:
+REBAR.C:
+TOKENIZE.C:
+UNICODE.H:
+  Update copyright year.
+  Use compose and composition consistently
+
+VERSION.RC:
+  Increment version to 0.0.2.22.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Use compose and composition consistently

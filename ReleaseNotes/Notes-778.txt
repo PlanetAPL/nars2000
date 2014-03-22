@@ -1,0 +1,16 @@
+Build #778 -- Version 0.0.2.19
+------------------------------
+
+* Update Copyright Year
+
+Directory trunk:
+
+DEFINES.H:
+MAIN.RC:
+  Update copyright year.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Update copyright year.

@@ -1,0 +1,7 @@
+Build #466 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  Fix Bug:  In <GetNameType>, include <TKT_OPJOTDOT> case.

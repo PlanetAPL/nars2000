@@ -1,0 +1,10 @@
+Build #575 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Switch Arguments To <DisplayFcnMem> To match The Call
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnMem>, switch two arguments to reflect the way it's
+    actually called.

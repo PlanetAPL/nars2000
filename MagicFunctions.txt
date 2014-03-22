@@ -1,0 +1,33 @@
+                TO DO FOR MAGIC FUNCTIONS
+
+* Quad function to convert one or more user-defined functions
+
+      []??? 'name' 'Dfn'
+  or
+      []??? 'name' ('Dfn1' 'Dfn2' ...)
+
+  where 'name' is a symbol or quad function
+  and 'Dfn' is the name of a user-defined function/operator
+
+* Perhaps each function name is preceded with a special character
+  to indicate whether or not it is to use hidden or visible
+  local names
+
+* Change DFNHDR.Y to accept low numbers (1 to 64*1024-1) as
+  special Symbol Table Entries
+
+* Convert args, locals, and references to global names to
+  special Symbol Table Entries
+
+* Define Quad-Function for access to previous function (if any)
+  This function has meaning only when called from within a
+  magic function
+
+* Define properties of a function so it may tell if it's a
+  magic function
+
+* Note that replacing STE names with numbers obviates use of
+  the execute primitive on those names
+
+*
+

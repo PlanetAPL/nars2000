@@ -1,0 +1,119 @@
+Build #326 -- Version 0.0.0.22011
+---------------------------------
+
+Directory trunk\Extensions\aplchars:
+
+CHROME.MANIFEST:
+  Rename <editorWindow.xul> to match the filename we're overlaying.
+  Overlay <menuOverlay.xul> onto the Message Compose Window's menu, too.
+
+INSTALL.RDF:
+  Version # change.
+
+MAKEFILE:
+  Omit reference to unused and undefined $(EXAPL).
+  Change directort references to reflect the actual location
+    of the <makefile>.
+  Remove .xpi file dependency reference to <update.rdf> as it's
+    used on the web site only.
+  Include .xpi file dependency on <defaults\*.*>.
+  Include <defaults\*.*> in the .xpi file.
+
+UPD.INP:
+  Include <tests> directory and <mk.bat> file in exclude list.
+
+UPDATE.RDF:
+  Version # change.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+ABOUT.XUL:
+
+
+APLCHARS.JS:
+EDITOROVERLAY.JS:
+  Rename <aplchars.js> to <editorOverlay.js> to match the filename
+    we're overlaying.
+  Change to test use of SourceTextListener.
+
+EDITORWINDOW.XUL:
+EDITOROVERLAY.XUL:
+  Rename <EditorWindow.xul> to <editorOverlay.xul> to match the
+    filename we're overlaying.
+
+EDITOREXTENSIONS.DTD:
+  Create new module to hold extension names akll of which are
+    now referenced through this module.
+
+MENUOVERLAY.XUL:
+  Reference menu option text through a DTD file.
+
+MESSAGECOMPOSEWINDOW.XUL:
+  Delete references to unnecessary DTD files.
+  Include <extensions.dtd> for later use.
+  Delete unnecessary assignment.
+  Reformat code.
+  Use DTD reference to name instead of raw text.
+  Delete try/catch as we now use default preferences.
+  Define observer for "extensions.aplchars." preference subtree
+    to catch changes in enablestate from the options dialog.
+  Define new routine for Message Compose Window "load" and "unload"
+    to add/remove the above observer.
+
+OPTIONS.XUL:
+  Include references to our DTD files.
+  Delete ondialogaccept handler as we now use an observer for
+    preference changes.
+  Rename onload event handler for the preferences window to be unique.
+  Delete try/catch as we now use default preferences.
+  Rename about handler for the preferences window to be unique.
+  Use DTD reference to name instead of raw text.
+
+APLCHARSMENUOVERLAY.DTD:
+  Delete unreference entity.
+
+
+Directory trunk\Extensions\aplchars\defaults\preferences:
+
+APLPREFS.JS:
+  Define new module to hold default preferences.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Include reference to distribution restriction on <SImPL medium.ttf>.
+
+INDEX-BODY.AHTML:
+  Include copyright reference.
+
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Delete reference to .hlp file and its rules until we actually make one.
+
+PF_EPSILON.C:
+  Handle special case for BOOL/INT/APA vs. Permutation Vector.
+
+PF_RSHOE.C:
+  Fix Bug:  If the item of an element being disclosed is a SYMENTRY
+    instead it is treated as if it were an HGLOBAL without a happy ending.
+
+PO_SLASH.C:
+  Attempt to handle case of ,/'' without success.  This code is commented
+    out for now, but I'll revisit it sometime later.
+
+REFCNT.C:
+  Generalize <GetRefCntGlb> to other objects with reference counts.
+
+SC_LOAD.C:
+SC_SAVE.C:
+  Don't link into SymLink chain if already linked in.
+
+SESSMAN.C:
+  Use copyright symbol instead of "(C)".
+
+UNICODE.H:
+  Define equates for copyright symbol.

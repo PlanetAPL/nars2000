@@ -1,0 +1,15 @@
+Build #870 -- Version 0.0.3.1
+-----------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+DISPLAY.C:
+  Improve comments.
+
+MPFNS.C:
+  Include debugging stmts in <mpf_mod>.
+
+PF_STILE.C:
+  Improve comment.

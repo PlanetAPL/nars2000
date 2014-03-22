@@ -1,0 +1,9 @@
+Build #369 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DISPDBG.C:
+  Improve comments.
+  In <DisplayGlobals>, don't display Magic Functions unless we're
+    displaying all globals.

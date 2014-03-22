@@ -1,0 +1,17 @@
+Build #1098 -- Version 0.3.10.xx
+--------------------------------
+
+* Change URL For Browsing Source On Google Code
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MANU.HTML:
+LICENSE-MENU.HTML:
+  Change the URL for browsing the source code to one that works better on Google Code.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-MENU.HTML:
+  Change the URL for browsing the source code to one that works better on Google Code.

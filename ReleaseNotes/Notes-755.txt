@@ -1,0 +1,48 @@
+Build #755 -- Version 0.0.2.18
+------------------------------
+
+* Implement []EA
+
+Directory trunk:
+
+CS_PROC.C:
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotPLParse>.
+
+ERRMSG.C:
+  In <ErrorMessageDirect>, test for []EA SIS level and don't
+    unwind through it when saving []EM.
+
+EXECMFN.H:
+  Define additional shortcuts for primitives and system names.
+
+FH_PARSE.H:
+  Define new <DFNTYPE_QUADEA> to use when executing []EA.
+
+IMMEXEC.C:
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotCSPLParse>.
+
+PF_UTACKJOT.C:
+  Include <NoValue> and <ActOnError> parameters to <PrimFnMonUpTackJotCommon_EM_YY>.
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotCSPLParse>.
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotPLParse>.
+
+PL_PARSE.Y:
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotCSPLParse>.
+  Fix Bug:  In <GetEOSIndex>, the test for within a stmt is too tight.
+
+QF_EA.C:
+  Implement this system function.
+
+QF_EM.C:
+  In <SysFnEM_EM_YY>, test for []EA SIS level and don't
+    unwind through it when returning []EM.
+
+QF_ET.C:
+  In <SysFnET_EM_YY>, test for []EA SIS level and don't
+    unwind through it when returning []ET.
+  In <SetEventTypeMessage>, test for []EA SIS level and don't
+    unwind through it when setting []ET.
+
+SC_IN.C:
+SC_LOAD.C:
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotCSPLParse>.

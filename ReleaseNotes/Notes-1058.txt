@@ -1,0 +1,9 @@
+Build #1058 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Language Bar Entries For Left/Right Tack Keystrokes Are Incorrect
+
+Directory trunk:
+
+REBAR.C::
+  The Language Bar entries for Left/Right Tack keystrokes are incorrect.

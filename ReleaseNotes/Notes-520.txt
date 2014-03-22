@@ -1,0 +1,16 @@
+Build #520 -- Version 0.0.2.3
+----------------------------
+
+* Fix Bug:  =/1 1 1 returns incorrect result
+* Fix Bug:  +/1 2{jot}.={iota}17 and =/1 2{jot}.={iota}17
+    both return incorrect result
+
+Directory trunk:
+
+FASTBOOL.C:
+  Fix Bug:  =/1 1 1 returns incorrect result due to failure to take into
+    account the parity of the # 1s for {notequal} and the complement of
+    the # 0s for {equal}.
+  Fix Bug:  +/1 2{jot}.={iota}17 and =/1 2{jot}.={iota}17
+    both return incorrect result due to incorrect variable used to
+    calculate length of remaining bits in the last byte.

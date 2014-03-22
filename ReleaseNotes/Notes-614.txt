@@ -1,0 +1,15 @@
+Build #614 -- Version 0.0.2.7
+-----------------------------
+
+* Use Equates Instead Of Symbols For Numeric Constant Parsing
+
+Directory trunk:
+
+DEFINES.H:
+  Define equate for infinity symbol and overbar as single-byte chars
+    for use in <pn_parse.y>.
+
+PN_PARSE.Y:
+  Update copyright year.
+  Define token name for overbar symbol instead of using symbol.
+  Use equates for overbar and infinity symbols instead of symbols.

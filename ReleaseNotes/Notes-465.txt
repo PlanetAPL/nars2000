@@ -1,0 +1,13 @@
+Build #465 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Mark all IisFvF cases as "No such primitive".
+  Fix Bug:  Several cases of simple vs. simple were misstated in that
+    the wrong type parameter (left instead of right) was used.
+  Fix Bug:  Several cases with a Boolean result didn't handle equal/not-equal
+    between numeric and char.
+  Fix Bug:  Several cases of simple arrays w/axis operator were still guarded
+    by a DbgBrk stmt in which case the system crashed.

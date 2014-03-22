@@ -1,0 +1,14 @@
+Build #555 -- Version 0.0.2.4
+-----------------------------
+
+* Move Global Vars Into <externs.h>
+
+Directory trunk:
+
+EXTERNS.H:
+  Move global vars from <dispdbg.c> to <externs.h>
+
+DISPDBG.C:
+  Move global vars from <dispdbg.c> to <externs.h>
+  In <DisplayFcnLine>, check debug level against <gFcnLvl> instead
+    of a constant.

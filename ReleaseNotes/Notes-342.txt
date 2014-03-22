@@ -1,0 +1,68 @@
+Build #342 -- Version 0.0.1.0
+-----------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix typos in comments.
+
+MAIN.C:
+  Display web and file versions in the single message.
+  Delete unnecessary content from the Updates dialog.
+
+MAIN.RC:
+  Delete unnecessary content from the Updates dialog.
+
+PN_PARSE.Y:
+  Fix Bug:  I missed the case of parsing (say) {neg}.5
+  Fix Bug:  The return value and <uNumOff> value of the
+    <Decimal> rule for '.' Digit is incorrect.
+  Fix Bug:  The case (say) 1e0.5 is incorrectly allowed.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+MSGCOMPOSEWINDOW.JS:
+  Remove try {} catch() {} in favor of simple test as there's
+    no error thrown, but no attributes.
+
+
+Directory trunk\Extensions\aplchars\chrome\locale\en-US\aplchars:
+
+APLCHARS.DTD:
+  Change button text from "APL Chars ON/OFF" to "APL Translate ON/OFF"
+    to better reflect the action.
+
+
+Directory trunk\htdocs:
+
+FOOTER.HTML:
+  Insert script to track page views via Google Analaytics.
+
+INDEX-BODY.AHTML:
+  Include additional features.
+  Indicate that the workspace size is also limited by the
+    available address space.
+  Put 64-bit executable on the wish list.
+  Append "\trunk" to svn:// target so the user sees the
+    source code right away rather than having to check out
+    the "branches" and "tags" directories first.
+  Improve wording of requirements for Unicode APL fonts.
+  Update the copyright year.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Return value for "onclick=" handler to ensure proper response
+    to the event.
+  Remove secondary file to download files as there's a way
+    to do it with Google Analytics.
+  Include "onclick=" handler on anchors to track downloaded files
+    as page views
+  In <DisplayTab>, return result so the proper response is
+    taken for the event.
+
+LOADFILE.PHP:
+  File no longer needed as there's a way to do it
+    with Google Analytics.

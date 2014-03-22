@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://aplchars/locale/aplcharsMenuOverlay.dtd">
+
+<overlay id="aplcharsMenuOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <!-- This is for the Tools menu. -->
+    <menupopup id="taskPopup">
+        <menuitem label="&aplchars.label;"
+                  oncommand="window.openDialog ('chrome://aplchars/content/options.xul');"
+                  class="menuitem-iconic" />
+    </menupopup>
+</overlay>

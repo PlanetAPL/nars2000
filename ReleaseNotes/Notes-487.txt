@@ -1,0 +1,16 @@
+Build #487-- Version 0.0.1.18
+------------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk:
+
+EDITFCN.C:
+EXTERNS.H:
+  Changes to enable 64-bit compile.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Changes to enable 64-bit compile.

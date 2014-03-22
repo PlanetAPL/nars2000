@@ -1,0 +1,12 @@
+Build #806 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Execute Without Result May Crash
+
+Directory trunk:
+
+PF_UTACKJOT.C:
+  Update copyright year.
+  In <PrimFnMonUpTackJotCommon_EM_YY>, rather than assert that
+    there's a result, test for it and if none, fall through to
+    the NoValue code.

@@ -1,0 +1,410 @@
+Version 0.0.2.19 consists of the following Builds:
+
+
+Build #778 -- Version 0.0.2.19
+------------------------------
+
+* Update Copyright Year
+
+Directory trunk:
+
+DEFINES.H:
+MAIN.RC:
+  Update copyright year.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Update copyright year.
+
+
+Build #777 -- Version 0.0.2.19
+------------------------------
+
+* Allow Users To Define Their Own Keyboard Layout
+
+Directory trunk:
+
+COMMON.C:
+  Update copyright year.
+  Define routine to return dialog units in pixels.
+  Define routine to draw a bitmap in a DC.
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Enable OEM resources.
+  Define limit of # chars allowed in Keyboard EditCtrl.
+  Define keyboard-specific data.
+  Use common macros for when returning a result from a dialog.
+  Use a fixed point size font when displaying APL chars in Clear WS Values.
+  Define WM_INITDIALOG handler for Keyboards.
+  Define WM_DRAWITEM handler for keyboards TabCtrl and Layour ComboBox.
+  Define WM_NOTIFY handler for keyboard TabCtrl notifications.
+  Define NM_CUSTOMDRAW handler for keyboard keycaps.
+  Define IDC_APPLY handler for keyboards.
+  Define WM_COMMAND handler for keyboards.
+  Define WM_DESTROY handler for keyboards.
+  Define new routine to handle subclassed EditCtrls.
+  Define new routine to draw a button.
+  Define new routine to display a TabCtrl button.
+  Define new routine to display a keyboard highlighted button.
+  Define new routine to remove the highlight from a keycap button.
+  Define new routine to display a keyboard layout.
+  Define new routine to display or hide certain keyboard keycap buttons.
+  Define new routine to convert from a scancode to an ID.
+  Define new routine to convert from a keyboard char to a scancode.
+  Define new routine to set the font for certain keyboard controls.
+  Define new routine to handle user entry of the name of a new keyboard layout.
+
+DEFINES.H:
+  Update copyright year.
+  Define default keyboard font name, point size, and LOGFONT.
+  Define sample text used in ChooseFont dialog.
+  Define local windows message # for use in highlighting keyboard buttons.
+  Define keyboard state bits.
+  Define wide char routine name for converting to lwercase.
+
+EDIT.RCH:
+  Update copyright year.
+  Remove keyboard Ctrl-key shortcuts from menu items as they might not be used.
+
+EDITFCN.C:
+  Update copyright year.
+  Define DEBUG stmts for debugging keystroke messages.
+  Move KEYDATA struc to <keyboards.h>.
+  Use wide char routine <isspaceW> instead of direct test.
+  Move vars up to routine-local instead of section-local.
+  Define vars local to a Windows message for both DEBUG and non-DEBUG modes.
+  Replace fixed <aCharCodes> used on <WM_CHAR> and <WM_SYSCHAR> with keyboard layouts
+    used on <WM_KEYDOWN> and <WM_SYSKEYDOWN>.
+  Define an comment out <WM_SYSKEYUP> message handler so we have a complete set.
+
+EXTERNS.H:
+  Update copyright year.
+  Move keyboard accelerator handle to <keyboards.h>.
+  Move character codes to <keyboards.h>.
+  Include "Keyboards" as a Customize Property Page.
+  Include "keyboards.h" for keyboard support.
+
+INIFILE.C:
+  Update copyright year.
+  Define section name and key names for reading in/writing out
+    keyboard support from/to .ini file.
+  Define format string used to read in/write out charcter codes
+    for user-defined keyboard layouts.
+  Read in keyboard support from .ini file.
+  In <ReadIniFileGlb> return a result depending upon whether or not the
+    operation succeeded.
+  Fix Bug:  When writing out the []SA index, an incorrect shortcut was taken.
+  Fix Bug:  When writing out the Rebar toolbars, an incorrect shortcut was taken.
+  When writing out the list of Recent Files, write the exact # of such files.
+  Write out keyboard support to .ini file.
+
+KEYBOARDS.H:
+  New file to hold all values for keyboard support.
+
+MAIN.C:
+  In <MyChooseFontHook> if no window title, assume it's <ChooseFont> for Customize
+    in which case we need to hide the size selection windows so the user can't
+    change it.
+  In <MyChooseFontHook>, subclass the Sample Text static control so we can
+    catch undesired changes to the Sample text.
+  Define window proc to handle subclassed static text control from <ChooseFont>.
+  In <ApplyNewFontSM> delete the code to respecify the fonts for the CLEAR WS
+    values Property Page in Customize as we now use a fixed font there.
+  Change call to the Customize dialog from modal to modeless.
+  In <MFWndProc/WM_DESTROY>, if the Customize dialog is active, destroy it and
+    delete the global memory handle for keyboard layouts.
+  In <InitInstance>, comment out the load of keyboard accelerators as they might
+    not be correct.
+  In <WinMain>, if the .ini file read failed, fail the startup.
+  In <WinMain>'s message loop, check for messages for the Customize dialog
+    now that it's modeless.
+
+MAIN.RC:
+  Update copyright year.
+  Note that the defined keyboard accelerators are not used keyboards depending upon
+    the keyboard layout settings.
+  Remove keyboard Ctrl-key shortcuts from menu items as they might not be used.
+  Use equates for the width and height of the Customize dialog and its Property Pages.
+  Change the font for the Customize dialog and its Property Pages to "MS Shell Dlg".
+  Resize the Customize Property Pages as per the equates.
+  In the CLEAR WS Values property Page, widen the trailing text on the lines to
+    accommodate the text when it's Bold.
+  Define a Customize dialog Property Page for keyboard support.
+  Define a dialog template for entering a new keyboard layout name.
+
+MAKEFILE.INC:
+  Update copyright year.
+  Use /nologo switch on calls to RC.
+  Move the location of <makedep.php> to $(NARSROOT).
+
+QF_NC.C:
+  Update copyright year.
+  Note that an underbar may be used as a first char in a name.
+
+RESOURCE.H:
+  Update copyright year.
+  Define IDs for keyboard support.
+
+UNICODE.H:
+  Update copyright year.
+  Define entries for missing light and double line drawing characters,
+    so they may be included in the table of keyboard characters.
+  Define entry for up/down arrows,
+    so they may be included in the table of keyboard characters.
+  Define entry for section symbol, left-shoe-underbar, and right-shoe-underbar
+    so they may be included in the table of keyboard characters.
+  Define corresponding wide string entries to the above characters.
+
+
+Build #776 -- Version 0.0.2.19
+------------------------------
+
+* Fix Bug In Slicing Dyadic Transpose
+
+Directory trunk:
+
+AXISFNS.C:
+  Update copyright year.
+  Rename loop counter <u> to longer name <uCnt> so it can be searched
+    for more easily.
+  Declare <lpDup> as <APLBOOL> so it doesn't have to be cast when used.
+  Fix Bug:  If duplicate axes are allowed, do same test as for
+    contiguous axes, and then test for starting at 0 (after converting
+    to origin-0).
+
+
+Build #775 -- Version 0.0.2.19
+------------------------------
+
+* Use Common Macros For When Returning A Result From A Dialog
+
+Directory trunk:
+
+MACROS.H:
+  Update copyright year.
+  Define common macros for when returning a result from a dialog.
+
+MAIN.C:
+  Update copyright year.
+  Delete unused DEBUG var.
+  Reorder ChooseFont flags.
+  Use common macros for when returning a result from a dialog.
+
+VER.C:
+  Update copyright year.
+  Use common macros for when returning a result from a dialog.
+
+WEBCOLORS.C:
+  Update copyright year.
+  Use common macros for when returning a result from a dialog.
+
+
+Build #774 -- Version 0.0.2.19
+------------------------------
+
+* Fix Bug:  Wrong Sense Used On Boolean Flag So That APA {iota} APA Fails
+
+Directory trunk:
+
+PF_IOTA.C:
+  Update copyright year.
+  Fix Bug:  Wrong sense used on Boolean flag, so that APA {iota} APA fails.
+
+
+Build #773 -- Version 0.0.2.19
+------------------------------
+
+* Fix Bug:  Use 32-bit (Not 64-bit) Types For All Vars Involved With EM_** APIs
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  Use 32-bit types (not 64-bit) for all vars involved with EM_xxx calls
+    as those APIs work on and return 32-bit values only.
+
+
+Build #772 -- Version 0.0.2.19
+------------------------------
+
+* Fix Bug:  Delta Or DeltaUnderbar In A Function Name Is Mangled On )SAVE
+
+Directory trunk:
+
+DISPDBG.C:
+  After call to <CopySteName> omit writing terminating zero as it's already there.
+
+QF_CR.C:
+  Define new routine to copy a STE and convert it to {name}s.
+
+SC_LOAD.C:
+  In <LoadWorkspaceGlobal_EM>, convert the function name to its wide character
+    form.
+
+SC_SAVE.C:
+  In <SavedWsFormGlbFcn>, copy and convert the function name to its wide character
+    form.
+  After call to <ConvSteName> omit writing terminating zero as it's already there.
+
+SC_SI.C:
+  After call to <CopySteName> omit writing terminating zero as it's already there.
+
+
+Build #771 -- Version 0.0.2.19
+------------------------------
+
+* Change Error Message For 2a3
+
+Directory trunk:
+
+PN_PARSE.Y:
+  In <pn_yyerror>, don't increment the caret beyond the last char.
+
+TOKENIZE.C:
+  Signal SYNTAX ERROR instead of VALUE ERROR for <2a3> as that's the
+    same message for <2_3>.
+
+TYPES.H:
+  Add this file as it was missed in the last build.
+
+
+Build #770 -- Version 0.0.2.19
+------------------------------
+
+* Subclass Certain Rebar Windows So We Can Use Multiline Tooltips
+
+Directory trunk:
+
+DATATYPE.H:
+  Move typedefs to common file <types.h>.
+
+DEFINES.H:
+  Move definition of <MYWM_INIT_EC> from <editctrl.h> to here so it
+    can be used by other window procedures.
+
+DICTIONARY.C:
+  Include <enums.h>.
+  Replace <datatype.h> with <types.h>.
+  Remove <main.h> as we're deleting that file.
+
+EDITCTRL.H:
+  Move definition of <MYWM_INIT_EC> from here to <defines.h> so it
+    can be used by other window procedures.
+
+EDITFCN.C:
+  Change the width of character position vars from <DOWRD> to <APLU3264>
+    so it is sensitive to 32- vs. 64-bit.
+  In <LclEditCtrlWndProc/WM_CHAR>, make the <wParam> and <lParam> vars
+    actual vs. #defines in DEBUG vs. non-DEBUG contexts to make it easier
+    to debug.
+  Rename Object Window vars from <FN> to <OW>.
+
+ENUMS.H:
+  Rename Object Window vars from <FN> to <OW>.
+  Move enums to common file <enums.h>.
+
+EXTERNS.H:
+  Rename Object Window vars from <FN> to <OW>.
+  Move struct from <main.h> to <externs.h> as we're deleting
+    the former file.
+  Move typedefs to common file <types.h>.
+
+HEADERS.H:
+  Move preprocessor instructions from <main.h> to <headers.h>
+    as we're deleting the former file.
+  Move <defines.h> up in the order as we need it for earlier includes.
+  Include <types.h> in the list.
+  Remove <main.h> as we're deleting that file.
+
+INIPARSER.C:
+  Replace <datatype.h> with <types.h>.
+  Remove <main.h> as we're deleting that file.
+
+MAIN.C:
+  Rename Object Window vars from <FN> to <OW>.
+  Rename resource vars for functions from <_FN> to <FCN> to
+    avoid conflict with Font Name vars.
+
+MAIN.H:
+  Transfer the contents of thie file to <enums.h>, <types.h>,
+    and <headers.h>, and remove the file
+
+MAIN.RC:
+  Rename Object Window vars from <FN> to <OW>.
+  Rename resource vars for functions from <_FN> to <FCN> to
+    avoid conflict with Font Name vars.
+
+MAKEFILE.INC
+  Remove <main.h> as we're deleting that file.
+
+REBAR.C:
+  Rename Object Window vars from <FN> to <OW>.
+  Use multiple image lists so the tooltip for the dropdown arrows
+    is separate from the tooltip for the icon associated with the
+    dropdown arrow.
+  Subclass the Workspace, Edit, and Objects windows so we can
+    tell the Tooltip Control that we're using multiline tooltips.
+  Rename resource vars for functions from <_FN> to <FCN> to
+    avoid conflict with Font Name vars.
+  Define routine to handle subclassing of the Workspace, Edit, and
+    Objects windows.  In particular, we need to handle the mouse
+    move and leave messages and tell the Tooltip Control that we're
+    using multiline tooltips.
+  Improve comments.
+
+RESOURCE.H:
+  Rename Object Window vars from <FN> to <OW>.
+  Rename resource vars for functions from <_FN> to <FCN> to
+    avoid conflict with Font Name vars.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Remove <main.h> as we're deleting that file.
+  Include <types.h> as it has something in it which used to be
+    in <main.h> and is needed by <ecitctrl.c>.
+
+
+Build #769 -- Version 0.0.2.19
+------------------------------
+
+* Implement Recent Files for )LOAD/)XLOAD/)COPY
+
+Directory trunk:
+
+COMPRO.H:
+  Remove <qf_size.*> as that file was deleted in an earlier build.
+
+DEFINES.H:
+  Define the default value for the # recent files to keep.
+
+EXTERNS.H:
+  Define vars for Recent Files global memory handle and count.
+
+INIFILE.C:
+  Read and write the RecentFiles section of the .ini file.
+
+MAIN.C:
+  Respond to the WM_NOTIFY when the dropdown box is clicked for
+    )LOAD/)XLOAD/)COPY.
+  Respond to the WM_COMMAND when a workspace is selected from the
+    )LOAD/)XLOAD/)COPY menu of recent files.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Remove <qf_size.*> as that file was deleted in an earlier build.
+
+RESOURCE.H:
+  Define menu IDs for )LOAD/)XLOAD/)COPY menu base.
+
+SC_COMMON.C:
+  In <SaveNewWsid_EM>, call <SaveRecentWSID> to save the current
+    WSID in the list of recent files.
+  Define new routine <SaveRecentWSID> to save the current WSID
+    in the list of recent files.
+
+VERSION.RC:
+  Increment version to 0.0.2.19.

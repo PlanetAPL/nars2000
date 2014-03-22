@@ -1,0 +1,10 @@
+Build #998 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Execute On Multi-Stmt Line With Last Stmt Sink
+
+Directory trunk:
+
+PL_PARSE.PROTO:
+PL_PARSE.Y:
+  In <ArrExprCheckCaller> pass down NoDisplay flag.

@@ -1,0 +1,74 @@
+Build #639 -- Version 0.0.2.9
+-----------------------------
+
+* Fix Bugs And Streamline Handling of Control Structures
+
+Directory trunk:
+
+CS_PARSE.H:
+  Update copyright year.
+  Define link for IF/ELSEIF/ANDIF/ORIF/UNTIL/WHILE stmts.
+
+CS_PARSE.Y:
+  Update copyright year.
+  Use IF/.../WHILE stmt link when calling <CS_ChainTokens> for
+    IF/.../WHILE stmts.
+  Improve comments.
+  Move token chaining from outer Control Structures to the individual
+    components.
+  Include token chain between <ELSEIF> and <OrIfAndIf>.
+  Include token chain between <ElseIfRec> and <ElseIf>.
+  Fix Bug:  Include missing case in <ElseIfElse> of <ElseIfRec ELSE SOSStmts>.
+  Include token chain between <ElseIfRec> and <ELSE>.
+  Include token chain between <UNTIL> and <OrIfAndIf>.
+  In <ANON_CTRL_STRUC>, split out the Original Line/Stmt/Token #s from the
+    ones to which it points (Next) using a union for the Original #s so
+    that the dynamic values can be set initially and subsequently the const
+    values can be used everywhere else.
+
+CS_PROC.C:
+  Update copyright year.
+  In <ANON_CTRL_STRUC>, split out the Original Line/Stmt/Token #s from the
+    ones to which it points (Next) using a union for the Original #s so
+    that the dynamic values can be set initially and subsequently the const
+    values can be used everywhere else.
+  Improve comments.
+  In <CS_ChainTokens>, make it clear that that function reads Arg1->Orig.c and
+    writes into Arg2->Next.
+  In <CS_SetTokenCLIndex>, make it clear that the Orig.c token is being set.
+  Rename various functions to make it clearer whether it works on the
+    Original (_ORIG suffix) or Next (_NEXT suffix) values in an
+    ANON_CTRL_STRUC, and whether it is setting the stmt At or After a given
+    token.
+
+EXECMFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+SAVEFCN.C:
+  In <ANON_CTRL_STRUC>, split out the Original Line/Stmt/Token #s from the
+    ones to which it points (Next) using a union for the Original #s so
+    that the dynamic values can be set initially and subsequently the const
+    values can be used everywhere else.
+
+EXTERNS.H:
+  Move <gDbgLvl> to the Debug Value section.
+  Define <gChnLvl> to aid in debugging <CS_ChainTokens>.
+
+STARTADDR.H:
+  Rename functions to match the new naming convention in <cs_proc.c>.
+
+TOKENIZE.C:
+  Use <tkData> to pass data to subfunctions instead of <tkLongest>
+    as that name is no longer the longest in <tkData>.
+  In <fnClnDone>, omit duplicate check for Syntax Coloring.
+  In <ANON_CTRL_STRUC>, split out the Original Line/Stmt/Token #s from the
+    ones to which it points (Next) using a union for the Original #s so
+    that the dynamic values can be set initially and subsequently the const
+    values can be used everywhere else.
+
+TOKENS.H:
+  Improve comments.
+  In <ANON_CTRL_STRUC>, split out the Original Line/Stmt/Token #s from the
+    ones to which it points (Next) using a union for the Original #s so
+    that the dynamic values can be set initially and subsequently the const
+    values can be used everywhere else.

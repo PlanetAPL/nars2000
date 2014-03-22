@@ -1,0 +1,13 @@
+Build #1003 -- Version 0.3.8.xx
+------------------------------
+
+* Remove Unneeded []TCDEL
+
+Directory trunk:
+
+DISPLAY.C:
+PF_DTACKJOT.C:
+QF_TC.C:
+SYSVARS.C:
+TERMCODE.h:
+  Remove unneeded []TCDEL.

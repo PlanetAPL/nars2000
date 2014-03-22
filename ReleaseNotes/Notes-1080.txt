@@ -1,0 +1,22 @@
+Build #1080 -- Version 0.3.9.xx
+-------------------------------
+
+* Fix Bug When Displaying Certain VFP Numbers
+
+Directory trunk:
+
+DEFINES.H:
+  Define #define stmts for formatting constants.
+
+DISPLAY.C:
+  Define #define stmts for formatting constants.
+  Fix Bug:  In <FormatAplVfpFC>, the parameter <nDigits> was misinterpreted.
+    This changes the display of VFP numbers to no longer use exponential notation
+    to denote insufficient precision; instead we now use trailing underscores.
+
+FMTSPEC.C:
+FMTSPEC.H:
+PF_DTACKJOT.C:
+QF_FMT.C:
+TOKENIZE.C:
+  Use #define stmts for formatting constants.

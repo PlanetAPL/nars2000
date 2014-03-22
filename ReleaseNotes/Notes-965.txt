@@ -1,0 +1,12 @@
+Build #965 -- Version 0.3.6.xx
+------------------------------
+
+* Fix Bug In Syntax Coloring Of Local System Names
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <IsLocalName>, two constant vars are marked as static.
+  In <IsLocalName>, the incoming system name is converted to lower case,
+    but not the target name.  Instead, we just use a case-insensitive
+    compare for system names and a case-sensitive compare for all others.

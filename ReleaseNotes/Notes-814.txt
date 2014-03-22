@@ -1,0 +1,16 @@
+Build #814 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  In K[2][1] Handle Immediate List Value
+
+Directory trunk:
+
+PF_INDEX.C:
+  Fix Bug:  In <ListIndexRef_EM_YY>, handle immediate list value.
+
+PRIMFNS.C:
+  Update copyright year.
+  In <TokenTypeFV>, allow list tokens.
+
+STARTADDR.H:
+  Include new routine names.

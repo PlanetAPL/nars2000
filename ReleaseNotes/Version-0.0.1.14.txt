@@ -1,0 +1,191 @@
+Version 0.0.1.14 consists of the following Builds:
+
+
+Build #422 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+SYSVARS.C:
+  Delete []AF from system function list as IBM wants to discourage it.
+
+
+Build #421 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+DATATYPE.H:
+  Define APLU3264 and APLI3264.
+  Handle error condition for not _WIN32 and not _WIN64.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Use (APLU3264) (LONG_PTR) instead of (long) as cast for _WIN64
+    compatibility.
+
+LOCAL.H:
+  Define APLU3264 and APLI3264.
+  Handle error condition for not _WIN32 and not _WIN64.
+
+
+Build #420 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Exclude files starting with "Version-" from display.
+  Use file names starting ith "Version-" as the Notes files.
+    These files consist of all the "Notes-" files which
+    make up this version.
+
+
+Build #419 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  In <CreateFcnWindow>, when about to create a Function Editor window,
+    first check to see if the same function name is open for editing;
+    if it is, switch to that window instead of opening a new one.
+  In <FEWndProc>/<WM_CREATE>, at the very end, link the new window handle
+    into the doubly-linked chain of FE window handles.
+  In <FEWndProc>/<MYWM_CMPNAME>, compare the incoming function name
+    against this window's function name.
+  In <FEWndProc>/<WM_DESTROY>, unlink this window handle from the
+    doubly-linked chain of FE window handles.
+  Define new routine <GetFunctionName> extracted from and now called
+    by <SetFETitle> to fill in the FE window's function name and return
+    its length.
+
+MAIN.H:
+  Define two new extra byte offsets for FE window class to hold the
+    forward abd backward window handles in the doubly-linked chain.
+  Define a new window message to allow the caller to ask the FE window
+    to compare a given function name with that window's function name.
+
+PERTAB.H:
+  Define a new struct member to hold the FE windows doubly-linked list
+    anchor.
+
+
+Build #418 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new module.
+
+EXECMFN.C:
+  Initialize new Magic Function.
+
+EXECMFN.H:
+  Define internal name for new Magic Function (#MonVR).
+  Define internal name for del symbol.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.VSPROJ:
+  Include new module.
+
+PERTAB.H:
+  Define entry for new Magic Function.
+
+SYSVARS.C:
+  Include new Magic Function in System Names table.
+  Use previous entry for []WA instead of new one.
+
+
+Build #417 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Upon a change in the function, write a marker in the window title
+    to indicate that fact.
+  Note in function editor header whether or not a function
+    has been changed.
+
+EXTERNS.H:
+  Change the FE title format string to include space for an
+    asterisk indicating that the function has been changed.
+
+SAVEFCN.C:
+  After saving a function, clear the marker in the window title
+    to indicate that fact.
+
+
+Build #416 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  Handle more cases where we should indicate Precision Loss.
+
+FMTSPEC.C:
+  Allow single and double quote marks as text delimiters.
+  Fix bug:  In <fnSetModO>, handle specific value with a fractional part.
+  Allow L Qualifier for A-format (code already there to support it,
+    just didn't allow it).
+  Allow Repetition Factor on X-format.
+
+FMTSPEC.H:
+  Rename <SYMSUB_E_CHAR> to <SYMSUB_EXPONENT_SEP> to better reflect
+    its usage.
+
+QF_FMT.C:
+  Allow Repetition factor on X-format.
+  Fix Bug:  When adding text for P- or Q-decorators, include zero
+    in the comparison.
+  Fix Bug:  Include Precision Loss character in Symbol Substitution
+    test loop.
+  Rename <SYMSUB_E_CHAR> to <SYMSUB_EXPONENT_SEP> better to reflect
+    its usage.
+  Fix Bug:  In <QFMT_SubstValue> when there's a match with a float
+    value, the wrong variable had the offset applied to it (handled
+    correctly for integer values).
+
+
+Build #415 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix Bug:  In <LoadWorkspaceGlobal_EM>, don't append an LPSYMENTRY
+    to the <lpSymLink> chain if it's a permanent var as the code in
+    <DeleteGlobalLinks> fails on such objects.
+
+
+Build #414 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Show our own icon for this dialog.
+
+MAIN.C:
+  Load the Customize dialog icon.
+
+MAIN.RC:
+  Define the Customize dialog icon.
+
+MAKEFILE.INC:
+  Include icon dependencies.
+
+RESOURCE.H:
+  Define ID for Customize dialog icon.
+
+
+Directory trunk\Images:
+
+CUSTOM.ICO:
+  Define new icon for Customize dialog.

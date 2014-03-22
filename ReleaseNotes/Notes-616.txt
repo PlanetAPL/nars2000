@@ -1,0 +1,26 @@
+Build #616 -- Version 0.0.2.7
+-----------------------------
+
+* Handle UTF16_TILDE2 The Same As UTF16_TILDE.
+
+Directory trunk:
+
+INITDATA.C:
+PF_TILDE.C:
+SYMBOLNAMES.H:
+  Handle UTF16_TILDE2 the same as UTF16_TILDE.
+
+TOKENIZE.C:
+  In <fnPointAcc>, use equates instead of symbols for numeric
+    constant parsing.  This change should have been included
+    in Build #614.
+  Handle UTF16_TILDE2 the same as UTF16_TILDE.
+  Map UTF16_STILETILDE as a monadic operator (not as yet implemented).
+
+TRANSLATE.C:
+  In <TranslateNARSToAPL2>, map UTF16_TILDE and UTF16_STILE to
+    corresponding one-byte chars.
+
+UNICODE.H:
+  Handle UTF16_TILDE2 the same as UTF16_TILDE.
+  Improve comments.

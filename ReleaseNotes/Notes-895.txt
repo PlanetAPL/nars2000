@@ -1,0 +1,10 @@
+Build #895 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Catenate Of Global Numeric And Nested
+
+Directory trunk:
+
+PF_COMMA.C:
+  In <PrimFnDydComma_EM_YY>, handle catenation between global
+    numeric and nested on either side.

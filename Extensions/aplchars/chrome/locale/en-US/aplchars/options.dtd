@@ -1,0 +1,7 @@
+<!ENTITY prefwindow.title          "APL Chars and Font Preferences">
+<!ENTITY prefwindow.keyboardlayout "Keyboard Layout">
+<!ENTITY prefwindow.aplfontfamily  "Monospaced APL Unicode Fonts">
+<!ENTITY prefwindow.charsenabled   "Enable APL character translation">
+<!ENTITY prefwindow.fontsenabled   "Enable APL font substitution">
+<!ENTITY prefwindow.abouttitle     "About APL Chars and Fonts">
+<!ENTITY prefwindow.aboutbutton    "About">

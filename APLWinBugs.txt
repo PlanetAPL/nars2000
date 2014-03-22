@@ -1,0 +1,72 @@
+APL+WIN V3.6 Bugs
+-----------------
+
+1.  Missing Error Message
+
+''+{enclose}'1 2'({enclose}{iota}4)
+
+should be a domain error, but isn't
+
+The same expression should be equivalent to
+
+''+0{rho}{enclose}'1 2'({enclose}{iota}4)
+
+due to scalar extension, but isn't (the prototype is much richer).
+
+
+2.  Incorrect Prototype
+
+(0{rho}{enclose} 0 (0 0)) + 0{rho}{enclose} (0 0) 0
+
+should return
+
+0{rho}{enclose} (0 0) (0 0)
+
+but instead returns
+
+0{rho}{enclose} (0 0) 0
+
+
+3.  Incorrect Prototype
+
+2 +/{enclose} 1 2
+
+yields an empty character vector!
+
+
+4.  Error instead of result
+
+'abc'[0.5] 1 2 3
+
+should yield a heterogeneous array, but instead signals a DOMAIN ERROR
+
+
+5.  Incorrect Display
+
+'abc' tclf 'ef'
+
+displays as
+
+ abc
+      ef
+
+instead of
+
+ abc    ef
+
+followed by a blank row
+
+
+6.  Incorrect Display
+
+0{rho}1 2
+
+displays an empty line
+
+0{rho}{enclose}1 2
+
+displays without skipping a line
+
+
+7.
+

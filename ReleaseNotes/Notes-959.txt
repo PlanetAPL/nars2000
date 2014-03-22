@@ -1,0 +1,26 @@
+Build #959 -- Version 0.0.3.5
+-----------------------------
+
+* Include <float.h> In <headers.h>
+
+Directory trunk:
+
+DISPLAY.C:
+HEADERS.H:
+INITDATA.C:
+MPIFNS.C:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_DTACKJOT.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_ROOT.C:
+PF_STILE.C:
+PF_UCARET.C:
+PRIMFNS.C:
+TYPEMOTE.C:
+  Include <float.h> in <headers.h> as we need some of its defines in lots of places.

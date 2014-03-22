@@ -1,0 +1,22 @@
+Build #289 -- Version 0.0.0.18558
+---------------------------------
+
+Directory trunk:
+
+DFNHDR.Y:
+  Fix typos.
+
+EXCEPT.C:
+  Include instructions on how to copy all the text to the clipboard.
+
+PARSE.Y:
+  Note in debug message display whether or not we're within a LookAhead.
+  Fix bug:  In terminal <StrandInst> rule <error StrandRec>, instantiate the
+    strand so we can free its associated storage.  Calling <FreeResult> on
+    the <StrandRec> token accomplishes nothing.
+  Fix bug:  Handle error conditions inside brackets at point of usage
+    rather than definition.  That way, we avoid an infinite loop.  Nice touch.
+
+SC_LOAD.C:
+  Provide valid default timestamps for Creation and Last Modification times in case
+    the workspace is missing those values.

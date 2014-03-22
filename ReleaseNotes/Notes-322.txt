@@ -1,0 +1,306 @@
+Build #322 -- Version 0.0.0.21970
+---------------------------------
+
+Directory trunk:
+
+AXISFNS.C:
+CONVERT.C:
+CRASH.C:
+DEBUG.C:
+ERRMSG.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DTACK.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_QUERY.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PF_UTACK.C:
+PF_UTACKJOT.C:
+PO_DIERESIS.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMSPEC.C:
+QF_AV.C:
+QF_CR.C:
+QF_DR.C:
+QF_ERROR.C:
+QF_ES.C:
+QF_EX.C:
+QF_FX.C:
+QF_LC.C:
+QF_MF.C:
+QF_NC.C:
+QF_NL.C:
+QF_SIZE.C:
+QF_SYSID.C:
+QF_SYSVER.C:
+QF_TC.C:
+QF_TF.C:
+QF_TS.C:
+QF_UCS.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_COPY.C:
+SC_ERASE.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SC_WSID.C:
+SYMTAB.C:
+SYSVARS.C:
+TYPEMOTE.C:
+YYFNS.C:
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+
+COMMON.C:
+  Create APL font default path.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+
+COMPRO.H:
+  Remove all references to <po_dicircle.*>.
+
+CS_PARSE.H:
+  Define :FORLCL actions and vars.
+
+CS_PARSE.Y:
+  Define :FORLCL actions and vars.
+  Put comment on FIXME line for easier searching.
+
+CS_PROC.C:
+  Define :FORLCL actions and vars.
+
+CUSTOMIZE.C:
+  Move <icIndexNames> and <icIndexValues> from <externs.h> to <customize.c>
+    as they don't need to be used anywhere else.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  Expand <LOGFONT> and <CHOOSEFONT> to Wide chars.
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+  Define new user pref to suppress the copyright message at startup.
+  Define action for <WM_DRAWITEM> to draw the font push buttons.
+  Remove code to turn off hilite state of push buttons as we now use
+    <BS_OWNERDRAW>.
+  Change the return of <WM_COMMAND/IDC_xxx> to FALSE if we didn't do
+    anything.
+  Use Resource Debugging functions whenever possible.
+
+DEFINES.H:
+  Define default APL font name and extension.
+  Define new user pref to suppress the copyright message at startup.
+
+DISPDBG.C:
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  Define :FORLCL actions and vars.
+
+DISPLAY.C:
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  Change reference to []AF to []UCS.
+
+EDITFCN.C:
+  Expand comments on syntax coloring
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  In <WM_SYSCHAR>, if the Edit Ctrl is numeric only, enforce that.
+  Zap deleted object.
+  Use Resource Debugging functions whenever possible.
+  Use <itemlengthof> instead of <sizeof (...) / sizeof (...[0]) - 1>.
+
+EXCEPT.C:
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+
+EXECDFN.C:
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  Define :FORLCL actions and vars.
+
+EXECFNS.C:
+  Remove all references to <po_dicircle.*>.
+
+EXECMFN.C:
+EXECMFN.H:
+  Remove all references to <po_dicircle.*>.
+
+EXTERNS.H:
+  Move <icIndexNames> and <icIndexValues> from <externs.h> to <customize.c>
+    as they don't need to be used anywhere else.
+  Insert comment about dependency of <icIndexNames> on <IC_INDICES> and
+    <icIndexValues> on <IC_VALUES>.
+  Define save area for DPFE of default APL font.
+  Expand <LOGFONT> and <CHOOSEFONT> to Wide chars.
+  Define new user pref to suppress the copyright message at startup.
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+
+FH_PARSE.Y:
+  Put comment on FIXME line for easier searching.
+
+GOTO.C:
+  Define :FORLCL actions and vars.
+
+INIFILE.C:
+  Define new user pref to suppress the copyright message at startup.
+  Expand <LOGFONT> and <CHOOSEFONT> to Wide chars.
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+  Fix Bug:  Reading in User Preferences weren't saved into the correct place.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+
+INITDATA.C:
+  Remove all references to <po_dicircle.*>.
+
+MACROS.H:
+  Define macros for <itemsizeof> and <itemlengthof>.
+
+MAIN.C:
+  Define flag for whether or not the default APL font is installed.
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+  Define callback function for finding the default APL font.
+  Expand <LOGFONT> and <CHOOSEFONT> to Wide chars.
+  Remove <MyChooseFontXX> functions as we manage fonts through Customize
+    rather than Options.
+  Use Resource Debugging functions whenever possible.
+  Remove <WM_COMMAND/IDM_xxFONT> actions as we manage fonts through
+    Customize rather than Options.
+  In <InitInstance>, ensure that our default APL font is installed.
+  Use <itemlengthof> instead of <sizeof (...) / sizeof (...[0]) - 1>.
+
+MAIN.RC:
+  Remove <Options> menu item as we manage fonts through Customize
+    rather than Options.
+  In <IDD_CUSTOMIZE>, reformat to look better.
+  In <IDD_PROPPAGE_CLEARWS_VALUES>, reformat to look better.
+  In <IDD_PROPPAGE_FONTS>, reformat to look better.
+    use <AUTORADIOBUTTON> instead of <CONTROL>, and use <BS_OWNERDRAW>
+    on <PUSHBUTTON>, and reformat to look better.
+  In <IDD_PROPPAGE_RANGE_LIMITS>, reformat to look better,
+    and use <AUTOCHECKBOX> instead of <CONTROL>.
+   In <IDD_PROPPAGE_USER_PREFS>, include new user preference to
+     suppress the copyright message at startup.
+
+MAKEFILE.INC:
+  Include <advapi32.lib> as we are using Registry functions.
+  Include <SImPL-Medium.TTF> in the target .zip file.
+  Remove all references to <po_dicircle.*>.
+  Note dependency of executable on <makefile.inc>.
+  Use <7za> to zip together files as <pkzip> doesn't handle names
+    longer than 8.3.
+
+MAKEFILE.W64:
+  Define RAM disk drive/directory.
+
+PERFMON.C:
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+
+PF_DSHOE.C:
+PF_QDOT.C:
+PF_TILDE.C:
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+
+PL_PARSE.Y:
+  Define :FORLCL actions and vars.
+  Remove all references to <po_dicircle.*>.
+
+PO_DICIRCLE.C:
+  Remove all references to <po_dicircle.*>.
+
+PO_DIJOT.C:
+  Change arg to <IsTknImmed> to <LPTOKEN> to catch immediate named vars.
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+
+PRIMFNS.C:
+  Define :FORLCL actions and vars.
+  Change arg to <IsTknImmed> to <LPTOKEN> to catch immediate named vars.
+
+RESDEBUG.C:
+  In <_DeleObj>, guard calls to <xxxCriticalSection> with <bCSO> so
+    they aren't called if not defined as yet.
+  Define new resource debugging routine <MyCreateFontIndirectW>.
+
+RESDEBUG.H:
+  Define new resource debugging routine <MyCreateFontIndirectW>.
+
+RESOURCE.H:
+  Remove <IDM_xxFONT> as we manage fonts through Customize rather
+    than Options.
+  Define new user pref to suppress the copyright message at startup.
+
+SC_INASCII.C:
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+
+SESSMAN.C:
+  Change <colors.h> to "colors.h" as it's local not global.
+  Define new user pref to suppress the copyright message at startup.
+
+STARTADDR.H:
+  Remove all references to <po_dicircle.*>.
+
+STRAND.C:
+  Define :FORLCL actions and vars.
+
+SYMTAB.H:
+  Remove reference to struct.
+
+SYMTRANS.C:
+  Remove all references to <po_dicircle.*>.
+
+SYSCMDS.C:
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+
+TABCTRL.C:
+  Use <itemsizeof> instead of <sizeof (...) / sizeof (...[0])>.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  Use Resource Debugging functions whenever possible.
+
+TOKENIZE.C:
+  Number <FSA_TOKENS>.
+  Expand past states to three.
+  Replace all set of previous states with call to <SetTokenState>.
+  Define :FORLCL actions and vars.
+  Remove all references to <po_dicircle.*>.
+  Fix Bug:  In <CharTrans>, handle <Label:cskeywd> and <Label :cskeywd>.
+
+TOKENS.H:
+  Define :FORLCL actions and vars.
+
+TRANSLATE.C:
+  Remove all references to <po_dicircle.*>.
+
+UNICODE.H:
+  Remove all references to <po_dicircle.*>.
+
+VER.C:
+  Change <colors.h> to "colors.h" as it's local not global.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  Expand <LOGFONT> and <CHOOSEFONT> to Wide chars.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+CONTRIBUTORS-LEFT.HTML:
+  Thank Phil Chastney for allowing me to distribute his SImPL.ttf font.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Include <windowsx.h> to get <GET_WM_COMMAND_xxx> macros.
+  In <WM_KeyDown>, use <GET_WM_COMMAND_xxx> macro.
+
+
+Directory trunk\WineHQ\include:
+
+WIN.H:
+  In <WIN_GetFullHandle>, use cast to allow 64-bit compiles.

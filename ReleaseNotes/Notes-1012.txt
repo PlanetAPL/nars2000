@@ -1,0 +1,18 @@
+Build #1012 -- Version 0.3.8.xx
+-------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+EXCEPT.C:
+  In <DisplayException>, remove debug stmt at end as it is no longer needed.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, remove debug stmts as they signal too many false positives.
+
+
+Directory trunk\htdocs:
+
+LICENSE-BODY.HTML:
+  Include license info for GMP-ECM, MPFR, and MPIR.

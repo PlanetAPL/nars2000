@@ -1,0 +1,8 @@
+Build #471 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix Bug:  Handle empty nested arrays such as 0{rho}{enclose}{zilde}
+    by processing their prototype.

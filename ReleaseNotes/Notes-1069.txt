@@ -1,0 +1,19 @@
+Build #1069 -- Version 0.3.9.xx
+-------------------------------
+
+* Use MPIR Data Types
+
+Directory trunk:
+
+MPFNS.C:
+MPIFNS.C:
+  Convert <unsigned long int> and <signed long int> when used in a <mpz_*>
+    or <mpq_*> context to <mpir_ui> and <mpir_si> to match the types used
+    in MPIR.
+
+NARS2000.64.VCPROJ:
+  Define _WIN32 and WIN32 in x64 configurations.
+
+PF_PI.C:
+PF_STAR.C:
+  Use 32- and 64-bit types for MPIR functions as appropriate.

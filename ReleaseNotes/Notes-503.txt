@@ -1,0 +1,21 @@
+Build #503-- Version 0.0.2.2
+----------------------------
+
+* Fix Bug:  When a workspace is loaded that is newer than the
+  current interpreter recognizes, recover without leaving
+  handles unlocked and HGLOBALs doubly freed.
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix Bug:  Initialize local var so it has a known value on exit.
+  Fix Bug:  If failing a )LOAD on a version mismatch, leave through
+    common exit code where locked vars are unlocked.
+
+SESSMAN.C:
+  Fix Bug:  If failing a )LOAD on version mismatch, clear after
+    freeing the HGLOBAL of the ws name.
+
+TABCTRL.C:
+  Use struct value of ws name DPFE in stead of separate local
+    as the struct value is updated when the HGLOBAL is freed.

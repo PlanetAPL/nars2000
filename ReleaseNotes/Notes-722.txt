@@ -1,0 +1,10 @@
+Build #722 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  Set Error Caret After Primitive Scalar Dyadic Function
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDyd_EM_YY>, if the result is valid, set the error caret
+    for the function.

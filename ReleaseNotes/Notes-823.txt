@@ -1,0 +1,9 @@
+Build #823 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  N-wise Reduction On Non-Last Coordinate Returns Wrong Result, Part 2
+
+Directory trunk:
+
+PO_SLASH.C:
+  Calculate the index into the result more correctly for non-last coordinates.

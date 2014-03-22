@@ -1,0 +1,20 @@
+Directory trunk:
+
+DISPLAY.H:
+  Document a little more about the DisplayGlbArr structures.
+
+PF_DTACKJOT.C:
+  Fix typo in comment.
+  Fix bug when displaying '123'(({enclose}4 5) -- Avoid going negative after subtraction as these are unsigned variables.
+
+PF_RSHOE.C:
+  Fix bug when executing 1 3{pick}'123'(4 5) -- Check for last element in left arg instead of singleton left arg.
+
+SC_SAVE.C:
+  Save count in [Globals] so we can use it in )LOAD code.
+
+STARTADDR.H:
+  Include more addresses for debugging purposes.
+
+TOKENIZE.C:
+  Fix comment which references L/R tacks (nonsensical).

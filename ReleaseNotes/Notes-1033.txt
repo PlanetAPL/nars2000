@@ -1,0 +1,10 @@
+Build #1033 -- Version 0.3.8.xx
+-------------------------------
+
+* Check For Ctrl-Break In Monadic Iota
+
+Directory trunk:
+
+PF_IOTA.C:
+  Update copyright year.
+  In <PrimFnMonIota_EM_YY>, check for Ctrl-Break within loops.

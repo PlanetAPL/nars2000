@@ -1,0 +1,15 @@
+Build #1060 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Enclose With Axis Fails To Demote The Items In The Result
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Update copyright year.
+  In <PrimFnMonLeftShoeGlb_EM_YY>, after processing Hetero and Nested arrays,
+    attempt to demote the items of the result.
+
+TYPEMOTE.C:
+  Update copyright year.
+  Define a new function to type demote the data in a global memory handle.

@@ -1,0 +1,10 @@
+Build #1037 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Multiset DownShoe (Multiplicities)
+
+Directory trunk:
+
+PO_MULTISET.C:
+  Update copyright year.
+  Fix Bug:  The magic function for Multiset DownShoe (Multiplicities) fails on scalars.

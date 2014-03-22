@@ -1,0 +1,37 @@
+Build #1013 -- Version 0.3.8.xx
+-------------------------------
+
+* Display Wrapped Lines As A Group Of Rows
+
+Directory trunk:
+
+DISPLAY.C:
+  Delete 1st and last col flags from <CompileArrNested> as they are no
+    longer used.
+  Use raw output for all non-nested arrays as chars are displayed natively.
+  Improve comments.
+  Wrap lines at []PW in groups of rows instead of line by line.
+
+DISPLAY.H:
+  Update copyright year.
+  Split out bit fields into separate UINTs.
+  Define new row struc fields to handle wrapped lines for long numbers.
+
+PF_DTACKJOT.C:
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Delete 1st and last col flags from <CompileArrNested> as they are no
+    longer used.
+  Improve comments.
+  Implement display spacing as per APL2 description.
+  When compiling arrays, save the first and last ptrs to the formatted data
+    so we can repeat by rows cols that wrap.
+  At the end of compiling an array, propagate the row and col counts up the line.
+  Zero all of row strucs, rather than item by item.
+  In <CompileArrNested>, keep track of current and previous NOTCHAR+ as per APL2 rules.
+  Pass 1st and last col flags to <CompileARrNestedCon> for proper spacing.
+  In <CompileArrNested>, do leading and trailing blanks in the subroutines
+    so we use the same col struc used for intermediate blanks.
+  In <FormatArrSimple>, wrap groups of rows at []PW instead of individual lines.
+
+STARTADDR.H:
+  Include additional entry points to aid in debugging.

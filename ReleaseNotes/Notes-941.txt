@@ -1,0 +1,9 @@
+Build #941 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug In Certain Overflow Cases
+
+Directory trunk:
+
+PRIMSPEC.C;
+  In certain cases when we overflow from one type to another, the array header is not updated.

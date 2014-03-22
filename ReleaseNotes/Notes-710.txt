@@ -1,0 +1,10 @@
+Build #710 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Handle Overflow When Copying Initial Undo Buffer
+
+Directory trunk:
+
+EDITFCN.C:
+  In <FEWndProc/WM_CREATE> when copying the initial undo buffer
+    to the local memory, catch buffer overflow page fault.

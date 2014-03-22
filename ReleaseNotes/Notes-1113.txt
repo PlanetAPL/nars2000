@@ -1,0 +1,12 @@
+Build #1113 -- Version 0.3.11.xx
+--------------------------------
+
+* Change Definition Of Rank Operator
+
+Directory trunk:
+
+PO_DIJOT.C:
+  This operator was originally based upon code found in the paper by J. Philip Benkhard,
+    "Extending structure, type, and expression in APL2", ACM SIGAPL APL Quote Quad,
+    v.21 n.4, p.20-38, Aug. 1991, but later was modified to reflect the
+    definition of the Rank operator in the ISO-IEC 13751 Extended APL Standard.

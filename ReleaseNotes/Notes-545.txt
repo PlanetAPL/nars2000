@@ -1,0 +1,12 @@
+Build #545 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Crash when catenating an empty with a non-empty
+  where one is numeric and the other character.
+
+Directory trunk:
+
+PF_COMMA.C:
+  When catenating an empty array with a non-empty array (either side)
+    where one side is numeric and the other characters, the system
+    crashes because of a missing array type in a switch stmt.

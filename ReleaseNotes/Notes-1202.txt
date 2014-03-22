@@ -1,0 +1,14 @@
+Build #1202 -- Version 0.4.6.xx
+-------------------------------
+
+* Maintain Debug STE Header Signature
+
+Directory trunk:
+
+SYMTAB.C:
+  In <HshTabFrisk>, check for STE header signature.
+  In <_SymTabAppendNewName_EM>, set STE header signature after zeroing the STE.
+  In <AllocSymTab>, set STE header signature for <steNoValue>.
+
+VER.RC:
+  Increment version # to 0.4.6.xx.

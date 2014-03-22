@@ -1,0 +1,28 @@
+Build #706 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Avoid Display Of Functions In )IN
+
+Directory trunk:
+
+IMMEXEC.C:
+  Pass Edit Ctrl window handle to <ExecSysCmd> so it can set the
+    cursor to it new value (running).
+
+PF_DOMINO.C:
+  Improve comments.
+
+PL_PARSE.Y:
+  In <ArrExprCheckCaller>, save the result for later display unless
+    the expression starts with a "sink" (i.e., display off).  This
+    stops )IN from displaying the function names it creates.
+
+SC_IN.C:
+  Allow result of NOVALUE from <PrinFnMonUpTackJotCSPLParse> as that's
+    what the above change in <pl_parse.y> implies.
+
+SYSCMDS.C:
+  Pass Edit Ctrl window handle to <ExecSysCmd> so it can set the
+    cursor to it new value (running).
+  In <ExecSysCmd>, set the new cursor and update the window so any
+    pending output displays.

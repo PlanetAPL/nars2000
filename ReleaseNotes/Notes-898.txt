@@ -1,0 +1,13 @@
+Build #898 -- Version 0.0.3.3
+-----------------------------
+
+* Fix Bug:  Reduction Of One-element Global Numeric Vector Returns Wrong Result
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix Bug:  Reduction of a one-element global numeric vector returns the
+    wrong result because a variable wasn't initialized.
+
+VERSION.RC:
+  Increment version to 0.0.3.3.

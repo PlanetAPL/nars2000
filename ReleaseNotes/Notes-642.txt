@@ -1,0 +1,15 @@
+Build #642 -- Version 0.0.2.9
+-----------------------------
+
+* 64-bit Stack
+
+Directory trunk:
+
+MAIN.DEF:
+  Delete in favor of separate 32- and 64-bit versions.
+
+MAIN32.DEF:
+  Same as old <main.def>.
+
+MAIN64.DEF:
+  Same as old <main.def> except it has a much larger stack.

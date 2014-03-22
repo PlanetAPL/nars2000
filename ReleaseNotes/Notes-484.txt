@@ -1,0 +1,9 @@
+Build #484-- Version 0.0.1.18
+------------------------------
+
+* Remove unnecessary directives from <bjhash.c>
+
+Directory trunk:
+
+BJHASH.C:
+  Remove unnecessary directives.

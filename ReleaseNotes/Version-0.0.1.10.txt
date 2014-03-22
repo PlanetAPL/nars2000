@@ -1,0 +1,199 @@
+Version 0.0.1.10 consists of the following Builds:
+
+
+Build #352 -- Version 0.0.1.10
+------------------------------
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Fix typo in comments.
+
+CS_PROC.C:
+  Fix Bug:  Replace <YYResExec> with <YYCaseExec> as the former is used
+    to pass on execute results and can conflict with its use in
+    <CS_PROC.C>.
+  In <CS_Done_FOR>, use the same routine to free the token as it used
+    in <GetNextValueTokenIntoNamedVarToken>.
+  Fix Bug:  In <CS_FOR_Stmt_EM>, the reference count for <tkForArr>
+    isn't incremented by <CopySymGlbDir> when it's an LPSYMENTRY.  Use
+    <CopyToken_EM> instead.
+  Fix Bug:  In <CS_FOR_Stmt_EM>, use canonical NoValue STE rather than
+    construct one on the spot as the <IsSymNoValue> macro is very
+    particular.
+  Remove extraneous qualifier in comment.
+
+EDITFCN.C:
+  Fix Bug:  Move declaration of <hGlbNum>, <hGlbStr>, and associated
+    vars from <pertab.h> to <tokenize.h> so it is specific to the run
+    through the tokenization routines rather than global.  This also
+    entails other changes such as passing <lptkLocalvars> to routines
+    so they may refer to the above vars in their new location.
+  Allocate space for numeric and string temp save areas within each call
+    to <SyntaxColor> or <Tokenize_EM> rather than global.
+  Delete temporary code to try to use the clipping region to write the
+    entire line.
+
+ERRMSG.C:
+  Update copyright year.
+  Improve comments.
+  In <ErrorMessageDirect>, unwind SI levels in order to find
+    proper level for error message.
+
+EXECDFN.C:
+  Update copyright year.
+  Initialize exit type in case we don't execute any lines.
+  After executing a function, check the exit type for reset one
+    and all and none.  If none, check for unassigned result vars
+    and handle appropriately.
+  In <CheckDfnExitError_EM>, find the SI level of the nearest
+    user-defined function/opreator.  If there's an error, mark the
+    SI levels we skipped over as to be unwound in order to format
+    the error message.
+  Merge common SYNTAX ERROR code.
+
+EXTERNS.H:
+  Move declaration of <fastBoolFns> from <fastbool.c> to <externs.h>
+    so other files can reference it without an extern stmt.
+
+FASTBOOL.C:
+  Update copyright year.
+  Move declaration of <fastBoolFns> from <fastbool.c> to <externs.h>
+    so other files can reference it without an extern stmt.
+
+GETFNS.C:
+  Fix Bug:  As it turns out, empty Integer and Float arrays are
+    possible, so we need to handle them properly.
+
+IMMEXEC.C:
+  Update copyright year.
+  Renumber all MYWM_QUOTEQUAD lParams for simplicity when searching
+    for them as well as when adding a new one.  This change is for
+    DEBUG purposes only.
+  In <ImmExecStmtInThread>, skip back over SI levels of ImmExec.
+  In <ImmExecStmtInThread> after returning <EXITTYPE_ERROR> from
+    <ParseLine>, do not display the Quad prompt as that'll happen
+    after executing []ELX.
+  In <ImmExecStmtInThread> after returning <EXITTYPE_NODISPLAY> or
+    <EXITTYPE+_NOVALUE> from <ParseLine>, if the caller is Quad
+    input and there's no value, tell SM re-display the Quad input
+    prompt.
+
+MACROS.H:
+  Loosen the definition of <IsSymNoValue> to just <.Value EQ FALSE>.
+
+PERTAB.H:
+  Fix Bug:  Move declaration of <hGlbNum>, <hGlbStr>, and associated
+    vars from <pertab.h> to <tokenize.h> so it is specific to the run
+    through the tokenization routines rather than global.  This also
+    entails other changes such as passing <lptkLocalvars> to routines
+    so they may refer to the above vars in their new location.
+  Define <YYCaseExec> to hold the result from a <:CASE> stmt.
+
+PF_CSTILE.C:
+  Fix Bug:  if the left arg is empty there's no storage to allocate
+    for <hGlbRot>.  As W doesn't like anyone to lock empty memory
+    (what a stupid choice on their part), we need to check for it
+    and take alternate action.
+
+PF_RSHOE.C:
+  Demote result of I{pick}R for right arg global memory handle.
+
+PF_SLASH.C:
+  Fix Bug:  The test for empty was on the right arg not the result.
+    Moreover, we were returning the right arg not its prototype.
+
+PF_UTACKJOT.C:
+  Update copyright year.
+  Change the result of <PrimFnUpTackJotCSPLParse> from <DWORD> to
+    <EXIT_TYPES> to provide a wider range for testing.
+  In <PrimFnMonUpTackJotPLParse>, if there's no result from
+    <ParseLine>, and the exit type is <EXITTYPE_NODISPLAY>,
+    change the exit type to <EXITTYPE_NOVALUE>.
+    a function token for error caret display.
+  After calling <ParseLine>, if there's no result, return a
+    NoValue result.
+
+PL_PARSE.H:
+  Define save area for token count of the line being parsed.
+
+PL_PARSE.PROTO:
+  Define prototypes for two new routines in <pl_parse.y>.
+
+PL_PARSE.Y:
+  Define <YYERROR3> to handle <YYERROR2> and set the exit type to
+    <EXITTYPE_ERROR> and use it instead of <YYERROR2> everywhere
+    except if <lpplLocalVars->bLookAhead EQ TRUE>.
+  Delete Control Structures from ToDo list as they've been done.
+  In <StmtMult:> define rule for error with one or more diamonds.
+  In <StmtSing:> skip calling <ArrExprCheckCaller> unless the current
+    stmt is the last one on the line.
+  In <SingVar:> when handling Quad input, if we're resetting, YYACCEPT
+    the line so we don't execute anything else.
+  In <ParseLine>, save the line's token count in <plLocalVars> for
+    later use.
+  In <ParseLine>, delete commented out code.
+  In <WaitForInput>, if there's no result return a NoValue token.
+  In <AmbOpSwap> change the error message from SYNTAX to NONCE to
+    remind someone to fix it later.
+  In <ArrExprCheckCaller>, remove the check for Quad input if the
+    result has no value as that case no longer applies.
+  Define routines to determine if a given stmt is the last one on
+    the line.
+
+PO_SLASH.C:
+PO_SLOPE.C:
+  Remove extern reference to <fastBoolFns> as it's now in <externs.h>.
+
+PRIMFNS.C:
+  Update copyright year.
+  In <FillSISNxt>, note set of <Unwind> bit.
+
+SESSMAN.C:
+  Update copyright year.
+  Fix Bug:  Move declaration of <hGlbNum>, <hGlbStr>, and associated
+    vars from <pertab.h> to <tokenize.h> so it is specific to the run
+    through the tokenization routines rather than global.  This also
+    entails other changes such as passing <lptkLocalvars> to routines
+    so they may refer to the above vars in their new location.
+  Reformat line.
+  Renumber all MYWM_QUOTEQUAD lParams for simplicity when searching
+    for them as well as when adding a new one.  This change is for
+    DEBUG purposes only.
+
+SIS.H:
+  Update copyright year.
+  Define bit to indicate that this SI level is to be unwound for
+    the proper formatting of the error message.
+
+TOKENIZE.C:
+  Fix Bug:  Move declaration of <hGlbNum>, <hGlbStr>, and associated
+    vars from <pertab.h> to <tokenize.h> so it is specific to the run
+    through the tokenization routines rather than global.  This also
+    entails other changes such as passing <lptkLocalvars> to routines
+    so they may refer to the above vars in their new location.
+  Fix Bug:  Move code to set syntax colors for Ctrl Strucs from
+    <CtrlStrucCmpi> to <fnCtrlDone> as the former is called whenever
+    a colon is scanned even if it's inside a quoted string.  This
+    avoids overwriting the SyntaxColor buffer.
+  In <Tokenize_EM>, move call to <AppendEOSToken> until after <uChar>
+    has been set so it can be used in the EOS token data.
+  Fix Bug:  Remove call to append Ctrl Strucs :return and :goto
+    from the CS stack as they may appear anywhere and mess up the
+    existing logic in <cs_parse.y>.
+
+TOKENIZE.H:
+  Fix Bug:  Move declaration of <hGlbNum>, <hGlbStr>, and associated
+    vars from <pertab.h> to <tokenize.h> so it is specific to the run
+    through the tokenization routines rather than global.  This also
+    entails other changes such as passing <lptkLocalvars> to routines
+    so they may refer to the above vars in their new location.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  In <EDIT_AdjustFormatRect>, increment <vlc> by one so as to write the
+    last (partial) line.
+  In <EDIT_WM_Paint2>, account for last (partial) line when calculating <nLOP>.
+  In <EDIT_WM_Paint2>, break out <es->y_offset + > from <min> macro.

@@ -1,0 +1,9 @@
+Build #1035 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug Passing Global Numeric Array to UDFO Argument List
+
+Directory trunk:
+
+EXECDFN.C:
+  Fix Bug:  In a UDFO, passing a global numeric array to a argument list isn't handled.

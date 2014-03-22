@@ -1,0 +1,11 @@
+Build #1185 -- Version 0.4.5.xx
+-------------------------------
+
+* Use Signed Values When Defining MPZ and MPQ Infinities
+
+Directory trunk:
+
+EXTERNS.H:
+MPIFNS.C:
+  Use signed values when defining MPZ & MPQ infinities to fix a bug with INT64.
+  Fix <mpfr_neg> to <mpfr_neg0> missed in a previous build.

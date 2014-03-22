@@ -1,0 +1,15 @@
+Build #864 -- Version 0.0.2.23
+------------------------------
+
+* Handle RAT/VFP Numbers Longer Than []PW
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Handle RAT/VFP numbers longer than []PW.
+
+PRIMFNS.C:
+  In <SetVFOArraySRCIFlag>, display DEBUG message if setting SRCI flag on var.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, return to previous <SkipRefCntIncr> check behavior.

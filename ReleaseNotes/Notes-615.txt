@@ -1,0 +1,27 @@
+Build #615 -- Version 0.0.2.7
+-----------------------------
+
+* Merge INDEX_xxx and UTF16_xxx For Primitive Functions
+
+Directory trunk:
+
+EXECFNS.C:
+  Replace INDEX_xxx with UTF16_xxx for primitive functions as we no
+    longer need the former.  We still need them for operators as
+    functions and operators share the same table <PrimProtoFnsTab>.
+
+EXTERNS.H:
+  Update copyright year.
+  Widen the primitive function and operator tables by one bit so we
+    don't need to use the INDEX_xxx equates for primitive functions.
+
+INITDATA.C:
+PL_PARSE.Y:
+PO_DIJOT.C:
+SYMTRANS.C:
+TRANSLATE.C:
+UNICODE.H:
+  Update copyright year.
+  Replace INDEX_xxx with UTF16_xxx for primitive functions as we no
+    longer need the former.  We still need them for operators as
+    functions and operators share the same table <PrimProtoFnsTab>.

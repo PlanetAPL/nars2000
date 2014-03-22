@@ -1,0 +1,11 @@
+Build #894 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Ravel Of RAT/VFP/Nested Scalars
+
+Directory trunk:
+
+PF_COMMA.C:
+  Fix Bug:  Rename <PrimFnMonCommaImm_EM_YY> to <PrimFnMonCommaScalar_EM_YY>
+    to handle scalar case not just immediates (simple scalars).
+  Back out of previous changes (Build #891) -- not needed any more.

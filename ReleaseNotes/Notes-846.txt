@@ -1,0 +1,10 @@
+Build #846 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  {zilde}{transpose}12 Fails
+
+Directory trunk:
+
+AXISFNS.C:
+  In <CheckAxisGlb>, don't test for axes contiguous from []IO unless
+    the left arg to transpose is non-empty.

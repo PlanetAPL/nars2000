@@ -1,0 +1,10 @@
+Build #559 -- Version 0.0.2.4
+-----------------------------
+
+* DEBUG Aids
+
+Directory trunk:
+
+SESSMAN.C:
+  After F11 to being up debugger, put in code to zero the level
+    at which functions are displayed.

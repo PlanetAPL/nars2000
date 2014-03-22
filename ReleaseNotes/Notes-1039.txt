@@ -1,0 +1,88 @@
+Build #1039 -- Version 0.3.8.xx
+-------------------------------
+
+* Handle STACK FULL Exception
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define error message for STACK FULL.
+
+CS_PROC.C:
+  Update copyright year.
+  Pass parameter to <PrimFnMonUpTackJotPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+ENUMS.H:
+  Update copyright year.
+  Define STACK FULL as an exception code.
+  Define STACK FULL as an exit type.
+  Define ERRORCODE_DM in enum.
+
+EXCEPT.C:
+  Update copyright year.
+  Include STACK FULL in the table of named exceptions.
+  In <MyGetExceptionStr>, include entry for STACK FULL.
+  In <CheckException>, include entry for STACK FULL.
+
+EXECDFN.C:
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+IMMEXEC.C:
+  Update copyright year.
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+MACROS.H:
+  Update copyright year.
+  Define macro to test for IMMTYPE_ERROR.
+
+PERTAB.H:
+  Update copyright year.
+  Define execution depth counter.
+
+PF_UTACKJOT.C:
+  Update copyright year.
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+  Pass parameter to <PrimFnMonUpTackJotPLParse> to tell whether or not to skip
+    the depth check.
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+
+PL_PARSE.PROTO:
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+
+PL_PARSE.Y:
+  Update copyright year.
+  Define maximum execution depth.
+  Handle exit type STACK FULL.
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+  In <ParseLine>, check for STACK FULL.
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+
+SC_IN.C:
+  Update copyright year.
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+SC_LOAD.C:
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+TRANSLATE.C:
+  Update copyright year.
+  Handle exit type STACK FULL.

@@ -1,0 +1,9 @@
+Build #1168 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug In Determinant Operator On Immediate Scalars
+
+Directory trunk:
+
+PO_DOT.C:
+  Handle immediate scalars.

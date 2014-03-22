@@ -1,0 +1,157 @@
+Directory trunk\htdocs:
+
+INDEX.AHTML:
+  Omit meta statement of Braces2APL so the font isn't forced.
+  Surround all APL symbols with <span class="APL">...</span>.
+  Delete )COPY from list of system commands TBD.
+
+
+Directory trunk\htdocs\styles:
+
+COMMON.CSS:
+  Use bold SImPL as the default font.
+
+
+Directory trunk\MediaWiki\extensions:
+
+BRACESTOUNICODE.PHP:
+  Use bold SImPL as the default font.
+  Delete commented out lines.
+  Return result (needed for new version of MediaWiki).
+
+INSERTCSS.PHP:
+  Delete commented out lines.
+  Return result (needed for new version of MediaWiki).
+
+RENDERAPL.PHP:
+  Use bold SImPL as the default font.
+  Surround fontname with quotes in the "font-family:" statement.
+
+
+Directory trunk:
+
+APLERRORS.H:
+  Define a couple of not found messages.
+
+AXISFNS.C:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+
+COMMON.C:
+  Define <SkipWhiteW>.
+
+DEBUG.C:
+  Turn off ODSAPI.
+
+DISPDBG.C:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+  In PL_YYSTYPE, change <lpYYFcn> to <lpYYFcnBase> to avoid confusion
+    with <lpYYFcn> in <PLLOCALVARS>.
+
+DISPLAY.C:
+  Define and use <IncrSize> in MEMVIRTSTR.
+
+EXCEPT.C:
+  Define and use <IncrSize> in MEMVIRTSTR.
+
+EXECDFN.C:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+
+EXECFNS.C:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+
+EXTERNS.H:
+  Define and use <IncrSize> in MEMVIRTSTR.
+  Distinguish between tab index (use by TabCtrl_ functions) and tab ID
+    which is unique to each tab and independent of the index (in case
+    a tab is deleted, the index of righthand tabs changes, but not their IDs).
+
+MAIN.C:
+  Distinguish between tab index (use by TabCtrl_ functions) and tab ID.
+  Compile calls to <DbgBrk> in debug version to avoid crash in retail version.
+  Define and use <IncrSize> in MEMVIRTSTR.
+
+PARSE.H:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+  In PL_YYSTYPE, change <lpYYFcn> to <lpYYFcnBase> to avoid confusion
+    with <lpYYFcn> in <PLLOCALVARS>.
+
+PARSE.Y:
+  Omit poorly thought out rules for AmbOp and use clearer and simpler ones.
+  Define and use <IncrSize> in MEMVIRTSTR.
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+  In PL_YYSTYPE, change <lpYYFcn> to <lpYYFcnBase> to avoid confusion
+    with <lpYYFcn> in <PLLOCALVARS>.
+
+PERTAB.H:
+  Distinguish between tab index (use by TabCtrl_ functions) and tab ID.
+  Define lpStrand[STRAND_LEN] vars (not used as yet, though).
+
+PO_DIJOT.C:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+
+PO_DOT.C:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+
+PO_JOT.C:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+
+SC_COPY.C:
+  Finish )COPY (except for )COPY #nnn).
+
+SC_LOAD.C:
+  Distinguish between tab index (use by TabCtrl_ functions) and tab ID.
+  Delete unneeded var.
+  Prepare to read in workspace version for when we need it.
+  Use <stSymLink> to chain together the list of globals to delete.
+  Avoid marking a var as with value until it has one.
+  Display the SAVED timestamp on a successful )LOAD.
+
+SC_SAVE.C:
+  Display the SAVED timestamp on a successful )LOAD.
+  Use <stSymLink> to chain together the list of globals to delete.
+  Improve comments.
+  Write out the creation time for a saved workspace.
+
+SESSMAN.C:
+  Place strand accumulators under <CheckVirtualAlloc> protection.
+  Handle case where user clicks with mouse in Edit Control to change
+    the current text line.
+  Place common move to a new line code into a common function <MoveToLine>.
+
+STARTADDR.H:
+  Append more addresses.
+
+STRAND.C:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+  In PL_YYSTYPE, change <lpYYFcn> to <lpYYFcnBase> to avoid confusion
+    with <lpYYFcn> in <PLLOCALVARS>.
+  After making a function strand, zap all occurrences of <lpYYFcnBase>
+    as it is no longer valid.
+
+SYMTAB.C:
+  Initialize <stSymLink> when creating a new STE.
+
+SYMTAB.H:
+  Include )COPY in comment on use of <OBJNAME_LOD>.
+  Define matching entry for <OBJNAME_LOD> in <OBJNAME_WSTRPTR>.
+  Use <stSymLink> to chain together the list of globals to delete.
+
+TABCTRL.C:
+  Remove commented out code.
+  Distinguish between tab index (use by TabCtrl_ functions) and tab ID.
+  Use <crIndex> modulo <NUM_CRTABS> so it wraps the colors.
+
+THREADS.H:
+  Distinguish between tab index (use by TabCtrl_ functions) and tab ID.
+
+TRANSLATE.C:
+  Distinguish between tab index (use by TabCtrl_ functions) and tab ID.
+
+WORKSPACE.H:
+  Improve comments.
+
+YYFNS.C:
+  Delete references to <FcnCount> as it is replaced by <TknCount>.
+  In PL_YYSTYPE, change <lpYYFcn> to <lpYYFcnBase> to avoid confusion
+    with <lpYYFcn> in <PLLOCALVARS>.
+  Set proper token count after indirect function.

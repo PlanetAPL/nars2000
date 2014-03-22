@@ -1,0 +1,144 @@
+Build #531 -- Version 0.0.2.4
+-----------------------------
+
+* Implement Preliminary Form of Namespaces
+
+Directory trunk:
+
+DISPDBG.C:
+  Define and use namespace token.
+
+DISPLAY.C:
+GETFNS.C:
+PERTAB.H:
+SC_COMMON.C:
+SC_SAVE.C:
+SC_WSID.C:
+TABCTRL.C:
+  Move the <lpSymQuadXXX> entries in the PerTabData struc into
+    the HshTabStr struc so as to localize them to the corresponding
+    namespace.
+
+EDITFCN.C:
+  In <SyntaxColor>, if there's room, save the TKCOL_xxx value in the
+    next syntax color entry.
+  Move the <lpSymQuadXXX> entries in the PerTabData struc into
+    the HshTabStr struc so as to localize them to the corresponding
+    namespace.
+
+EXECFNS.C:
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+  In <ExecFunc_EM_YY>, switch to a parent namespace as appropriate.
+
+EXECMFN.C:
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+  In <ExecuteMagicFunction_EM_YY> and <ExecuteMagicOperator_EM_YY>,
+    switch to a namespace if this magic function uses one.
+  In <Init1MagicFunction>, if there's a separate namespace,
+    initialize the system vars for the namespace.
+  In <InitMagicFunctions>, initialize the magic function for []VR
+    with a separate namespace.
+
+EXTERNS.H:
+  Move <SYS_VARS> enum to <sysvars.h>.
+  Move <HSHTABSTR> struc to <symtab.h>.
+
+HEADERS.H:
+  Move <sysvars.h> up in the list as its contents are needed earlier.
+
+MAIN.C:
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+
+PF_DSHOE.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PO_DIJOT.C:
+  Pass additional HSHTABSTR parameter to <ExecuteMagicFunction_EM_YY>
+    and <ExecuteMagicOperator_EM_YY> to support namespaces.
+
+PL_PARSE.Y:
+  Define and use <SYSNS> token to support namespaces for primitive
+    functions, system functions, and user-defined functions/operators.
+
+QF_CR.C:
+  Define the ptr to the right arg as a ptr to a char vector so as to
+    make debugging easier.
+
+QF_FMT.C:
+  Remove commented out code no longer needed.
+  Pass additional HSHTABSTR parameter to <ExecuteMagicFunction_EM_YY>
+    and <ExecuteMagicOperator_EM_YY> to support namespaces.
+
+QF_VR.C:
+  Pass additional HSHTABSTR parameter to <ExecuteMagicFunction_EM_YY>
+    and <ExecuteMagicOperator_EM_YY> to support namespaces.
+  Shift magic function system fns/vars to uppercase.
+
+STARTADDR.H:
+  Include additional files and routines.
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY>, copy system namespace level to the output.
+
+SYMTAB.C:
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+  In <SymTabAppendNewName_EM>, if the name is that of a magic function,
+    peel back to the top namespace level so the name is global to and
+    available to all levels.
+  In <SymTabLookupNameLength>, if the name is that of a magic function,
+    peel back to the top namespace level which is where all magic
+    function names are located.
+
+SYMTAB.H:
+  Move <HSHTABSTR> struc to <symtab.h>.
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+
+SYSVARS.C:
+  Rename <SymTabAppendSysName> to <SymTabAppendOneSysName>.
+  Define <SymTabAppendAllSysNames_EM> to be called from
+    <execmfn.c> for magic function initializations.
+  Move the <lpSymQuadXXX> entries in the PerTabData struc into
+    the HshTabStr struc so as to localize them to the corresponding
+    namespace.
+  In <InitSystemNames>, call <SymTabAppendAllSysNames>.
+  In <InitSystemVars>, split out the assignment of system vars into
+    <AssignDefaultSysVars> so it can be called from <execmfn.c> to
+    initialize the namespace of a magic function.
+
+SYSVARS.H:
+  Move <SYS_VARS> enum to <sysvars.h>.
+
+TOKENIZE.C:
+  Rename <bInUse> to <gbInUse> to reflect its global state.
+  Use separate FSA actions to handle single and double quotes
+    as opposed the confusing use of QUOTE1 and QUOTE2 to indicate
+    initial quote (not single quote) and subsequent text (not
+    double quote).
+  Define new FSA row and column for system namespaces.
+  Rename <lpStart>/<lpNext>/<lpLastEOS> to
+    <lptkStart>/<lptkNext>/<lptkLastEOS> to reflect that
+    they all are TOKEN ptrs.
+  Define FSA actions to handle system namespaces.
+  When setting a syntax color, also set the corresponding name
+    type and column index.
+
+TOKENIZE.H:
+  Define new FSA row and column for system namespaces.
+  Rename <lpStart>/<lpNext>/<lpLastEOS> to
+    <lptkStart>/<lptkNext>/<lptkLastEOS> to reflect that
+    they all are TOKEN ptrs.
+
+TOKENS.H:
+  Define new token for system namespaces.
+  In <TKFLAGS>, define new field to hold the system namespace
+    level for that token.

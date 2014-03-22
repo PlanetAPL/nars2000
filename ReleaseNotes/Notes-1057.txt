@@ -1,0 +1,9 @@
+Build #1057 -- Version 0.3.8.xx
+-------------------------------
+
+* Change Path In A Build Batch File
+
+Directory trunk:
+
+WCOM.BAT:
+  Now that 7-Zip is available in a 64-bit version, always use %ProgramFiles% as its path.

@@ -1,0 +1,9 @@
+Build #1008 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In <xxx_get_ctsa> Functions
+
+Directory trunk:
+
+MPFNS.C:
+  Fix bug in <xxx_get_ctsa> functions not returning TRUE/FALSE result.

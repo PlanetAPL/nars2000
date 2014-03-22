@@ -1,0 +1,10 @@
+Build #1152 -- Version 0.4.3.xx
+-------------------------------
+
+* Improve Debugging Tools
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayGlobals>, display RAT/VFP numbers instead of shorthand so we can see which ones are still around.
+  In <DisplayGlobals>, simplify code under <case DFN_HEADER_SIGNATURE>.

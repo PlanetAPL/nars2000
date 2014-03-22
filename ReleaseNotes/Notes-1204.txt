@@ -1,0 +1,9 @@
+Build #1204 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug When Freeing All Global Storage
+
+Directory trunk:
+
+TABCTRL.C:
+  Fix bug in <FreeGlobalStorage> where the test for a global ptr was backward.

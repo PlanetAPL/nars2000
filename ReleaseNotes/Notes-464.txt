@@ -1,0 +1,9 @@
+Build #464 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+QF_WA.C:
+  Coalesce any fragmented memory by allocating the maximum
+    amount of allocatable virtual memory (ignoring the page
+    file).

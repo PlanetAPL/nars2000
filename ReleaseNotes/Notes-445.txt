@@ -1,0 +1,8 @@
+Build #445 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+TOKENIZE.C:
+  Fix Bug:  In <IsLocalName>, include "[]" in the break lists so as to handle
+    the axis operator syntax in a user-defined function/operator header.

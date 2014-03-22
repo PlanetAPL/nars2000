@@ -1,0 +1,12 @@
+Build #693 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Empty Right Arg And Non-Zero Left Arg To Partitioned Enclose
+
+Directory trunk:
+
+PF_LSHOE.C:
+  In <PrimFnDydLeftShoeGlb_EM>, if the left arg is a non-zero
+    simple scalar, and the right arg is empty along the specified
+    (or implied) axis, the result should be empty as the left arg
+    is extended to be an empty vector.

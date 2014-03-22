@@ -1,0 +1,25 @@
+Build #278 -- Version 0.0.0.17875
+---------------------------------
+
+Directory trunk:
+
+DBGBRK.ASM:
+  Remove dependencies on external includes.
+  Remove 16- vs. 32-bit code.
+
+EDITFCN.C:
+  Fix bug:  Make code page code specific to missing char {infinity}
+    as otherwise it fails on {upcaret} and {downcaret}.
+
+MAKEFILE:
+  Remove unneeded zip target and its dependencies.
+  Remove commented out lines.
+  Remove unneeded $(H) and $(I) equates.
+  Replace $(L) equate with $(B) or $(BC) as appropriate.
+  Rename $(M98) to $(MSVC).
+  Remove duplicate paths in $(I98) and $(L98).
+  Use specific libraries in MakeVer link to avoid conflicts with windows libraries.
+
+UNITRANS.H:
+  Insert header comment in various places so we don't have to
+    scroll back to the top to see which column is which.

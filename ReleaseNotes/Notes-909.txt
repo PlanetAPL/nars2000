@@ -1,0 +1,11 @@
+Build #909 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Handle )COPY/)LOAD Of Nested Array With RATs
+
+Directory trunk:
+
+MPIFNS.C:
+  Fix Bug:  In <mpiq_set_str>, the call to <mpz_cmp_ui> fails to
+    test the result against zero, so that a )COPY of an array or a )LOAD
+    of a workspace converts all non-zero RATs to Infinity.

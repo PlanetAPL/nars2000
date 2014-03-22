@@ -1,0 +1,1726 @@
+Version 0.0.2.4 consists of the following Builds:
+
+
+Build #592 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Handle -1(2 3)
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  In <PrimFnMonGlb_EM>, -1(2 3) fails because of a missed case.
+  Fix Bug:  When extracting a Boolean from a STE, always mask with BIT0
+    in case there are extra bits set.
+
+
+Build #591 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Free <YYCopyArray>ed Storage When Copying It
+
+Directory trunk:
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY>, now that we handle <YYCopyArray> in
+    <YYCopyFcn>, we need to limit freeing the arg to the singleton
+    case.
+
+YYFNS.C:
+  In <YYCopyFcn> on a function array, test for the <YYCopyArray>
+    flag and handle it there.
+
+
+Build #590 -- Version 0.0.2.4
+-----------------------------
+
+* Cleanup Catenate Identity Function Code
+
+Directory trunk:
+
+PO_DOT.C:
+PO_SLASH.C:
+  Collect common code for catenate reduction identity function
+    from reduction and inner product into a single function.
+
+
+Build #589 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug With )RESET
+
+Directory trunk:
+
+EXECDFN.C:
+  Improve comments.
+  In <ExecuteFunction_EM_YY> when returning from the function,
+    if we're resetting all levels, don't bother creating a
+    No Value result.
+
+SC_RESET.C:
+  In <CmdReset_EM>, set the immediate execution exit type so
+    that <ExecuteFunction_EM_YY> can use it.
+
+
+Build #588 -- Version 0.0.2.4
+-----------------------------
+
+* Include APL2 Unicode Font In APL Chars Choices
+
+Directory trunk\Extensions\chrome\aplchars:
+
+OPTIONS.XUL:
+  Include the APL2 Italic Unicode font in the set of font choices.
+
+
+Build #587 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Failed to Clear YYCopyArray Flag
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Fix Bug:  In <pl_yylex> when setting the incoming var <lpYYLval>,
+    the <YYCopyArray> flag wasn't cleared, so the previous value
+    could (and did) leak through.
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY> when dealing with a <YYCopyArray>ed arg,
+    the entire current strand on the stack was freed instead of just
+    the <YYCopyArray>ed entry.
+
+YYFNS.C:
+  Optimize the DEBUG code to take advantage of common code.
+
+
+Build #586 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Crash When Displaying A Boolean Numeric Strand Operand
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnSub>, when displaying a Boolean-valued numeric
+    strand Operand, the individual elements are accessed as if
+    they were integers, not Booleans.
+
+
+Build #585 -- Version 0.0.2.4
+-----------------------------
+
+* Resize the Tab Ctrl Window When Changing the Tab Ctrl Font
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  When applying a new Tab Ctrl font, also resize each of the
+    MDI Client windows as the size of the Tab Ctrl has changed.
+
+EDITFCN.C:
+  Fix typo in comment.
+  Define new function to determine if a window handle is that
+    of an MDI Client window.
+
+MAIN.C:
+  Fix Bug:  In <InitChooseFont>, don't respecify a font height
+    unless it is unset (0), in which case calculate the corresponding
+    point size.
+
+TABCTRL.C:
+  Define new function to calculate the window rectangle for the
+    MDI Client windows.
+  Replace separate code with call to <CalcWindowRectMC>.
+
+
+Build #584 -- Version 0.0.2.4
+-----------------------------
+
+* Define Window Text Foreground Color Customize Attribute
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Omit test for window BG as we now show the FG.
+  Skip "Background Transparent" checkbox for Window Text as that
+    entry is forced and has no checkbox to disable it.
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+
+EDITFCN.C:
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+  Set the window foreground color, too, when coloring special lines.
+
+EXTERNS.H:
+  Rename <DEF_SC_WINBG> to <DEF_SC_WINTEXT>.
+  Rename <SC_WINBG> to <SC_WINTEXT>.
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+
+INIFILE.C:
+  Rename <KEYNAME_SC_WINBG> to <KEYNAME_SC_WINTEXT>.
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+
+MAIN.C:
+TOKENIZE.C:
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+
+MAIN.RC:
+  Display the Window Text foreground text and button.
+
+SYNTAXCOLORS>H:
+  Rename <DEF_SC_WINBG> to <DEF_SC_WINTEXT>.
+  Set default window text foreground color.
+  Rename <SC_WINBG> to <SC_WINTEXT>.
+
+
+Build #583 -- Version 0.0.2.4
+-----------------------------
+
+* Reduce Screen Flicker
+
+Directory trunk:
+
+DEBUG.C:
+  Define <USEMEMDC_WM_PAINT> to double buffer in WM_PAINT.
+  In <DBWndProc/WM_DRAWITEM>, do not double buffer if
+    <USEMEMDC_WM_PAINT> is defined.
+  In <LclListboxWndProc/WM_PAINT>, double buffer the DC
+    unles there is an incoming DC or no update rectangle.
+
+EDITFCN.C:
+  In <LclECPaintHook> if we're Syntax Coloring, use the
+    incoming DC instead of a new one as we're now double
+    buffering.
+  In <LclEditCtrlWndProc/WM_PAINT>, ensure that the left edge
+    of the line is included in the update region in case
+    Syntax Coloring has to change the color of a previous
+    char not in the original update region.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Uncomment lines with TRACE(), FIXME() and WARN() macros
+    so as to minimize the difference with the original file.
+    These macros don't generate any code, so tehre's no
+    harm in including them.
+  In <EDIT_WM_Paint>, double buffer the output so as to
+    reduce screen flicker.
+  In <EDIT_WM_Size>, don't double buffer as we now do it
+    in <WM_PAINT>.
+
+
+Build #582 -- Version 0.0.2.4
+-----------------------------
+
+* Display Var With SRCI Flag Set With REFCNT Color In DEBUG Window
+
+Directory trunk:
+
+DISPDBG.C:
+  Display a variable with the SRCI flag set in the REFCNT color
+    in the DEBUG window.
+
+
+Build #581 -- Version 0.0.2.4
+-----------------------------
+
+* Clear The SkipRefCntIncr Flag When Forming Multiple Item Strands
+
+Directory trunk:
+
+ASSIGN.C:
+  Back out of Build #573 as it can be resolved by clearing the SRCI
+    flag when forming a multiple item strand.
+
+PRIMFNS.C:
+  Define matching routine <ClrVarArraySRCIFlag> to <SetVarArraySRCIFlag>.
+
+STRAND.C:
+  When forming a multiple item strand, clear the SRCI flag because
+    it isn't applicable anymore.
+
+
+Build #580 -- Version 0.0.2.4
+-----------------------------
+
+* Ensure That The Result Of Calling UDFO At []PROTOTYPE Is A Prototype
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecDfnGlbProto_EM_YY>, capture the result of calling the UDFO
+    at []PROTOTYPE and run it through []TYPE.
+
+
+Build #579 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Outer Product With A Non-scalar Operand Fails In Certain Cases
+
+Directory trunk:
+
+PO_JOTDOT.C:
+  Rename <lpPrimFlags> to <lpPrimFlagsRht> to maintain consistency
+    with other operator naming conventions.
+  Fix Bug:  Set <lpPrimFlagsRht> to <PrimFlags0> if the flags
+    are not present.
+  Recode <PrimOpDydJotDotProto_EM> as prototype-only function, and
+    move the previous function contents to inline use.
+  By Mistake, this file was included in the previous Build.
+
+
+Build #578 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Memory Leak With UDFO Identity Element In Inner Product
+
+Directory trunk:
+
+PO_DOT.C:
+  Factor out common code to execute a function between the
+    prototypes of two arguments.
+  Improve comments.
+  Fix Bug:  when saving the identity element from a UDFO
+    into the result, don't increment the RefCnt of the first
+    item as its RefCnt starts at 1.
+  Fix Bug:  In the normal case of inner product, if one of
+    the comparison steps fails, the test for whether or not
+    to free the reduction result is backwards.
+
+
+Build #577 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Memory Leak When Indexing A Strand
+
+Directory trunk:
+
+PL_PARSE.Y:
+  When indexing a variable, there is no matching RefCnt decrement
+    when the value goes through strand processing, so we need to
+    set the <SkipRefCntIncr> flag.
+
+
+Build #576 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Handle Numeric Strand To Left of Ambiguous Operator
+
+Directory trunk:
+
+MACROS.H:
+  Define new macros for <DbgIncrRefCntTkm> and <DbgDecrRefCntTkn>.
+
+PL_PARSE.Y:
+  In <ArrExpr:  error AmbOp StrandOp1>, don't free <StrandOp1>
+    as it hasn't had RefCnt incremented by <MakeFcnStrand_EM_YY>.
+  In <ArrExpr:  ArrExpr AmbOp StrandOp1>, increment the RefCnt
+    for <StrandOp1> as it doesn't go through <MakeFcnStrand_EM_YY>
+    as usual because this instance <AmbOp> isn't an operator.
+
+REFCNT.C:
+  Clear the <SkipRefCntIncr> flag on decrement because if it's not
+    increment that flag is no longer meaningful.
+  Define new routines to increment/decrement RefCnt given a token.
+
+
+Build #575 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Switch Arguments To <DisplayFcnMem> To match The Call
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnMem>, switch two arguments to reflect the way it's
+    actually called.
+
+
+Build #574 -- Version 0.0.2.4
+-----------------------------
+
+* Change RefCnt > 1 Line In DEBUG Window to RefCnt NE 1
+
+Directory trunk:
+
+DEBUG.C:
+DISPDBG.C:
+  Rename <xxx_REFCNT_GT1> to <xxx_REFCNT_NE1>.
+  Change the test from RefCnt > 1 to RefCnt NE 1.
+
+DEFINES.H:
+  Rename <xxx_REFCNT_GT1> to <xxx_REFCNT_NE1>.
+
+
+Build #573 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Clear SkipRefCntIncr Flag On Assignment
+
+Directory trunk:
+
+ASSIGN.C:
+  Fix Bug:  When assigning an array to a name, clear the
+    <SkipRefCntIncr> flag so it isn't tested for anymore.
+  Define separate recursive function to clear the flag.
+
+
+Build #572 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug With Outer Product And Lefthand Numeric/Character Strands
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Fix Bug:  In <LookbehindOp> when a numeric or character strand
+    is to the left of an outer product, the entry for <TKT_OPJOTDOT>
+    is in the wrong switch case.
+
+
+Build #571 -- Version 0.0.2.4
+-----------------------------
+
+* Allow Unit Inner Dimensions In Inner Product To Extend
+
+Directory trunk:
+
+PO_DOT.C:
+  Allow unit inner dimensions of Inner Product to extend to be
+    conformable with any length inner dimension on the other
+    side.  Only the test for LENGTH ERROR is affected, not
+    the rest of the code.
+
+
+Build #570 -- Version 0.0.2.4
+-----------------------------
+
+* Handle DEBUG Window Fill Of Unpainted Areas
+
+Directory trunk:
+
+DEBUG.C:
+  Handle DEBUG window fill of unpainted areas.
+
+
+Build #569 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug When Loading A Workspace With An Undo Buffer
+  With A Single Char Selection
+
+Directory trunk:
+
+SAVEFCN.C:
+  In <SF_UndoBufferLW>, handle the case where an undo buffer entry
+    is due to a single character selection.
+
+
+Build #568 -- Version 0.0.2.4
+-----------------------------
+
+* Fix RefCnt Bug When Copying A Function Array
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyArray_EM>, handle the case when copying a function
+    array with numeric or character strands.
+  In <CopyArray_EM>, handle the case when copying a function
+    array inside a function array by incrementing the RefCnts
+    of each item in the function array.
+
+YYFNS.C:
+  Define new routine to increment the items in a function array
+    token.
+  In <IncrFcnMem>, handle the case of numeric and character strands
+    in a function array.
+
+
+Build #567 -- Version 0.0.2.4
+-----------------------------
+
+* Fix RefCnt Bug When Calling Niladic User-Defined Or System Functions
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Mark <USRFN0>, SYSFN0>, and <(ArrExpr)> as skipping the
+    next IncrRefCnt because there is no matching DecrRefCnt
+    to offset the IncrRefCnt> in <MakeVarStrand_EM_YY>.
+
+PRIMFNS.C:
+  Rename <SetVarArraySkipRefCntFlag> to <SetVarArraySRCIFlag>.
+  In <SetVarArraySRCIFlag>, handle check for SYMENTRY value in
+    case it's called on a UDFO which doesn't return a value.
+  Improve comments.
+
+
+Build #566 -- Version 0.0.2.4
+-----------------------------
+
+* Display Numeric and Character Strand Arguments to Operators
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnSub>, display numeric and character strand arguments
+    to monadic and dyadic operators.
+  In <DisplayFcnSub>, insert a blank separator between a dyadic
+    user-defined operator and its right arg.
+
+
+Build #565 -- Version 0.0.2.4
+-----------------------------
+
+* Paint Lines In DEBUG Window In Contrasting Color If RefCnt > 1
+
+Directory trunk:
+
+DEBUG.C:
+  Define foreground and background colors for RefCnt > 1 lines.
+  Mark the Listbox in the DEBUG window as owner drawn and with strings.
+  Define actions for <WM_MEASUREITEM> and <WM_DRAWITEM> in response to
+    the owner drawn Listbox, avoiding screen flicker by drawing into a
+    memory DC.
+  In <DBWndProc/MYWM_DBGMSGW>, transfer any leading <UTF16_REFCNT_GT1>
+    character to the beginning of the string saved in the Listbox so
+    it can be tested for easily in the <WM_DRAWITEM> code.
+  In <LclListboxWndProc> define new message handler for <WM_ERASEBKGND>
+    to reduce screen flicker.
+
+DEFINES.H:
+  Define character and string which marks the RefCnt >1 lines.
+
+DISPDBG.C:
+  For DEBUG window displays that show a RefCnt and that RefCnt is > 1,
+    prefix the line with a special character to indicate that fact so
+    the line may be displayed in a contrasting color.
+
+
+Build #564 -- Version 0.0.2.4
+-----------------------------
+
+* Suffix Macros And Functions With _PTB To Indicate Sensitivity
+  To Ptr Type Bits
+
+Directory trunk:
+
+ASSIGN.C:
+DISPDBG.C:
+REFCNT.C:
+SC_SAVE.C:
+YYFNS.C:
+  Suffix <CopySymGlbDir>/>CopySymGlbInd>/<GetSignatureGlb>/
+    <DbgIncrRefCntDir>/<DbgDecrRefCntDir>/<IsGlobalTypeArray>/
+    <IsGlbTypeXxxYyy>/<MakeMonPrototype_EM>/<MakeDydPrototype_EM>/
+    <FillToken> with _PTB to indicate sensitivity to Ptr Type Bits.
+  Use macro <GetSignatureMem> instead of direct code.
+
+AXISFNS.C:
+DISPLAY.C:
+EXECDFN.C:
+EXECFNS.C:
+FREE.C:
+MACROS.H:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_EPSILON.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_LSHOE.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_DIERESIS.C:
+PO_DOT.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_MF.C:
+QF_SIZE.C:
+QF_TYPE.C:
+SC_IN.C:
+SC_LOAD.C:
+STARTADDR.H:
+STRAND.C:
+SYSVARS.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+  Suffix <CopySymGlbDir>/>CopySymGlbInd>/<GetSignatureGlb>/
+    <DbgIncrRefCntDir>/<DbgDecrRefCntDir>/<IsGlobalTypeArray>/
+    <IsGlbTypeXxxYyy>/<MakeMonPrototype_EM>/<MakeDydPrototype_EM>/
+    <FillToken> with _PTB to indicate sensitivity to Ptr Type Bits.
+
+GETFNS.C:
+  Suffix <CopySymGlbDir>/>CopySymGlbInd>/<GetSignatureGlb>/
+    <DbgIncrRefCntDir>/<DbgDecrRefCntDir>/<IsGlobalTypeArray>/
+    <IsGlbTypeXxxYyy>/<MakeMonPrototype_EM>/<MakeDydPrototype_EM>/
+    <FillToken> with _PTB to indicate sensitivity to Ptr Type Bits.
+  Define new routine <GetSignatureGlb_PTB> to indicate it is
+    sensitive to Ptr Type Bits.
+
+PF_QDOT.C:
+  Improve comments.
+
+PO_SLASH.C:
+  Suffix <CopySymGlbDir>/>CopySymGlbInd>/<GetSignatureGlb>/
+    <DbgIncrRefCntDir>/<DbgDecrRefCntDir>/<IsGlobalTypeArray>/
+    <IsGlbTypeXxxYyy>/<MakeMonPrototype_EM>/<MakeDydPrototype_EM>/
+    <FillToken> with _PTB to indicate sensitivity to Ptr Type Bits.
+  Delete routine <SymGlbToToken> as it's unused.
+
+QF_CR.C:
+  Use macro <GetSignatureMem> instead of direct code.
+  In <CopyStename>, insert more <Assert> statements.
+
+
+Build #563 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  More RefCnt Problems
+
+Directory trunk:
+
+YYFNS.C:
+  Improve comments.
+  In <YYCopy>, transfer more data from one struc to another when
+    in DEBUG mode.
+  In <YYCountFcnStr>, include more assertions for function arrays.
+  Fix Bug:  In <YYCopyFcn> when making a direct copy, transfer the
+    <YYCoptArray> flag.
+  Fix Bug:  In <YYCopyFcn> when copying a var or axis array, don't
+    increment the refCnt as that was done when the array was created.
+  In <IncrFcnMem>, increment a ptr rather than index it so as to make
+    debugging easier.
+  Fix Bug:  In <IncrFcnMem> for function arrays items which are
+    themselves var or fcn arrays, recurse only when the item is
+    not a UDFO so as not to double increment the RefCnt.
+  Fix Bug:  In <IncrFcnMem> for a UDFO, increment the RefCnt.
+
+
+Build #562 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Various RefCnt Problems
+
+Directory trunk:
+
+DATATYPE.H:
+  Define new flag in variable array header to tell the RefCnt
+    increment code to skip this one time.
+
+EXECDFN.C:
+  In <ExecDfnOprGlb_EM_YY>, don't decrement the RefCnt for the
+    operands as we no longer increment it on the way in.
+  In <InitVarSTEs>, handle numeric and character strand tokens.
+  Delete <UninitOprSTEs> as it's no longer called.
+
+FREE.C:
+  In <FreeResultGlobalFcn> for function arrays, handle numeric and
+    character strand tokens.
+
+PL_PARSE.H:
+  Define new flag to indicate whether or not this struct contains
+    an array that was created by <CopyArray_EM> in <MakeNameFcnOpr_YY>
+    as it needs to be freed at the end of <MakeFcnStrand_EM_YY>.
+
+PL_PARSE.Y:
+  Define new terminals for vars to the left of a monadic or dyadic
+    operator.
+  Delete all occurrences of <FreeResult> after <MakeNameFcnOpr_YY>
+    as that function always increments RefCnt once so we can count
+    on one copy made at that point.
+  Delete all occurrences of <FreeResult> after <PushFcnStrand_YY>
+    as that function never increments RefCnt so the only increment
+    is from <MakeNameFcnOpr_YY>, <MakeAxis_YY>, and related functions.
+  Replace all occurrences of <FreeYYFcn1> after <PushFcnStrand_YY>
+    with <YYFree> for the same reasons as above.
+  Define new rules for a single var to the left of a monadic or
+    dyadic operator.
+  Ensure that the terminal <SingVar:> has the RefCnt incremented
+    once and only once for the result (and in particular for
+    <CHRSTRAND> and <NUMSTRAND>).
+  In <SingVar:> for <(ArrExpr)>, set the <SkipRefCntIncr> flag so
+    the next increment of the RefCnt is ignored.
+  Delete all occurrences of <FreeResult> after <MakeVarStrand_YY>
+    as that function increments refCnt once so we can count on
+    one copy made at that point.
+  In <LookaheadDyadicOp>, split out right paren and right bracket
+    tokens as they need separate treatment.
+  Define new function <LookbehindOp> to detect if the preceding token
+    is a monadic or dyadic operator.
+  In <pl_yylex>, whenever encountering a temporary or named variable,
+    or a numeric or character strand, after checking for it being to
+    the right of a dyadic operator, check to see if it's to the left
+    of a monadic or dyadic operator in which case return a special
+    <OP1xxx> token.
+
+PRIMFNS.C:
+  In <MakeDydPrototype_EM>, handle 0 modulus separately as C signals
+    a Divide By Zero error.
+  In <CopyArray_EM> when copying function arrays, increment the
+    RefCnt for each item in the array.
+  Define new function <mod64> to handle modulus on 64-bit integers
+    checking for 0 modulus.
+  Improve comments.
+  Define new function <SetVarArraySkipRefCntFlag> to set the
+    <SkipRefCntIncr> flag in a variable array.
+
+REFCNT.C:
+  In <ChangeRefCntDir> for variable arrays, if it's an increment
+    and the SkipRefCntIncr flag is set in the array header,
+    reset the flag and skip the increment.
+
+STARTADDR.H:
+  Delete reference to <UninitOprSTEs> as it is no longer used.
+
+STRAND.C:
+  Comment on what functions do to RefCnts.
+  Change <PushFcnStrand_YY> so that it never increments RefCnt.
+  Change <MakeVarStrand_EM_YY> so that it always increments RefCnt.
+  Improve comments.
+  In <MakeVarStrand_EM_YY>, don't markan item as resued as we're
+    not freeing strands at the end.
+  In <MakeVarStrand_EM_YY> do not free the strands so that that
+    routine always increments RefCnt once.
+  In <MakeFcnStrand_YY>, free the strands on the stack only if
+    the arg was CopyArray'ed.
+  Change <MakeAxis_YY> so that it never increments RefCnt.
+  Change <MakePrimFcn_YY> so that it never increments RefCnt.
+  Change <MakeNameFcnOpr_YY> so that it never increments RefCnt.
+  In <MakeNameFcnOpr_YY>, do not increment RefCnt for function
+    arrays because the next line after the caller will decrement
+    RefCnt as we no longer decrement after <MakeNameFcnOpr_YY>.
+  In <MakeNameFcnOpr_YY>, if we call <CopyArray_EM>, mark the
+    struc so we can free it later on.
+  Change <MakePrimOp123_YY> so that it never increments RefCnt.
+  In <CopyToken_EM>, handle numeric and character strand tokens.
+  Define new routine <CopyPL_YYSTYPE_YY> that copies the PL_YYSTYPE
+    but doesn't increment RefCnt.
+
+
+Build #561 -- Version 0.0.2.4
+-----------------------------
+
+* Change Binding Strength For Strands To The Right Of A Dyadic
+  Operator
+
+Directory trunk:
+
+FREE.C:
+  In <FreeResultSub>, handle incoming character and numeric strands.
+  In <FreeResultGlobalFcn>, use <LPFCNARRAY_HEADER> instead of
+    a cast to aid in debugging.
+
+PL_PARSE.Y:
+  Define new tokens that correspond to various variables to the
+    right of a dyadic operator.
+  Define new terminal <Drv5Func> for use in
+    <ArrExpr: ArrExpr Drv5Func StrandInst> and
+    <LeftOper: (Drv5Func)>.
+  Define new rule that allows assignment of <Drv3Func> to a name.
+  Split out assignment to a name of <MonOp Drv1Func> and
+    <MonOp Drv3Func>.
+  Split out assignment to a name of <AmbOp Drv2Func> and
+    <AmbOp Drv3Func>.
+  In any rule with <error> and a <LeftOper>, free the <LeftOper>
+    only if it is not a named function/operator.
+  Include in <ArrExpr:> the rules <ArrExpr Drv3Func> and
+    <ArrExpr Drv4Func>.
+  Define new terminals <SingOp2Var:> and <StrandOp2> to collect
+    possible variable targets to the right of a dyadic operator.
+  Include in <SelectSpec:> the rule <SelectSpec Drv3Func>.
+  Define new rule <Drv3Func:> for use in <FcnSpec:> and
+    <ArrExpr:> becuase the strand on the right is bound to the
+    dyadic operator.
+  Augment new rule <Drv4Func:> for use in <FcnSpec:>,
+    <ArrExpr:  ArrExpr Drv4Func> and <LeftOper: MonOp Drv4Func>.
+  Define new rule <Drv5Func:> for use in
+    <ArrExpr: ArrExpr Drv5Func StrandInst> and <LeftOper: (Drv5Func)>.
+  In <LookAheadDyadicOp>, handle right grouping tokens by
+    ignoring them rather than skipping over the entire group.
+  In <pl_yylex>, check for an adjacent dyadic operator upon
+    encountering a VARIMMED, VARARRAY (return <OP2CONSTANT>),
+    VARNAMED (return OP2NAMEVAR>), CHRSTRAND (return <OP2CHRSTRAND>)
+    or NUMSTRAND (return <OP2NUMSTRAND>).
+
+PRIMFNS.C:
+  Define new function to determine whether or not a token type is
+    that of a named function/operator.
+
+
+Build #560 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Increment/decrement RefCnts For Arguments At Start/End
+  Of <ExecFunc_EM_YY> To Handle Erasure Of Global Name During
+  UDFO Suspension
+
+Directory trunk:
+
+ASSIGN.C:
+  Include parameters to <ExecFunc_EM_YY> to indicate which args
+    to Incr/Decr RefCnts.
+
+EXECFNS.C:
+  Include parameters to <ExecFunc_EM_YY> to indicate which args
+    to Incr/Decr RefCnts.
+  In <ExecFunc_EM_YY>, make sure all exits go through a common
+    label.
+
+PL_PARSE.Y:
+  Include parameters to <ExecFunc_EM_YY> to indicate which args
+    to Incr/Decr RefCnts.
+  Delete all occurrences of <FreeResult> on one or more variable
+    args after <ExecFunc_EM_YY> as that function frees the args itself.
+
+
+Build #559 -- Version 0.0.2.4
+-----------------------------
+
+* DEBUG Aids
+
+Directory trunk:
+
+SESSMAN.C:
+  After F11 to being up debugger, put in code to zero the level
+    at which functions are displayed.
+
+
+Build #558 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  The Display of Floating Point Numbers Sometimes
+  Doesn't Display Correctly
+
+Directory trunk:
+
+DISPLAY.C:
+  In <DisplayGlbArr_EM>, remove references to []PW as it isn't used.
+  In <FormatFloatFC>, rename <bIntegral> to <bPowerOfTwo> as that's
+    what is represents.
+  In <FormatFloatFC>, when displaying raw floating point numbers,
+    don't change the <dtoaMode> from <DTOAMODE_SHORT_RND> as that'll
+    provide maximum precision in minimum width.
+
+
+Build #557 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  When Displaying a Function Array, Handle Case of
+  User-defined Operator
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnSub>, handle case of user-defined operator.
+  Define new function <FillDfnName> to display the name of a UDFO.
+
+
+Build #556 -- Version 0.0.2.4
+-----------------------------
+
+* Display Text Of Function Array In Debug Window
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayGlobals>, include the text of a function array in the
+    display in the Debug window.
+  Split out display of a function array using a global memory ptr
+    from the corresponding display using a global memory handle.
+
+EXECDFN.C:
+  Fix Bug:  In <InitFcnSTEs>, construct the text for the function
+    line in case the user calls []CR on the operand.
+
+STRAND.C:
+  Move function line display code into <MakeTxtLine> so it can be
+    called from elsewhere.
+
+
+Build #555 -- Version 0.0.2.4
+-----------------------------
+
+* Move Global Vars Into <externs.h>
+
+Directory trunk:
+
+EXTERNS.H:
+  Move global vars from <dispdbg.c> to <externs.h>
+
+DISPDBG.C:
+  Move global vars from <dispdbg.c> to <externs.h>
+  In <DisplayFcnLine>, check debug level against <gFcnLvl> instead
+    of a constant.
+
+
+Build #554 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Handle Prototype Generation Better
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <MakeDydPrototype_EM>, handle prototype generation for
+    (0{rho}{enclose}0 0)+0{rho}{enclose}(0 0) 0 by not picking
+    off the special cases at the start but by handling them
+    individually in the loop.
+
+
+Build #553 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  When Indexed Assigning A Character Scalar To A
+  Numeric Vector, The System Crashes
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyGlbAsType_EM>, handle the case of <ARRAY_HETERO>,
+    otherwise a{is}0 1 2 {diamond} a[3]{is}'x' fails.
+
+
+Build #552 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  In Inner Product, Set Prototype Function Vars
+  Only When Prototyping
+
+Directory trunk:
+
+PO_DOT.C:
+  In <PrimOpDydDotCommon_EM_YY>, set prototype function vars
+    only when prototyping, otherwise things like 4 foo.+3
+    return 0 instead of 7.
+
+
+Build #551 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Array Overwrite With Dyadic Format of Certain E-notation
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix Bug:  When formatting in certain E-notation (e.g., 5 {neg}1{format}1)
+    I missed zapping a trailing blank, so subsequent code overwrite the
+    end of the array.
+
+
+Build #550 -- Version 0.0.2.4
+-----------------------------
+
+* Rename File Menu From &Load to &Open
+
+Directory trunk:
+
+MAIN.RC:
+  Rename file menu from &Load to &Open.
+
+SYSCMDS.C:
+  Define )OPEN as synonym for )LOAD.
+
+
+Build #549 -- Version 0.0.2.4
+-----------------------------
+
+* Rename <IsTknNamed> to <IsTknTypeNamed> to better reflect its purpose
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayStrand>, use <IsTknImmed> instead of <IsTknNamed> to
+    determine the value displayed.
+
+EXECDFN.C:
+GETFNS.C:
+  Rename <IsTknNamed> to <IsTknTypeNamed> to better reflect its purpose.
+
+PL_PARSE.Y:
+  Use <IsTknTypeNamedVar> instead of <IsTknNamed> to catch named vars only.
+
+PRIMFNS.C:
+  Rename <IsTknNamed> to <IsTknTypeNamed> to better reflect its purpose.
+  Define <IsTknTypeNamedVar> to catch named vars only.
+
+TOKENS.H:
+  Update comments.
+
+
+Build #548 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Enlist on an empty array of other than numbers fails
+
+Directory trunk:
+
+PF_EPSILON.C:
+  In <PrimFnMonEpsilonGlbCopy_EM>, I forgot to process the prototype
+    element of an empty nested array.
+
+
+Build #547 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Double-clicking on a name spelled with an underbar fails
+
+Directory trunk:
+
+EDITFCN.C:
+  In <IzitNameChar>, the individual tests for a valid char in a name
+    missed underbar, so instead of just addding that, the new version
+    uses the existing function <IsValid2ndCharInName> (which includes
+    <IsValid1stCharInName>).  This means that double-clicking on a
+    name that includes an underbar, now displays the function (if any)
+    of that name.
+
+
+Build #546 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  As part of the change to the binding strength for arrays
+  and indexed lists an array was freed when it shouldn't have been.
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <IndexVarBR: IndexListBR SingVar> if an error occurs, do not
+    free <SingVar> as it gets freed later.
+
+
+Build #545 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Crash when catenating an empty with a non-empty
+  where one is numeric and the other character.
+
+Directory trunk:
+
+PF_COMMA.C:
+  When catenating an empty array with a non-empty array (either side)
+    where one side is numeric and the other characters, the system
+    crashes because of a missing array type in a switch stmt.
+
+
+Build #544 -- Version 0.0.2.4
+-----------------------------
+
+* Display more data in DEBUG window
+
+Directory trunk:
+
+DISPDBG.C:
+  Display more data in DEBUG window.
+
+
+Build #543 -- Version 0.0.2.4
+-----------------------------
+
+* Change The Binding Strength of Left Brackets and Its Lefthand Token
+
+Directory trunk:
+
+PL_PARSE.PROTO:
+  Change the return of <AmbOpSwap> from <BOOL> to <UBOOL> so we
+    always use unsigned BOOLs.
+
+PL_PARSE.Y:
+  Introduce a new rule to handle A[B] as a separate token within a
+    strand so it has a higher binding strength than strands, moving
+    to this rule the corresponding actions from <StrandInst>.  This
+    moves us closer to APL2's binding strength rules, although
+    1 2 3[1] still works -- APL2 requires parens as in (1 2 3)[1].
+
+PRIMFNS.C:
+  In <TokenTypeFV>, mark <TKT_STRAND> as a Var.
+
+
+Build #542 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  The Identity Element For Inner Product Was Fixed At Zero
+
+Directory trunk:
+
+EXTERNS.H:
+  Define var for constant (all zero) <PRIMFLAGS> for use when
+    <GetPrimFlagsPtr> is NULL.
+  Define and use struct for primitive scalar dyadic function
+    identity elements.
+
+INITDATA.C:
+  Use struct for primitive scalar dyadic function identity
+    elements.
+
+PO_DOT.C:
+  Return identity element when reducing an empty intermediate result.
+  Limit inner product to cases where the inner dimensions are equal.
+  Handle UDFO reduction of empty intermediate result by calling the UDFO
+    at []IDENTITY.
+  Handle catenate reduction of empty intermediate result specially.
+
+PO_SLASH.C:
+  Reorganize the code in <PrimOpMonSlashCommon_EM_YY> to match that
+    of <PrimOpDydDotCommon_EM_YY>.
+  Pass additional parameters to <PrimOpMonSlashScalar_EM_YY> so they
+    don't need to be computed inside that function.
+  Use struct for primitive scalar dyadic function identity
+    elements.
+
+PO_SLOPE.C:
+  Reorganize the code in <PrimOpMonSlashCommon_EM_YY> to match that
+    of <PrimOpDydDotCommon_EM_YY>.
+  Pass additional parameters to <PrimOpMonSlashScalar_EM_YY> so they
+    don't need to be computed inside that function.
+
+
+Build #541 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Display Of Strands With Ptrs
+
+Directory trunk:
+
+DISPDBG.C:
+  Fix the display of a strand with a named ptr:  on a 32-bit system,
+    the high-order dword need not be zero but it's displayed anyway.
+
+
+Build #540 -- Version 0.0.2.4
+-----------------------------
+
+* Renumber Strucs Symbolically To Reduce Changes
+
+Directory trunk:
+
+EXECMFN.C:
+  Use hGlbMFO[MFOE_xxx] instead of individual entries.
+
+EXECMFN.H:
+  Define enum to name all magic function/operators.
+
+PERTAB.H:
+  Renumber entries symbolically to reduce the # changes.
+
+PF_DSHOE.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PO_DIJOT.C:
+QF_FMT.C:
+QF_VR.C:
+  Use hGlbMFO[MFOE_xxx] instead of individual entries.
+
+PF_UTACKJOT.C:
+  Miscellaneous text change.
+
+
+Build #539 -- Version 0.0.2.4
+-----------------------------
+
+* Restore []Z As It's Used in 2 []TF
+
+Directory trunk:
+
+PERTAB.H:
+  Renumber entries as the size of <HSHTABSTR> changed.
+
+SYMTAB.H:
+  Renumber entries as the value of <SYSVAR_LENGTH> changed.
+
+SYSVARS.C:
+  Redefine []Z as a system var.
+  Restore the validation routine for assignment into []Z.
+  In <AssignDefaultSysVars>, initialize []Z.
+  In <InitSystemVars>, initialize the validation routines for []Z.
+
+SYSVARS.H:
+  Restore the enum entry for []Z.
+
+
+Build #538 -- Version 0.0.2.4
+-----------------------------
+
+* Display More Detail About Globals In Debug Window
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayGlobals> when displaying numeric arrays, display up to the
+    first three values (followed by an ellipsis if more values are present)
+    and display APA arrays as Off+Mulx{iota}NELM.
+  In <DisplayGlobals>, convert the sequence of if/else/if/else/... stmts
+    to a single switch stmt.
+
+
+Build #537 -- Version 0.0.2.4
+-----------------------------
+
+* Split Name Class For Magic Functions/Operators In Two
+
+Directory trunk:
+
+DATATYPE.H:
+  Rename <bMFvar> to <bMFOvar> to indicate it include operators.
+
+DISPDBG.C:
+  Rename <bMFvar> to <bMFOvar> to indicate it include operators.
+  Improve comments.
+  Use macro <IsMFOName> instead of direct comparison.
+
+EDITFCN.C:
+  Rename <bMF> to <bMFO> to indicate it includes operators.
+  Improve comments.
+
+EXECDFN.C:
+FH_PARSE.H:
+FREE.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+REFCNT.C:
+SAVEFCN.C:
+SC_SI.C:
+SIS.H:
+  Improve comments.
+
+EXECFNS.C:
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to incidate it includes operators.
+
+EXECMFN.C:
+  Improve comments.
+  Rename <MAGIC_FUNCTION> to <MAGIC_FCNOPR> to indicate it includes operators.
+  Rename <hGlbMF> to <hGlbMFO> to indicate it includes operators.
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to indicate it includes operators.
+  Rename <LPINITMF> to <LPINITMFO> to indicate it includes operators.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+  Rename <MFN_xxx> to <MFON_xxx> to indicate it includes operators.
+  Rename <MF_xxx> to <MFO_xxx> to indicate it includes operators.
+
+EXECMFN.H:
+  Improve comments.
+  Rename <MFN_xxx> to <MFON_xxx> to indicate it includes operators.
+  Rename <MAGIC_FUNCTION> to <MAGIC_FCNOPR> to indicate it includes operators.
+  Rename <LPINITMF> to <LPINITMFO> to indicate it includes operators.
+
+MACROS.H:
+  Rename macro <IsMFName> to <IsMFOName> to indicate it includes operators.
+
+MAIN.C:
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to indicate it includes operators.
+
+NAMECLASS.H:
+  Improve comments.
+  Split name class for magic functions/operators in two.
+
+PERTAB.H:
+  Improve comments.
+  Rename <hGlbMF> to <hGlbMFO> to indicate it includes operators.
+
+PF_DSHOE.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PO_DIJOT.C:
+QF_FMT.C:
+QF_VR.C:
+  Rename <hGlbMF> to <hGlbMFO> to indicate it includes operators.
+  Improve comments.
+  Rename <MFN_xxx> to <MFON_xxx> to indicate it includes operators.
+  Rename <MF_xxx> to <MFO_xxx> to indicate it includes operators.
+  Rename <MAGIC_FUNCTION> to <MAGIC_FCNOPR> to indicate it includes operators.
+
+QF_AT.C:
+QF_MF.C:
+SC_FNOV.C:
+SC_OUT.C:
+SC_SAVE.C:
+TABCTRL.C:
+  Improve comments.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+
+QF_NC.C:
+  Improve comments.
+  Split name class for magic functions/operators in two.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+
+SESSMAN.C:
+  Improve comments.
+  Rename <PTDMEMVIRT_MFx> to <PTDMEMVIRT_MFOx> to indicate it includes operators.
+
+SYMTAB.C:
+  Improve comments.
+  Rename macro <IsMFName> to <IsMFOName> to indicate it includes operators.
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to indicate it includes operators.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+
+SYMTAB.H:
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to indicate it includes operators.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+
+TOKENIZE.C:
+  Rename <bMFvar> to <bMFOvar> to indicate it include operators.
+  Rename <bMF> to <bMFO> to indicate it includes operators.
+  Improve comments.
+
+TOKENIZE.H:
+  Rename <bMF> to <bMFO> to indicate it includes operators.
+
+
+Build #536 -- Version 0.0.2.4
+-----------------------------
+
+* Implement {jot} As An Operand To Monadic and Dyadic Operators
+
+Directory trunk:
+
+DISPDBG.C:
+  Define entry for new token TKT_FILLJOT.
+  In <DisplayFcnSub>, treat FILLJOT the same as FCNIMMED.
+
+EXECDFN.C:
+  In <ExecDfnOprGlb_EM_YY>, if the left or right operand is FILLJOT,
+    leave the operand undefined.
+  In <UninitOprSTEs>, treat FILLJOT the same as FCNIMMED.
+  In <UninitOprSTEs>, check for NOVALUE before decrementing a refcnt.
+
+FREE.C:
+  In <FreeResultSub>, treat FILLJOT the same as FCNIMMED.
+  In <FreeResultGlobalFcn>, treat FILLJOT the same as FCNIMMED.
+
+MACROS.H:
+  Define macro for detecting FILLJOT.
+
+PL_PARSE.PROTO:
+  In <LookaheadAdjacent>, define additional Boolean argument
+    to indicate whether or not to look beyond a {jot}.
+  Change the return of <LookaheadDyadicOp> and <CheckNullOp3> from
+    <BOOL> to <UBOOL> so we always use unsigned BOOLs.
+
+PL_PARSE.Y:
+  Define new token FILLJOT returned from <pl_yylex>.
+  In <Drv1Func>, define new rule for <FILLJOT DydOp StrandInst>.
+  In <Drv1Func>, define new rule for <FILLJOT DydOp Drv1Func>.
+  In <Drv2Func>, define new rule for <StrandInst DydOp FILLJOT>.
+  In <Drv2Func>, define new rule for <FILLJOT DydOp AxisFunc>.
+  In <LeftOper>, define new rule for <MonOp FILLJOT>.
+  In <LeftOper>, define new rule for <RightOper DydOp FILLJOT>.
+  In <LeftOper>, define new rule for <FILLJOT DydOp LeftOper>.
+  In <LeftOper>, define new rule for <FILLJOT DydOp FILLJOT>.
+  In <LookaheadAdjacent>, define additional Boolean argument
+    to indicate whether or not to look beyond a {jot}.
+  In <LookaheadAdjacent>, handle FILLJOT as next token type.
+  Simplify calls to <LookaheadDyadicOp> as it returns TRUE
+    and FALSE only.
+  In <LookaheadDyadicOp>, treat FILLJOT the same as FCNIMMED.
+  In <pl_yylex> when handling <TKT_VARNAMED>, be sure to return
+    something if we fall through.  This isn't a bug (as yet),
+    just good coding practice.
+
+PO_CMIDDOT.C:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DITILDE.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+  Check for FILLJOT and signal a SYNTAX ERROR if present.
+
+PO_JOTDOT.C:
+  Minor text changes.
+  When monadic JotDot is called, signal a VALENCE ERROR
+    not a SYNTAX ERROR.
+  Check for FILLJOT and signal a SYNTAX ERROR if present.
+
+PRIMFNS.C:
+  In <TokenTypeFV>, treat FILLJOT the same as FCNIMMED.
+
+STRAND.C:
+  In <FreeStrand>, treat FILLJOT the same as FCNIMMED.
+  In <MakeVarStrand_EM_YY>, treat FILLJOT the same as FCNIMMED.
+  Define new routine <MakeFillJot_YY> to create a <PL_YYSTYPE>
+    entry for  FILLJOT.
+  In <CopyToken_EM>, treat FILLJOT the same as FCNIMMED.
+
+TOKENIZE.C:
+  In <Untokenize>, treat FILLJOT the same as FCNIMMED.
+  In <AppendNewToken_EM>, treat FILLJOT the same as FCNIMMED.
+
+TOKENS.H:
+  Define new token for FILLJOT.
+
+YYFNS.C:
+  In <IncrFcnMem>, treat FILLJOT the same as FCNIMMED.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note that []IDENTITY is implemented.
+  Include additional Power Operator cases:  f{power}N and f{power}{jot}.
+
+
+Build #535 -- Version 0.0.2.4
+-----------------------------
+
+* Unlocalize []IO From The []VR Magic Function
+
+Directory trunk:
+
+EXECMFN.C:
+  After initializing the hash and symbol tables for []VR, set the
+    value of []IO to zero so we don't have to do it every time in
+    the magic function.
+
+QF_VR.C:
+  In the magic function for []VR, remove all references to []IO
+    as it is already localized as part of the hash and symbol tables
+    and initialized to zero when the hash and symbol tables are first
+    created.
+
+
+Build #534 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  With Multiple Tabs Open, Deleting The Current Tab Hangs
+
+Directory trunk:
+
+TABCTRL.C:
+  Optimize the code w.r.t. <bExecuting>.
+  Fix Bug:  Before incrementing the index of the new tab, ensure that
+    the resulting value wouldn't be out of range.
+
+
+Build #533 -- Version 0.0.2.4
+-----------------------------
+
+* Move Initialization Of Constants To Common Routine
+
+Directory trunk:
+
+INITDATA.C:
+  Update copyright year.
+  Move initialization of constants to common routine.
+
+MAIN.C:
+  Move initialization of constants to common routine.
+
+
+Build #532 -- Version 0.0.2.4
+-----------------------------
+
+* Append Time Of Last Modification To End Of []VR Display
+
+Directory trunk:
+
+QF_VR.C:
+  When displaying a function, append the time of the last modification
+    after the trailing del symbol.
+
+
+Build #531 -- Version 0.0.2.4
+-----------------------------
+
+* Implement Preliminary Form of Namespaces
+
+Directory trunk:
+
+DISPDBG.C:
+  Define and use namespace token.
+
+DISPLAY.C:
+GETFNS.C:
+PERTAB.H:
+SC_COMMON.C:
+SC_SAVE.C:
+SC_WSID.C:
+TABCTRL.C:
+  Move the <lpSymQuadXXX> entries in the PerTabData struc into
+    the HshTabStr struc so as to localize them to the corresponding
+    namespace.
+
+EDITFCN.C:
+  In <SyntaxColor>, if there's room, save the TKCOL_xxx value in the
+    next syntax color entry.
+  Move the <lpSymQuadXXX> entries in the PerTabData struc into
+    the HshTabStr struc so as to localize them to the corresponding
+    namespace.
+
+EXECFNS.C:
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+  In <ExecFunc_EM_YY>, switch to a parent namespace as appropriate.
+
+EXECMFN.C:
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+  In <ExecuteMagicFunction_EM_YY> and <ExecuteMagicOperator_EM_YY>,
+    switch to a namespace if this magic function uses one.
+  In <Init1MagicFunction>, if there's a separate namespace,
+    initialize the system vars for the namespace.
+  In <InitMagicFunctions>, initialize the magic function for []VR
+    with a separate namespace.
+
+EXTERNS.H:
+  Move <SYS_VARS> enum to <sysvars.h>.
+  Move <HSHTABSTR> struc to <symtab.h>.
+
+HEADERS.H:
+  Move <sysvars.h> up in the list as its contents are needed earlier.
+
+MAIN.C:
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+
+PF_DSHOE.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PO_DIJOT.C:
+  Pass additional HSHTABSTR parameter to <ExecuteMagicFunction_EM_YY>
+    and <ExecuteMagicOperator_EM_YY> to support namespaces.
+
+PL_PARSE.Y:
+  Define and use <SYSNS> token to support namespaces for primitive
+    functions, system functions, and user-defined functions/operators.
+
+QF_CR.C:
+  Define the ptr to the right arg as a ptr to a char vector so as to
+    make debugging easier.
+
+QF_FMT.C:
+  Remove commented out code no longer needed.
+  Pass additional HSHTABSTR parameter to <ExecuteMagicFunction_EM_YY>
+    and <ExecuteMagicOperator_EM_YY> to support namespaces.
+
+QF_VR.C:
+  Pass additional HSHTABSTR parameter to <ExecuteMagicFunction_EM_YY>
+    and <ExecuteMagicOperator_EM_YY> to support namespaces.
+  Shift magic function system fns/vars to uppercase.
+
+STARTADDR.H:
+  Include additional files and routines.
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY>, copy system namespace level to the output.
+
+SYMTAB.C:
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+  In <SymTabAppendNewName_EM>, if the name is that of a magic function,
+    peel back to the top namespace level so the name is global to and
+    available to all levels.
+  In <SymTabLookupNameLength>, if the name is that of a magic function,
+    peel back to the top namespace level which is where all magic
+    function names are located.
+
+SYMTAB.H:
+  Move <HSHTABSTR> struc to <symtab.h>.
+  Define and use a separate ptr to a previous HshTabStr for
+    append new/lookup old magic function name, and rename
+    the old one.
+
+SYSVARS.C:
+  Rename <SymTabAppendSysName> to <SymTabAppendOneSysName>.
+  Define <SymTabAppendAllSysNames_EM> to be called from
+    <execmfn.c> for magic function initializations.
+  Move the <lpSymQuadXXX> entries in the PerTabData struc into
+    the HshTabStr struc so as to localize them to the corresponding
+    namespace.
+  In <InitSystemNames>, call <SymTabAppendAllSysNames>.
+  In <InitSystemVars>, split out the assignment of system vars into
+    <AssignDefaultSysVars> so it can be called from <execmfn.c> to
+    initialize the namespace of a magic function.
+
+SYSVARS.H:
+  Move <SYS_VARS> enum to <sysvars.h>.
+
+TOKENIZE.C:
+  Rename <bInUse> to <gbInUse> to reflect its global state.
+  Use separate FSA actions to handle single and double quotes
+    as opposed the confusing use of QUOTE1 and QUOTE2 to indicate
+    initial quote (not single quote) and subsequent text (not
+    double quote).
+  Define new FSA row and column for system namespaces.
+  Rename <lpStart>/<lpNext>/<lpLastEOS> to
+    <lptkStart>/<lptkNext>/<lptkLastEOS> to reflect that
+    they all are TOKEN ptrs.
+  Define FSA actions to handle system namespaces.
+  When setting a syntax color, also set the corresponding name
+    type and column index.
+
+TOKENIZE.H:
+  Define new FSA row and column for system namespaces.
+  Rename <lpStart>/<lpNext>/<lpLastEOS> to
+    <lptkStart>/<lptkNext>/<lptkLastEOS> to reflect that
+    they all are TOKEN ptrs.
+
+TOKENS.H:
+  Define new token for system namespaces.
+  In <TKFLAGS>, define new field to hold the system namespace
+    level for that token.
+
+
+Build #530 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  The primitive dyadic scalar case of singleton APA vs.
+  multiple array returning a Boolean was omitted.
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  The primitive dyadic scalar case of singleton APA vs.
+    multiple array returning a Boolean was omitted.
+
+
+Build #529 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bugs in Rank Operator
+
+Directory trunk:
+
+PO_DIJOT.C:
+  Fix Bug:  If the result of <#MonRank> or <#DydRank> consists of
+    mixed rank items, the Axis Operator to the Rank Operator was
+    ignored.
+  Fix Bug:  In <#MonRank>, if the right operand to the Rank Operator
+    was a two-element vector, the wrong cell size was used.
+
+
+Build #528 -- Version 0.0.2.4
+-----------------------------
+
+* Move Name Classes (Result Of []NC) To A Range That Doesn't Overlap
+  Other Vendor's Use
+
+Directory trunk:
+
+EXECDFN.C:
+  Fix Bug:  The OBJNAME_xxx value for System Labels was set to OBJNAME_USR
+    instead of OBJNAME_SYS.
+
+NAMECLASS.H:
+  Update copyright year.
+  Fix typo in comment.
+  Move name classes for System Variables, System Functions, System
+    Labels and Magic Functions to the 21+ range so as not to overlap
+    other vendor's use.
+
+QF_NC.C:
+  Change comments about name class values.
+
+QF_NL.C:
+  Widen the bit bucket which holds the name class values to 64 bits in
+    case the largest name class value increases.
+  Move name classes for System Variables, System Functions, System
+    Labels and Magic Functions to the 21+ range so as not to overlap
+    other vendor's use.
+  In <SysFnDydNL_EM_YY>, widen the nameclass bit bucket to 64 bits.
+  In <SysFnDydNL_EM_YY>, check for valid range for the input.
+
+SC_FNOV.C:
+  Change <stNameType> from <UINT> to <NAME_TYPES> for a better view
+    when debugging.
+  In <CmdFNOV_EM>, when looping through the SYMENTRYs, omit Magic
+    Functions and System Names except for System Labels.
+  In <CmdFNOV_EM>, omit separate check for System and Magic Functions.
+  In <CmdFNOV_EM>, allow for two digit nameclass values in the
+    )NMS output.
+  Optimize FOR stmt with <FillMemoryW>.
+
+
+Build #527 -- Version 0.0.2.4
+-----------------------------
+
+* Minor Change to Text
+
+Directory trunk:
+
+EDIT.RCH:
+  Update copyright year.
+  Change case of text from "WIN" to "Win".
+
+UNITRANSHDR.H:
+UNITRANSTAB.H:
+  Change case of text from "WIN" to "Win".
+
+Directory trunk\MediaWiki\extensions:
+
+APL.CSS:
+  Combine .APL and code styles as they are identical.
+  Change the order of fonts to "SImPL medium" and "SImPL", etc
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Change case of text from "WIN" to "Win".
+
+
+Build #526 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  When saving a function array that contains a user-defined
+  function/operator, copy the function name to the text rather than
+  the global reference as the global reference has already been
+  resolved.
+
+Directory trunk:
+
+SC_SAVE.C:
+  In <SavedWsFormGlbVar>, widen array to handle FMTCHR_LEAD when
+    using 64-bit ptrs.
+  Fix Bug:  In <SavedWsFormGlbVar>, when saving a function array that
+    contains a user-defined function/operator, copy the function name
+    to the text rather than the global reference as the global
+    reference has already been resolved.
+
+
+Build #525 -- Version 0.0.2.4
+-----------------------------
+
+* Implement []AT
+
+Directory trunk:
+
+COMPRO.H:
+  Include "qf_at.pro" in the list of prototype files.
+
+EXECMFN.C:
+  When initializing a magic function at system startup,
+    save the current time in the function header so it may
+    be retrieved by []AT.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define entries for new files for []AT.
+
+QF_AT.C:
+  New module to implement []AT.
+
+SYSVARS.C:
+  Enable []AT as a system function.
+
+VERSION.RC:
+  Increment version to 0.0.2.4.

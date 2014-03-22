@@ -1,0 +1,20 @@
+Build #863 -- Version 0.0.2.23
+------------------------------
+
+* Handle VFP Precision In Saved Workspaces
+
+Directory trunk:
+
+SC_LOAD.C:
+  Read and handle FPC precision of either the entire VFP
+    array or individual elements.
+
+SC_SAVE.C:
+  Save the VFP precision of the entire VFP
+    array or of each individual element.
+
+SYSVARS.H:
+  Change the default value for []FPC to 128.
+
+WORKSPACE.H:
+  Define Array Property prefix for VFP precision.

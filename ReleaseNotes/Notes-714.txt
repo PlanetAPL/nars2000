@@ -1,0 +1,38 @@
+Build #714 -- Version 0.0.2.17
+------------------------------
+
+* Implement Mismatch Function
+
+Directory trunk:
+
+EXTERNS.H:
+  Remove Alt-'?' from list of available keystrokes.
+  Move CircleMiddleDot symbol from Alt-'@' to Alt'?'.
+  Define NotEqualUnderbar symbol on Alt-'@' so it's next
+    to EqualUnderbar (Alt-'!').
+
+INITDATA.C:
+  Remove Unfinished mark from Dyadic LeftShoe (Partitioned Enclose)
+    as it's been working for a while.
+  Move CircleMiddleDot symbol from Alt-'@' to Alt'?'.
+  Define NotEqualUnderbar symbol on Alt-'@' so it's next
+    to EqualUnderbar (Alt-'!').
+
+PF_EQUALUND.C:
+  Implement NotEqualUnderbar function and EqualUnderbar via
+    a common function.
+
+REBAR.C
+TOKENIZE.C:
+UNICODE.H
+  Move CircleMiddleDot symbol from Alt-'@' to Alt'?'.
+  Define NotEqualUnderbar symbol on Alt-'@' so it's next
+    to EqualUnderbar (Alt-'!').
+
+SYMBOLNAMES.H:
+  Define symbol name for NotEqualUnderbar.
+  Define alternate symbol names for the underbar alphabet.
+  Define alternate symbol names for EpsilonUnderbar, DeltaUnderbar,
+    IotaUnderbar, LeftCaretUnderbar, RightCaretUnderbar, and
+    EqualUnderbar.
+  Move CircleMiddleDot symbol from Alt-'@' to Alt'?'.

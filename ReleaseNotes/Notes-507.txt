@@ -1,0 +1,27 @@
+Build #507-- Version 0.0.2.3
+----------------------------
+
+* Fix Bug:  When a named function array is used in a statement and an error
+  is signalled because of something in that named function array (e.g. AXIS ERROR),
+  rebase the character indices for all tokens in the function array to that of the
+  named function so as to have the caret point to the named function with the error.
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Pass additional parameter to <MakeNameFcnOpr_YY> to indicate hwether or not
+    we should rebase the function tokens if the named function is a function
+    array.
+  In <pl_yylex/case TKT_OP1IMMED:>, remove unnecessary code.
+
+STRAND.C:
+  Pass additional parameter to <MakeNameFcnOpr_YY> to indicate hwether or not
+    we should rebase the function tokens if the named function is a function
+    array.
+
+YYFNS.C:
+  In <YYCountFcnStr>, count the individual tokens in a function array.
+  In <YYCopyFcn>, copy the individual tokens in a function array and
+    save them at the top level in the result rather than just point to the
+    function array global memory handle.
+  In <IncrFcnMem>, handle immediate axis values.

@@ -1,0 +1,46 @@
+Build #354 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new file <qf_a.c>.
+
+DATATYPE.H:
+  Define new <PERMNDX_QUADA> and alphabetize the names
+    renaming MTCHAR to V0CHAR to match the name in
+    <externs.h>.
+
+ERRMSG.C:
+PRIMFNS.C:
+  Rename <hGlbM3x0Char> to <hGlbQuadEM> to reflect its
+    purpose better.
+
+EXTERNS.H:
+  Define new var <hGlbQuadA> and alphabetize the names
+    renaming <hGlbM3x0Char> to <hGlbQuadEM> and <hGlbAV>
+    to <hGlbQuadAV> to reflect their purpose better.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Reference new file <qf_a.obj>.
+
+QF_A.C:
+  Define new file to handle []A.
+
+QF_AV.C:
+  Update copyright year.
+  Rename <hGlbAV> to <hGlbQuadAV> toreflect its purpose
+    better.
+
+QF_EM.C:
+  Update copyright year.
+  Rename <hGlbM3x0Char> to <hGlbQuadEM> to reflect its
+    purpose better.
+
+SYSVARS.C:
+  Define entries for new system function []A.
+  Rename <hGlbM3x0Char> to <hGlbQuadEM> to reflect its
+    purpose better.
+  Rename <PERMNDX_MTCHAR> to <PERMNDX_V0CHAR> to match the
+    name in <externs.h>.

@@ -1,0 +1,11 @@
+Build #692 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Empty Result From Partitioned Enclose
+
+Directory trunk:
+
+PF_LSHOE.C:
+  In <PrimFnDydLeftShoeGlb_EM_YY> when the left arg is all zero
+    and the right arg is simple or its prototype is simple, don't
+    nest it in the result.

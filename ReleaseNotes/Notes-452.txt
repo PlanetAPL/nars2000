@@ -1,0 +1,8 @@
+Build #452 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+QF_SYSVER.C:
+  Append " DEBUG" to sysver string if using DEBUG version.
+  Reorganize the code.

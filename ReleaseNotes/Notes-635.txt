@@ -1,0 +1,12 @@
+Build #635 -- Version 0.0.2.9
+-----------------------------
+
+* Fix Bug:  When Invoking A UDFO For Editing Which Is Already Being Edited,
+  Sometimes A New Instance Is Created
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  In <FEWndProc> when destroying an editing window, if the window
+    being destroyed is at the top of the editing chain, change it to the
+    previous window handle.

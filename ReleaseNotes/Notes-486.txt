@@ -1,0 +1,80 @@
+Build #486-- Version 0.0.1.18
+------------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk:
+
+COMMON.C:
+CONVERT.C:
+CRASH.C:
+CUSTOMIZE.C:
+DATATYPE.H:
+DBGBRK.ASM:
+DBGBRK.PRO:
+DEBUG.C:
+DEFINES.H:
+DISPDBG.C:
+EDITFCN.C:
+EDITMAT.C:
+EDITVEC.C:
+EXCEPT.C:
+EXTERNS.H:
+FMTSPEC.C:
+GETREENT.C:
+INIFILE.C:
+MAIN.C:
+MAIN.H:
+MAIN.RC:
+MAKEFILE.INC:
+MAKEFILE.W32:
+MAKEFILE.W64:
+MAKEPRO.PHP:
+NARS2000.EXE.MANIFEST:
+NARS2000.EXE.MANIFEST32:
+NARS2000.EXE.MANIFEST64:
+PERFMON.C:
+PERTAB.H:
+PF_CIRCLE.C:
+PF_DTACKJOT.C:
+PF_UTACKJOT.C:
+PRIMFNS.C:
+QF_DR.C:
+QF_FMT.C:
+QF_NC.C:
+QF_SYSVER.C:
+QF_TF.C:
+QF_WA.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SESSMAN.C:
+SYMTAB.C:
+TABCTRL.C:
+TOKENIZE.C:
+VER.C:
+WEBCOLORS.C:
+YYFNS.C:
+  Changes to enable 64-bit compile.
+
+
+Directory trunk\WineHQ:
+
+CONFIG.H:
+LOCAL.H:
+  Changes to enable 64-bit compile.
+
+
+Directory trunk\WineHQ\include:
+
+STDARG.H:
+STDLIB.H:
+STRING.H:
+WINBASE.H:
+  Changes to enable 64-bit compile.
+
+
+Directory trunk\WineHQ\include\msvcrt\Wine:
+
+DEBUG.H:
+  Changes to enable 64-bit compile.

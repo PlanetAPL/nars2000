@@ -1,0 +1,18 @@
+Build #739 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Handle Tab Closing In Proper Order So We Free Everything
+
+Directory trunk:
+
+EXCEPT.C:
+  In <DisplayException>, check for invalid ptr, not just NULL.
+
+SESSMAN.C:
+  In <SMWndProc/WM_CREATE> and <SMWndProc/WM_DESTROY> upon failure to
+    load a workspace, free the SymTab globals.
+
+TABCTRL.C:
+  In <LclTabCtrlWndProc>, break out the code to free SymTab globals
+    into a separate routine so it may be called from multiple places
+    and sooner than where it was before the SymTab itself is freed.

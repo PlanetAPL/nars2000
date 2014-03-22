@@ -1,0 +1,9 @@
+Build #1099 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug Displaying {zilde} (,1)
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  In <FormatArrSimple>, skip code if empty cols.

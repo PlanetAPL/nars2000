@@ -1,0 +1,11 @@
+Build #439 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  In <PrimFnDydNestSimp_EM> and <PrimFnDydMultSing_EM>,
+    APAs were missing from the list of storage types such that a
+    stmt such as
+      1 (1 2) + {iota}2
+    crashes the system.

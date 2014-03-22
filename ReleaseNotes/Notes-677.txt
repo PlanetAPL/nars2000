@@ -1,0 +1,42 @@
+Build #677 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Vars In Function Strands on )LOAD
+
+Directory trunk:
+
+DISPDBG.C:
+DISPLAY.C:
+STRAND.C:
+  Pass function entry point and parameters to convert a global
+    memory object to a function.
+
+SC_LOAD.C:
+  Before loading a var or fcn/opr, check to see if its has already
+    been loaded.
+  Before calling execute to create a function array, skip over the
+    source ptr past its trailing zero so the memory may be serially
+    reusable.
+
+SC_SAVE.C:
+  In <CmdSave_EM>, increment <uGlbCnt> after use so as to allow
+    for multiple functions in one line (function strand).
+  In <SavedWsFormGlbFcn>, pass a ptr to the function name for
+    later use.
+  In <SavedWsFormGlbFcn>, rename <lpGlbCnt> to <lpuGlbCnt> to
+    match its use outside that function.
+  Pass function entry point and parameters to convert a global
+    memory object to a function.
+  In <SavedWsFormGlbFcn>, increment <uGlbCnt> after use so as to
+    allow for multiple functions in one line (function strand).
+  In <SavedWsFormGlbFcn>, setup <SavedWsGlbFcnParm> to be passed to
+    function strand display functions.
+  In <SavedWsFormGlbVar>, rename <lpGlbCnt> to <lpuGlbCnt> to
+    match its use outside that function.
+  Define <SavedWsGlbFcnConv> as callback function from display
+    functions when displaying global functions.
+
+WORKSPACE.H:
+  Rename <lpGlbCnt> to <lpuGlbCnt> to match its use outside
+    that function.
+  Define typedef for <SavedWsGlbFcnConv> parameters.

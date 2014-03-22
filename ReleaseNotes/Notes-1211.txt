@@ -1,0 +1,15 @@
+Build #1211 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Indexing Empty Arrays
+
+Directory trunk:
+
+PF_INDEX.C:
+  Update copyright year.
+  Pass flag to <PrimFnDydSquadGlb_EM_YY> to indicate called from indexing.
+
+PF_SQUAD.C:
+  Update copyright year.
+  Pass flag to <PrimFnDydSquadGlb_EM_YY> to indicate called from indexing.
+  When indexing an empty array, validate the indices so as to catch DOMAIN and INDEX ERRORs.

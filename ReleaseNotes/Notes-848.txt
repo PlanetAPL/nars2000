@@ -1,0 +1,9 @@
+Build #848 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  []EA Mishandles Niladic {goto}
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <StmtSing:  ArrExpr>, check for niladic {goto} result and exit as appropriate.

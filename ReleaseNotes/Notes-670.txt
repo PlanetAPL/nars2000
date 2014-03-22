@@ -1,0 +1,12 @@
+Build #670 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Avoid Freeing A Named UDFO As Its RefCnt Is
+  Not Incremented In MakeNameFcnOpr_YY
+
+Directory trunk:
+
+FREE.C:
+PL_PARSE.Y:
+  Define new function <FreeResNNU> which frees its arg if it's
+    Not a Named UDFO.

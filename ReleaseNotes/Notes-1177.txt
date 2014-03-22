@@ -1,0 +1,12 @@
+Build #1177 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In DotDot
+
+Directory trunk:
+
+PF_DOTDOT.C:
+  Fix bug where a variable is unset if we encounter an error early.
+
+VER.RC:
+  Increment version # to 0.4.5.xx.

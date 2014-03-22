@@ -1,0 +1,49 @@
+Build #748 -- Version 0.0.2.18
+------------------------------
+
+* Implement []FEATURE To Specify Various User-Controlled Features
+
+Directory trunk:
+
+AXISFNS.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+  Only if the user allows negative indices, are they enabled.
+
+CUSTOMIZE.C:
+  Implement Allow the user to specify []FEATURE Clear WS values,
+    Range Limit, and Reset Var.
+
+DATATYPE.H:
+  Include []FEATURE in PERMNDX_QUADxxx enum.
+
+DEFINES.H:
+  Specify the default Range Limit and Reset Vars values for []FEATURE.
+
+EXTERNS.H:
+  Define enums and structs for []FEATURE.
+
+INIFILE.C:
+  Read in/write out []FEATURE for .ini file.
+
+MAIN.RC:
+  Widen the Customize dialog to fit []FEATURE.
+  Include []FEATURE in CLEAR WS, range Limit, and Reset Vars sections.
+
+PERTAB.H:
+  Initialize the current values for []FEATURE upon initializing
+    a workspace.
+
+RESOURCE.H:
+  Define resource defines for []FEATURE.
+
+SYSVARS.C:
+  Improve comments.
+  Define []FEATURE as a sysvar.
+  Define routines to validate assignment and indexed assignment
+    to []FEATURE.
+
+SYSVARS.H:
+  Define equates for []FEATURE.

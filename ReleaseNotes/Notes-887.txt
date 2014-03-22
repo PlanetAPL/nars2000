@@ -1,0 +1,12 @@
+Build #887 -- Version 0.0.3.2
+-----------------------------
+
+* Miscellaneous DEBUG Changes
+
+Directory trunk:
+
+PF_CSTAR.C:
+  Reorganize code to use <#ifdef OWN_EXPLOG>.
+
+PF_STAR.C:
+  Insert DEBUG stmts around debug stmt.

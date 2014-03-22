@@ -1,0 +1,11 @@
+Build #632 -- Version 0.0.2.8
+-----------------------------
+
+* Fix Bug:  Avoid Crash When The ParseLine Local Var Is Undefined
+
+Directory trunk:
+
+PF_UTACKJOT.C:
+  Fix Bug:  Not all calls to <PrimFnMonUpTackJotPLParse> are done
+    in a context in which <lpplLocalVars> is active, so we test
+    for that case and don't crash if it is undefined.

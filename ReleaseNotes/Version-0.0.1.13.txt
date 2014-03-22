@@ -1,0 +1,42 @@
+Version 0.0.1.13 consists of the following Builds:
+
+
+Build #413 -- Version 0.0.1.13
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Allow scalar left arg so 'T' []FMT 0 0{rho}0 works.
+
+
+Build #412 -- Version 0.0.1.13
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Fix Bug:  Wrong <GetPtrTypeXXX> macro used so it'll fail on (say)
+    'I8' []FMT 1 (2 3)
+    because of the STE constant.
+
+
+Build #411 -- Version 0.0.1.13
+------------------------------
+
+Directory trunk:
+
+FMTSPEC.C:
+  Fix bug:  In <fnSetQual> for a T-format without a following number,
+    the call to <ScanNumberFS> doesn't back off <uChar>, so we need
+    to do that ourselves.
+
+
+Build #410 -- Version 0.0.1.13
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Omit wipe to end of line when Syntax Coloring as it
+    interferes with mouse selection of text in reverse video.

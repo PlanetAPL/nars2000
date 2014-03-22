@@ -1,0 +1,129 @@
+Version 0.0.1.0 consists of the following Builds:
+
+
+Build #342 -- Version 0.0.1.0
+-----------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix typos in comments.
+
+MAIN.C:
+  Display web and file versions in the single message.
+  Delete unnecessary content from the Updates dialog.
+
+MAIN.RC:
+  Delete unnecessary content from the Updates dialog.
+
+PN_PARSE.Y:
+  Fix Bug:  I missed the case of parsing (say) {neg}.5
+  Fix Bug:  The return value and <uNumOff> value of the
+    <Decimal> rule for '.' Digit is incorrect.
+  Fix Bug:  The case (say) 1e0.5 is incorrectly allowed.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+MSGCOMPOSEWINDOW.JS:
+  Remove try {} catch() {} in favor of simple test as there's
+    no error thrown, but no attributes.
+
+
+Directory trunk\Extensions\aplchars\chrome\locale\en-US\aplchars:
+
+APLCHARS.DTD:
+  Change button text from "APL Chars ON/OFF" to "APL Translate ON/OFF"
+    to better reflect the action.
+
+
+Directory trunk\htdocs:
+
+FOOTER.HTML:
+  Insert script to track page views via Google Analaytics.
+
+INDEX-BODY.AHTML:
+  Include additional features.
+  Indicate that the workspace size is also limited by the
+    available address space.
+  Put 64-bit executable on the wish list.
+  Append "\trunk" to svn:// target so the user sees the
+    source code right away rather than having to check out
+    the "branches" and "tags" directories first.
+  Improve wording of requirements for Unicode APL fonts.
+  Update the copyright year.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Return value for "onclick=" handler to ensure proper response
+    to the event.
+  Remove secondary file to download files as there's a way
+    to do it with Google Analytics.
+  Include "onclick=" handler on anchors to track downloaded files
+    as page views
+  In <DisplayTab>, return result so the proper response is
+    taken for the event.
+
+LOADFILE.PHP:
+  File no longer needed as there's a way to do it
+    with Google Analytics.
+
+
+Build #341 -- Version 0.0.1.0
+-----------------------------
+
+Directory trunk:
+
+MAIN.C:
+  Set default cursor to I-beam (as per an Edit Ctrl)
+    instead of Arrow.
+
+NARS2000.VCPROJ:
+  Set subsystem to Windows.
+  Set DEP to TRUE.
+  Set optimization ON for Release.
+  Favor size over speed for Release.
+  Append include dir <U:\include> for <editctrl.c> so it can
+    pick up <windowsx.h>.
+
+QF_SYSVER.C:
+  Use <FILETIME> instead of reading the .exe file header as the
+    former is not dependent on the file format and thus is portable
+    to Win64.
+  Delete <ConvTimeW> as it's no longer needed.
+
+
+Directory trunk\htdocs:
+
+FOOTER.HTML:
+  Insert script to track page views via Google Analaytics.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Use secondary file to download files so we may
+    track it via Google Analytics.
+
+LOADFILE.PHP:
+  New file use to track downloads via Google Analytics.
+
+
+Build #340 -- Version 0.0.1.0
+-----------------------------
+
+Directory trunk:
+
+ADDSYSVAR.TXT:
+  Improve comments.
+
+ECHODOT.BAT:
+ECHODOT.PHP:
+  Use these files instead of <echodot.com> as x64 doesn't
+    execute 16-bit code.
+
+VER.RC:
+VERSION.RC:
+  For first release, set the version # to 0.0.1.0.

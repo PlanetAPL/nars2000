@@ -1,0 +1,5 @@
+int pn_yyparse (LPPNLOCALVARS lppnLocalVars);
+UBOOL ParsePointNotation (LPPNLOCALVARS lppnLocalVars);
+int  pn_yylex     (LPPN_YYSTYPE lpYYLval, LPPNLOCALVARS lppnLocalVars);
+void pn_yyerror   (LPPNLOCALVARS lppnLocalVars, LPCHAR s);
+void pn_yyfprintf (FILE *hfile, LPCHAR lpszFmt, ...);

@@ -1,0 +1,21 @@
+Build #711 -- Version 0.0.2.17
+------------------------------
+
+* Allow []DM To Be Erased Via )ERASE And []EX
+
+Directory trunk:
+
+ERRMSG.C:
+SC_COPY.C:
+SC_LOAD.C:
+  Use shorter form for the name of []DM.
+
+QF_EX.C:
+  Allow []DM to be erased via )ERASE and []EX.
+
+SYSVARS.H:
+  Remove surrounding parens so it can merge with other
+    wide strings.
+
+VERSION.RC:
+  Increment version to 0.0.2.17.

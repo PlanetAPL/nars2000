@@ -1,0 +1,16 @@
+Build #447 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Define enum for MemVirtStr virtual allocations.
+  Allocate MemVirtStrs in <FEWndProc/WM_NCCREATE>.
+  Use enum for allocation of MemVirtStrs.
+
+MAIN.H:
+  Delete <GWSL_UNDO_INI> as VirtualFree uses the value in the
+    <LclMemVirtStr> struc.
+
+SESSMAN.C:
+  Move individual <LclMemVirtStr> allocations into <WM_CREATE>.

@@ -1,0 +1,16 @@
+Build #516-- Version 0.0.2.3
+----------------------------
+
+* Allow Monadic and Dyadic Grade Up/down on Scalars and
+  Monadic Grade Up/down on Characters
+
+Directory trunk:
+
+PF_DELTASTILE.C:
+  Allow grade up/down of scalar returning {enclose}{zilde}.
+  Allow grade up/down of character array using []AV as a default
+    collating sequence.
+  Fix Bug:  Monadic Grade up/down marked the result as a PV only
+    if the right arg is a PV -- it should always be a PV.
+  Use names for column indices into <FastBoolTrans>.
+  Fix Bug:  Dyadic grade up/down did not mark the result as a PV.

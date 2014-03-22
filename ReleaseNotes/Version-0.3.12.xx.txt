@@ -1,0 +1,76 @@
+Version 0.3.12.xx consists of the following Builds:
+
+
+Build #1120 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Bug In Indexing Edge Cases
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY> and <ArrayIndexRefNamImmed_EM_YY>, handle empty index
+    value which causes the result to be corrupt because the prototype isn't filled in.
+  In <ArrayIndexValidZilde_EM>, handle a[{iota}{each}{rho}1/a] where a is a simple scalar.
+
+PF_SQUAD.C:
+  In <PrimFnDydSquad_EM_YY> when the right arg is a simple scalar, handle a{match}({iota}{each}{rho}a){squad}a.
+
+
+Build #1119 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Bug In Definition of Rank Operator
+
+Directory trunk:
+
+PO_DIJOT.C:
+  Fix bug in definition of rank operator magic functions where I failed to remove
+    the use of negative indexing, as well as localization and setting of []FEATURE.
+
+
+Build #1118 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Code Page Bug
+
+Directory trunk:
+
+CUSTOMIZE.C:
+EXTERNS.H:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_QUERY.C:
+PF_ROOT.C:
+PF_UCARET.C:
+PF_USTILE.C:
+QF_FMT.C:
+UNICODE.H:
+  Replace ASCII chars in the range [128, 255] with the appropriate UTF16_xxxx and WS_UTF16_xxxx defines.
+
+
+Build #1117 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Bug In Folded Raw Output Display
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix bug in folded raw output display if a value is right-aligned at the width.
+
+
+Build #1116 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Bug In Definition Of Array Lookup Function
+
+Directory trunk:
+
+PF_IOTAUND.C:
+  Fix bug in definition of array lookup function.
+
+VER.RC:
+  Increment version # to 0.3.12.xx.

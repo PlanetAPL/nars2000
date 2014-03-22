@@ -1,0 +1,21 @@
+Directory trunk:
+
+AXISFNS.C:
+  Improve comments.
+  Even if no axis present, force creation of a default axis vector result from CheckAxis_EM
+
+EDITFCN.C:
+  Fix bug when displaying lines with an ampersand.
+
+PARSE.Y:
+  Display result of LookAheadDyadicOp on debug screen.
+
+PF_SQUAD.C:
+  Even if no axis present, force creation of a default axis vector result from CheckAxis_EM
+
+TABCTRL.C:
+  Delete commented out lines.
+
+TYPEMOTE.C:
+  Improve comments.
+  Ensure we don't reach beyond the bounds of the right arg when extracting its only value.

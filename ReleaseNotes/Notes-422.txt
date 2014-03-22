@@ -1,0 +1,7 @@
+Build #422 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+SYSVARS.C:
+  Delete []AF from system function list as IBM wants to discourage it.

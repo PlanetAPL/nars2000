@@ -1,0 +1,74 @@
+Build #836 -- Version 0.0.2.23
+------------------------------
+
+* Implement Prime Decomposition And Number Theoretic Functions
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype file.
+
+CUSTOMIZE.C:
+  Define where the symbol for Pi goes in the keyboard symbols.
+
+HEADERS.H:
+  Update copyright year.
+  Include <primes.h>.
+
+INITDATA.C:
+  Include Pi in various tables.
+
+KEYBOARDS.H:
+  Include Pi in keyboard tables.
+
+MAKEFILE.DEP:
+  Update copyright year.
+  Define <msieve> dependencies.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define <msieve> dependencies.
+  Include references to new file for Pi.
+
+MAKEFILE.PRO:
+  Update copyright year.
+  Define <msieve> dependencies.
+
+PF_PI.C:
+PRIMES.H:
+  New files to implement the Pi symbol functions.
+
+REBAR.C:
+  Include description of Pi symbol in Language Bar.
+
+SYMBOLNAMES.H:
+  Include braces definition for Pi symbol.
+
+TOKENIZE.C:
+  Define token column for Pi symbol.
+
+TYPES.H:
+  Define types needed by <msieve> routines for prototype declarations.
+
+UNICODE.H:
+  Define Unicode value for Pi symbol.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+EDITOROVERLAY.JS:
+  Define keystroke for Pi.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note definition of {pi} functions.
+
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Define name for {pi} symbol.

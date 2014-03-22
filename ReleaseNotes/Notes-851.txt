@@ -1,0 +1,10 @@
+Build #851 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Dyadic Format On Multi-Dimensional Array Doesn't Fill In All Dimensions
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix Bug:  In <PrimFnDydDownTackJot_EM_YY>, for multi-dimensional array,
+    only one dimension is filled in -- the rest are zero.

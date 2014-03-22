@@ -1,0 +1,22 @@
+Build #1015 -- Version 0.3.8.xx
+-------------------------------
+
+* Implement APL2 Array Spacing Rules
+
+Directory trunk:
+
+DISPLAY.C:
+  Update copyright year.
+  Include datatype with each item in a compiled heterogeneous array so
+    we can properly display things like 2 1{rho}123.45 '.'
+
+DISPLAY.H:
+  Update copyright year.
+  Define new struct entry in compiled arrays of Interior Width.
+
+PF_DTACKJOT.C:
+  Update copyright year.
+  Include datatype with each item in a compiled heterogeneous array so
+    we can properly display things like 2 1{rho}123.45 '.'
+  Define new struct entry in compiled arrays of Interior Width.
+  Implement the same horizontal and vertical spacing rules for display as APL2.

@@ -1,0 +1,11 @@
+Build #897 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Mediawiki Extension To Render APL Code
+
+Directory trunk\MediaWiki\extensions:
+
+RENDERAPL.PHP:
+  Turn off caching for <apl> and <apll> parser tags.
+  Fix Bug:  Can't use <htmlspecialchars> as the $input may
+    contain html chars (such as <br />).

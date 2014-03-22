@@ -1,0 +1,299 @@
+Version 0.0.3.2 consists of the following Builds:
+
+
+Build #897 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Mediawiki Extension To Render APL Code
+
+Directory trunk\MediaWiki\extensions:
+
+RENDERAPL.PHP:
+  Turn off caching for <apl> and <apll> parser tags.
+  Fix Bug:  Can't use <htmlspecialchars> as the $input may
+    contain html chars (such as <br />).
+
+
+Build #896 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Match Of Simple Or Nested Global Numerics
+
+Directory trunk:
+
+PF_EQUALUND.C:
+  Fix Bug:  In <PrimFnDydEqualUnderbarSimple>, if either argument is a
+    scalar global numeric, its global memory ptr isn't moved to point to
+    its data.
+
+
+Build #895 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Catenate Of Global Numeric And Nested
+
+Directory trunk:
+
+PF_COMMA.C:
+  In <PrimFnDydComma_EM_YY>, handle catenation between global
+    numeric and nested on either side.
+
+
+Build #894 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Ravel Of RAT/VFP/Nested Scalars
+
+Directory trunk:
+
+PF_COMMA.C:
+  Fix Bug:  Rename <PrimFnMonCommaImm_EM_YY> to <PrimFnMonCommaScalar_EM_YY>
+    to handle scalar case not just immediates (simple scalars).
+  Back out of previous changes (Build #891) -- not needed any more.
+
+
+Build #893 -- Version 0.0.3.2
+-----------------------------
+
+* Miscellaneous Web Page Changes II
+
+Directory trunk\htdocs\Download:
+
+DOWNLOAD-BODY.PHP:
+  Move the "Display Files" button to the Download Files section.
+
+
+Build #892 -- Version 0.0.3.2
+-----------------------------
+
+* Miscellaneous Web Page Changes
+
+Directory trunk\htdocs\Download:
+
+DOWNLOAD-BODY.PHP:
+  Move Changes section to second place so it won't be lost below
+    the table of downloadable files.
+
+DOWNLOAD-LEFT-HTML:
+  Account for the reordered sections in <Download-body.php>.
+
+
+Build #891 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Table of RAT/VFP Numbers
+
+Directory trunk:
+
+PF_COMMA.C:
+  Fix Bug:  In <PrimFnMonCommaGlb_EM_YY>, table of RAT/VFP isn't handled
+    because immediate scalars are handled earlier.  This is also fixes a bug in
+    table of a nested scalar.
+
+
+Build #890 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bugs In Formatting VFP Numbers
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  In <FormatExpFmt>, handle negative numbers.
+  Fix Bug:  In <FormatAplVfpFC>, handle format of zero.
+  Fix Bug:  In <FormatAplVfpFC>, fill in trailing zeros when displaying fractional digits.
+  Improve comments.
+
+PF_DTACKJOT.C:
+  Improve comments.
+
+
+Build #889 -- Version 0.0.3.2
+-----------------------------
+
+* Fill With Trailing Zeros In Dyadic Format For Numbers Between -1 and 1
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatFloatFC> for F-format display of numbers between -1 and 1,
+    fill with trailing zeros or underflow chars.
+
+
+Build #888 -- Version 0.0.3.2
+-----------------------------
+
+* Display Short Precision VFP Numbers In E-notation
+* Calcualte # Digits In VFP Number's Precision On The Fly
+* Round Up MPFR Precision To Multiple Of 32
+
+Directory trunk:
+
+CUSTOMIZE.C:
+SYSVARS.H:
+  Rename <DEF_MAX_QUADPP> to <DEF_MAX_QUADPPVFP> to make it clear.
+
+DISPLAY.C:
+  Rename <DEF_MAX_QUADPP> to <DEF_MAX_QUADPPVFP> to make it clear.
+  In <FormatExpFmt>, pass the maximum precision.
+  In <FormatAplVfpFC>, if we're not displaying in E-notation, format the
+    number at maximum precision so we can tell when not enough digits
+    have been displayed and []PP is too small.
+  Improve comments.
+  Calculate the # digits in the number's precision so as to calculate
+    the # trailing underflow digits correctly.
+  Remove <nDigitsFPC> as we now calculate it on the fly.
+  If we didn't display all the digits in the number, display it in E-notation.
+
+EXECDFN.C:
+SC_LOAD.C:
+SESSMAN.C:
+  Rename <InitVfpConstants> as <InitVfpPrecision> as that's all it does now.
+
+EXTERNS.H:
+  Remove <nDigitsFPC> as we now calculate it on the fly.
+
+INITDATA.C:
+  Rename <InitVfpConstants> as <InitVfpPrecision> as that's all it does now.
+  Round up to multiple of 32 the precision passed to <mpfr_set_default_prec>
+    as that matches the granularity of precision of <mpf_xxx> functions and
+    simplifies issues when converting between the two.
+  Remove <nDigitsFPC> as we now calculate it on the fly.
+
+SYSVARS.C:
+  Rename <InitVfpConstants> as <InitVfpPrecision> as that's all it does now.
+  Rename <DEF_MAX_QUADPP> to <DEF_MAX_QUADPPVFP> to make it clear.
+
+
+Build #887 -- Version 0.0.3.2
+-----------------------------
+
+* Miscellaneous DEBUG Changes
+
+Directory trunk:
+
+PF_CSTAR.C:
+  Reorganize code to use <#ifdef OWN_EXPLOG>.
+
+PF_STAR.C:
+  Insert DEBUG stmts around debug stmt.
+
+
+Build #886 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Use Correct Arg When Specifying # Significant Digits
+
+Directory trunk:
+
+QF_FMT.C:
+  Fix Bug:  Use <fsDig> instead of <fsWid> for # significant digits.
+  Fix Bug:  Convert from significant to fractional digits when using that.
+
+
+Build #885 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Respecify []PW When Changing Fonts
+
+Directory trunk:
+
+EDITFCN.C:
+  Move code to respecify new []PW on width change to common subroutine.
+  Call the common code whenever a new font is specified.  This catches font
+    changes which can affect the average character width.
+
+
+Build #884 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Display RATs As VFPs In Dyadic Format
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix Bug:  In <PrimFnDydDownTackJot_EM_YY>, clear <bAllChar> for RAT and VFP numbers.
+  In <PrimFnDydDownTackJot_EM_YY>, display RATs as VFPs.
+
+
+Build #883 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Use Correct Units For Argument When Reallocating
+
+Directory trunk:
+
+MPFNS.C:
+  Fix Bug:  Use corect arg to <mpz_realloc2> as I mistakenly thought
+    that it was in units of limbs (it's in bits).
+
+
+Build #882 -- Version 0.0.3.2
+-----------------------------
+
+* Miscellaneous Website Changes
+
+Directory trunk\MediaWiki\extensions:
+
+APL.CSS:
+  Comment the constants.
+  Define class for "note".
+
+INSERTCSS.PHP:
+  Start the extensions in the root.
+  Return a value from the <foreach> loop.
+
+RENDERAPL.PHP:
+  MediaWiki syntax changes for compatibility with new versions.
+
+
+Build #881 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Set Precision Of VFP Constants Based On # Digits
+
+Directory trunk:
+
+PN_PARSE.Y:
+  In <PN_MakeVfpPoint>, calculate the # significant bits in the number and
+    set the precision to the larger of that and the current precision so as
+    not to under-represent the precision of a constant.
+
+
+Build #880 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Blow Up !R and L!R To VFP If Non-integral
+
+Directory trunk:
+
+PF_QDOT.C:
+  In <PrimFnMonQuoteDotRisR>, blow up to VFP if non-integral or numerator too large.
+
+SC_LOAD.C:
+  Fix typo.
+
+
+Build #879 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Signal NONCE ERROR If We Can't Factor A Number
+* Fix Bug:  Nth Prime and # Primes Not Working
+
+Directory trunk:
+
+PF_PI.C:
+  Return TRUE/FALSE from <PrimFnPiCommon>.
+  Return TRUE/FALSE from <PrimeFactor>.
+  Fix Bug:  In <PrimeFactor>, test indeterminate result for pseudo-primality
+    and signal a NONCE ERROR if not likely a prime.
+  Fix Bug:  In <PrimFnPiNthPrime> andf <PrimFnPiNumPrimes>, suffix <mpz_cmp>s
+    with "EQ 0" to test for equal.
+  Fix Bug:  In <PrimFnPiNthPrime>, initialize the temp before using.
+  Fix Bug:  In <PrimFnPiNumPrimes>, don't re-initialize already initialized temps.
+
+VER.C:
+  In <LclFileVersionStrW>, include debugging stmts to figure out why it fails in Wine.
+
+VERSION.RC:
+  Increment version to 0.0.3.2.

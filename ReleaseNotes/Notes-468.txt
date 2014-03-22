@@ -1,0 +1,11 @@
+Build #468 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+PF_EQUALUND.C:
+  Improve comments.
+  Fix Bug:  Empty nested arguments do not test the prototypes
+    because the loop limit is zero rather than one.
+  Fix Bug:  When comparing two globals, the NELMs of the parents
+    are compared rather than the NELM of the elements.

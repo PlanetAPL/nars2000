@@ -1,0 +1,10 @@
+Build #1016 -- Version 0.3.8.xx
+-------------------------------
+
+* Define Symbol Needed For MPIR Long Longs
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Update copyright year.
+  Define symbol for MPIR long longs.

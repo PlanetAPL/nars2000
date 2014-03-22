@@ -1,0 +1,63 @@
+Build #1199 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle Copy APL Context Menu With New Unicode Chars
+* Include "Dyalog" In "Copy to..." & "Paste from ..." Keyboard Shortcut Actions
+
+Directory trunk:
+
+EDIT.RCH:
+EDITFCN.C:
+MAIN.C:
+RESOURCE.H:
+  Include "Dyalog" in "Copy to..." & "Paste from ..." keyboard shortcut actions.
+
+EXECFNS.:
+INITDATA.C:
+PO_VARIANT.C:
+TOKENIZE.C:
+  Define actions for alias functions/operators.
+
+MACROS.H:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_LCARETUND.C:
+PF_NDCARET.C:
+PF_NUCARET.C:
+PF_RCARETUND.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TILDE.C:
+PL_PARSE.Y:
+PL_PROC.C:
+PO_DOT.C:
+  Define & use macros for detecting a character and its aliases.
+
+SYMBOLNAMES:
+  Define names for alias symbols.
+
+UNICODE.H:
+  Define new symbols.
+
+UNITRANSTAB.H:
+  Define entries for Copy APL context menu choices so that the alias chars translate to
+    the old chars when pasting into APL+Win, APL2, and Dyalog.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Include Braces2APL options.
+  Use new pointers to SImPL and APL385 fonts.
+
+
+Directory trunk\htdocs\styles:
+
+COMMON.CSS:
+  Remove "font-family:" option as it is already in <common.css> from <sudleyplace.com>.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Include "Dyalog" in "Copy to..." & "Paste from ..." keyboard shortcut actions.

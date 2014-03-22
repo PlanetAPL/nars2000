@@ -1,0 +1,64 @@
+Build #282 -- Version 0.0.0.18282
+---------------------------------
+
+Directory trunk:
+
+COMMON.C:
+  Improve comments.
+
+CONVERT.C:
+DFNHDR.Y:
+DISPDBG.C:
+EXCEPT.C:
+EXCEDFN.C:
+FREE.C:
+IMMEXEC.C:
+MACROS.H:
+MAIN.C:
+PF_UTACKJOT.C:
+PRIMFNS.C:
+REFCNT.C:
+RESDEBUG.C:
+SESSMAN.C:
+STRAND.C:
+SYMTAB.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+EDITCTRL.C:
+YYFNS.C:
+  Prepare to support 64-bit compile.
+
+INIFILE.C:
+  Factor out initialization of <aplNELMRes>.
+  Check the first element of <wszTemp> for zero instead of checking the
+    result of <swscanf> as the latter changed from zero to -1 when I
+    changed compilers (and libraries).  It's defined to return -1 if
+    no more data, but the previous libraries didn't do that.
+
+MAIN.DEF:
+MAKEPRO.DEF:
+MAKEVER.DEF:
+  Remove DESCRIPTION as it's no longer supported by later compilers.
+
+MAKEFILE:
+  Append $(QDEBUG) directory to INCLUDE files.
+  Factor out /c from each call to $(CC) into $(CFLAGS_WEXE).
+  Define _CRT_SECURE_NO_WARNINGS to get rid of the nagging.
+  Use $** instead of the named dependencies.
+  In making <Makever> and <Makepro> use LIBCMT.LIB instead of LIBC.LIB as the
+    later libraries don't have that one.
+
+MAKEPRO.C:
+  Fold <CheckVarArgFns> and <CheckAnachronism> into one function <DeleteText>.
+  Define new text substitutions to handle glitches in /Zg generation in later
+    compilers.
+
+SC_SAVE.C:
+  Use #define instead of duplicating a string for formatting date/time.
+
+VER.H:
+  Remove <ver.h> as it isn't used (and isn't present in later include directories).
+
+WORKSPACE.H:
+  Prepare to support 64-bit compile.
+  Use #define instead of duplicating a string for formatting date/time.

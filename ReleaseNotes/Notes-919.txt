@@ -1,0 +1,12 @@
+Build #919 -- Version 0.0.3.4
+-----------------------------
+
+* Optimize Left/Right Tack Reduction/Scan
+
+Directory trunk:
+
+PO_SLASH.C:
+  Optimize left/right tack reduction.
+
+PO_SLOPE.C:
+  Optimize left/right tack scan.

@@ -1,0 +1,12 @@
+Build #1155 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug In Domino So As To Disallow Character Arguments
+
+Directory trunk:
+
+PF_DOMINO.C:
+  Update copyright year.
+  Fix bug in Domino so as to disallow character arguments!
+  Improve comments.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.

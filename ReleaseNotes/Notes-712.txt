@@ -1,0 +1,9 @@
+Build #712 -- Version 0.0.2.17
+------------------------------
+
+* Optimize Ravel Of A vector
+
+Directory trunk:
+
+PF_COMMA.C:
+  Optimize ravel of a vector by passing on the right arg.

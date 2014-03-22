@@ -1,0 +1,12 @@
+Build #1045 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug When Parsing Certain Control Structures Constructions
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Update copyright year.
+  In various rules, before entering a FOR stmt using <lptk1st>, ensure
+    that that ptr is non-NULL before using it.
+  Improve comments.

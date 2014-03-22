@@ -1,0 +1,11 @@
+Build #1095 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Inner Product When Promoting The Result Datatype
+
+Directory trunk:
+
+PO_DOT.C:
+  Update copyright year.
+  In <PrimOpDydDotCommon_EM_YY>, when the result datatype is promoted, I forgot
+    to relock the left and right arguments.

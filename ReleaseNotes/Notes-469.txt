@@ -1,0 +1,53 @@
+Build #469 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+PF_INDEX.C:
+PF_LSHOE.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_UARROW.C:
+PRIMSPEC.C:
+QF_TYPE.C:
+  Rename prototype vars to reflect that they might be LPSYMENTRYs.
+  Change the behavior of <MakeMonPrototype_EM> and <MakeDydPrototype_EM>
+    to expect the ptr type bits to be set on input and to set them on
+    output as appropriate.
+
+PF_SLASH.C:
+  Rename prototype vars to reflect that they might be LPSYMENTRYs.
+  Change the behavior of <MakeMonPrototype_EM> and <MakeDydPrototype_EM>
+    to expect the ptr type bits to be set on input and to set them on
+    output as appropriate.
+  Fix Bug:  In <PrimFnDydSlash_EM_YY> for 0/{enclose}{zilde} the prototype
+    is calculated on the right arg to slash instead of its first element.
+
+PF_SLOPE.C:
+  Rename prototype vars to reflect that they might be LPSYMENTRYs.
+  Change the behavior of <MakeMonPrototype_EM> and <MakeDydPrototype_EM>
+    to expect the ptr type bits to be set on input and to set them on
+    output as appropriate.
+  Fix Bug:  In <PrimFnDydSlope_EM_YY> for 1 0 1\12 {zilde} the prototype
+    is calculated on the result of <GetFirstValueToken> which, if the
+    arg is empty, returns the prototype instead of the LPSYMENTRY/HGLOBAL.
+
+PO_SLASH.C:
+  In <PrimOpMonSlashScalar_EM_YY>, remove arg to ptr to ptr to right arg
+    global memory as we lock the ptr inside that function as needed.
+  Fix Bug:  In <PrimOpMonSlashCommon_EM_YY> for +/0 1{rho}'' pass the
+    right arg NELM to the storage type calculator so it can allow the char
+    arg because it's empty.
+  Fix Bug:  In <PrimOpMonSlashScalar_EM_YY> for +/{each}0{rho}{enclose}{enclose}{zilde}
+    the prototype is calculated on the right arg instead of its first element.
+
+PO_SLOPE.C:
+  In <PrimOpMonSlashScalar_EM_YY>, remove arg to ptr to ptr to right arg
+    global memory as we lock the ptr inside that function as needed.
+
+PRIMFNS.C:
+  Rename prototype vars to reflect that they might be LPSYMENTRYs.
+  Change the behavior of <MakeMonPrototype_EM> and <MakeDydPrototype_EM>
+    to expect the ptr type bits to be set on input and to set them on
+    output as appropriate.
+  In <CopyArray_EM>, clear the ptr type bits on input.

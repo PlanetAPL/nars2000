@@ -1,0 +1,13 @@
+Build #796 -- Version 0.0.2.21
+------------------------------
+
+* Allow More Syntax Constructions
+* Coalesce Several Semantic Actions Into A Few
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Allow more syntax constructions such as LeftMonOper:Drv3Func AmbOpX,
+    LeftOper:Drv3Func DydOp RightOper, Train:LeftOper Drv1Func,
+    Train:LeftOper Drv6Func, etc.
+  In <CheckNullOp3>, simplify the code.

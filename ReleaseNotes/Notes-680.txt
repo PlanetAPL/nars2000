@@ -1,0 +1,23 @@
+Build #680 -- Version 0.0.2.14
+------------------------------
+
+* Miscellaneous Minor Changes
+
+Directory trunk:
+
+ASSIGN.C:
+  In <GetnameType>, handle immediate var case.
+
+ERRMSG.C:
+  Minor optimization.
+
+IMMEXEC.C:
+  In <ImmExecStmtInThread> upon return from <ParseLine>, handle
+    the exit type of <EXITTYPE_RETURNxLX>.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, use <VFOHDRPTRS> when debugging to
+    be able to see the constituents of different headers.
+
+STARTADDR.H:
+  Include additional files and routines.

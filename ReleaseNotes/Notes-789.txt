@@ -1,0 +1,14 @@
+Build #789 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Display Of Too Long System Names May Crash The System
+
+Directory trunk:
+
+SYMTAB.C:
+  Update copyright year.
+  Fix Bug:  An attempt to display a system name longer than 31
+    chars may crash the system.
+
+VERSION.RC:
+  Increment version to 0.0.2.21.

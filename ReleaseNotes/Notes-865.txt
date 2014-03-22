@@ -1,0 +1,21 @@
+Build #865 -- Version 0.0.3.0
+-----------------------------
+
+* Fix Bug:  When Loading A Workspace, Set []FPC Vars
+* Fix Bug:  When Saving A Workspace, Set (FPCnnn) For VFPs Only
+* Release Version 0.0.3.0
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix Bug:  When loading a workspace, upon setting []FPC, also set the
+    VFP constants and PTD vars dependent on the value of []FPC.
+
+SC_SAVE.C:
+  Fix Bug:  When appending an array header while saving a workspace,
+    ensure that the var in question is a VFP before checking for a common
+    precision.
+
+VER.RC:
+VERSION.RC:
+  Increment version to 0.0.3.0.

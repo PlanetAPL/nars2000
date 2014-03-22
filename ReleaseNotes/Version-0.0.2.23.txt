@@ -1,0 +1,1591 @@
+Version 0.0.2.23 consists of the following Builds:
+
+
+Build #864 -- Version 0.0.2.23
+------------------------------
+
+* Handle RAT/VFP Numbers Longer Than []PW
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Handle RAT/VFP numbers longer than []PW.
+
+PRIMFNS.C:
+  In <SetVFOArraySRCIFlag>, display DEBUG message if setting SRCI flag on var.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, return to previous <SkipRefCntIncr> check behavior.
+
+
+Build #863 -- Version 0.0.2.23
+------------------------------
+
+* Handle VFP Precision In Saved Workspaces
+
+Directory trunk:
+
+SC_LOAD.C:
+  Read and handle FPC precision of either the entire VFP
+    array or individual elements.
+
+SC_SAVE.C:
+  Save the VFP precision of the entire VFP
+    array or of each individual element.
+
+SYSVARS.H:
+  Change the default value for []FPC to 128.
+
+WORKSPACE.H:
+  Define Array Property prefix for VFP precision.
+
+
+Build #862 -- Version 0.0.2.23
+------------------------------
+
+* Copy VFP Precision Of Source To Destination
+
+Directory trunk:
+
+FREE.C:
+MPFNS.C:
+MPIFNS.C:
+MPIFNS.H:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTAR.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DCARET.C:
+PF_DOMINO.C:
+PF_DSHOE.C:
+PF_DSTILE.C:
+PF_EPSILON.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_LSHOE.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_RHO.C:
+PF_ROOT.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_UARROW.C:
+PF_USTILE.C:
+PF_UTACK.C:
+PN_PARSE.Y:
+PO_DOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+STRAND.C:
+TYPEMOTE.C:
+  Copy VFP precision of source to destination.
+
+PRIMSPEC.C:
+  In <PrimFnDydSiScNest_EM>, allow global numerics.
+  Copy VFP precision of source to destination.
+
+
+Build #861 -- Version 0.0.2.23
+------------------------------
+
+* Display Sign For {neg}0 So That 6413 []DR {neg}64{take}1 Shows It
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatFloatFC>, show negative sign if {neg}0 so that
+    6413 []DR {neg}64{take}1 shows it.
+
+
+Build #860 -- Version 0.0.2.23
+------------------------------
+
+* Display Precision Of VFP Arrays For 0 []DR
+
+Directory trunk:
+
+QF_DR.C:
+  Renumber []DR results to allow % 100 in case we need to reference
+    a category indepdnent of the width.
+  Fix Bug:  In <SysFnDydDR_EM_YY>, allow global numerics in the left arg.
+  In <SysFnDR_Show_EM_YY>, display precision for VFP arrays as common
+    or Mixed.
+
+
+Build #859 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug In GradeUp/Down On Global Numeric PVs
+
+Directory trunk:
+
+PF_DELTASTILE.C:
+  In <PermVecGrade>, handle global numerics as PVs.
+
+
+Build #858 -- Version 0.0.2.23
+------------------------------
+
+* Load And Save FPC Property Of VFP Numbers
+
+Directory trunk:
+
+DISPLAY.C:
+  Improve comments.
+  Include additional parameter to <FormatAplVfpFC>.
+
+PF_DTACKJOT.C:
+QF_FMT.C:
+  Include additional parameter to <FormatAplVfpFC>.
+
+QF_DR.C:
+  In <SysFnDR_Show_EM_YY>, show the precision of a singleton VFP number.
+
+SC_LOAD.C:
+  In <LoadWorkspaceGlobal_EM>, parse FPC property and set as precision
+    when creating the VFP number.
+
+SC_SAVE.C:
+  Include additional parameter to <FormatAplVfpFC>.
+
+
+Build #857 -- Version 0.0.2.23
+------------------------------
+
+* Miscellaneous Changes Prior To Release
+
+Directory trunk:
+
+MAIN.C:
+  Delete initialization of VFP constants in <main.c> and
+    wait until the tab is initialized.
+
+PF_DTACKJOT.C:
+  Fix Bug:  In <FormatArrSimple>, handle hetero arrays, too.
+
+SESSMAN.C:
+  Move initialization of PTD vars to after the has table has been
+    filled in, at which time initialize the VFP constants, too.
+
+SYSVARS.H:
+  Change the system default value for []FPC to 53 (the minimum
+    acceptable value).
+  Change the minimum acceptable value for []FPC to 53 as that's
+    what MPFR uses.
+
+
+Build #856 -- Version 0.0.2.23
+------------------------------
+
+* Miscellaneous Cleanup Prior To Release
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Get <flint*.lib> from same place as other multi-precision libs.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Cleanup dependencies.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Include reference to <mplibs.zip>.
+
+
+Build #855 -- Version 0.0.2.23
+------------------------------
+
+* Update Website Text
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+INDEX-BODY-AHTML:
+  Update website text.
+
+
+Build #854 -- Version 0.0.2.23
+------------------------------
+
+* Check For Interrupts During Long Call to Prime Factoring
+
+Directory msieve:
+
+COMMON.H:
+MP.C:
+MP.H:
+SQUFOF.C:
+TINYQS.C:
+  Include call to Ctrl-Break check routine to handle interrupts.
+
+PRIME_DELTA.C
+  Not sure why this file is marked for change.
+
+SMALLFACT.C:
+  Add new file to pick up Pollard's rho routine.
+
+
+Build #853 -- Version 0.0.2.23
+------------------------------
+
+* Implement Rational And Variable Precision Floating Point Datatypes
+
+Directory trunk:
+
+AXISFNS.C:
+GOTO.C:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTAR.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DCARET.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DSHOE.C:
+PF_DSTILE.C:
+PF_DTACK.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_EPSUND.C:
+PF_EQUAL.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_LCARET.C:
+PF_LCARETUND.C:
+PF_LSHOE.C:
+PF_NDCARET.C:
+PF_NEQUAL.C:
+PF_NUCARET.C:
+PF_PI.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_QUERY.C:
+PF_RCARET.C:
+PF_RCARETUND.C:
+PF_RHO.C:
+PF_ROOT.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TILDE.C:
+PF_TIMES.C:
+PF_UARROW.C:
+PF_UCARET.C:
+PF_USTILE.C:
+PF_UTACK.C:
+PN_PARSE.H:
+PN_PARSE.PROTO:
+PN_PARSE.Y:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMES.H:
+PRIMFNS.C:
+PRIMSPEC.C:
+PRIMSPEC.H:
+QF_AT.C:
+QF_CR.C:
+QF_DL.C:
+QF_DR.C:
+QF_ES.C:
+QF_FMT.C:
+QF_MF.C:
+QF_NL.C:
+QF_TF.C:
+QF_UCS.C:
+SC_SAVE.C:
+TRANSLATE.C:
+TYPEMOTE.C:
+  Make code sensitive to RAT and VFP datatypes.
+
+COMMON.C:
+  Implement <signum> and <signumf> functions to capture that idiom
+    in individual functions.
+
+COMPRO.H:
+  Include prototypes for new files.
+
+CONVERT.C:
+  Use <signum> and <signumf> functions instead of APL signum function.
+
+CS_PARSE.Y:
+  Improve comments.
+
+CS_PROC.C:
+  Merge common code into subroutine <ValidateFirstItemToken> that
+    handles RAT and VFP datatypes.
+  Return result from <CS_ENDFOR_Stmt> (renamed to <CS_ENDFOR_Stmt_EM>)
+    so the caller can check for an error.
+
+CUSTOMIZE.C:
+  Define new indices and values in []IC.
+  Define entries for []FPC.
+  Format RAT and VFP numbers.
+
+DATATYPE.H:
+  Define entries for RAT and VFP numbers.
+
+DEFINES.H:
+  Define entries for []FPC.
+
+DICTIONARY.C:
+  Include files for prototype args/results.
+  Make code sensitive to RAT and VFP datatypes.
+  In DEBUG mode, display the heap entries so we can catch memory leaks.
+  Define entries for new tokens to handle global numerics.
+
+DISPLAY.C:
+  Make code sensitive to RAT and VFP datatypes.
+  Format RAT and VFP numbers.
+  Handle infinity in RAT and VFP numbers.
+
+DISPLAY.H:
+  Update copyright year.
+  Move definition of infinity char to <display.c>.
+
+ENUMS.H:
+  Define new exceptions.
+
+EXCEPT.C:
+  Define routine to return exception code as a string.
+  Define new exceptions.
+
+EXECDFN.C:
+  Handle new tokens for global numerics.
+
+EXECMFN.C:
+EXECMFN.H:
+  Define new magic functions.
+
+EXTERNS.H:
+  Define new indices and values in []IC.
+  Define entries for []FPC.
+  Define table for type promotion code.
+  Define global numeric constants.
+
+FREE.C:
+  Handle new tokens for global numerics.
+  Make code sensitive to RAT and VFP datatypes.
+
+GETFNS.C:
+  Merge common code into subroutine <ValidateFirstItemToken> that
+    handles RAT and VFP datatypes.
+  Make code sensitive to RAT and VFP datatypes.
+  Handle new tokens for global numerics.
+
+HEADERS.H:
+  Include new files for RAT and VFP numbers.
+
+INIFILE.C:
+  Define entries for []FPC.
+  Make code sensitive to RAT and VFP datatypes.
+
+INIPARSER.C:
+  Include files for prototype args/results.
+
+INITDATA.C:
+  Define routines to initialize global numerics constants.
+
+MACROS.H:
+  Define macros appropriate to global numerics.
+  Define macros for detecting various forms of infinity.
+
+MAIN.C:
+  Initialize global numerics constants.
+
+MAIN.RC:
+  Define entries for []FPC.
+
+MAKEFILE.INC:
+  Note need for the caller to define MPIR and MPFR.
+  Define entries for MPIR, MPFR, and FLINT libraries and headers.
+  Define entries for new files.
+
+MAKEFILE.PRO:
+  Define entry for MPFR.
+
+MAKEFILE.SRC:
+  Define entries for new files.
+
+MPFNS.C:
+  Define new file for mp[zqf] cover functions.
+
+MPIFNS.C:
+MPIFNS.H:
+  Define new files for mp[zqf] infinity functions.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define new files for RAT and VPF numbers.
+
+PERTAB.H:
+  Initialize VFP random number generator.
+  Define the items to destroy when a tab is closed.
+  Define pertab local values for Pi and e.
+
+PL_PARSE.Y:
+  Return result from <CS_ENDFOR_Stmt> (renamed to <CS_ENDFOR_Stmt_EM>)
+    so the caller can check for an error.
+  Handle new tokens for global numerics.
+
+REBAR.C:
+  Document Point Notation.
+
+REFCNT.C:
+  Improve formatting.
+
+RESDEBUG.C:
+RESDEBUG.H:
+  Define heap allocation debugging function.
+
+RESOURCE.H:
+  Define entries for []FPC.
+
+SC_LOAD.C:
+  Handle various forms of infinity.
+  Make code sensitive to RAT and VFP datatypes.
+
+SESSMAN.C:
+  Initialize PTD vars.
+  Define F6 for displaying the heap entries.
+
+STARTADDR.H:
+  Define new entry points to aid in debugging.
+
+STRAND.C:
+  Handle new tokens for global numerics.
+  Make code sensitive to RAT and VFP datatypes.
+
+SYMBOLNAMES.H:
+  Define entry for infinity in terms of new equate.
+
+SYMTAB.C:
+  Define STE signature for aid in debugging.
+
+SYMTAB.H:
+  Make code sensitive to RAT and VFP datatypes.
+  Define STE signature for aid in debugging.
+
+SYSVARS.C:
+  Define entries for []FPC.
+  Handle new tokens for global numerics.
+  Make code sensitive to RAT and VFP datatypes.
+
+SYSVARS.H:
+  Define entries for []FPC.
+
+TABCTRL.C:
+  Destroy PTD entries when closing a tab.
+
+TOKENIZE.C:
+  Make code sensitive to RAT and VFP datatypes.
+  Handle new tokens for global numerics.
+
+TOKENS.H:
+  Handle new tokens for global numerics.
+
+TYPEMOTE.H:
+  Define type demotion table entries.
+
+TYPES.H:
+  Make code sensitive to RAT and VFP datatypes.
+
+YYFNS.C:
+  Handle new tokens for global numerics.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document new RAT and VFP datatypes.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Free the undo buffer when destroying the window.
+
+LOCAL.H:
+  Define pseudo-entries for RAT and VFP so as to
+    handle prototype args and results.
+
+
+Build #852 -- Version 0.0.2.23
+------------------------------
+
+* Move Clearing Of Ptr Type Bits into MyGlobalLock/MyGlobalUnlock/...
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+COMMON.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C:
+EXECDFN.C:
+FREE.C:
+GETFNS.C:
+INIFILE.C:
+PF_COMMA.C:
+PF_CSTILE.C:
+PF_DSHOE.C:
+PF_EPSILON.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_LSHOE.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_MULTISET.C:
+PO_SLASH.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_AT.C:
+QF_CR.C:
+QF_FMT.C:
+QF_FX.C:
+QF_MF.C:
+QF_NL.C:
+QF_TF.C:
+RESDEBUG.H:
+SC_IN.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SC_WSID.C:
+STRAND.C:
+SYMTRANS.C:
+TABCTRL.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+YYFNS.C:
+  Move clearing ptr type bits into MyGlobalLock/...
+
+REFCNT.C:
+  Move clearing ptr type bits into MyGlobalLock/...
+  In <ChangeRefCntDir_PTB>, we no longer need to check for incrementing when
+    clearing the <SkipRefCntIncr> flag.
+
+RESDEBUG.C:
+  Pass filename to <MyGlobalReAlloc>.
+  Fix Bug:  In <MyGlobalReAlloc>, if the return address is different from the
+    original address, delete the old and save the new.
+
+SAVEFCN.C:
+  Fix Bug:  In <SF_UndoBufferLW>, the wrong function was used in an Assert stmt.
+  Move clearing ptr type bits into MyGlobalLock/...
+  Fix Bug:  In <SaveFunctionLine>, there's a memory leak when sizing a function
+    because we fail to call <Untokenize>.
+
+STARTADDR.H:
+  Define more entry points to aid in debugging.
+
+SYSVARS.C:
+  Change the hi/lo value args in <ValidateInteger_EM> and <ValidateIntegerTest>
+    to <APLINT> from <UINT> so we can accommodate wider values.
+  Move clearing ptr type bits into MyGlobalLock/...
+  Clean up the format of certain ?: stmts.
+  Move various stmts that set common values outside the switch stmt.
+
+TRANSLATE.C:
+  Move <TranslateQuadICIndex> from <primspec.c> to <translate.c>.
+
+
+Build #851 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Dyadic Format On Multi-Dimensional Array Doesn't Fill In All Dimensions
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix Bug:  In <PrimFnDydDownTackJot_EM_YY>, for multi-dimensional array,
+    only one dimension is filled in -- the rest are zero.
+
+
+Build #850 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Root Of Negative R Should Signal DOMAIN ERROR
+
+Directory trunk:
+
+PF_ROOT.C:
+  In <PrimFnMonRootFisI>, <PrimFnMonRootFisF>, <PrimFnDydRootFisIvI>,
+    and <PrimFnDydRootFisFvF> signal DOMAIN ERROR for negative R.
+
+
+Build #849 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  []ES 0 0 Should Clear []EM/[]ET
+
+Directory trunk:
+
+QF_ES.C:
+  If the event type is 0 0, clear []EM and []ET.
+
+
+Build #848 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  []EA Mishandles Niladic {goto}
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <StmtSing:  ArrExpr>, check for niladic {goto} result and exit as appropriate.
+
+
+Build #847 -- Version 0.0.2.23
+------------------------------
+
+* Handle Error In Point Notation At Execution Time, Not Tokenization Time
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <fnPointDone>, clear <pnLocalVars> at initialization so we can assume
+    its initial state.
+  In <fnPointDone>, if <ParsePointNotation> fails, treat as execution time
+    error instead of at tokenization time.
+  Improve comments.
+
+
+Build #846 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  {zilde}{transpose}12 Fails
+
+Directory trunk:
+
+AXISFNS.C:
+  In <CheckAxisGlb>, don't test for axes contiguous from []IO unless
+    the left arg to transpose is non-empty.
+
+
+Build #845 -- Version 0.0.2.23
+------------------------------
+
+* Improve Error Message
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message for PATH NOT FOUND.
+
+SC_OUT.C:
+  If <fopenW> returns an error, signal a PATH NOT FOUND error message
+    as we are creating the file if it's non-existant so it can't be
+    FILE NOT FOUND.
+
+
+Build #844 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Handle Display Of Raw Float Output Better
+
+Directory trunk:
+
+DISPLAY.C:
+  Handle display of raw flt output using either SHORT_RND or SIGDIGS
+    depending upon which is shorter.
+
+
+Build #843 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Handle Defined Fns As Operator Operands
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitFcnSTEs>, handle defined functions as operator operands.
+
+
+Build #842 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Allow Unknown System Names When Loading A Workspace
+
+Directory trunk:
+
+SC_LOAD.C:
+  In <LoadWorkspace_EM>, allow unknown system names in case
+    we load a new workspace from an old interpreter.
+
+
+Build #841 -- Version 0.0.2.23
+------------------------------
+
+* Add How-To-Suppress Text To Copyright Message
+
+Directory trunk:
+
+SESSMAN.C:
+  Add how-to-suppress text to the copyright message displayed at startup.
+
+
+Build #840 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug In []CR: Fails On Leading/Trailing Blanks
+
+Directory trunk:
+
+QF_CR.C:
+  Update copyright year.
+  Fix Bug:  Delete leading/trailing blanks from function name.
+
+
+Build #839 -- Version 0.0.2.23
+------------------------------
+
+* Define New []MF Timer Source
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Define text for new timer source.
+
+ENUMS.H:
+  Define enum for <TIMERSOURCE_xxx> values.
+
+FH_PARSE.H:
+  Define structs for both integer and float results from []MF.
+
+MAIN.RC:
+  Widen []MF timer source text field to accomodate new timer source.
+
+MAKEFILE.INC:
+  Move definition of MS to the caller.
+  Define GSL_INC and GSL_LIB in terms of GSL_DIR as defined by the caller.
+
+QF_MF.C:
+  Update copyright year.
+  Define union for integer and floating point results.
+  Define result storage type.
+  Define result union.
+  Define ticks per second value.
+  Define scaling factor.
+  Update comments to reflect new timer source.
+  Set result type depending upon empty vs. integer vs. float result.
+  Use union to handle integer vs. float result.
+  Set scale factor if float result.
+  Scale float result.
+  Use <TIMERSOURCE_xxx> enum instead of constants.
+  In <SysFnDydMF_EM_YY>, test the left arg for range (Boolean-valued).
+  In <SysFnDydMF_EM_YY>, mark the result as shy.
+
+SYSVARS.H:
+  Update copyright year.
+  Change default value for []MF to <TIMERSOURCE_PC2MS>.
+
+
+Build #838 -- Version 0.0.2.23
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+PF_PI.C:
+  Include DEBUG stmts when factoring numbers.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Use common format when describing contributors.
+  Include Jason Papadopoulos as contributor of msieve.
+
+
+Directory trunk\Mediawiki\extensions:
+
+B2A.INC.PHP:
+  Include name and Unicode value for "root".
+
+
+Build #837 -- Version 0.0.2.23
+------------------------------
+
+* Reorganize Make Functions, Part 2
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Include empty DEL target so as to avoid error message.
+  Check for existance of files first for DELPRO and DELDEP targets
+    so as to avoid error message.
+
+MAKEFILE.IND:
+  Omit DEL target as it's no longer needed.
+
+MK32.BAT:
+MKD32.BAT:
+MK64.BAT:
+MKD64.BAT:
+  Omit tests for switches as the whole command line is passed to
+    <makefile.ind>.
+
+
+Build #836 -- Version 0.0.2.23
+------------------------------
+
+* Implement Prime Decomposition And Number Theoretic Functions
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype file.
+
+CUSTOMIZE.C:
+  Define where the symbol for Pi goes in the keyboard symbols.
+
+HEADERS.H:
+  Update copyright year.
+  Include <primes.h>.
+
+INITDATA.C:
+  Include Pi in various tables.
+
+KEYBOARDS.H:
+  Include Pi in keyboard tables.
+
+MAKEFILE.DEP:
+  Update copyright year.
+  Define <msieve> dependencies.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define <msieve> dependencies.
+  Include references to new file for Pi.
+
+MAKEFILE.PRO:
+  Update copyright year.
+  Define <msieve> dependencies.
+
+PF_PI.C:
+PRIMES.H:
+  New files to implement the Pi symbol functions.
+
+REBAR.C:
+  Include description of Pi symbol in Language Bar.
+
+SYMBOLNAMES.H:
+  Include braces definition for Pi symbol.
+
+TOKENIZE.C:
+  Define token column for Pi symbol.
+
+TYPES.H:
+  Define types needed by <msieve> routines for prototype declarations.
+
+UNICODE.H:
+  Define Unicode value for Pi symbol.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+EDITOROVERLAY.JS:
+  Define keystroke for Pi.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note definition of {pi} functions.
+
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Define name for {pi} symbol.
+
+
+Build #835 -- Version 0.0.2.23
+------------------------------
+
+* Reorganize Make Functions
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Move common definitions from <MAKEFILE.W32/.W64> to <MAKEFILE.INC>.
+
+MAKEFILE.IND:
+  Define intermediate makefile to handle <DEP.TXT>.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Update copyright year.
+  Move common definitions from <MAKEFILE.W32/.W64> to <MAKEFILE.INC>.
+
+MK32.BAT:
+MK64.BAT:
+MKD32.BAT:
+MKD64.BAT:
+MKN.BAT:
+  Test for "/n" and "DEL" in command line so we can handle them separately.
+
+
+Build #834 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Handle System Functions As Operands
+
+Directory trunk:
+
+DATATYPE.H:
+  Define pseudo-header signature for system functions.
+
+EXECDFN.C:
+  Improve comments.
+  In <InitFcnSTEs>, when initializing a non-immediate single
+    token function, copy all of the flags from the source STE
+    to the destination STE.
+
+GETFNS.C:
+  In <GetPrimFlagsPtr>, when encountering an internal function,
+    return a ptr to an all-zero (static) entry.
+
+PRIMFNS.C:
+  In <GetSignatureGlb_PTB>, if the object is an internal function,
+    return a pseudo-header signature.
+
+
+Build #833 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Wrong Error Message From Tilde Reduction Identity Function
+
+Directory trunk:
+
+PF_TILDE.C:
+  Fix Bug:  The wrong error message (DOMAIN instead of RANK) is signalled
+    for a tilde reduction of an empty vector of matrices (or higher rank
+    arrays).
+
+
+Build #832 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  )SINL Displays Local Vars Incorrectly
+
+Directory trunk:
+
+SC_SI.C:
+  Update copyright year.
+  Fix Bug:  After <CopySTEName>, be sure to terminate the string.
+
+
+Build #831 -- Version 0.0.2.23
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+MAIN.C:
+  Improve comments.
+
+PRIMFNS.C:
+  Miscellaneous DEBUG-specific changes.
+
+PRIMSPEC.C:
+  Include missing test for Ctrl-Break flag.
+
+SYMTAB.H:
+  Update copyright year.
+  Increase the maximum # hash table and symbol table entries for
+    64-bit systems.
+
+TABCTRL.C:
+  Comment out code instead of #if 0/#endif.
+
+
+Build #830 -- Version 0.0.2.23
+------------------------------
+
+* Improve Performance By Allocating Ptrs Instead Of Handles
+
+Directory trunk:
+
+RESDEBUG.H:
+  Switch from global memory handle allocations to global memory ptrs.
+
+
+Build #829 -- Version 0.0.2.23
+------------------------------
+
+* Reduce The Volume Of CS Parse Code
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Combine <CONTINUE SOSStmts> and <CONTINUEIF NSS> as well as
+    <LEAVE SOSStmts> and <LEAVEIF NSS> into their own semantic
+    actions so as to reduce the volume of CS parse code.
+
+
+Build #828 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Memory Leak When Sizing Tokenized Lines
+
+Directory trunk:
+
+SAVEFCN.C:
+  Fix Bug:  Memory leak when sizing tokenized lines.
+
+
+Build #827 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Dyadic Format Can Return {neg}0
+
+Directory trunk:
+
+DISPLAY.C:
+  Update copyright year.
+  Fix Bug:  Handle case of negative number that rounds to {neg)0.
+
+PF_DTACKJOT.C:
+  Update copyright year.
+  Test for both global memory handle and ptr before unlocking.
+
+
+Build #826 -- Version 0.0.2.23
+------------------------------
+
+* Optimize Multiset Match And Mismatch
+
+Directory trunk:
+
+GRADE.H:
+  Define typedef for different Multiset Match/Mismatch common routines.
+
+PO_MULTISET.C:
+  Optimize Multiset Match/Mismatch by splitting out the common simple
+    array cases into separate routines.
+  Improve comments.
+
+
+Build #825 -- Version 0.0.2.23
+------------------------------
+
+* Save Tokenized Lines At End Of UDFO Header
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define error message for Syntax Error In Function Line.
+
+CS_PARSE.Y:
+  Define shortened token for EOS NEC SOS.
+
+CS_PROC.C:
+  Update copyright year.
+  In <CS_ChangeTokenType>, <CS_ChainTokens>, <CS_SetTokenCLIndex>,
+    and <CS_SELECT_Stmt_EM> use offset to tokenized line to find it.
+  Pass ptr to token header to <PrimFnMonUpTackJotPLParse> instead of
+    global memory handle.
+  In <CS_GetToken_COM>, return offset from UDFO header to tokenized line
+    instead of global memory handle.
+
+DISPDBG.C:
+  In <DisplayTokens>, pass ptr to token header instead of global
+    memory handle.
+  In <GetTokenTypeName>, name <TKT_UNUSED> and include names for
+    <TKT_CONTINUEIF> and <TKT_LEAVEIF>.
+
+EDITFCN.C:
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, use offset to tokenized line to find it.
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+
+EXECMFN.C:
+  Size the tokenized lines beforehand so we know how much to allocate
+    for the UDFO header.
+
+FH_PARSE.H:
+  In <tagFCNLINE> replace the glolbal memory handle for the tokenized line
+    header with an offset from the start of the UDFO.
+  In <tagDFN_HEADER>, include offset to start of tokenized lines.
+  In <tagFHLOCALVARS>, replace <UNION_TOKEN> with ptr to tokenized line header.
+
+FH_PARSE.Y:
+  Update copyright year.
+  Replace references to <t2> with a ptr to the tokenized line header.
+
+FREE.C:
+  Replace references to the tokenized line global memory handle with
+    the offset to the tokenized line header.
+
+GETFNS.C:
+  Delete function <GetTokenLineHandle> as we no longer need it.
+
+GOTO.C:
+  Update copyright year.
+  Replace references to the tokenized line global memory handle with
+    the offset to the tokenized line header.
+
+IMMEXEC.C:
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+
+PF_UTACKJOT.C:
+  Pass ptr to token header to <PrimFnMonUpTackJotPLParse> instead of
+    global memory handle.
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+
+PL_PARSE.H:
+  Update copyright year.
+  In <tagPLLOCALVARS>, replace <UNION_TOKEN> with ptr to tokenized line header.
+  In <tagPLLOCALVARS> replace the glolbal memory handle for the tokenized line
+    header with a ptr to the tokenized line header.
+
+PL_PARSE.PROTO:
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+  Define prototypes for additional functions.
+
+PL_PARSE.Y:
+  Pass ptr to tokenized line header to <ParseLine> instead of global
+    memory handle.
+  In <DisplayTokens>, pass ptr to token header instead of global
+    memory handle.
+  Replace references to <t2> with a ptr to the tokenized line header.
+
+QF_AT.C:
+  Update copyright year.
+  In <CalcSymEntrySize>, replace call to <MyGlobalSize> with calculation
+    of the size as we no longer have a global memory handle.
+
+SAVEFCN.C:
+  In <SaveFunctionCom>, use generic error message rather than format string.
+  Size the tokenized lines beforehand so we know how much to allocate
+    for the UDFO header.
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+  Define new function to size/save a UDFO tokenized line.
+  In <GetSpecialLabelNums>, use offset to tokenized line to find it.
+
+STARTADDR.H:
+  Include additional function names.
+
+TOKENIZE.C:
+  Remove <UTLockAndSet> as it's replaced by one line now.
+  Replace references to <t2> with a ptr to the tokenized line header.
+  Pass ptr to tokenized line header to <Untokenize> instead of global
+    memory handle.
+  In <AppendNewCSToken_EM>, use addtional coalescing to reduce the size
+    of the CS stack.
+
+TOKENIZE.H:
+  Update copyright year.
+  Replace references to <t2> with a ptr to the tokenized line header.
+
+TOKENS.H:
+  In <tagTOKEN_TYPES>, define zero entry and eliminate <TKT_FIRST>,
+    <TKT_LENGTHp1>, and <TKT_LENGTH>.
+  In <tagTOKEN_TYPES>, define new token <TKT_ENS> for CS stack coalescing.
+  Delete <tagUNION_TOKEN> as we no longer need it.
+
+
+Build #824 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Syntax Coloring May Write Too Many Entries
+
+Directory trunk:
+
+TOKENIZE.C:
+  Fix Bug:  Syntax coloring of ({iota}6){jot}2+a with a dot inserted
+    to the right of the {jot} writes too many entries in memory.
+
+
+Build #823 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  N-wise Reduction On Non-Last Coordinate Returns Wrong Result, Part 2
+
+Directory trunk:
+
+PO_SLASH.C:
+  Calculate the index into the result more correctly for non-last coordinates.
+
+
+Build #822 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Dyadic Epsilon Needs To Type Demote Its Result
+
+Directory trunk:
+
+PF_EPISLON.C:
+  Update copyright year.
+  The result of dyadic epsilon must be demoted to an immediate.
+
+
+Build #821 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Parenthesized Expression With Embedded Assignment Not Parsed Correctly
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Improve comments.
+  Fix Bug:  In <ArrValu:  ArrExpr>, don't trigger error if in look ahead.
+
+
+Build #820 -- Version 0.0.2.23
+------------------------------
+
+* Optimize Dyadic Tilde
+* Allow Monadic Tilde With R In [0,1]
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Delete magic function for dyadic tilde.
+
+PF_TILDE.C:
+  Define routines to handle monadic tilde on R in [0,1].
+  Delete magic function for dyadic tilde.
+
+Builds #818-9 -- Version 0.0.2.23
+---------------------------------
+
+* Create SVN Folder For Msieve
+
+
+Build #817 -- Version 0.0.2.23
+------------------------------
+
+* Implement More Control Structures
+
+Directory trunk:
+
+APLERRORS.H:
+  Define error message text for Assertion Error.
+
+CS_PARSE.Y:
+  Update copyright year.
+  Define grammar for Assert. ContinueIf, and LeaveIf tokens.
+
+CS_PROC.C:
+  Define CS actions for Assert, ContinueIf, and LeaveIf tokens.
+
+MACROS.H:
+PRIMFNS.C:
+  Delete <GetImmTypeFcn> function in favor of an line macro.
+
+PL_PARSE.Y:
+  Define parse actions for Assert, ContinueIf, and LeaveIf tokens.
+
+TOKENIZE.C:
+  Define token class for Assert, ContinueIf, and LeaveIf tokens.
+
+TOKENS.H:
+  Update copyright year.
+  Define Assert, ContinueIf, and LeaveIf tokens.
+
+
+Build #816 -- Version 0.0.2.23
+------------------------------
+
+* Implement Root Primitive Scalar Function
+* Define Two New Indeterminate Cases
+
+Directory trunk:
+
+COMPRO.H:
+  Include Root prototype file.
+
+CUSTOMIZE.C:
+  Define new indeterminate text for CLEAR WS Values Property Page.
+  Include Root symbol in APL Symbol Table.
+
+EXTERNS.H:
+  Define two new indeterminate cases:  0 * ±_.
+
+INITDATA.C:
+  Define Root function as primitive scalar.
+
+KEYBOARDS.H:
+  Remove Alt-'R' from list of available keystrokes.
+  Include Root symbol in APL keyboard tables.
+
+MAKEFILE.INC
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include Root module in makefiles.
+
+PF_ROOT.C:
+  New module implementing Root symbol.
+
+PF_STAR.C:
+  Define []IC actions for new indeterminates:  0 * ±_.
+
+REBAR.C:
+  Define Language Bar entry for Root symbol.
+
+SYMBOLNAMES.H:
+  Define symbol name for Root symbol.
+
+TOKENIZE.C:
+  Define token class for Root symbol.
+
+UNICODE.H:
+  Define Unicode value for Root symbol.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+EDITOROVERLAY.JS:
+  Define keystroke for Root symbol.
+
+
+Build #815 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  N-wise Reduction On Non-Last Coordinate Returns Wrong Result
+
+Directory trunk:
+
+PO_SLASH.C:
+  Calculate the index into the result correctly for non-last coordinates.
+
+
+Build #814 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  In K[2][1] Handle Immediate List Value
+
+Directory trunk:
+
+PF_INDEX.C:
+  Fix Bug:  In <ListIndexRef_EM_YY>, handle immediate list value.
+
+PRIMFNS.C:
+  Update copyright year.
+  In <TokenTypeFV>, allow list tokens.
+
+STARTADDR.H:
+  Include new routine names.
+
+
+Build #813 -- Version 0.0.2.23
+------------------------------
+
+* Remove Debug Statements As They May Now Occur
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnMon_EM_YY> and <PrimFnDyd_EM_YY>, copy the incoming
+    <lpPrimSpec> to the stack so it may be written to (say, for
+    atomic []RL).
+  In <PrimFnMonGlb_EM>, <PrimFnDydSingMult_EM>, <PrimFnDydMultSing_EM>,
+    <PrimFnDydSiScSiScSub_EM>, and <PrimFnDydSimpSimp_EM>, remove debug
+    statements as they may occur due to <PrimFnPi_EM_YY>.
+
+
+Directory trunk\htdocs:
+
+LICENSE-BODY.HTML:
+  Update copyright year.
+
+
+Build #812 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Check For CtrlBreak Between Statements
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Check for CtrlBreak between statements.
+
+
+Build #811 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Remove Debug Statement Triggered By 1 50!200
+
+Directory trunk:
+
+PF_QDOT.C:
+  Fix Bug:  Remove debug statement as it may occur with 1 50!200.
+
+
+Build #810 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Empty Result From Take/Drop On A Nested Array Has Wrong RefCnt
+
+Directory trunk:
+
+PF_DARROW.C:
+PF_UARROW.C:
+  Update copyright year.
+  Fix Bug:  Increment RefCnt for empty nested results.
+
+
+Build #809 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Tally Fails On Nested Scalars
+
+Directory trunk:
+
+PF_CARET.C:
+  Fix Bug:  Handle nested scalars.
+
+
+Build #808 -- Version 0.0.2.23
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+GETFNS.C:
+  Delete blank line.
+
+MAIN.RC:
+  In Syntax Coloring property page, widen text at bottom of page, and
+    move button over to as not to overwrite text to its left.
+
+PF_LTACK.C:
+PF_RTACK.C:
+  Update copyright year.
+  Improve comments.
+
+
+Build #807 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  )LIB Command May List .atf Files Too Many Times
+
+Directory trunk:
+
+SC_LIB.C:
+  Use default dir when tail contains L".." but not L'.'.
+
+
+Build #806 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Execute Without Result May Crash
+
+Directory trunk:
+
+PF_UTACKJOT.C:
+  Update copyright year.
+  In <PrimFnMonUpTackJotCommon_EM_YY>, rather than assert that
+    there's a result, test for it and if none, fall through to
+    the NoValue code.
+
+
+Build #805 -- Version 0.0.2.23
+------------------------------
+
+* Optimize Boolean Scalar Functions By Chunking
+
+Directory trunk:
+
+MACROS.H:
+  Define macro for detecting Boolean APAs.
+
+PF_COMMA.C:
+  Update copyright year.
+  Rename <IsBooleanAPA> to <IsTknBooleanAPA> to reflect
+    the token input.
+
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_EQUAL.C:
+PF_LCARET.C:
+PF_LCARETUND.C:
+PF_NDCARET.C:
+PF_NEQUAL.C:
+PF_NUCARET.C:
+PF_QDOT.C:
+PF_RCARET.C:
+PF_RCARETUND.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TILDE.C:
+PF_TIMES.C:
+PF_UCARET.C:
+PF_USTILE.C:
+  Update copyright year.
+  Define Boolean chunking routines.
+
+PRIMSPEC.C:
+  Call Boolean chunking routines.
+  Rename <IsBooleanAPA> to <IsTknBooleanAPA> to reflect
+    the token input.
+
+PRIMSPEC.H:
+  Update copyright year.
+  Define Boolean chunking routines in PRIMSPEC struc.
+
+TYPES.H:
+  Update copyright year.
+  Define Boolean 64-, 32-, 16-, and 8-bit types.
+
+
+Build #804 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Undo At Start Of Undo Buffer Crashes
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc/WM_UNDO:>, read in ptr to start of
+    Undo buffer and test against it before proceeding to Undo.
+
+VERSION.RC:
+  Increment version to 0.0.2.23.

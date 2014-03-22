@@ -1,0 +1,242 @@
+#//***************************************************************************
+#//  NARS2000 -- Makefile SRC Generator
+#//***************************************************************************
+#
+#/***************************************************************************
+#    NARS2000 -- An Experimental APL Interpreter
+#    Copyright (C) 2006-2014 Sudley Place Software
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#***************************************************************************/
+
+# This makefile assigns the SRC variable which is included
+#   in various other makefiles such as <makefile.inc>
+#   <makefile.dep>, and <makefile.pro>.
+# If you change this file, be sure to run the above-mentioned
+#   dependent makefiles.
+
+SRC_PARSE=              \
+$(O)cs_parse.???        \
+$(O)fh_parse.???        \
+$(O)pl_parse.???        \
+$(O)pn_parse.???
+
+SRC=                    \
+$(O)afofns.???          \
+$(O)assign.???          \
+$(O)axisfns.???         \
+$(O)bjhash.???          \
+$(O)common.???          \
+$(O)convert.???         \
+$(O)crash.???           \
+$(O)cs_proc.???         \
+$(O)customize.???       \
+$(O)debug.???           \
+$(O)dictionary.???      \
+$(O)dispdbg.???         \
+$(O)display.???         \
+$(O)dtoa.???            \
+$(O)editctrl.???        \
+$(O)editfcn.???         \
+$(O)editmat.???         \
+$(O)editvec.???         \
+$(O)errmsg.???          \
+$(O)except.???          \
+$(O)execdfn.???         \
+$(O)execfns.???         \
+$(O)execmfn.???         \
+$(O)fastbool.???        \
+$(O)fh_proc.???         \
+$(O)fmtspec.???         \
+$(O)free.???            \
+$(O)getfns.???          \
+$(O)getreent.???        \
+$(O)goto.???            \
+$(O)hungarian_dbl.???   \
+$(O)hungarian_int.???   \
+$(O)hungarian_rat.???   \
+$(O)hungarian_vfp.???   \
+$(O)identfns.???        \
+$(O)immexec.???         \
+$(O)inifile.???         \
+$(O)iniparser.???       \
+$(O)initdata.???        \
+$(O)main.???            \
+$(O)malloc.???          \
+$(O)mp.???              \
+$(O)mpfns.???           \
+$(O)mpifns.???          \
+$(O)perfmon.???         \
+$(O)pf_bar.???          \
+$(O)pf_circle.???       \
+$(O)pf_colonbar.???     \
+$(O)pf_comma.???        \
+$(O)pf_cslope.???       \
+$(O)pf_cstile.???       \
+$(O)pf_cstar.???        \
+$(O)pf_darrow.???       \
+$(O)pf_dcaret.???       \
+$(O)pf_deltastile.???   \
+$(O)pf_domino.???       \
+$(O)pf_dotdot.???       \
+$(O)pf_dshoe.???        \
+$(O)pf_dstile.???       \
+$(O)pf_dtack.???        \
+$(O)pf_dtackjot.???     \
+$(O)pf_epsilon.???      \
+$(O)pf_epsund.???       \
+$(O)pf_equal.???        \
+$(O)pf_equalund.???     \
+$(O)pf_index.???        \
+$(O)pf_iota.???         \
+$(O)pf_iotaund.???      \
+$(O)pf_lcaret.???       \
+$(O)pf_lcaretund.???    \
+$(O)pf_lshoe.???        \
+$(O)pf_lshoeund.???     \
+$(O)pf_ltack.???        \
+$(O)pf_ndcaret.???      \
+$(O)pf_nequal.???       \
+$(O)pf_nucaret.???      \
+$(O)pf_pi.???           \
+$(O)pf_plus.???         \
+$(O)pf_qdot.???         \
+$(O)pf_query.???        \
+$(O)pf_rcaret.???       \
+$(O)pf_rcaretund.???    \
+$(O)pf_rho.???          \
+$(O)pf_root.???         \
+$(O)pf_rshoe.???        \
+$(O)pf_rshoeund.???     \
+$(O)pf_rtack.???        \
+$(O)pf_section.???      \
+$(O)pf_slash.???        \
+$(O)pf_slope.???        \
+$(O)pf_squad.???        \
+$(O)pf_star.???         \
+$(O)pf_stile.???        \
+$(O)pf_tilde.???        \
+$(O)pf_times.???        \
+$(O)pf_uarrow.???       \
+$(O)pf_ucaret.???       \
+$(O)pf_ushoe.???        \
+$(O)pf_ustile.???       \
+$(O)pf_utack.???        \
+$(O)pf_utackjot.???     \
+$(O)pl_proc.???         \
+$(O)pn_proc.???         \
+$(O)po_cmiddot.???      \
+$(O)po_dicircle.???     \
+$(O)po_didtack.???      \
+$(O)po_dieresis.???     \
+$(O)po_dijot.???        \
+$(O)po_ditilde.???      \
+$(O)po_dot.???          \
+$(O)po_jot.???          \
+$(O)po_jotdot.???       \
+$(O)po_multiset.???     \
+$(O)po_slash.???        \
+$(O)po_slope.???        \
+$(O)po_variant.???      \
+$(O)prime_delta.???     \
+$(O)primfns.???         \
+$(O)primspec.???        \
+$(O)progbar.???         \
+$(O)qf_a.???            \
+$(O)qf_at.???           \
+$(O)qf_av.???           \
+$(O)qf_cr.???           \
+$(O)qf_dl.???           \
+$(O)qf_dr.???           \
+$(O)qf_ea.???           \
+$(O)qf_ec.???           \
+$(O)qf_em.???           \
+$(O)qf_error.???        \
+$(O)qf_es.???           \
+$(O)qf_et.???           \
+$(O)qf_ex.???           \
+$(O)qf_fmt.???          \
+$(O)qf_fx.???           \
+$(O)qf_lc.???           \
+$(O)qf_mf.???           \
+$(O)qf_nc.???           \
+$(O)qf_nfns.???         \
+$(O)qf_nl.???           \
+$(O)qf_sysid.???        \
+$(O)qf_sysver.???       \
+$(O)qf_tc.???           \
+$(O)qf_tf.???           \
+$(O)qf_ts.???           \
+$(O)qf_ucs.???          \
+$(O)qf_vr.???           \
+$(O)qf_wa.???           \
+$(O)rebar.???           \
+$(O)refcnt.???          \
+$(O)resdebug.???        \
+$(O)savefcn.???         \
+$(O)sc_common.???       \
+$(O)sc_copy.???         \
+$(O)sc_drop.???         \
+$(O)sc_erase.???        \
+$(O)sc_fnov.???         \
+$(O)sc_in.???           \
+$(O)sc_inascii.???      \
+$(O)sc_lib.???          \
+$(O)sc_load.???         \
+$(O)sc_out.???          \
+$(O)sc_reset.???        \
+$(O)sc_save.???         \
+$(O)sc_si.???           \
+$(O)sc_wsid.???         \
+$(O)sessman.???         \
+$(O)smallfact.???       \
+$(O)sort.???            \
+$(O)squfof.???          \
+$(O)statusbar.???       \
+$(O)strand.???          \
+$(O)symtab.???          \
+$(O)symtrans.???        \
+$(O)syscmds.???         \
+$(O)sysvars.???         \
+$(O)tabctrl.???         \
+$(O)tinyqs.???          \
+$(O)tokenize.???        \
+$(O)translate.???       \
+$(O)typemote.???        \
+$(O)updates.???         \
+$(O)ver.???             \
+$(O)webcolors.???       \
+$(O)yyfns.???
+
+!if "$(DEBUG)" == "0"
+SRC= $(SRC)             \
+$(O)crashserver.???
+!endif
+
+!ifdef MPQS_ENABLED
+SRC= $(SRC)             \
+$(O)gf2.???             \
+$(O)lanczos.???         \
+$(O)lanczos_pre.???     \
+$(O)lanczos_matmul0.??? \
+$(O)lanczos_matmul1.??? \
+$(O)lanczos_matmul2.??? \
+$(O)lanczos_vv.???      \
+$(O)matmul_util.???     \
+$(O)mpqs.???            \
+$(O)prime_sieve.???     \
+##$(O)relation.???        \
+$(O)sieve.???           \
+$(O)sqrt.???
+!endif

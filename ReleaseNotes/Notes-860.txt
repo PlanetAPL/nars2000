@@ -1,0 +1,13 @@
+Build #860 -- Version 0.0.2.23
+------------------------------
+
+* Display Precision Of VFP Arrays For 0 []DR
+
+Directory trunk:
+
+QF_DR.C:
+  Renumber []DR results to allow % 100 in case we need to reference
+    a category indepdnent of the width.
+  Fix Bug:  In <SysFnDydDR_EM_YY>, allow global numerics in the left arg.
+  In <SysFnDR_Show_EM_YY>, display precision for VFP arrays as common
+    or Mixed.

@@ -1,0 +1,10 @@
+Build #646 -- Version 0.0.2.10
+------------------------------
+
+* Avoid Overwriting Initial Error Message With Subsequent One
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <pl_yyerror>, check to see if we've already encountered an
+    error in which case don't overwrite it.

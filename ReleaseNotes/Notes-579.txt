@@ -1,0 +1,15 @@
+Build #579 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Outer Product With A Non-scalar Operand Fails In Certain Cases
+
+Directory trunk:
+
+PO_JOTDOT.C:
+  Rename <lpPrimFlags> to <lpPrimFlagsRht> to maintain consistency
+    with other operator naming conventions.
+  Fix Bug:  Set <lpPrimFlagsRht> to <PrimFlags0> if the flags
+    are not present.
+  Recode <PrimOpDydJotDotProto_EM> as prototype-only function, and
+    move the previous function contents to inline use.
+  By Mistake, this file was included in the previous Build.

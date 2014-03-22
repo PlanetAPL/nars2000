@@ -1,0 +1,88 @@
+Build #767 -- Version 0.0.2.18
+------------------------------
+
+* Make Full Axes PSDFs Sensitive To Left-/Right-hand Identity Elements
+
+Directory trunk:
+
+AXISFNS.C:
+  Improve comments.
+
+FH_PARSE.H:
+  Include symbol for Error Control SIS level in <cDfnTypeStr>.
+
+IDENTFNS.C:
+  Improve comments.
+  In <GetIdentityElement_EM> in the dyadic case (inner product), pass down
+    the prototype of the left & right args as that's what the UDFO expects,
+    and correspondingly don't {first} the result.
+  In <FillIdentityElement_EM>, return immediately if bad result from
+    <GetIdentityElement_EM> so as to simplify the result, and handle
+    empty nested arguments.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Move quote marks around <??_parse.c> to outside the entire path\name.
+
+PO_DIERESIS.C:
+  Pass left/right identity element flags to <CheckRankLengthError_EM>.
+  Pass left/right identity element flags to <PrimScalarFnDydAllocate_EM>.
+  Pass left/right identity element flags to <CalcLftRhtArgIndices>.
+
+PO_DOT.C:
+  Fix Bug:  Inner dimensions not calculated correctly for scalar
+    extension with empties.
+  Remove unused zero dimension code (because it's handled above).
+
+PO_SLASH.C:
+  Fix Bug:  When reducing an empty (to produce an identity element)
+    and we're prototyping also require the function to be a UDFO,
+    before signalling a NONCE ERROR.
+  Fix Bug:  When reducing an empty (to produce an identity element)
+    and the function is PSDF also require the argument not to be
+    nested before invoking that code.
+  When reducing an empty (to produce an identity element)
+    and the function is a PSDF, there's no need to check for it
+    being an immediate function.
+  Fix Bug:  If the nested result is empty, be sure to convert the identity
+    element to its prototype.
+
+PRIMFNS.C:
+  Pass left/right identity element flags to <PrimScalarFnDydAllocate_EM>.
+  In <PrimScalarFnDydAllocate_EM> when the ranks are equal, choose the
+    left arg if there's a right-hand only identity element, otherwise
+    choose the right arg.
+  In <MakeMonPrototype_EM_PTB>, call <FreeResultGlobalIncompleteVar>
+    instead of <FreeResultGlobalVar> as the result might be incomplete.
+  Pass left/right identity element flags to <CheckRankLengthError_EM>.
+  In <MakeDydPrototype_EM_PTB> when the ranks are equal, choose the
+    left arg if there's a right-hand only identity element, otherwise
+    choose the right arg.
+  In <CheckRankLengthError_EM> when the ranks are equal, choose the
+    left arg if there's a right-hand only identity element, otherwise
+    choose the right arg.
+  In <CopyArray_EM>, call <FreeResultGlobalIncompleteVar> instead of
+    <FreeResultGlobalVar> as the result might be incomplete.
+
+PRIMSPEC.C:
+  Fix Bug:  In <PrimIdentFnScalar_EM_YY>, handle empty nested args.
+  Pass left/right identity element flags to <CheckRankLengthError_EM>.
+  Pass left/right identity element flags to <PrimScalarFnDydAllocate_EM>.
+  Pass left/right identity element flags to <PRIMSPEC> function.
+  Pass left/right identity element flags to <PrimFnDydSimpNest_EM>.
+  Pass left/right identity element flags to <PrimFnDydSiScNest_EM>.
+  Pass left/right identity element flags to <PrimFnDydNestSiSc_EM>.
+  Pass left/right identity element flags to <PrimFnDydNestSimp_EM>.
+  Pass left/right identity element flags to <PrimFnDydMultSing_EM>.
+  Pass left/right identity element flags to <PrimFnDydNestNest_EM>.
+  Pass left/right identity element flags to <PrimFnDydSingMult_EM>.
+  Pass left/right identity element flags to <PrimFnDydSimpSimp_EM>.
+  In <PrimFnDydSimpSimp_EM>, if <lpMemAxisHead> is defined, then it is
+    always significant even if the ranks are the same.
+  Pass left/right identity element flags to <CalcLftRhtArgIndices>.
+  In <CalcLftRhtArgIndices>, take into account the left/right identity
+    element flag when deciding which index to use.
+
+PRIMSPEC.H:
+  Update copyright year.
+  Pass left/right identity element flags to <PRIMSPEC> functions.

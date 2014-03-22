@@ -1,0 +1,34 @@
+Build #328 -- Version 0.0.0.22038
+---------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Add new User Preference for Copy To/Paste From Braces.
+
+EDIT.RCH:
+  Add new menu item for Copy To/Paste From braces.
+
+EDITFCN.C:
+  Rename <CopyAPLCHars> and <PasteAPLChars> to
+    <CopyAPLChars_EM> and <PasteAPLChars_EM> to reflect the
+    fact that they may signal an error.
+  Add new WM_COMMAND message for Copy To/Paste From braces.
+  In <CopyAPLChars_EM>, handle Copy To Braces specially.
+  In <PasteAPLChars_EM>, handle Paste From Braces specially.
+
+MAIN.C:
+  Add new WM_COMMAND message for Copy To/Paste From braces.
+
+RESOURCE.H:
+  Define equate for COPY_BRACES/PASTE_BRACES.
+
+UNITRANSHDR.H:
+  Define new enum for Copy To/Paste From Braces.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  In <EDIT_WM_ContextMenu>, define menu state for
+    Copy To/Paste From Braces.

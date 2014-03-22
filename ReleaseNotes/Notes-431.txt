@@ -1,0 +1,14 @@
+Build #431 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+EDITFCN.C:
+EXTERNS.H:
+INIFILE.C:
+MAIN.RC:
+RESOURCE.H:
+SESSMAN.C:
+SYNTAXCOLORS.H:
+  Allow the window background color to be changed via Syntax Coloring.

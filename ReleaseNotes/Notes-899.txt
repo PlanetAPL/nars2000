@@ -1,0 +1,20 @@
+Build #899 -- Version 0.0.3.3
+-----------------------------
+
+* Allow R In 6{pi}R To Be Fractional
+* Allow 5{pi}0 In Origin[0
+* Handle Quadratic Sieve Returning Factor Of One
+* Fix Bug:  2{pi}R Fails
+* Make 5{pi}R To Be Origin-Sensitive
+* Fix Bug:  5{pi}R Returns Results Shifted
+
+Directory trunk:
+
+PF_PI.C:
+  Allow R in 6{pi}R for fractional R.
+  Allow 5{pi}0 in origin-0.
+  Check for <tinyqs> returning 1 as the first factor.
+  Fix Bug:  2{pi}R fails due to wrong comparison and wrong var.
+  Make 5{pi}R (Nth prime) origin-sensitive.
+  In <PrimFnPiNthPrime>, include missing power of 10 (10^17).
+  Fix Bug:  5{pi}1 2 3 incorrectly returns 0 2 3.

@@ -1,0 +1,11 @@
+Build #1034 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug Calculating Average Char Width
+
+Directory trunk:
+
+MAIN.C:
+  Update copyright year.
+  Fix Bug:  In <CreateNewFontSM>, calculate the correct average char width for the SM font on
+    an actual line of text so that "Adjust []PW on window resize" works.

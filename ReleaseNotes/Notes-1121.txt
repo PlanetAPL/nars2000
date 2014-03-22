@@ -1,0 +1,15 @@
+Build #1121 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix More Code Page Bugs
+
+Directory trunk:
+
+DEFINES.H:
+MAIN.RC:
+PF_BAR.C:
+  Replace ASCII chars in the range [128, 255] with the appropriate UTF16_xxxx and WS_UTF16_xxxx defines.
+
+VER.RC:
+  Increment version # to 0.4.0.xx.
+  Replace ASCII chars in the range [128, 255] with the appropriate UTF16_xxxx and WS_UTF16_xxxx defines.

@@ -1,0 +1,12 @@
+Build #1150 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug When Saving []EM
+
+Directory trunk:
+
+ERRMSG.C:
+  Fix bug when saving []EM because a ptr may be NULL.
+
+VER.RC:
+  Increment version # to 0.4.3.xx.

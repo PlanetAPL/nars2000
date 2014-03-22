@@ -1,0 +1,9 @@
+Build #908 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Handle Disclose Of A Rat/VFP Scalar
+
+Directory trunk:
+
+PF_RSHOE.C:
+  In <PrimFnMonRightShoeGlb_EM_YY>, handle disclose of RAT/VFP scalar.

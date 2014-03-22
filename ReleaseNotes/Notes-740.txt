@@ -1,0 +1,62 @@
+Build #740 -- Version 0.0.2.18
+------------------------------
+
+* Use Non-API Routines To Read .INI Files As The Windows API Has Undocumented Limits
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message for when a workspace is not
+    loadable from its .ini file.
+
+COMPRO.H:
+  Include .pro files for new source files.
+
+DEFINES.H:
+  Define additional wide-character names for various routines.
+
+DICTIONARY.C:
+DICTIONARY.H:
+INIPARSER.C:
+  New files to implement .ini file parsing for workspace )LOAD
+    and )COPY.
+
+HEADERS.H:
+  Include new header file for dictionary struct definition.
+
+INIFILE.C:
+  Define wrapper routines for iniparser code.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define targets for new source files.
+
+SAVEFCN.C:
+SC_COPY.C:
+SC_LOAD.C:
+  Use iniparser routines to read in a private profile items
+    from a workspace.
+
+SAVEFCN.H:
+  Update copyright year.
+  Replace ptr to workspace DPFE with ptr to dictionary in the
+    LoadWorkspace struct.
+
+SC_COMMON.C:
+  In <DisplayWorkspaceStamp>, pass in ptr to dictionary so it may be
+    used when reading a profile string.
+
+WORKSPACE.H:
+  Replace ptr to workspace DPFE with ptr to dictionary in the
+    LoadWorkspace struct.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Include iniparser author as a contributor.
+
+LICENSE-BODY.HTML:
+  Mention license terms for iniparser code.

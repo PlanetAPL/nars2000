@@ -1,0 +1,21 @@
+Build #655 -- Version 0.0.2.12
+------------------------------
+
+* Fix Bug:  Wrong Test For Empty When Reducing Empty With UDFO
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Delete dangling <else>.
+
+SC_IN.C:
+  Fix Bug:  In <TransferInverseArr2_EM>, when recreating a variable
+    from its 2 []TF form, the executed code omitted the definition of
+    the variable.
+  Fix Bug:  In <TransferInverseArr2_EM>, after executing the code
+    which defines a variable, free the result so as to maintain a
+    correct Reference Count.
+  Fix typo in comment.
+
+SC_SAVE.C:
+  Fix typo in comment.

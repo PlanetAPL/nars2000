@@ -1,0 +1,18 @@
+Build #609 -- Version 0.0.2.7
+-----------------------------
+
+* Define Another Resource Debugging Function
+
+Directory trunk:
+
+ERRMSG.C:
+YYFNS.C:
+  Use <MyGlobalHandle> instead of <GlobalHandle>.
+
+RESDEBUG.C:
+  Update copyright year.
+  Define <_MyGlobalHandle> function to catch more resource errors.
+
+RESDEBUG.H:
+  Update copyright year.
+  Define <MyGlobalHandle> for DEBUG and non-DEBUG cases.

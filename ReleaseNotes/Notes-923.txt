@@ -1,0 +1,23 @@
+Build #923 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bugs In Factoring Code
+
+Directory trunk:
+
+EXTERNS.H:
+  Define common struc for factoring code.
+
+PF_PI.C:
+  Define initial and incremental counts when allocating and
+    re-allocating temp memory to hole prime factors.
+  Replace use of fixed size virtual memory temp for prime factors
+    with variable size global memory temp.
+  In <PrimFnMonPi_EM_YY>, check the return of <PrimFnPiCommon> for
+    multiple errors.
+  In <PrimFnPiCommon>, set the result to a known value in case we fail.
+  In <PrimFnPiCommon>, simplify the code for when we find a factor, and
+    resize the factor struc, too, if necessary.
+  In <PrimFnPiCommon>, don't free <aplTmp> until the end in case we
+    signal an error.
+  Define separate routine to resize the factor struc as necessary.

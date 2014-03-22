@@ -1,0 +1,16 @@
+Build #873 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Handle Type Promotion To RAT As Exception
+* Fix Bug:  Handle Missing Cases Due To <pi> Forcing Args To RAT
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  Handle <EXCEPTION_RESULT_RAT> in all exception routines where
+    <EXCEPTION_RESULT_VFP> is handled.
+  Fix Bug:  Handle missing cases due to <pi> forcing all numeric args to RAT.
+  Fix Bug:  In <PrimFnDydSiScSiScSub_EM>, when the result is a global numeric,
+    handle the case where the ptr to result global memory handle is non-NULL, but
+    the value is NULL as one in which we need to allocate memory for the result.
+  Improve comments.

@@ -1,0 +1,141 @@
+Build #332 -- Version 0.0.0.22488
+---------------------------------
+
+Directory trunk:
+
+COLORS.H:
+  Delete <colors.h> in favor of <colornames.h>.
+
+CUSTOMIZE.C:
+  Use common message to set a color.
+  Move <aCustColors> to <externs.h> so it can be used
+    when writing out the .ini file.
+  Define color names for the basic colors used in the Context
+    Menu.
+  Define globals to hold the Foreground/Background state
+    and the index into the <SCTYPE>s.
+  Rename <itemsizeof> to <countof>.
+  Display a tooltip over each <SCTYPE> button.
+  Remove hook proc from <CHOOSECOLOR> struc until its design
+    coalesces.
+  Define action for <WM_MEASUREITEM> to handle the sizes of
+    the Syntax Color Context Menu items.
+  Rename <itemlengthof> to <strlengthof>.
+  In <WM_DRAWITEM>, merge handling of Foreground/Background
+    buttons.
+  In <WM_DRAWITEM>, handle drawing of the Syntax Coloring
+    Context Menu.
+  Define action for <WM_NOTIFY> to handle tooltips on the
+    <SCTYPE> buttons.
+  In <WM_COMMAND>, define/undefine <wParam/lParam> parts
+    and use throughout.
+  In <WM_COMMAND>, include entry for <SC_UNNESTED> <SCTYPE>
+    and associated actions.
+  In <WM_COMMAND> when handling reponse to clicking on an
+    <SCTYPE> button, display a Context menu with swatches
+    and names of the basic colors instead of a <ChooseColor>
+    dialog.  The latter is displayed in response to the last
+    item in the Context Menu (Custom).
+  In <WM_COMMAND>, handle Restore Defaults button.
+  Define action for <MYWM_SETCOLOR> as a common routine to
+    set a new <SCTYPE> color.
+
+DEFINES.H:
+  Rename <COLOR_xxx> to <DEF_SCN_xxx>.
+
+EDITFCN.C:
+  Delete <colors.h> in favor of <colornames.h>.
+  Replace <RGB (...) with the corresponding <DEF_SCN_xxx>.
+  Return result from <SyntaxColor> to detect lines of system
+    commands and function editor invocations neither of which
+    are to be colored.
+  Rename <DEF_SC_TRANSPARENT> to <DEF_SCN_TRANSPARENT>.
+  Rename <itemlengthof> to <strlengthof>.
+  Rename <COLOR_xxx> to <DEF_SCN_xxx>.
+
+EXTERNS.H:
+  Include all the color names.
+  Define bitmap handle and size for check mark used in
+    Syntax Coloring.
+  Define vars to hold default Syntax Colors and Background
+    transparency.
+  Define new Syntax Color type of <SC_UNNESTED> and fill in
+    the corresponding entries.
+  Define var to hold Web Color Names.
+  Move <gSyntClrBGTrans> to be near other Syntax Coloring vars.
+  Rename <itemsizeof> to <countof>.
+
+INIFILE.C:
+  Read in/write out Syntax Colors, Background Transparency
+    states, and Custom Colors.
+  Coalesce into a loop each reading in/writing out all the
+    <SCTYPE> vars.
+  Rename <itemsizeof> to <countof>.
+
+MACROS.H:
+  Rename <itemlengthof> to <strlengthof>.
+  Rename <itemsizeof> to <countof>.
+
+MAIN.C:
+  Delete <colors.h> in favor of <colornames.h>.
+  Rename <itemsizeof> to <countof>.
+  Read in <OBM_CHECK> bitmap and get its size.
+  Delete above resource when finished.
+  Rename <itemlengthof> to <strlengthof>.
+  Rename <COLOR_xxx> to <DEF_SCN_xxx>.
+  Copy initial <SCTYPE> and Background Transparency data
+    as defaults.
+
+MAIN.RC:
+  Insert <LTEXT> windows before each Foreground and Background
+    <SCTYPE> button to be a place to display a marker for which
+    type is being changed.
+  Define new <SCTYPE> for <SC_UNNESTED> and move up all preceding
+    entries to make room for it.
+  Define Restore Defaults button.
+
+RESOURCE.H:
+  Define IDs for the <LTEXT> buttons and renumber ones above that.
+  Define IDs for the Syntax Coloring Context Menu items.
+
+SAVEFCN.C:
+  Fix Bug:  Unlock <lpMemDfnHdr> on <ERROR_EXIT>.
+  In <IsLineEmpty>, check for empty handle (Tokenize error).
+
+SC_ERASE.C:
+  Rename <itemlengthof> to <strlengthof>.
+
+SESSMAN.C:
+  Delete <colors.h> in favor of <colornames.h>.
+
+SYNTAXCOLORS.H:
+  Change background of both Unmatched and Unknown from Transparent
+    to Gainsboro.
+
+TABCTRL.C:
+  Delete <colors.h> in favor of <colornames.h>.
+  Replace <RGB (...) with the corresponding <DEF_SCN_xxx>.
+  Rename <COLOR_xxx> to <DEF_SCN_xxx>.
+
+TOKENIZE.C:
+  Define separate actions for start of and abnormal exit of a
+    character constant so we can mark the leading quote as
+    unmatched and then matched.
+  Handle improperly nested grouping symbols as a new <SCTYPE>.
+  Fix Bug:  Unmatched grouping symbols such as ()) crash because
+    we don't detect NO_PREVIOUS_GROUPING_SYMBOL at the start of
+    <GroupDoneCom>.
+  Save <colIndex> in <fnSyntQuote> so we can catch the above bug.
+
+VER.C:
+  Delete <colors.h> in favor of <colornames.h>.
+  Rename <COLOR_xxx> to <DEF_SCN_xxx>.
+
+WEBCOLORS.C:
+  Minor comment changes.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Indicate that Syntax Coloring is supported.

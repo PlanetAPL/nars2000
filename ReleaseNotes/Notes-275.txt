@@ -1,0 +1,173 @@
+Build #275 -- Version 0.0.0.17717
+---------------------------------
+
+Directory trunk:
+
+DFNHDR.Y:
+  Include commented out defines for debugging.
+  Delete extraneous VirtualAlloc/VirtualFree as the caller already does this.
+  Include debugging statements in <fh_yylex>.
+  Include debugging statement in <fh_yyfprintf>.
+
+DISPLAY.C:
+  Move <lpwszFormat> from global to PerTabData value.
+  Return value from <DisplayGlbArr> to allow it to fail on (say) LIMIT ERROR.
+  Pass ptr to function token to <DisplayGlbArr> so it can fail
+    with an error message (ptr to function token needed for caret).
+  Use <GuardAlloc> instead of <VirtualAlloc> and link the result into
+    a chain of <lclMemVirtStr>s so it can be searched when an Access Violation occurs.
+  Move __except in <DisplayGlbArr> down to the bottom so it can catch Access
+    Violations on <lpwszFormat>.
+  In call to <CheckVirtAlloc>, delete ptr and length of <lclMemVirtStr>s
+    as we now use the MVS chain.
+  Improve initialization of <lpFmtHeader>.
+  Improve comments.
+  Check for Ctrl-Break inside of raw output loop to handle display of (say) []AV.
+  Use <MyVirtualAlloc> instead of <VirtualAlloc> and
+      <MyVirtualFree>  instead of <VirtualFree>  to catch errors more easily.
+
+EDIT.RC:
+  Define new file to hold comomon .rc statements.
+
+EDITFCN.C:
+  Use <GuardAlloc> instead of <VirtualAlloc> and link the result into
+    a chain of <lclMemVirtStr>s so it can be searched when an Access Violation occurs.
+  Move <lpwszFormat> from global to PerTabData value.
+  Use <MyVirtualAlloc> instead of <VirtualAlloc> and
+      <MyVirtualFree>  instead of <VirtualFree>  to catch errors more easily.
+
+EXCEPT.C:
+  Include text for LIMIT ERROR message.
+  In call to <CheckVirtAlloc>, delete ptr and length of <lclMemVirtStr>s
+    as we now use the MVS chain.
+  Put common code into <CheckMemVirtStr> for multiple uses.
+  Use <GuardAlloc> instead of <VirtualAlloc> and link the result into
+    a chain of <lclMemVirtStr>s so it can be searched when an Access Violation occurs.
+
+EXECMFN.C:
+  Use <GuardAlloc> instead of <VirtualAlloc> and link the result into
+    a chain of <lclMemVirtStr>s so it can be searched when an Access Violation occurs.
+  Use <MyVirtualAlloc> instead of <VirtualAlloc> and
+      <MyVirtualFree>  instead of <VirtualFree>  to catch errors more easily.
+
+EXTERNS.H:
+  Ensure DEF_xxx_INCR_SIZE is non-zero as a zero size is an error to <VirtualAlloc>
+    when committing a range.
+  Increase <DEF_WFORMAT_MAXSIZE> so []AV can display without a LIMIT ERROR.
+  Increase <DEF_DISPLAY_MAXSIZE> so []AV can display without a LIMIT ERROR.
+  Move <lpwszFormat> from global to PerTabData value.
+  Move <[STRAND_VAR]> and <[STRANDFCN]> <VirtualAlloc>s from global to PerTabData.
+  Include previous and next ptrs in <MEMVIRTSTR> to make a chain of structs.
+  Include ptr to text in debug version of <MEMVIRTSTR> to ease debugging.
+
+IMMEXEC.C:
+  Use <MyVirtualAlloc> instead of <VirtualAlloc> and
+      <MyVirtualFree>  instead of <VirtualFree>  to catch errors more easily.
+  For <VirtualAlloc>s that are of fixed size, use <MEM_TOP_DOWN> so they compact well.
+
+MAIN.C:
+  Include <wininet.h> as start of dialog for update checking.
+  Define struc for passing args to <DialogBoxParam> for update checking.
+  Call <CheckForUpdates> in response to a corresponding menu selection.
+  Use <GuardAlloc> instead of <VirtualAlloc> and link the result into
+    a chain of <lclMemVirtStr>s so it can be searched when an Access Violation occurs.
+  Include ptr to text in debug version of <MEMVIRTSTR> to ease debugging.
+  Use <MyVirtualAlloc> instead of <VirtualAlloc> and
+      <MyVirtualFree>  instead of <VirtualFree>  to catch errors more easily.
+  Move <lpwszFormat> from global to PerTabData value.
+
+MAIN.H:
+  Define Page Size as 4KB.
+  Include <lpMVS> in SM and FE window extra bytes.
+  Include LIMIT ERROR in exception codes.
+
+MAIN.RC:
+  Define new file to hold comomon .rc statements.
+  Define new menu item for Check For Updates.
+
+MAKEFILE:
+  Include <wininet.lib> for Internet routines.
+
+PARSE.Y:
+  Include ptr to text in debug version of <MEMVIRTSTR> to ease debugging.
+  Use <GuardAlloc> instead of <VirtualAlloc> and link the result into
+    a chain of <lclMemVirtStr>s so it can be searched when an Access Violation occurs.
+  In call to <CheckVirtAlloc>, delete ptr and length of <lclMemVirtStr>s
+    as we now use the MVS chain.
+  In <pl_yyfprintf>, move call to <va_end> up to same place as in <fh_yyfprintf>.
+
+PERTAB.H:
+  Improve comments.
+  Define <lpLstMVS> as ptr to last <MEMVIRTSTR> in the chain so we can traverse it.
+  Move <lpwszFormat> from global to PerTabData value.
+
+PF_DTACKJOT.C:
+  Move <lpwszFormat> from global to PerTabData value.
+  Improve initialization of <lpFmtHeader>.
+
+PF_RHO.C:
+  Factor out common initialization of <*lpaplNELMRes> so teh <ARRAY_CHAR> case can use it.
+  Fix bug where ''{rho} was disallowed.
+
+PF_UTACKJOT.C:
+  Use <MyVirtualAlloc> instead of <VirtualAlloc> and
+      <MyVirtualFree>  instead of <VirtualFree>  to catch errors more easily.
+  For <VirtualAlloc>s that are of fixed size, use <MEM_TOP_DOWN> so they compact well.
+
+RESDEBUG.C:
+  Improve comments.
+  Define <_MyVirtualAlloc> and <_MyVirtualFree> to catch errors more easily.
+
+RESDEBUG.H:
+  Define macros for <MyVirtualAlloc> and <MyVirtualFree>.
+  Reorganize the macros to reflect the same order as the routines in <RESDEBUG.C>.
+
+RESOURCE.H:
+  Define equates for Updates dialog and other resources.
+
+SAVEFCN.C:
+  Include ptr to text in debug version of <MEMVIRTSTR> to ease debugging.
+  Use <GuardAlloc> instead of <VirtualAlloc> and link the result into
+    a chain of <lclMemVirtStr>s so it can be searched when an Access Violation occurs.
+  Use <MyVirtualAlloc> instead of <VirtualAlloc> and
+      <MyVirtualFree>  instead of <VirtualFree>  to catch errors more easily.
+
+SC_FNOV.C:
+  Move <lpwszFormat> from global to PerTabData value.
+
+SC_LOAD.C:
+  Move <lpwszFormat> from global to PerTabData value.
+
+SC_SAVE.C:
+  Move <lpwszFormat> from global to PerTabData value.
+
+SC_SI.C:
+  Move <lpwszFormat> from global to PerTabData value.
+
+SESSMAN.C:
+  Include ptr to text in debug version of <MEMVIRTSTR> to ease debugging.
+  Use <GuardAlloc> instead of <VirtualAlloc> and link the result into
+    a chain of <lclMemVirtStr>s so it can be searched when an Access Violation occurs.
+  Use <MyVirtualAlloc> instead of <VirtualAlloc> and
+      <MyVirtualFree>  instead of <VirtualFree>  to catch errors more easily.
+
+STARTADDR.H:
+  Include more addresses for debugging purposes.
+
+SYMTAB.C:
+  Use <MyVirtualAlloc> instead of <VirtualAlloc> and
+      <MyVirtualFree>  instead of <VirtualFree>  to catch errors more easily.
+  Rename <DEF_HSHTAB_RESIZE> to <DEF_HSHTAB_INCRSIZE> to conform to other such equates.
+  Rename <DEF_SYMTAB_RESIZE> to <DEF_SYMTAB_INCRSIZE> to conform to other such equates.
+
+SYMTAB.H:
+  Rename <DEF_HSHTAB_RESIZE> to <DEF_HSHTAB_INCRSIZE> to conform to other such equates.
+  Rename <DEF_SYMTAB_RESIZE> to <DEF_SYMTAB_INCRSIZE> to conform to other such equates.
+
+VER.C:
+  Restore subclassed WndProc at <WM_CLOSE>.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Fix bug when <EM_REPLACESEL> overflows when displaying a large value such as []AV.

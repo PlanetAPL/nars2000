@@ -1,0 +1,21 @@
+Build #1081 -- Version 0.3.9.xx
+-------------------------------
+
+* Describe New Download File Containing Multi-Precision Source
+
+Directory trunk\htdocs:
+
+FOOTER-MON.HTML:
+FOOTER.HTML:
+  Include GPL license logo in the footer.
+  Change the footer from promoting OpenOffice to LibreOffice.
+
+LICENSE-BODY.HTML:
+  Provide HTML links for LGPL licenses.
+  Include text for the presence of <mpfns.zip>.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Include <mpfns.zip> in list of Special Files.

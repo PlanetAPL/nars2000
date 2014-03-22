@@ -1,0 +1,12 @@
+Build #1148 -- Version 0.4.2.xx
+-------------------------------
+
+* Fix Bug In IndexOf
+
+Directory trunk:
+
+EXECMFN.H:
+  Define more shorthand names for use in Magic Functions.
+
+PF_IOTA.C:
+  Fix bug in Magic Function for extended IndexOf.

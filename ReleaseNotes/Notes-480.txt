@@ -1,0 +1,14 @@
+Build #480 -- Version 0.0.1.18
+------------------------------
+
+* Fix Bug:  When returning a prototype in a dyadic context where
+  the result is an APA, the proper bits in the result weren't set.
+
+Directory trunk:
+
+PRIMFNS.C:
+  Fix Bug:  In <MakeDydPrototype>, return HGLOBAL with ptr type
+    bits set.
+
+VERSON.RC:
+  Start of Version 0.0.1.18.

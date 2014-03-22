@@ -1,0 +1,107 @@
+Build #409 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define equate for FORMAT ERROR.
+
+COMPRO.H:
+  Include new module <fmtspec.c>.
+  Remove old module <g_fmt.c>.
+
+CUSTOMIZE.C:
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatFloatFC>.
+
+DATATYPE.H:
+  Define struct and union for Floating Point format.
+  Improve comments.
+
+DISPLAY.C:
+  Define global DTOA mode for each <FLTDISPFMT_xxx> value.
+  Improve comments.
+  Change from Precision to significant digits in comments and var names.
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatImmedFC>/<FormatFloatFC>.
+  In <FormatFloatFC>, Use <dtoa> directly instead of going through
+    <g_fmt> and format the result based upon <FLTDISPFMT_xxx> values..
+  Define new routine <FormatExpFmt> to format a number in exponential
+    format.
+
+DISPLAY.H:
+  Update copyright year.
+  Define bit to indicate whether or not a column consists of all
+    character data (in which case it's left-justified).
+  Delete commented out lines.
+
+DTOA.C:
+  Insert headings so we can see the individual functions more easily.
+
+EXTERNS.H:
+  Move <FLT_DISP_FMT> enum from <display.c> to <externs.h> so it's
+    visible to all modules.
+
+FMTSPEC.C:
+FMTSPEC.H:
+  Define new module to run the left arg of []FMT through an FSA
+    accumulating a parsed version of the format string.
+
+HEADERS.H:
+  Include <fmtspec.h>.
+
+INIFILE.C:
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatFloatFC>.
+
+MAIN.H:
+  Delete references to <DEF_DTOA_MODE> as it's no longer used.
+
+MAKEFILE.INC:
+  Define actions for <fmtspec.c>.
+
+MAKEFILE.SRC:
+NARS2000.VCPROJ:
+  Remove <g_fmt.c> from the list of source files.
+  Include <fmtspec.c> in the list of source files.
+
+PF_DTACKJOT.C:
+  In <WIDPRC> struct define new field for longest exponent (so we may
+    line up the Es in the exponents) and define a new bit to indicate
+    that the column consists of all character data.
+  Delete all references to <FMTTYPE_xxx> as they are not used.
+  Fix bug:  Test for which field (uWid or iPrc) is being set instead
+    of relying on a bad cast.
+  If a column consists of all character data, left-justify it.
+  Improve comments.
+  In <PrimFnDydDownTackJot_EM_YY>, comment out test for last case.
+  Delete FIXME comment for case that's now fixed.
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatFloatFC>.
+  In IMMTYPE_FLOAT case, use F-, RAWINT-, or E-format depending upon
+    the signum of the Precision value.
+
+QF_FMT.C:
+  Finish work on dyadic []FMT.
+
+QF_TF.C:
+SC_SAVE.C:
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatFloatFC>.
+
+STARTADDR.H:
+  Remove reference to <g_fmt.c>.
+
+SYSVARS.H:
+  Define equate for []FC[4] overflow char which triggers a DOMAIN ERROR.
+
+TOKENIZE.C:
+  In <InitFsaTabs>, call initialization routine for FmtSpec FSA.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note availability of niladic []A.
+  Note availability of monadic and dyadic []FMT.

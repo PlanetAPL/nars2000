@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NARS2000.64", "NARS2000.64.vcproj", "{BF04BD9C-0A74-4FD1-B681-1389F6C4AD64}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug64|Win32 = Debug64|Win32
+		Release64|Win32 = Release64|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF04BD9C-0A74-4FD1-B681-1389F6C4AD64}.Debug64|Win32.ActiveCfg = Debug64|Win32
+		{BF04BD9C-0A74-4FD1-B681-1389F6C4AD64}.Debug64|Win32.Build.0 = Debug64|Win32
+		{BF04BD9C-0A74-4FD1-B681-1389F6C4AD64}.Release64|Win32.ActiveCfg = Release64|Win32
+		{BF04BD9C-0A74-4FD1-B681-1389F6C4AD64}.Release64|Win32.Build.0 = Release64|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

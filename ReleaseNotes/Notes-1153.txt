@@ -1,0 +1,9 @@
+Build #1153 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Memory Leak
+
+Directory trunk:
+
+IMMEXEC.C:
+  In <ActOnError>, free the result of <lpMemPTD->YYResExec> after displaying it.

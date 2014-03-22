@@ -1,0 +1,9 @@
+Build #1220 -- Version 0.4.6.xx
+-------------------------------
+
+* Create []DM & []EM From Within []EC
+
+Directory trunk:
+
+QF_EC.C:
+  After executing the right arg to []EC, ensure []DM & []EM have been created.

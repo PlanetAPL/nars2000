@@ -1,0 +1,11 @@
+Build #1021 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Display Of Raw Output
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  In <DisplayGlbArr_EM>, the code to protect usage of
+    <lpwszTemp> in the display of raw output is off by one as I
+    forgot to protect the terminating zero of a string.

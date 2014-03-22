@@ -1,0 +1,18 @@
+Build #1088 -- Version 0.3.10.xx
+--------------------------------
+
+* Include More Shorthand Variant Primitives
+
+Directory trunk:
+
+PF_EQUAL.C:
+  Update copyright year.
+  In <PrimFnDydEqualBisFvF>, simplify the code.
+
+PF_NEQUAL.C:
+  Update copyright year.
+  In <PrimFnDydNotEqualBisFvF>, simplify the code.
+
+PO_VARIANT.C:
+  In <PrimOpVariantCommon_EM_YY>, include more primitives in the list
+    of shorthand variants for []IO and []CT.

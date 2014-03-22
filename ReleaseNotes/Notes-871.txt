@@ -1,0 +1,10 @@
+Build #871 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Handle Long Lines, Part II
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Handle long lines, part II.
+  Improve comments.

@@ -1,0 +1,16 @@
+Build #493-- Version 0.0.2.1
+----------------------------
+
+* Changes for 64-bit executable.
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Minor edits.
+  Note availability of 64-bit executable.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Changes to enable download of 64-bit executable.

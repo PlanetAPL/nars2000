@@ -1,0 +1,28 @@
+Build #419 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  In <CreateFcnWindow>, when about to create a Function Editor window,
+    first check to see if the same function name is open for editing;
+    if it is, switch to that window instead of opening a new one.
+  In <FEWndProc>/<WM_CREATE>, at the very end, link the new window handle
+    into the doubly-linked chain of FE window handles.
+  In <FEWndProc>/<MYWM_CMPNAME>, compare the incoming function name
+    against this window's function name.
+  In <FEWndProc>/<WM_DESTROY>, unlink this window handle from the
+    doubly-linked chain of FE window handles.
+  Define new routine <GetFunctionName> extracted from and now called
+    by <SetFETitle> to fill in the FE window's function name and return
+    its length.
+
+MAIN.H:
+  Define two new extra byte offsets for FE window class to hold the
+    forward abd backward window handles in the doubly-linked chain.
+  Define a new window message to allow the caller to ask the FE window
+    to compare a given function name with that window's function name.
+
+PERTAB.H:
+  Define a new struct member to hold the FE windows doubly-linked list
+    anchor.

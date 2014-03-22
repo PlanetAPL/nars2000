@@ -1,0 +1,9 @@
+Build #415 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix Bug:  In <LoadWorkspaceGlobal_EM>, don't append an LPSYMENTRY
+    to the <lpSymLink> chain if it's a permanent var as the code in
+    <DeleteGlobalLinks> fails on such objects.

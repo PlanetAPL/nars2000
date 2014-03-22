@@ -1,0 +1,19 @@
+Release #265, Version #0.0.0.17516
+----------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Include "sysvars.h" as we need some if its #defines.
+  Handle WM_SIZE in <LclEditCtrlWndProc> and, if requested to do so,
+    adjust []PW when the Session Manager width changes.
+
+EXTERNS.H:
+  Change default font to SImPL as it has more APL characters.
+  Define Boolean variable to determine whether or not to adjust
+    []PW when the Session Manager width changes.
+
+PF_DOMINO.C:
+  Use GSL routine to solve the SVD equation rather than custom code
+    because it handles infinity better.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.

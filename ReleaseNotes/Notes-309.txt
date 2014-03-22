@@ -1,0 +1,115 @@
+Build #309 -- Version 0.0.0.21741
+---------------------------------
+
+Directory trunk:
+
+AXISFNS.C:
+  Rename <RoundUpBits8> to <RoundUpBitsToBytes> better
+    to reflect its purpose.
+  Use BIT0 in place of 0x01 for <uBitMask>.
+
+DATATYPE.H:
+  Improve comments.
+
+DISPDBG.C:
+  Rename <TKT_STRING> to <TKT_CHRSTRAND>.
+  Define new token <TKT_NUMSTRAND>.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle new token <TKT_NUMSTRAND>.
+
+PF_DELTASTILE.C:
+  Rename <RoundUpBits8> to <RoundUpBitsToBytes> better
+    to reflect its purpose.
+  Use BIT0 in place of 0x01 for <uBitMask>.
+
+PF_EPSILON.C:
+  Use BIT0 in place of 0x01 for <uBitMask>.
+  Rename <RoundUpBits8> to <RoundUpBitsToBytes> better
+    to reflect its purpose.
+
+PF_IOTA.C:
+  Rename <RoundUpBits8> to <RoundUpBitsToBytes> better
+    to reflect its purpose.
+  Use BIT0 in place of 0x01 for <uBitMask>.
+
+PL_PARSE.Y:
+  Rename <TKT_STRING> to <TKT_CHRSTRAND>.
+  Handle new token <TKT_NUMSTRAND>.
+  Rename grammar symbol <STRING> to <CHRSTRAND>.
+  Define new symbol <NUMSTRAND> to handle tokenization of numeric strands.
+  Remove unused grammar symbol <CS_ENDWHILE>.
+  Transfer the rules for <SingTokn:> to <SingVar:> as that's the only
+    place <SingTokn> is referenced.
+
+PRIMFNS.C:
+  Rename <TKT_STRING> to <TKT_CHRSTRAND>.
+  Handle new token <TKT_NUMSTRAND>.
+  Use <APLU3264> instead of MSVC-specific <__int3264>.
+  Rename <RoundUpBits8> to <RoundUpBitsToBytes> better
+    to reflect its purpose.
+  Use BIT0 in place of 0x01 for <uBitMask>.
+
+SAVEFCN.C:
+  Save the user-defined function/operator global memory handle for
+    the caller.
+
+SAVEFCN.H:
+  Define var in which to return the user-defined function/operator
+    global memory handle.
+
+SC_COPY.C:
+  Fix typos in comments.
+  When calling <CopyWsFcns>, split out the several cases.
+  Improve comments.
+  In <CopyWsVars>, free the old var only if is not immediate and
+    has a value.
+  Reorganize the code to setup the var's STE.
+
+SC_LOAD.C:
+  Improve comments.
+  In <ParseSavedWsFcn_EM>, if the STE is not found or has no value,
+    load it from the workspace globals.
+  In <ParseSavedWsFcn_EM>, free the old function only if it is different
+    from the new function.
+  In <ParseSavedWsVar_EM>, if the STE is not found or has no value,
+    load it from the workspace globals.
+  In <LoadWorkspaceGlobal_EM>, define vars to handle Monitor Info.
+  In <LoadWsGlbVarConv>, if the STE is not found or has no value,
+    load it from the workspace globals.
+
+SC_SAVE.C:
+  In <SavedWsFormGlbFcn>, save Monitor Info if present in a function.
+
+STARTADDR.H:
+  Rename <RoundUpBits8> to <RoundUpBitsToBytes> better
+    to reflect its purpose.
+
+STRAND.C:
+  Rename <TKT_STRING> to <TKT_CHRSTRAND>.
+  Handle new token <TKT_NUMSTRAND>.
+  In <MakevarStrand_EM_YY>, create numeric strands.
+
+SYSVARS.C:
+  Rename <TKT_STRING> to <TKT_CHRSTRAND>.
+  Handle new token <TKT_NUMSTRAND>.
+  Use BIT0 in place of 0x01 for <uBitMask>.
+
+TOKENIZE.C:
+  Improve comments.
+  Define new UBOOL <bMerge> to determine whether or not we successfully
+    merged a numeric token with the previous token to create a numeric
+    strand.
+  In <fnIntDone> and <fnFPDone>, attempt to merge the current numeric
+    immediate with the previous token.
+  Rename <TKT_STRING> to <TKT_CHRSTRAND>.
+  Handle new token <TKT_NUMSTRAND>.
+  Define new routine <MergeNumbers> to merge a numeric immediate with
+    the previous token.
+
+TOKENS.H:
+  Rename <TKT_STRING> to <TKT_CHRSTRAND>.
+  Define new token <TKT_NUMSTRAND>.
+
+WORKSPACE.H:
+  Define new Key Name in a saved workspace for Monitor Info.

@@ -1,0 +1,10 @@
+Build #953 -- Version 0.0.3.5
+-----------------------------
+
+* Include Bitsize In Master Frame Window Title
+
+Directory trunk:
+
+DEFINES.H:
+MAIN.C:
+  Include bitsize in master frame window title.

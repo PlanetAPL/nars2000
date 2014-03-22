@@ -1,0 +1,22 @@
+Build #727 -- Version 0.0.2.18
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+MK32.BAT:
+MKD32.BAT
+MK64.BAT:
+MKD64.BAT:
+  Call local batch file W32 or W64 to setup the appropriate environment.
+
+QF_AT.C:
+  Improve comments.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+EDITOROVERLAY.JS:
+  Switch Circle-Middle-Dot and MisMatch on the keyboard.
+  Improve comments.

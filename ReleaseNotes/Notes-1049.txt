@@ -1,0 +1,12 @@
+Build #1049 -- Version 0.3.8.xx
+-------------------------------
+
+* Implement Asynchronous I/O For Native File Functions
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message INCOMPLETE I/O.
+
+QF_NFNS.C:
+  Implement asynchronous I/O for the read/write native file functions to match that used for locking.

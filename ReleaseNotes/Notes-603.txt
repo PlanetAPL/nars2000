@@ -1,0 +1,11 @@
+Build #603 -- Version 0.0.2.6
+-----------------------------
+
+* Fix Bug When Drawing Function Line Numbers
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  When drawing function line numbers, the background
+    sometimes is not be fully filled in resulting in a vertical
+    black line between the line numbers and the function text.

@@ -1,0 +1,13 @@
+Build #917 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Restore Tooltips For The Language Bar
+
+Directory trunk:
+
+REBAR.C:
+  Update copyright year.
+  A previous Build (#912) mistakenly changed a local var from static to normal after which
+    that var was no longer properly initialized.  This had the effect of no longer displaying
+    tooltips for the Language Bar.  Instead of restoring the static attribute, I chose to
+    initialize the var when needed.

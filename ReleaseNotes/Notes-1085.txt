@@ -1,0 +1,21 @@
+Build #1085 -- Version 0.3.10.xx
+--------------------------------
+
+* Use Consistent Windows Class Names
+
+Directory trunk:
+
+CLASSNAMES.H:
+  New file with consistent Windows class names.
+
+CRASH.C:
+DEBUG.C:
+DEFINES.H:
+EDITFCN.C:
+HEADERS.H:
+MAIN.C:
+MAIN.RC:
+PERFMON.C:
+REBAR.C:
+TABCTRL.C:
+  Use consistent Windows class names.

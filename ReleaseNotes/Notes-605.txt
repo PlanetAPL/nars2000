@@ -1,0 +1,10 @@
+Build #605 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug When Translating UpCaret (0x2227) For []TF or )OUT
+
+Directory trunk:
+
+TRANSLATE.C:
+  In <TranslateNARSToAPL2>, when translating an UpCaret to APL2
+    if the char is not found, make it a circumflex (^).

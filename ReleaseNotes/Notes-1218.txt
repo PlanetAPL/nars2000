@@ -1,0 +1,22 @@
+Build #1218 -- Version 0.4.6.xx
+-------------------------------
+
+* Handle Exceptions Better
+
+Directory trunk:
+
+EXECFNS.C:
+  Update copyright year.
+  In <ExecFunc_EM_YY> surround calls next level down with __try/__except handlers so as to catch lower level errors.
+
+PF_DTACKJOT.C:
+  Update copyright year.
+  In <PrimFnMonDownTackJot_EM_YY>, handle access violations in the handler.
+
+PL_PARSE.Y:
+  Update copyright year.
+  Move exception handler scope up to cover assignments into plLocalVars ptrs.
+
+STRAND.C:
+  Update copyright year.
+  In <PushFcnStrand_YY>, handle exception (LIMIT ERROR).

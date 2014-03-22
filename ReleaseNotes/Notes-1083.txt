@@ -1,0 +1,11 @@
+Build #1083 -- Version 0.3.9.xx
+-------------------------------
+
+* Use More MPIR Data Types
+
+Directory trunk:
+
+MPFNS.C:
+  Convert <unsigned long int> and <signed long int> when used in a <mpz_*>
+    or <mpq_*> context to <mpir_ui> and <mpir_si> to match the types used
+    in MPIR.

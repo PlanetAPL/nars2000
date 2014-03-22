@@ -1,0 +1,18 @@
+Build #417 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Upon a change in the function, write a marker in the window title
+    to indicate that fact.
+  Note in function editor header whether or not a function
+    has been changed.
+
+EXTERNS.H:
+  Change the FE title format string to include space for an
+    asterisk indicating that the function has been changed.
+
+SAVEFCN.C:
+  After saving a function, clear the marker in the window title
+    to indicate that fact.

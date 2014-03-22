@@ -1,0 +1,11 @@
+Build #1040 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Floor Function On Global Numerics
+
+Directory trunk:
+
+PF_DSTILE.C:
+  Update copyright year.
+  Occasionally, <mpq_cmp> and possibly <mpfr_cmp> can return a value other than -1,0,1,
+    so we need to filter it through <signum> when using it in a switch stmt.

@@ -1,0 +1,57 @@
+Build #1166 -- Version 0.4.4.xx
+-------------------------------
+
+* Optimize Generalized Determinant For Assignment Problem
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype files.
+
+DISPDBG.C:
+  Document new stFlags.
+
+EXECDFN.C:
+  Improve comments.
+
+HEADERS.H:
+  Include header for Hungarian Algorithm code.
+
+HUNGARIAN.H:
+HUNGARIAN_DBL.C:
+HUNGARIAN_INT.C:
+HUNGARIAN_RAT.C:
+HUNGARIAN_VFP.C:
+HUNGARIAN_SRC.H:
+  Define new files for Hungarian Algorithm in its many flavors.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Include new files.
+
+MF_DOT.H:
+  In <MFON_MonDot>, convert incoming vector to a one-column matrix.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include new files.
+
+PO_DOT.C:
+  Optimize Min.Plus, Max.Plus, and certain AFOs using Kuhn's Hungarian Algorithm.
+
+SYMTAB.C:
+SYMTAB.H:
+  Define additional special SYMENTRY name (Omega) so we can easily tell if a
+    name is Alpha or Omega.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Acknowledge contributor for Kuhn's Hungarian Algorithm.
+
+INDEX-BODY.AHTML:
+  Document Determinant Operator.
+
+LICENSE-BODY.AHTML:
+  Acknowledge license for Kuhn's Hungarian Algorithm.

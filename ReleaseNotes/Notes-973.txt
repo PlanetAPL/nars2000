@@ -1,0 +1,11 @@
+Build #973 -- Version 0.3.7.xx
+------------------------------
+
+* Define Debugging Display Tool <oprintfW>
+
+Directory trunk:
+
+DEBUG.C:
+DEFINES.H:
+STARTADDR.H:
+  Define debugging display tool <oprintfW>.

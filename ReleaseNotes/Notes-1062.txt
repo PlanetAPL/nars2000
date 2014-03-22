@@ -1,0 +1,39 @@
+Build #1062 -- Version 0.3.9.xx
+-------------------------------
+
+* More Miscellaneous Build File Changes
+
+Directory trunk:
+
+DEPINIT.BAT:
+  Use internal mechanism to show progress instead of using an external file.
+
+DEPTXT.BAT:
+  Use batch file processing for all .dep files instead of multiple calls to
+    this batch file by <nmake> as the latter appears to run the batch file in
+    multiple threads which causes a race condition where each batch file is
+    appending to the output file at the same time.  This wasn't a problem until
+    I switched to an SSD drive!
+
+ECHODOT.BAT:
+ECHODOT.PHP:
+ECHODOT.TXT:
+  Delete these files as they are no longer needed.
+
+MAKEFILE.DEP:
+  Update copyright year.
+  Call <deptxt.bat> once with all filenames in the argument instead of multiple
+    times on one filename.
+
+MAKEFILE.IND:
+  Update copyright year.
+  Parameterize <nmake> as set by the caller so we call the same program at all levels.
+
+MK32.BAT:
+MKD32.BAT:
+MK64.BAT:
+MKD32.BAT:
+MKD64.BAT:
+MKN.BAT:
+  Omit DOS-era reference to <NMAKER>.
+  Use FOR loop instead of multiple lines to set a variable.

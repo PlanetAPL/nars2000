@@ -1,0 +1,10 @@
+Build #855 -- Version 0.0.2.23
+------------------------------
+
+* Update Website Text
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+INDEX-BODY-AHTML:
+  Update website text.

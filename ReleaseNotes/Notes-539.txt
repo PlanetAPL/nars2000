@@ -1,0 +1,21 @@
+Build #539 -- Version 0.0.2.4
+-----------------------------
+
+* Restore []Z As It's Used in 2 []TF
+
+Directory trunk:
+
+PERTAB.H:
+  Renumber entries as the size of <HSHTABSTR> changed.
+
+SYMTAB.H:
+  Renumber entries as the value of <SYSVAR_LENGTH> changed.
+
+SYSVARS.C:
+  Redefine []Z as a system var.
+  Restore the validation routine for assignment into []Z.
+  In <AssignDefaultSysVars>, initialize []Z.
+  In <InitSystemVars>, initialize the validation routines for []Z.
+
+SYSVARS.H:
+  Restore the enum entry for []Z.

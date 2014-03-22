@@ -1,0 +1,17 @@
+Build #956 -- Version 0.0.3.5
+-----------------------------
+
+* Reorder []DR Constants
+
+Directory trunk:
+
+QF_DR.C:
+  Move []DR constants to their own header file.
+  Reorder []DR constants so that all numeric types are adjacent.
+  Remove bit size from 32- vs. 64-bit HETERO/NESTED/RATIONAL/VFP constants
+    as it unnecessarily complicates the function.
+  Allow for COMPLEX/QUATERNION/OCTONION numbers whose coefficients may all be
+    any of INTEGER, FLOAT, RATIONAL, or VFP.
+
+QF_DR.H:
+  New file containing []DR constants.

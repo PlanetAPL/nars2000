@@ -1,0 +1,25 @@
+Build #683 -- Version 0.0.2.14
+------------------------------
+
+* Allow Named Vars In Function Strands
+
+Directory trunk:
+
+GETFNS.C:
+  Optimize <GetGlbHandle> as we're using it more often.
+
+PRIMFNS.C:
+  Allow named vars in function strands so as to allow the name type
+    to change.
+
+STARTADDR.H:
+  Rename <YYCopyGlbFcn> to <YYCopyGlbFcn_PTB> as its arg is sensitive
+    to the Ptr Type Bits.
+
+YYFNS.C:
+  As we're now allowing named vars in function strands, we need to
+    call <GetGlbHandle> on the token ptr instead of the <tkGlbData>.
+  Rename <YYCopyGlbFcn> to <YYCopyGlbFcn_PTB> as its arg is sensitive
+    to the Ptr Type Bits.
+  In <YYCopyGlbFcn_PTB>, don't copy the <YYCopyArray> bit as that makes
+    sense at the top level only.

@@ -1,0 +1,9 @@
+Build #999 -- Version 0.3.8.xx
+------------------------------
+
+* To Aid In Debugging, Output The Text Immediately
+
+Directory trunk:
+
+SESSMAN.C:
+  To aid in debugging, output the text immediately.

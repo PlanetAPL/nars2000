@@ -1,0 +1,334 @@
+Version 0.0.3.5 consists of the following Builds:
+
+
+Build #961 -- Version 0.0.3.5
+-----------------------------
+
+* Implement Native File Functions
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define new error messages related to native file functions.
+
+COMPRO.H:
+  Include prototype file for native file functions.
+
+ENUMS.H:
+  Define enum for the common routine for []NERASE, []NRENAME, and []NRESIZE.
+
+EXTERNS.H:
+  Include new column for <FastBoolTrans> to reverse the bits in a byte.
+  Define native file functions structures.
+
+HEADERS.H:
+  Include <stdio.h> and <qf_dr.h> in all headers.
+
+MACROS.H:
+  Define typedefs and macros for native file functions.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Include new file <qf_nfns.c> and related files.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <qf_nfns.c>.
+
+PERTAB.H:
+  Include global memory handle for native file functions structures.
+
+PRIMFNS.C:
+  Split apart <CalcDataSize> from <CalcArraySize>.  Originally, I thought I needed this
+    for native file functions, but I changed my mind.
+
+QF_DR.C:
+  Omit <qf_dr.h> as it's now in <headers.h>.
+
+QF_DR.H:
+  Reorganize entries for an enum instead of successive #defines.
+
+QF_NFNS.C:
+  New file to implement native file functions.
+
+SORT.C:
+  Update copyright year.
+  Define new sort function for sorting 8-byte integers.
+
+STARTADDR.H:
+  Include names of native file functions.
+
+SYSVARS.C:
+  Remove references to prototype functions as we no longer need them.
+  Include native file functions.
+
+TABCTRL.C:
+  In <FreeGlobalStorage>, also free the data associated with native file functions.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Remove duplicate reference to infinity.
+  Include references to native file functions.
+  Remove reference to []SGL.
+
+
+Directory trunk\MediaWiki\extensions:
+
+APL.CSS:
+  Define new class for native file function header lines.
+
+RENDERAPL.PHP:
+  Allow class="...> inside <apl> and <apll> tags.
+
+
+Build #960 -- Version 0.0.3.5
+-----------------------------
+
+* Include More Headers For Prototypes
+
+Directory msieve:
+
+COMMON.H:
+  Include more headers as we need them for prototypes.
+
+
+Build #959 -- Version 0.0.3.5
+-----------------------------
+
+* Include <float.h> In <headers.h>
+
+Directory trunk:
+
+DISPLAY.C:
+HEADERS.H:
+INITDATA.C:
+MPIFNS.C:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_DTACKJOT.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_ROOT.C:
+PF_STILE.C:
+PF_UCARET.C:
+PRIMFNS.C:
+TYPEMOTE.C:
+  Include <float.h> in <headers.h> as we need some of its defines in lots of places.
+
+
+Build #958 -- Version 0.0.3.5
+-----------------------------
+
+* Change Algorithm Used For Primality Test
+
+Directory trunk:
+
+PF_PI.C:
+  Change from <mpz_probable_prime_p> to <mpz_likely_prime_p> as the latter is faster.
+
+
+Build #957 -- Version 0.0.3.5
+-----------------------------
+
+* Fix Bug In N-wise Reduce
+
+Directory trunk:
+
+PF_CSTILE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PO_SLOPE.C:
+  Test for correct function (CircleStile vs. CircleBar or Slash vs. SlashBar
+    or Slope vs. SlopeBar) when calculating the axis value.
+
+PO_SLASH.C:
+  Test for correct function (Slash vs. SlashBar) when calculating the axis value.
+  Delete special case of N-wise reduce where the left arg is the negative of the
+    axis length.  Not only do we not need this special case, but it's wrong as
+    the function passed to <PrimFnMonCircleStile_EM_YY> isn't one of CircleStile
+    or CircleBar, so the result is calculated on the wrong dimension.
+
+
+Build #956 -- Version 0.0.3.5
+-----------------------------
+
+* Reorder []DR Constants
+
+Directory trunk:
+
+QF_DR.C:
+  Move []DR constants to their own header file.
+  Reorder []DR constants so that all numeric types are adjacent.
+  Remove bit size from 32- vs. 64-bit HETERO/NESTED/RATIONAL/VFP constants
+    as it unnecessarily complicates the function.
+  Allow for COMPLEX/QUATERNION/OCTONION numbers whose coefficients may all be
+    any of INTEGER, FLOAT, RATIONAL, or VFP.
+
+QF_DR.H:
+   New file containing []DR constants.
+
+
+Build #955 -- Version 0.0.3.5
+-----------------------------
+
+* Use Overbar Instead Of Hyphen In Language Bar
+
+Directory trunk:
+
+REBAR.C:
+  Use overbar instead of hyphen in language bar.
+
+
+Build #954 -- Version 0.0.3.5
+-----------------------------
+
+* Remove Two LIMIT ERRORs During Tokenize
+
+Directory trunk:
+
+DEFINES.H:
+  Undefine <DEF_NUM_MAXNELM> and <DEF_STR_MAXNELM> as they are no longer used.
+
+TOKENIZE.C:
+  Remove out-of-range checks for numerics and strings as the global memory
+    handle is automatically increased in size.
+
+
+Build #953 -- Version 0.0.3.5
+-----------------------------
+
+* Include Bitsize In Master Frame Window Title
+
+Directory trunk:
+
+DEFINES.H:
+MAIN.C:
+  Include bitsize in master frame window title.
+
+
+Build #952 -- Version 0.0.3.5
+-----------------------------
+
+* Change The Representation Of VFP Numbers From MPF To MPFR
+
+Directory trunk:
+
+AXISFNS.C:
+DICTIONARY.C:
+DISPDBG.C:
+DISPLAY.C:
+GETFNS.C:
+GOTO.C:
+HEADERS.H:
+INIPARSER.C:
+INITDATA.C:
+MACROS.H:
+MPFNS.C:
+MPIFNS.C:
+MPIFNS.H:
+PERTAB.H:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTAR.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DCARET.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DOTDOT.C:
+PF_DSHOE.C:
+PF_DSTILE.C:
+PF_DTACK.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_EPSUND.C:
+PF_EQUAL.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_LCARET.C:
+PF_LCARETUND.C:
+PF_LSHOE.C:
+PF_NEQUAL.C:
+PF_PI.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_QUERY.C:
+PF_RCARET.C:
+PF_RCARETUND.C:
+PF_RHO.C:
+PF_ROOT.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TILDE.C:
+PF_TIMES.C:
+PF_UARROW.C:
+PF_UCARET.C:
+PF_USTILE.C:
+PF_UTACK.C:
+PN_PARSE.Y:
+PO_DOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_DL.C:
+QF_DR.C:
+QF_ES.C:
+QF_FMT.C:
+QF_MF.C:
+QF_UCS.C:
+SC_LOAD.C:
+SC_SAVE.C:
+STARTADDR.H:
+STRAND.C:
+SYSVARS.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+TYPES.H:
+  Change the representation of VFP numbers from mpf_* to mpfr_*
+    as mpf_* is now deprecated.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Change the representation of VFP numbers from mpf_* to mpfr_*
+    as mpf_* is now deprecated.
+
+
+Build #951 -- Version 0.0.3.5
+-----------------------------
+
+* Fix Bug When Stranding Named RAT and FLT Vars
+
+Directory trunk:
+
+MAIN.RC:
+  Update copyright year.
+
+NARS2000.64.VCPROJ:
+  Specify ECM include and lib directories.
+
+STRAND.C:
+  Fix bug in conversion table when stranding named RAT and FLT vars.
+
+VER.C:
+  Include version #s for MPIR, MPFR, and GMP in the tooltip.
+
+VERSION.RC:
+  Increment version to 0.0.3.5.

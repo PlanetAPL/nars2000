@@ -1,0 +1,29 @@
+Build #359 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CRASH.C:
+DEBUG.C:
+PERFMON.C:
+VER.C:
+  Update copyright year.
+  Remove #define of WINVER and _WIN32_WINNT in favor of global
+    defines in <makefile.inc>.
+
+IMMEXEC.C:
+MAIN.C:
+RESDEBUG.C:
+SESSMAN.C:
+TABCTRL.C:
+TOKENIZE.C:
+  Remove #define of WINVER and _WIN32_WINNT in favor of global
+    defines in <makefile.inc>.
+
+MAKEFILE.INC:
+NARS2000.VCPROJ:
+  Remove #define of WINVER and _WIN32_WINNT in favor of global
+    defines in <makefile.inc>.
+  Use /LARGEADDRESSAWARE to handle 3GB 4GT 32-bit systems.
+  Use /OPT:REF to delete unused routines.
+  Include <qf_a.c> and <qf_wa.c> as source files.

@@ -1,0 +1,20 @@
+Build #556 -- Version 0.0.2.4
+-----------------------------
+
+* Display Text Of Function Array In Debug Window
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayGlobals>, include the text of a function array in the
+    display in the Debug window.
+  Split out display of a function array using a global memory ptr
+    from the corresponding display using a global memory handle.
+
+EXECDFN.C:
+  Fix Bug:  In <InitFcnSTEs>, construct the text for the function
+    line in case the user calls []CR on the operand.
+
+STRAND.C:
+  Move function line display code into <MakeTxtLine> so it can be
+    called from elsewhere.

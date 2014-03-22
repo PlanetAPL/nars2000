@@ -1,0 +1,8 @@
+Build #440 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Fix Bug:  While fixing one but, I introduced another such that the
+    display of multi-dimensional arrays failed.

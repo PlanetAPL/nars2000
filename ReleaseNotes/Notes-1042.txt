@@ -1,0 +1,14 @@
+Build #1042 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Check For "Sink" Stmt-By-Stmt, Not Just Line Start
+
+Directory trunk:
+
+PL_PARSE.H:
+  Update copyright year.
+  Define new struc element of ptr to last EOS stmt
+
+PL_PARSE.Y:
+  In <pl_yylex>, save the ptr to the last EOS stmt.
+  In <ArrExprCheckCaller>, check for TKT_ASSIGN in the token after the last EOS stmt.

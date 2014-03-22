@@ -1,0 +1,9 @@
+Build #1126 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix Bug In Lexer With Lookahead Of Ambiguous Operator Left Operand
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Fix bug in lexer with lookahead of ambiguous operator left operand.

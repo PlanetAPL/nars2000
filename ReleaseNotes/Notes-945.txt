@@ -1,0 +1,46 @@
+Build #945 -- Version 0.0.3.4
+-----------------------------
+
+* Reorder Left Arg To {pi} To Reflect Pairs Of Inverses
+* Convert Dyadic {pi} From Scalar To Mixed Function
+* Use ECM To Factor Large Numbers
+
+Directory trunk:
+
+DEFINES.H:
+  Increase MAXOBJ to handle the large number of heap objects when using ECM.
+
+EXTERNS.H:
+  Define global Boolean for resource debugging.
+
+INITDATA.C:
+  Remove scalar function definitions for {pi}.
+
+MAKEFILE.INC:
+  Ensure that <ECM_DIR> is defined before running <make>.
+  Define vars involving ECM directories.
+
+MPFNS.C:
+  Define <mpz_fits_sx>.
+
+MPIFNS.C:
+  Define infinity version of <mpz_probable_prime_p>.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Reorganize definitions for consistency.
+
+PF_PI.C:
+  Convert {pi} from a scalar dyadic function to a mixed functions so
+    it can return results of matching datatype to the right arg.
+  Reorder dyadic functions to reflect pairs of inverses.
+  Use ECM to factor larger numbers.
+
+REBAR.C:
+  Reorder dyadic functions to reflect pairs of inverses.
+
+RESDEBUG.C:
+  Use global variable to control whether or not we debug resource allocations.
+
+WCOM.BAT:
+  Define directory for ECM include files and libraries.

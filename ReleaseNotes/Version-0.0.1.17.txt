@@ -1,0 +1,239 @@
+Version 0.0.1.17 consists of the following Builds:
+
+
+Build #479 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Include "What's New" as a menu item.
+
+INDEX-BODY.AHTML
+  Note Control Structures can be used in immediate execution mode.
+  Note that Wine runs on virtually every Linux-based system.
+  Change "developers" to "system developers".
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-MENU.HTML:
+  Include "What's New" as a menu item.
+
+INDEX.HTML:
+  New file in case someone opens the directory itself.
+
+
+Build #478 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Include text for new []IC value (-1).
+  Convert []IC values to and from origin-0 (by subtracting/adding
+    <ICVAL_MINVAL>) so as to display the correct values in the
+    CLEAR WS dialog.
+
+EXTERNS.H:
+  Include new []IC value (-1).
+  Adjust the []IC lengths as there is a new minimum value.
+  Define minimum/maximum values for []IC.
+
+PRIMSPEC.C:
+  Include new []IC value (-1).
+
+SYSVARS.H:
+  Use <ICVAL_MINVAL> as new minimum allowable value in []IC.
+
+
+Build #477 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+EXTERNS.H:
+  Rename []IC index from RED to MOD to reflect modulus rather than reduce.
+
+MACROS.H:
+  Define macro for getting the sign of a floating point number.
+
+PF_BAR.C:
+  Handle subtraction of same signed infinities as per []IC.
+
+PF_COLONBAR.C:
+  Use floating point sign macro.
+
+PF_PLUS.C:
+  Handle addition of opposite signed infinities as per []IC.
+
+PF_STILE.C:
+  Handle modulus of infinity right arg as per []IC.
+  Use floating point sign macro.
+
+
+Build #476 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix Bug:  Handle reduction on empty nested arrays producing a
+    non-empty result, previously lumped in with simple results.
+
+
+Build #475 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Include text for two new []IC values.
+  Omit enabling the Apply button when selecting a []IC index
+    to display.
+
+EXTERNS.H:
+  Define entries and default values for two new []IC values.
+
+INIFILE.C:
+  Handle short default values for []IC.
+
+
+Build #474 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+APLERRORS.H:
+  Define error message for STACK OVERFLOW.
+
+EXCEPT.C:
+  Define entry for STACK OVERFLOW exception.
+  Define action for STACK OVERFLOW.
+
+PL_PARSE.Y:
+  Define action for STACK OVERFLOW exception.
+
+
+Build #473 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+DISPLAY.C:
+  Define and use enum for DTOA modes to make debugging easier.
+  In <FormatFloat>, pass on down to <FormatFloatFC> a zero value
+    of <nDigits> so that routine can set the proper DTOA mode.
+  Fix Bug:  In <FormatFloatFC>, check for <FLTDISPFMT_RAWFLT>
+    and <nDigits> of zero. in which case use []PP and <DTOAMODE_SIGDIGS>
+    instead of <DTOAMODE_SHORTRND>.  This fixes the bug where we display
+    too many significant digits on (say) {log}2.
+
+
+Build #472 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Include credit for Trains to J.
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Include "What's New?" in the menu.
+
+INDEX-BODY.AHTML:
+  Use italics for substitutable function names.
+  Include Partitioned Enclose in new primitive functions.
+  Include assignment of empty vector to system variable.
+
+
+Build #471 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix Bug:  Handle empty nested arrays such as 0{rho}{enclose}{zilde}
+    by processing their prototype.
+
+
+Build #470 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+PF_EQUALUND.C:
+  Fix Bug:  Move the assignment of the loop limit to after
+    handling empty nested arrays.
+
+
+Build #469 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+PF_INDEX.C:
+PF_LSHOE.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_UARROW.C:
+PRIMSPEC.C:
+QF_TYPE.C:
+  Rename prototype vars to reflect that they might be LPSYMENTRYs.
+  Change the behavior of <MakeMonPrototype_EM> and <MakeDydPrototype_EM>
+    to expect the ptr type bits to be set on input and to set them on
+    output as appropriate.
+
+PF_SLASH.C:
+  Rename prototype vars to reflect that they might be LPSYMENTRYs.
+  Change the behavior of <MakeMonPrototype_EM> and <MakeDydPrototype_EM>
+    to expect the ptr type bits to be set on input and to set them on
+    output as appropriate.
+  Fix Bug:  In <PrimFnDydSlash_EM_YY> for 0/{enclose}{zilde} the prototype
+    is calculated on the right arg to slash instead of its first element.
+
+PF_SLOPE.C:
+  Rename prototype vars to reflect that they might be LPSYMENTRYs.
+  Change the behavior of <MakeMonPrototype_EM> and <MakeDydPrototype_EM>
+    to expect the ptr type bits to be set on input and to set them on
+    output as appropriate.
+  Fix Bug:  In <PrimFnDydSlope_EM_YY> for 1 0 1\12 {zilde} the prototype
+    is calculated on the result of <GetFirstValueToken> which, if the
+    arg is empty, returns the prototype instead of the LPSYMENTRY/HGLOBAL.
+
+PO_SLASH.C:
+  In <PrimOpMonSlashScalar_EM_YY>, remove arg to ptr to ptr to right arg
+    global memory as we lock the ptr inside that function as needed.
+  Fix Bug:  In <PrimOpMonSlashCommon_EM_YY> for +/0 1{rho}'' pass the
+    right arg NELM to the storage type calculator so it can allow the char
+    arg because it's empty.
+  Fix Bug:  In <PrimOpMonSlashScalar_EM_YY> for +/{each}0{rho}{enclose}{enclose}{zilde}
+    the prototype is calculated on the right arg instead of its first element.
+
+PO_SLOPE.C:
+  In <PrimOpMonSlashScalar_EM_YY>, remove arg to ptr to ptr to right arg
+    global memory as we lock the ptr inside that function as needed.
+
+PRIMFNS.C:
+  Rename prototype vars to reflect that they might be LPSYMENTRYs.
+  Change the behavior of <MakeMonPrototype_EM> and <MakeDydPrototype_EM>
+    to expect the ptr type bits to be set on input and to set them on
+    output as appropriate.
+  In <CopyArray_EM>, clear the ptr type bits on input.
+
+
+Build #468 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+PF_EQUALUND.C:
+  Improve comments.
+  Fix Bug:  Empty nested arguments do not test the prototypes
+    because the loop limit is zero rather than one.
+  Fix Bug:  When comparing two globals, the NELMs of the parents
+    are compared rather than the NELM of the elements.

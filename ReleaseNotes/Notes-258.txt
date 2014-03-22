@@ -1,0 +1,34 @@
+Directory trunk:
+
+EXTERNS.H:
+  Omit old DEF_CURLINE_xxx.
+  Rename all names containing NumAlp/NUMALP to just Num/NUM as Alp is done with Str.
+  Rename all names containing String/STRING to just Str/STR.
+  Change initial size for Num and Str and define incremental values, too.
+
+PERTAB.H:
+  Omit initialization of <iMaxNumAlp> and <iMaxString> as we now use the DEF_NUM_MAXSIZE or DEF_STR_MAXSIZE.
+  Include in comments initialization of <iNumLim> and <iStrLim> to zero.
+  Replace <lpszNumAlp>/<lpwszString> with <hGlbNum>/<hGlbStr>.
+  Rename all names containing NumAlp/NUMALP to just Num/NUM as Alp is done with Str.
+  Rename all names containing String/STRING to just Str/STR.
+  Define limit vars for Num/Str to track the current size of <hGlbNum>/<hGlbStr>.
+  Renumber all subsequent entries.
+
+SC_LOAD.C:
+  Fix bug in <ParseSavedWsFcn>/<ParseSavedWsVar> where when parsing multiple globals,
+    the trailing data may be overwritten.
+
+SESSMAN.C:
+  Improve comments.
+  Define temp var for <hGlbNum>/<hGlbStr>.
+  Replace <VirtualAlloc>/<VirtualFree> of <lpszNumAlp>/<lpwszString> with <GlobalAlloc> of <hGlbNum>/<hGlbStr>.
+  In WM_MDIACTIVATE, set the focus to the current SM window in case that helps with cases where
+    SM didn't get the focus as expected (probably cross thread issues).
+
+TOKENIZE.C:
+  Rename all names containing NumAlp/NUMALP to just Num/NUM as Alp is done with Str.
+  Rename all names containing String/STRING to just Str/STR.
+  Define and use two functions to check for resizing of <hGlbNum>/<hGlbStr>.
+  Use <hGlbNum>/<hGlbStr> instead of <lpszNumAlp>/<lpwszString> to reduce the need for
+    reserved address space from <VirtualAlloc>.

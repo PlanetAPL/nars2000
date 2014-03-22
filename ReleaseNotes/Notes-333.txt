@@ -1,0 +1,69 @@
+Build #333 -- Version 0.0.0.22512
+---------------------------------
+
+Directory trunk:
+
+CRASH.C:
+DEBUG.C:
+  Use LO/HISHORT instead of LO/HIWORD when the value is sign-extended.
+
+CUSTOMIZE.C:
+DEFINES.H:
+  Implement User Pref to determine whether or not unmatched or improperly
+    nested grouping symbols are an error.
+
+DISPDBG.C:
+EXCEPT.C:
+MACROS.H:
+PERFMON.C:
+PF_DSHOE.C:
+PF_IOTA.C:
+PF_QDOT.C:
+PF_TILDE.C:
+PO_DIJOT.C:
+QF_SYSID.C:
+QF_SYSVER.C:
+SC_IN.C:
+SC_INASCII.C:
+SC_LOAD.C:
+SYSCMDS.C:
+SYSVARS.C:
+  Rename <itemsizeof> to <countof>.
+
+EDITCTRL.H:
+  Renumber <WM_USER> messages in the <WM_APP> range above where the
+    ones in <main.h> are numbered.
+  Include <MYWM_LOCALIZE> and <MYWM_UNLOCALIZE> in the above list.
+
+EDITFCN.C:
+  Use LO/HISHORT instead of LO/HIWORD when the value is sign-extended.
+  Implement Localize/Unlocalize in FE context menu.
+
+INIFILE.C:
+EXTERNS.H:
+MAIN.RC:
+RESOURCE.H:
+  Implement User Pref to determine whether or not unmatched or improperly
+    nested grouping symbols are an error.
+
+MAIN.H:
+  Renumber <WM_APP> messages to be unique.
+
+PF_COMMA.C:
+  Improve comments.
+
+SC_COMMON.C:
+  Rename <itemsizeof> to <countof>.
+  Append " (GMT)" if not using localtime.
+
+TABCTRL.C:
+  Rename <itemsizeof> to <countof>.
+  Use LO/HISHORT instead of LO/HIWORD when the value is sign-extended.
+
+TOKENIZE.C:
+  Extend <IsLocalName> to return the position in the line of the insert
+    point if the name is not found.
+  Rename <AppendEOSToken> to <AppendEOSToken_EM> to reflect that it
+    can signal an error.
+  Use name instead of number (8230).
+  In <CheckGroupSymbols_EM>, signal an error only if User Pref says so.

@@ -1,0 +1,12 @@
+Build #1149 -- Version 0.4.2.xx
+-------------------------------
+
+* Make )LOAD Sensitive To Library Directories
+
+Directory trunk:
+
+SC_LIB.C:
+  Fix typo in comment.
+
+SC_LOAD.C:
+  Make )LOAD sensitive to library directories.

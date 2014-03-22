@@ -1,0 +1,16 @@
+Build #994 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug When Copying A Special STE (0 1 ' ')
+
+Directory trunk:
+
+PF_RSHOE.C:
+QF_UCS.C:
+SC_LOAD.C:
+STRAND.C:
+SYMTAB.C:
+TYPEMOTE.C:
+  Pass new arg to <SymTabAppendInteger/Char> to indicate whether we
+    can return one of the common cases (0 1 ' '), otherwise we might
+    change the value of the special STE.

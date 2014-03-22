@@ -1,0 +1,49 @@
+Build #910 -- Version 0.0.3.4
+-----------------------------
+
+* Implement DotDot
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype of new module.
+
+EXECMFN.C:
+  Include new magic function in the initialization table.
+
+EXECMFN.H:
+  Define enum value for new magic function.
+  Define name for new magic function.
+  Define equates for magic function symbols.
+
+EXTERNS.H:
+  Define table for operator prototypes.
+  Move <TP_MAT> definition to <typemote.h>.
+
+GETFNS.C:
+  Use separate tables for prototype functions and operators.
+
+INITDATA.C:
+  Improve comments.
+  Define <InitPrimFn> entry for DotDot.
+  Define <InitPrimProtoFn> entry for DotDot.
+  Use separate tables for prototype functions and operators.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define entry for new module.
+
+PF_DOTDOT.C:
+  Define new module for DotDot.
+
+TOKENIZE.C:
+  In <CharTransTK>, define entry for DotDot as a function.
+
+TYPEMOTE.C:
+  Define action routines for Type Conversion.
+
+TYPEMOTE.H:
+  Move <TP_MAT> definition to <typemote.h>.
+  Define <aTypeActConvert> table.

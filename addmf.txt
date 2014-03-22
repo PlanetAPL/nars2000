@@ -1,0 +1,12 @@
+TO ADD A NEW INTERNAL MAGIC FUNCTION
+
+* Define the magic function using the existing ones as a template
+  (named, say, MF_xxxx).
+* If necessary, define new keywords for missing symbols in <execmfn.h>.
+* Define a new entry for hGlbMF_xxxx in <pertab.h>.
+* Declare MF_xxxx as extern at top of <execmfn.c>.
+* Initialize hGlbMF_xxxx in <InitMagicFunctions> in <execmfn.c>.
+* Call the magic function via <ExecuteMagicFunction_EM_YY>.
+
+
+

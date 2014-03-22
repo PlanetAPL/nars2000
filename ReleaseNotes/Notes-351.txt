@@ -1,0 +1,58 @@
+Build #351 -- Version 0.0.1.9
+-----------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Mark as called from <ParseFunctionName> so as to
+    generate fewer errors and thus have a better chance
+    to extract the function name.
+
+FH_PARSE.H:
+  Update copyright year.
+  Define bit to indicate called by <ParseFunctionName>.
+  Fix typo in comment.
+
+FH_PARSE.Y:
+  Update copyright year.
+  Define new token <NOMORE> to handle certain syntax errors
+    when called from <ParseFunctionName>.
+  Avoid calling <fh_yyerror> in circumstances where we're
+    called from <ParseFunctionname> and we have already parsed
+    the function name.
+  Fix Bug:  In <fh_yyerror> when run under DEBUG and
+    <AppVerifier>, the code can crash by reading beyond the
+    end of a buffer.
+
+PL_PARSE.Y:
+  In <Train:>, allow <AxisFunc> as an alternative to <LeftOper>
+    everywhere.
+  Fix Bug:  In <Train:> when an error occurs, convert the <Train>
+    into a Train before freeing it.
+
+SC_LOAD.C:
+  Allow empty or missing "nn=" in the .ini file.
+
+SC_SAVE.C:
+  Fix comment.
+  Avoid writing out []WSID as a system variable as it is
+    of no use.
+  Write out the value of []WSID to the [General] section.
+
+TOKENIZE.C:
+  Fix Bug:  In <IsLocalName>, include braces in the list of
+    leading/terminating symbols when determining whether or
+    not a given name is local to a function.  This means that
+    names in braces in a function header are no longer incorrectly
+    Syntax Colored as global to the function.
+
+WORKSPACE.H:
+  Update copyright year.
+  Define keyname for WSID= in the [General] section.
+
+
+Directory trunk\MediaWiki\extensions:
+
+APL.CSS:
+  Define APL class and include "APLX Upright" font in
+    list of APL fonts.

@@ -1,0 +1,9 @@
+Build #1139 -- Version 0.4.1.xx
+-------------------------------
+
+* Fix Bug When Looking For AFO SIS Layer
+
+Directory trunk:
+
+AFOFNS.C:
+  In <SISAfo>, check for NULL SIS ptr.

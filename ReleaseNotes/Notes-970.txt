@@ -1,0 +1,22 @@
+Build #970 -- Version 0.3.7.xx
+------------------------------
+
+* Display File Version #s Of Other Components
+
+Directory trunk:
+
+COMMON.C:
+EXTERNS.H:
+  Move COMMCTL.DLL file version # to <externs.h> for wider use.
+
+MAIN.RC:
+  Improve comments.
+  Change dialog font to "MS Shell Dlg".
+  Change About dialog template to display the file version #s of other components
+    (GMP, MPIR, MPFR, COMMCTL.DLL, ...).
+
+RESOURCE.H:
+  Define ID for secondary version information.
+
+VER.C:
+  Append file version #s of other components.

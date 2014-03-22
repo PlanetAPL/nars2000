@@ -1,0 +1,9 @@
+Build #501-- Version 0.0.2.2
+----------------------------
+
+* Strip off trailing CR/LFs from Pasted text.
+
+Directory trunk:
+
+EDITFCN.C:
+  Strip off trailing CR/LFs from Pasted text.

@@ -1,0 +1,51 @@
+Build #286 -- Version 0.0.0.18415
+---------------------------------
+
+Directory trunk:
+
+BJHASH.C:
+  Omit unused routines.
+
+MAIN.H:
+  Omit stack checking code in each file.
+
+MAIN.RC:
+  Change <LICENSE> to its own page.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Reorganize directories.
+  Omit /Gs flag as that's now handled in <main.h> with a #pragma.
+  Omit $(P) as it's not used.
+
+SESSMAN.C:
+  Change <LICENSE> to its own page.
+
+STARTADDR.H:
+  Omit unused routines.
+
+
+Directory trunk\WineHQ:
+
+COPYING.LIB:
+  Include their license agreement.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+  Change <LICENSE> to its own page.
+
+LICENSE-BODY.HTML:
+LICENSE-LEFT.HTML:
+LICENSE-MENU.HTML:
+LICENSE.HTML:
+  Define new page to describe more fully the various licenses under
+    which all the files are released.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-MENU.HTML:
+  Change <LICENSE> to its own page.

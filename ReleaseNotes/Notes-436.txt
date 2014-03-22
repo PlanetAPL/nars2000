@@ -1,0 +1,10 @@
+Build #436 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+MACROS.H:
+PRIMFNS.C:
+STARTADDR.H:
+  Move <CopySymGlbDirAsGlb> and <CopySymGlbInd> from functions
+    to macros.

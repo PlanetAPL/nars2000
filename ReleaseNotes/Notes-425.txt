@@ -1,0 +1,9 @@
+Build #425 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_CR.C:
+  When the result of 1 []CR is empty, make it 0{rho}{enclose}''
+    instead of '' so as to be consistent with non-empty nested
+    vector results.

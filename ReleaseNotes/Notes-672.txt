@@ -1,0 +1,55 @@
+Build #672 -- Version 0.0.2.14
+------------------------------
+
+* Pass LPPL_YYSTYPE Instead of LPTOKEN To FreeResult
+
+Directory trunk:
+
+CS_PROC.C:
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.
+  Define <FreeResTkn> to use when there's no YYSTYPE.
+  Fix Bug:  In <CS_SELECT_Stmt_EM>, free the <CASE/CASELIST> result
+    after using it so as to avoid a memory leak.
+
+EXECFNS.C:
+PF_CSLOPE.C:
+PF_INDEX.C:
+PF_RSHOE.C:
+PL_PARSE.Y:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+SC_IN.C:
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.
+  Define <FreeResTkn> to use when there's no YYSTYPE.
+
+FREE.C:
+  If the arg being freed has the YYCopyArray flag set, clear it.
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.
+  Define <FreeResTkn> to use when there's no YYSTYPE.
+
+EXECDFN.C:
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.
+  Define <FreeResTkn> to use when there's no YYSTYPE.
+  Fix Bug:  In <InitFcnSTEs> when passing a function strand, handle
+    more cases such as vars and immediates.
+
+STRAND.C:
+  Fix Bug:  In <MakeFcnStrand_EM_YY> at the end, free YYCopyArray'ed
+    items in the arg recursively.
+  In <MakeNameFcnOpr_YY>, save back the result into te arg so it may
+    be freed.
+
+YYFNS.C:
+  In <YYCopyFcn>, delete the test for <UUCopyArray> as that's now
+    done in <YYFreeArray>.
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.

@@ -1,0 +1,43 @@
+Build #1110 -- Version 0.3.11.xx
+--------------------------------
+
+* Miscellaneous Name Changes
+
+Directory trunk:
+
+ASSIGN.C:
+  Simplify Assert stmt.
+
+DISPLAY.C:
+EDITFCN.C:
+ERRMSG.C:
+EXECDFN.C:
+EXECFNS.C:
+EXECMFN.C:
+EXECMFN.H:
+GETFNS.C:
+MAIN.C:
+PERTAB.H:
+PF_QUERY.C:
+PO_VARIANT.C:
+QF_ES.C:
+QF_EX.C:
+QF_NL.C:
+QF_VR.C:
+SC_COMMON.C:
+SC_FNOV.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+SC_WSID.C:
+SESSMAN.C:
+SYMTAB.C:
+SYMTAB.H:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+  Use ptr for main <HSHTABSTR> in <pertab.h> to facilitate substitutions for anonymous functions/operators.
+  Use more consistent names such as <lphtsXXX>.
+
+VER.RC:
+  Increment version # to 0.3.11.xx.

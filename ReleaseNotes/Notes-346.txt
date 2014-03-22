@@ -1,0 +1,18 @@
+Build #346 -- Version 0.0.1.4
+-----------------------------
+
+Directory trunk:
+
+PO_SLASH.C:
+  Update copyright year.
+  Fix Bug:  The optimization for primitive scalar dyadic functions
+    in reduction should be limited to simple non-heterogeneous arrays.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Omit L=0 case from L []CR R.
+  Omit L=-2, -1 cases from L []DR R.
+  Omit L=0 case from L []TF R.
+  Expand "Platforms" to include Linux and other Wine platforms.

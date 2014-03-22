@@ -1,0 +1,9 @@
+Build #599 -- Version 0.0.2.5
+-----------------------------
+
+* Changes To Be Compatible With 64-bit Compiler
+
+Directory trunk:
+
+SC_ERASE.C:
+  Use 32-/64-bit casts for compatibility with 64-bit compiler.

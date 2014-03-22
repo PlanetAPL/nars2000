@@ -1,0 +1,13 @@
+Build #606 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug When Parsing 1 []TF 'a b'
+
+Directory trunk:
+
+QF_TF.C:
+  In <SysFnDydTF1_EM_YY> when parsing 1 []TF 'a b', a SWITCH stmt
+    falls through to a defstop instead of branching to the empty
+    case because the blank after the 'a' is interpreted as marking
+    the inverse translation case and the following char is not one
+    of 'FCN'.

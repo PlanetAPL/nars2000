@@ -1,0 +1,10 @@
+Build #1127 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix Another Bug In Temp Variable Re-use
+
+Directory trunk:
+
+SC_COPY.C:
+  In <CmdCopy_EM>, omit calls to <xxx_TEMP_OPEN> macros as we don't need
+    to protect <lpwszTemp> in this function.

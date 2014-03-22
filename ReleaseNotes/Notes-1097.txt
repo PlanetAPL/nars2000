@@ -1,0 +1,10 @@
+Build #1097 -- Version 0.3.10.xx
+--------------------------------
+
+* Extend Singleton Right Args In Replicate And Expand
+
+Directory trunk:
+
+PF_SLASH.C:
+PF_SLOPE.C:
+  Allow a singleton right arg to extend just as a scalar right arg does.

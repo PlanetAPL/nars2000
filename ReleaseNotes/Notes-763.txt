@@ -1,0 +1,13 @@
+Build #763 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug (DEBUG-only):  Code Assumes Arguments On Stack Are 32-bit When They Are 64-bit
+
+Directory trunk:
+
+CS_PARSE.Y:
+FH_PARSE.Y:
+PL_PARSE.Y:
+PN_PARSE.Y:
+  Fix Bug (DEBUG-only):  In <??_yyfprintf> with Win64, the arguments
+    on the stack are assumed to be int32, but they are actually int64.

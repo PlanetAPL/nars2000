@@ -1,0 +1,19 @@
+Build #587 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Failed to Clear YYCopyArray Flag
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Fix Bug:  In <pl_yylex> when setting the incoming var <lpYYLval>,
+    the <YYCopyArray> flag wasn't cleared, so the previous value
+    could (and did) leak through.
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY> when dealing with a <YYCopyArray>ed arg,
+    the entire current strand on the stack was freed instead of just
+    the <YYCopyArray>ed entry.
+
+YYFNS.C:
+  Optimize the DEBUG code to take advantage of common code.

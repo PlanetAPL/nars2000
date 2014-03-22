@@ -1,0 +1,14 @@
+Build #1000 -- Version 0.3.8.xx
+------------------------------
+
+* Bug Fixes For When Indexing Global Numerics
+
+Directory trunk:
+
+GETFNS.C:
+  Assertions for <xxx_get_ctsa> functions.
+
+PF_INDEX.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+  Bug fixes for when indexing global numerics.

@@ -1,0 +1,17 @@
+Build #1173 -- Version 0.4.4.xx
+-------------------------------
+
+* Simplify The Magic Function For []VR
+
+Directory trunk:
+
+EXECMFN.C:
+  Remove the local HASHTABSTR for []VR and set []IO to zero in the magic function.
+
+MF_QUADVR.H:
+  Localize, and set []IO to zero.
+
+PERTAB.H:
+QF_VR.C:
+SESSMAN.C:
+  Remove the local HSHTABSTR for []VR.

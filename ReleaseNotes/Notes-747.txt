@@ -1,0 +1,53 @@
+Build #747 -- Version 0.0.2.18
+------------------------------
+
+* Convert []DM To A Read-only System Var So It May Be Localized
+
+Directory trunk:
+
+COMPRO.H:
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Omit <qf_dm.*> as it's now a sysvar.
+
+DATATYPE.H:
+  Omit []DM from enum as it's now a sysvar.
+
+ERRMSG.C:
+QF_EX.C:
+  Use new location of []DM as it's now a sysvar.
+
+EXTERNS.H:
+  Omit []DM global as it's now a sysvar.
+  Include error function token in typedef as we need it
+    for []DM validation.
+
+PERTAB.H:
+  Omit []DM global as it's now a sysvar.
+
+PF_INDEX.C:
+  Include error function token in typedef as we need it
+    for []DM validation.
+
+QF_DM.C:
+  Delete this file as []DM is now a sysvar.
+
+SC_COPY.C:
+SC_LOAD.C:
+SC_SAVE.C:
+TABCTRL.C:
+  Omit special hanlding for []DM as it's now a sysvar.
+
+SYSVARS.C:
+  Move []DM from niladic system function to sysvar.
+  Include error function token in typedef as we need it
+    for []DM validation.
+  Define set and index functions for []DM which make it a
+    read-only sysvar.
+  Set appropriate values for []DM as a sysvar.
+
+SYSVARS.H:
+  Delete certain _GLB vars as they are no longer needed.
+  Include []DM in list of sysvars.

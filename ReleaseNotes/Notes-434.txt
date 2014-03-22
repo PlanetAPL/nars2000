@@ -1,0 +1,7 @@
+Build #434 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PF_SQUAD.C:
+  Fix Bug:  Uninitialized variable can confuse indexed replacement.

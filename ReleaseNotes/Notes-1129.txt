@@ -1,0 +1,9 @@
+Build #1129 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix Bug In Error Message When Calling []EC '2a'
+
+Directory trunk:
+
+ERRMSG.C:
+  Fix bug in <ErrorMessageDirect> when calling []EC '2a' where the <DFNTYPE_ERRCTRL> case isn't handled.

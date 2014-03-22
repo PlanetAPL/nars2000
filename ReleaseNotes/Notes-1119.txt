@@ -1,0 +1,10 @@
+Build #1119 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Bug In Definition of Rank Operator
+
+Directory trunk:
+
+PO_DIJOT.C:
+  Fix bug in definition of rank operator magic functions where I failed to remove
+    the use of negative indexing, as well as localization and setting of []FEATURE.

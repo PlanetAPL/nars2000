@@ -1,0 +1,12 @@
+Build #1059 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Monadic Format Of Matrices And Higher Rank Arrays Are Missing A Leading Digit
+
+Directory trunk:
+
+QF_FMT.C:
+  Update copyright year.
+  In the Magic Function for Monadic Format (actually the Box function) a leading column of
+    the format of all but the last dimension is missing due to a change in how
+    numbers are formatted.

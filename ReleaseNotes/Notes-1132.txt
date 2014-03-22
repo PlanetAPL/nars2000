@@ -1,0 +1,12 @@
+Build #1132 -- Version 0.4.0.xx
+-------------------------------
+
+* Miscellaneous VS Changes
+
+Directory trunk:
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Put <_STDINT_H> in the preprocessor definitions for use with MPIR.
+  Note dependence on Definitions File.
+  Move <??_proc.c> files to alphabetic order.

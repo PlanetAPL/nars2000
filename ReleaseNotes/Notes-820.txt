@@ -1,0 +1,15 @@
+Build #820 -- Version 0.0.2.23
+------------------------------
+
+* Optimize Dyadic Tilde
+* Allow Monadic Tilde With R In [0,1]
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Delete magic function for dyadic tilde.
+
+PF_TILDE.C:
+  Define routines to handle monadic tilde on R in [0,1].
+  Delete magic function for dyadic tilde.

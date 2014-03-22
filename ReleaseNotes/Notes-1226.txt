@@ -1,0 +1,18 @@
+Build #1226 -- Version 0.4.6.xx
+-------------------------------
+
+* When DEBUGging, Check For NULL Or REUSED Handles/Ptrs
+
+Directory trunk:
+
+MACROS.H:
+  Update copyright year.
+  Enhance <ClrPtrTypeXXX> macros to check for NULL or REUSED handles/ptrs.
+
+REFCNT.C:
+  Update copyright year.
+  In <ChangeRefCntDir_PTB> when DEBUGging, check for NULL handles before passing to <ClrPtrTypeXXX> macros.
+
+RESDEBUG.H:
+  Update copyright year.
+  In the definition of the DEBUG version of the <MyGlobalUnlock> macro, check for NULL or REUSED handles/ptrs.

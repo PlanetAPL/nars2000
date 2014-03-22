@@ -1,0 +1,30 @@
+Build #416 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  Handle more cases where we should indicate Precision Loss.
+
+FMTSPEC.C:
+  Allow single and double quote marks as text delimiters.
+  In <fnSetModO>, handle specific value with a fractional part/
+  Allow L Qualifier for A-format (code already there to support it,
+    just didn't allow it).
+  Allow Repetition Factor on X-format.
+
+FMTSPEC.H:
+  Rename <SYMSUB_E_CHAR> to <SYMSUB_EXPONENT_SEP> to better reflect
+    its usage.
+
+QF_FMT.C:
+  Allow Repetition factor on X-format.
+  Fix Bug:  When adding text for P- or Q-decorators, include zero
+    in the comparison.
+  Fix Bug:  Include Precision Loss character in Symbol Substitution
+    test loop.
+  Rename <SYMSUB_E_CHAR> to <SYMSUB_EXPONENT_SEP> better to reflect
+    its usage.
+  Fix Bug:  In <QFMT_SubstValue> when there's a match with a float
+    value, the wrong variable had the offset applied to it (handled
+    correctly for integer values).

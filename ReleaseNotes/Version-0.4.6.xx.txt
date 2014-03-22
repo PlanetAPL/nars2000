@@ -1,0 +1,454 @@
+Version 0.4.6.xx consists of the following Builds:
+
+
+Build #1230 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug When Displaying An Exec/Quad Token With No Value
+
+Directory trunk:
+
+PL_PROC.C:
+  Update copyright year.
+  In <ArrExprCheckCaller>, when an Exec/Quad result token is present, ensure it has a value before trying to display it.
+
+
+Build #1229 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug Displaying Wrong Error Message After Ctrl-Brk
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message for ellipsis.
+
+ERRMSG.C:
+  Update copyright year.
+  Re-format error message for Ctrl-Brk.
+  In <ErrorMessageIndirect>, simplify the code.
+
+EXECDFN.C:
+  Update copyright year.
+  In <ExecuteFunction_EM_YY>, upon encountering a STOP display ellipsis and function name[line #].
+
+TOKENIZE.C:
+  In <scUnkDone>, handle ellipsis as a Line Drawing Char just so it doesn't display as unknown with a dark background.
+
+
+Build #1228 -- Version 0.4.6.xx
+-------------------------------
+
+* Skip DEBUG Display Of Global MFOs
+
+Directory trunk:
+
+ASSIGN.C:
+  Update copyright year.
+  Set bit in global UDFO if assigned into an MFO.
+
+DISPDBG.C:
+  Update copyright year.
+  Skip DEBUG display of global MFOs.
+
+
+Build #1227 -- Version 0.4.6.xx
+-------------------------------
+
+* Accumulate Numeric Constant Strand All At Once
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define error message for "Unknown PN_PARSE error".
+
+DEFINES.H:
+  Define name for one-byte substitutions in <pn_parse.y> for Overbar and Infinity.
+  Move common defines to <defines.h> rather duplicate them in two files.
+
+DISPLAY.C:
+  Move common defines to <defines.h> rather duplicate them in two files.
+  In <FormatAplRatFC>, check for +/- infinity before calling mpz_/mpq_ functions as they might clobber the infinity value.
+
+MPIFNS.C:
+  Update copyright year.
+  Move common defines to <defines.h> rather duplicate them in two files.
+  In <mpq_set_inf>, free and zero the incoming argument if it's not infinity instead of just freeing it.
+
+PN_PARSE.H:
+  Update copyright year.
+  Define new value in <PNNUMTYPE> enum for the initialization state.
+  Define macros to test for the FLT and RAT cases.
+  In <PN_YYSTYPE> struc, rename var to conform to its associated string.
+  Define new <PN_VECTOR> struc to handle accumulation of a vector of numeric constants.
+  In <PNLOCALVARS> struc, define additional fields to support vector of numeric constants.
+
+PN_PARSE.Y:
+  Update copyright year.
+  In <PN_YYSTYPE> struc, rename var to conform to its associated string.
+  In <DecConstants>, <VfpConstants>, and <RatConstants> handle the various infinities in one routine.
+  Improve comments.
+  Define new terminals to handle accumulating a vector of numeric constants.
+  For the <PN_actXXX> routines, define one to use as the identity function.
+  In <PN_MAT> define an initialization state.
+  In <ParsePointNotation>, delete trailing blanks in order to simplify the LALR grammar.
+  In <pn_yylex> handle 'x' suffix before a space.
+
+PN_PROC.C:
+  Update copyright year.
+  In <PN_NumCalc>, <PN_MakeEulerPoint>, <PN_MakeBasePoint>, <PN_MakeEulerPoint>, <PN_MakeExpPoint>, <PN_MakePiPoint>, and <PN_MakeVfpPoint>,
+    handle second pass through after common storage type has been determined.
+  Define new routine <PN_VectorAcc> to accumulate a new numeric constant into a vector.
+  Define new routine <PN_VectorRes> to create the final vector result.
+  Define new routine <PN_SetInfinity> to create the appropriate type of infinity.
+
+STARTADDR.H:
+  Update copyright year.
+  Define entries for the routines in <pn_proc.c>.
+
+TOKENIZE.C:
+  Update copyright year.
+  Define an additional FSA row for accumulating a vector of numeric constants.
+  In <fnPointDone>, handle scalar vs. vector result.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Delete <MergeNumbers> as it's now handled in <pn_parse.y>.
+
+TOKENIZE.H:
+  Update copyright year.
+  Define an additional FSA row for accumulating a vector of numeric constants.
+
+
+Build #1226 -- Version 0.4.6.xx
+-------------------------------
+
+* When DEBUGging, Check For NULL Or REUSED Handles/Ptrs
+
+Directory trunk:
+
+MACROS.H:
+  Update copyright year.
+  Enhance <ClrPtrTypeXXX> macros to check for NULL or REUSED handles/ptrs.
+
+REFCNT.C:
+  Update copyright year.
+  In <ChangeRefCntDir_PTB> when DEBUGging, check for NULL handles before passing to <ClrPtrTypeXXX> macros.
+
+RESDEBUG.H:
+  Update copyright year.
+  In the definition of the DEBUG version of the <MyGlobalUnlock> macro, check for NULL or REUSED handles/ptrs.
+
+
+Build #1225 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug Introduced In Recent Build When Demoting Certain Data
+
+Directory trunk:
+
+TYPEMOTE.C:
+  Fix bug in <DemoteData> when demoting nested float scalars to simple float scalars where I factored out a value and missed the substitutions.
+
+
+Build #1224 -- Version 0.4.6.xx
+-------------------------------
+
+* Find Bugs In Temp Variable Re-use
+
+Directory trunk:
+
+DISPLAY.C:
+  Update copyright year.
+  Use <xxx_TEMP_OPEN> macros within <DisplayGlbArr_EM> to catch bugs.
+
+
+Build #1223 -- Version 0.4.6.xx
+-------------------------------
+
+* Implement Crash Server
+
+Directory trunk:
+
+COMPRO.H:
+  Update copyright year.
+  Include prototype file for new module.
+
+CRASHSERVER.CPP:
+  Define new module for initialization of Crash Server.
+
+CRASHSERVER.PROTO:
+  Define prototype file for Crash Server.
+
+DEFINES.H:
+  Update copyright year.
+  Define macros for file names and line numbers as wide chars.
+
+EXCEPT.C:
+  Update copyright year.
+  Omit body of <CheckException> if non-DEBUG so the Crash Server can handle it.
+
+MAIN.C:
+  Update copyright year.
+  Instantiate the Crash Server at startup.
+  Omit exception handling if non-DEBUG around message loop so the Crash Server can handle it.
+
+MAIN.RC:
+  Update copyright year.
+  In About dialog box, make room for version # of the Crash Server DLL.
+
+MAKEFILE.INC:
+MAKEFILE.PRO:
+MAKEFILE.SRC:
+  Update copyright year.
+  Include tests for MakeDep and Crash Server environment vars.
+  Set compiler flags for integration of Crash Server into program.
+
+MAKEPRO.PHP:
+  Delete this file and move it up one level to %NARSROOT%.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include Crash Server source files.
+
+VER.C:
+  Update copyright year.
+  In the About box, display the version # of the Crash Server DLL.
+
+WCOM.BAT:
+  Set the MakeDep and Crash Server environment vars.
+
+
+Build #1222 -- Version 0.4.6.xx
+-------------------------------
+
+* Update Copyright Year
+
+Directory trunk:
+
+VER.RC:
+  Update copyright year.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+LICENSE-BODY.HTML:
+  Update copyright year.
+
+
+Build #1221 -- Version 0.4.6.xx
+-------------------------------
+
+* Handle Exceptions Better, Part 2
+
+Directory trunk:
+
+STRAND.C:
+  In <PushVarStrand_YY>, <PushNameStrand_YY>, and <PushListStrand_YY> handle
+    exception (LIMIT ERROR) while also <YYFree>ing the <YYAlloc>ed item.
+
+
+Build #1220 -- Version 0.4.6.xx
+-------------------------------
+
+* Create []DM & []EM From Within []EC
+
+Directory trunk:
+
+QF_EC.C:
+  After executing the right arg to []EC, ensure []DM & []EM have been created.
+
+
+Build #1219 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Typo In Language Bar
+
+Directory trunk:
+
+REBAR.C:
+  Update copyright year.
+  Fix typo in keyboard entry for DelStile in the language bar.
+
+
+Build #1218 -- Version 0.4.6.xx
+-------------------------------
+
+* Handle Exceptions Better
+
+Directory trunk:
+
+EXECFNS.C:
+  Update copyright year.
+  In <ExecFunc_EM_YY> surround calls next level down with __try/__except handlers so as to catch lower level errors.
+
+PF_DTACKJOT.C:
+  Update copyright year.
+  In <PrimFnMonDownTackJot_EM_YY>, handle access violations in the handler.
+
+PL_PARSE.Y:
+  Update copyright year.
+  Move exception handler scope up to cover assignments into plLocalVars ptrs.
+
+STRAND.C:
+  Update copyright year.
+  In <PushFcnStrand_YY>, handle exception (LIMIT ERROR).
+
+
+Build #1217 -- Version 0.4.6.xx
+-------------------------------
+
+* Disallow Conversion Of Floats >= 2*53 To Integer
+
+Directory trunk:
+
+CONVERT.C:
+  Update copyright year.
+  In <FloatToAplint_SCT>, check for floats >= 2*53 and return FALSE if found.
+
+
+Build #1216 -- Version 0.4.6.xx
+Build #1215 -- Version 0.4.6.xx
+Build #1214 -- Version 0.4.6.xx
+Build #1213 -- Version 0.4.6.xx
+Build #1212 -- Version 0.4.6.xx
+-------------------------------
+
+* Initial Commit For Various Utility Programs
+
+
+Build #1211 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Indexing Empty Arrays
+
+Directory trunk:
+
+PF_INDEX.C:
+  Update copyright year.
+  Pass flag to <PrimFnDydSquadGlb_EM_YY> to indicate called from indexing.
+
+PF_SQUAD.C:
+  Update copyright year.
+  Pass flag to <PrimFnDydSquadGlb_EM_YY> to indicate called from indexing.
+  When indexing an empty array, validate the indices so as to catch DOMAIN and INDEX ERRORs.
+
+
+Build #1210 -- Version 0.4.6.xx
+-------------------------------
+
+* Localize []DM Within []EC
+
+Directory trunk:
+
+QF_EC.C:
+  Update copyright year.
+  In <SysFnMonEC_EM_YY>, localize the value of []DM so it doesn't change over a call to []EC.
+
+
+Build #1209 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Monadic Tilde For VFP Numbers Just Outside [0,1]
+
+Directory trunk:
+
+PF_TILDE.C:
+  Update copyright year.
+  Fix bug in <PrimFnMonTildeVisV> for numbers just outside [0,1] such as
+    ~1.000000000000003v ¯1e¯15v.
+
+
+Build #1208 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Monadic Tilde For Numbers Just Outside [0,1]
+
+Directory trunk:
+
+PF_TILDE.C:
+  Update copyright year.
+  Fix bug in <PrimFnMonTildeFisF> for numbers just outside [0,1] such as
+    ~1.000000000000003 ¯1e¯15.
+
+
+Build #1207 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Data Demotion, Part 2
+
+Directory trunk:
+
+TYPEMOTE.C:
+  Fix bug in <DemoteData> with mis-matched right braces.
+
+
+Build #1206 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Data Demotion
+
+Directory trunk:
+
+TYPEMOTE.C:
+  Update copyright year.
+  Fix bug in <DemoteData> to handle scalar HGLOBALs as well as LPSYMENTRYs.
+
+
+Build #1205 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Find With Scalar Right Argument
+
+Directory trunk:
+
+GETFNS.C:
+  Update copyright year.
+  Fix typos in comments.
+
+PF_EPSUND.C:
+  Update copyright year.
+  Fix bug in <PrimFnDydEpsilonUnderbar_EM_YY> to handle scalar right argument.
+
+
+Build #1204 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug When Freeing All Global Storage
+
+Directory trunk:
+
+TABCTRL.C:
+  Fix bug in <FreeGlobalStorage> where the test for a global ptr was backward.
+
+
+Build #1203 -- Version 0.4.6.xx
+-------------------------------
+
+* Don't Untokenize <#MonDotInit> After Calling It
+
+Directory trunk:
+
+EXECMFN.C:
+  In <ExecNilMFO>, split out <FreeResultGlobalDfn> into its parts so we may tell
+    <FreeResultGlobalDfnStruc> not to call <Untokenize>.
+
+FREE.C:
+TABCTRL.C:
+  In <FreeResultGlobalDfnStruc>, define and use parameter to control call to <Untokenize>.
+
+
+Build #1202 -- Version 0.4.6.xx
+-------------------------------
+
+* Maintain Debug STE Header Signature
+
+Directory trunk:
+
+SYMTAB.C:
+  In <HshTabFrisk>, check for STE header signature.
+  In <_SymTabAppendNewName_EM>, set STE header signature after zeroing the STE.
+  In <AllocSymTab>, set STE header signature for <steNoValue>.
+
+VER.RC:
+  Increment version # to 0.4.6.xx.

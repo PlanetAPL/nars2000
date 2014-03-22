@@ -1,0 +1,12 @@
+Build #601 -- Version 0.0.2.6
+-----------------------------
+
+* Fix Bug:  Define New Terminal To Handle Another Dyadic Case With StrandOp1
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Define new rule to handle another dyadic case with <StrandOp1>.
+
+VERSION.RC:
+  Increment version to 0.0.2.6.

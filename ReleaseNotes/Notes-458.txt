@@ -1,0 +1,14 @@
+Build #458 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  White space changes.
+
+PF_RSHOE.C:
+QF_DM.C:
+  Use macro <CopySymGlbDirAsGlb>.
+
+PO_SLASH.C:
+  Use macro <CopySymGlbDirAsGlb>.

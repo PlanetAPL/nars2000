@@ -1,0 +1,27 @@
+Build #937 -- Version 0.0.3.4
+-----------------------------
+
+* Implement R-format In []FMT To Display Rational Numbers
+
+Directory trunk:
+
+FMTSPEC.C:
+  Update copyright year.
+  Handle dual meaning of R-format vs. R-qualifier in the FSA.
+  Improve comments.
+  In <fnSetQual>, handle R-format case.
+
+FMTSPEC.H:
+  Update copyright year.
+  Include the R-format spec in the <FMTSPECVAL> enum.
+  Improve comments.
+  Include 'r' in the list of allowable Symbol Substitutions.
+
+QF_FMT.C:
+  Update copyright year.
+  In <SysFnDydFMT_EM_YY>, handle new R-format specification.
+  Fix Bug:  Second and subsequent rows of Hetero arrays not formatted.
+  Substitute for the Rational Separator if desired.
+
+STARTADDR.H:
+  Note new name for []FMT subfunction.

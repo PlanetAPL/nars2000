@@ -1,0 +1,9 @@
+Build #859 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug In GradeUp/Down On Global Numeric PVs
+
+Directory trunk:
+
+PF_DELTASTILE.C:
+  In <PermVecGrade>, handle global numerics as PVs.

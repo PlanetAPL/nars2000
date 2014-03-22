@@ -1,0 +1,19 @@
+Build #1154 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug Handling The Del Token
+
+Directory trunk:
+
+EXECDFN.C:
+  Setup left & right operands (if present) if token is a Del.
+
+EXECFNS.C:
+  Setup left & right operands (if present) if token is a Del.
+  Define routine to setup left & right operands (if present).
+
+FREE.C:
+  In <FreeResultGlobalFcn>, handle token is a Del.
+
+PL_PARSE.Y:
+  In <pl_yylex>, if the token is a Del, return function information only.

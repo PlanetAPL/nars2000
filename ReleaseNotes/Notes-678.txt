@@ -1,0 +1,21 @@
+Build #678 -- Version 0.0.2.14
+------------------------------
+
+* Insert Double Quotes In Makefiles To Handle Paths With Spaces
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Document the importance of the double quotes.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Surround the tool paths with double quotes to handle paths with
+    embedded spaces.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  When deleting all files for a clean build, delete the <??_parse.c>
+    files, too.
+  Surround the tool paths with double quotes to handle paths with
+    embedded spaces.

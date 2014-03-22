@@ -1,0 +1,9 @@
+Build #1009 -- Version 0.3.8.xx
+------------------------------
+
+* Document Sequence Function In Language Bar
+
+Directory trunk:
+
+REBAR.C:
+  Document sequence function in language bar.

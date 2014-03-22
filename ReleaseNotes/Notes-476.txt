@@ -1,0 +1,8 @@
+Build #476 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix Bug:  Handle reduction on empty nested arrays producing a
+    non-empty result, previously lumped in with simple results.

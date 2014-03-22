@@ -1,0 +1,30 @@
+Build #628 -- Version 0.0.2.8
+-----------------------------
+
+* Fix Bug:  Typo in Rebar Ctrl Language Window Procedure
+
+Directory trunk:
+
+DEFINES.H:
+  Define local windows message for setting the current PTD
+    ptr in the main window thread.
+
+EDITFCN.C:
+  Debugging assertions.
+  Define debug routine to check for EC window handles.
+
+MAIN.C:
+  In the main window message loop, handle local window message
+    to set the current PTD ptr.
+
+REBAR.C:
+  Fix Bug:  Typo in Rebar Ctrl Language Window procedure.
+
+TABCTRL.C
+  In <CreateNewTabInThread> when starting a new Tab or when
+    activating a new tab, tell the Master Frame about the new PTD
+    ptr so it may set that value in its TLS in case a routine
+    outside the Tab thread needs it.
+
+VERSION.RC:
+  Increment version to 0.0.2.8.

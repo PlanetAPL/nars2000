@@ -1,0 +1,101 @@
+Build #331 -- Version 0.0.0.22427
+---------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include <webcolors.*>.
+
+CUSTOMIZE.C:
+  Implement Syntax Coloring dialog.
+
+DEFINES.H:
+  Define default values for <OptionFlags.bSyntClrFcns> and
+    OptionFlags.bSyntClrSess>.
+  Define class name for Web Color Names window
+
+DISPDBG.C:
+  Include new token <TKT_SYNTERR> in list and renumber
+    the later tokens.
+
+EDITCTRL.H:
+  Include additional parameter in <PAINTHOOK> typedef.
+
+EDITFCN.C:
+  Move typedefs and structs to <tokenize.h>.
+  Implement Syntax Coloring.
+
+EXTERNS.H:
+  Include syntax coloring info.
+  Define global vars for Syntax Coloring.
+  Define two bit fields in <OPTIONFLAGS> and their default values
+    for Syntax Coloring.
+
+INIFILE.C:
+  Read in and write out Syntax Coloring info.
+
+MAIN.C:
+  Define associated data for Web Color Names window.
+
+MAIN.H:
+  Define additional debugging equates.
+
+MAIN.RC:
+  Define Syntax Coloring dialog.
+
+MAKEFILE.INC:
+  Include references to <webcolors.*> files.
+
+PL_PARSE.Y:
+  Handle <TKT_SYNTERR> case.
+
+PN_PARSE.H:
+  Rename HyperComplex numbers as HC2/4/8.
+
+PN_PARSE.Y:
+  Rename HyperComplex numbers as HC2/4/8.
+  Move <NONCE ERROR> to later in the process.
+  Handle Complex #s (HC2) in Base Point Notation.
+  Put in stubs for HCs in Euler and Pi Point Notation.
+
+PRIMFNS.C:
+  Handle <TKT_SYNTERR> case.
+
+RESOURCE.H:
+  Define Web Color names equates.
+  Define Syntax Coloring control IDs.
+
+STRAND.C:
+  Handle <TKT_SYNTERR> case.
+
+SYMTAB.C:
+  In <SymTabLookupNameLength>, convert sysvars to
+    lowercase.
+
+TABCTRL.C:
+  White space changes only.
+
+TOKENIZE.C:
+  Move FSA typedefs and structs to <tokenize.h>.
+  Interleave Syntax Coloring with the Parse Line code.
+  Remove SYNTAX ERROR as result of Tokenizer.
+  Handle Unknown Symbols as individual chars
+    rather than SYNTAX ERROR.
+  Handle <TKT_SYNTERR> case.
+
+TOKENIZE.H:
+  Move Tokenizer info to a common file.
+
+TOKENS.H:
+  Define new token <TKT_SYNTERR> and renumber other tokens.
+
+WEBCOLORS.C:
+  Start work on a Web Color Names window as a way for
+    users to select a richer set of colors for Syntax
+    Coloring.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Include additional parameter in <PAINTHOOK> typedef.

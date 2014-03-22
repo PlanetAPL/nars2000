@@ -1,0 +1,7 @@
+Build #454 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Handle boxed display of  0 10{rho}0  better.

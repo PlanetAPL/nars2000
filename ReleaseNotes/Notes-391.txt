@@ -1,0 +1,29 @@
+Build #391 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECMFN.C:
+FREE.C:
+SC_FNOV.C:
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+
+PF_INDEX.C:
+  Reorganize code.
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+
+SYMTAB.C:
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+  Delete commented out code.
+  Delete permanent versions of various routines as we no longer use
+    that bit.
+  Improve comments.
+  Use <OBJNAME_NOVALUE> for use in <steNoValue>.
+
+SYMTAB.H:
+  Define <OBJNAME_NOVALUE> for use in <steNovalue>.
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+
+SYSVARS.C:
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+  Improve comments.

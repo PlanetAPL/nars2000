@@ -1,0 +1,13 @@
+Build #397 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc>/<WM_SIZE>, invalidate the client area so the
+    window is repainted.  We used to do this in the caller, but now it is
+    done more centrally.
+
+SESSMAN.C:
+  In <SMWndProc>/<WM_SIZE> don't invalidate the Edit Ctrl window as that's
+    done more centrally in the Edit Ctrl window proc.

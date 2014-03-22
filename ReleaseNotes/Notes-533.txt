@@ -1,0 +1,13 @@
+Build #533 -- Version 0.0.2.4
+-----------------------------
+
+* Move Initialization Of Constants To Common Routine
+
+Directory trunk:
+
+INITDATA.C:
+  Update copyright year.
+  Move initialization of constants to common routine.
+
+MAIN.C:
+  Move initialization of constants to common routine.

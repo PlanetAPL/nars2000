@@ -1,0 +1,59 @@
+Build #925 -- Version 0.0.3.4
+-----------------------------
+
+* Use Custom <malloc> Routines Instead of <HeapAlloc>
+
+Directory trunk:
+
+COMMON.C:
+  Update copyright year.
+  In <IsValidPtr>, check for bad ptrs that <IsBadReadPtr> doesn't catch.
+
+COMPRO.H:
+  Update copyright year.
+  Include custom <malloc> prototype file.
+
+DISPDBG.C:
+  In <DisplayHeap>, use custom <malloc> routines and display the block's size.
+
+DISPLAY.C:
+  Update copyright year.
+  In <DisplayGlbArr_EM>, in case of WS FULL, set a serially reusable return point.
+
+EDITFCN.C:
+  Update copyright year.
+  In <DrawTextFLsub>, also release the font mapping.
+
+EXTERNS.H:
+  Define long jump target variable.
+
+HEADERS.H:
+  Include <setjmp.h> as a global header.
+  Include "malloc.h" as a local header.
+
+INIFILE.C:
+  Update copyright year.
+  Improve comments.
+  In <ReadAplFontNames>, handle empty section same as missing section.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Update copyright year.
+  Include <malloc.?> as new source file.
+
+MALLOC.C:
+  Define new source file for heap allocations.
+
+MPFNS.C:
+  In <mp_alloc>, <mp_realloc>, and <mp_free>, use custom <malloc> routines instead of <HeapAlloc>.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <malloc.c> as new source file.
+
+PL_PARSE.Y:
+  In <ParseLine>, handle WS FULL exception.
+
+RESDEBUG.C:
+  Update copyright year.
+  In <MyHeapAlloc>, <MyHeapRealloc>, and <MyHeapFree>, use custom <malloc> routines instead of <HeapAlloc>.

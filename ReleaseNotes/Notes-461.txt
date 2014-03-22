@@ -1,0 +1,19 @@
+Build #461 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+DATATYPE.H:
+  Define DEBUG-only flag to avoid display of spurious globals
+    in debug window.
+
+DISPDBG.C:
+  Use DEBUG-only flag to avoid display of spurious globals
+    in debug window.
+
+EDITFCN.C:
+  Initialize DEBUG-only flag in <tkLocalVars>.
+
+TOKENIZE.C:
+  Use DEBUG-only flag to avoid display of spurious globals
+    in debug window.

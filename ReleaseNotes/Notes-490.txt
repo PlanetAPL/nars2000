@@ -1,0 +1,9 @@
+Build #490-- Version 0.0.2.0
+----------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk:
+
+MASM64.RULES:
+  Define new file for 64-bit assembler.

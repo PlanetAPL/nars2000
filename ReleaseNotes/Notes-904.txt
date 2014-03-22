@@ -1,0 +1,17 @@
+Build #904 -- Version 0.0.3.4
+-----------------------------
+
+* Remove Google Ads From Web Pages
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-LEFT.HTML:
+INDEX_LEFT.HTML:
+LICENSE-LEFT.HTML:
+  Remove Google ads.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-LEFT.HTML:
+  Remove Google ads.

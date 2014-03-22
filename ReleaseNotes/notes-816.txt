@@ -1,0 +1,54 @@
+Build #816 -- Version 0.0.2.23
+------------------------------
+
+* Implement Root Primitive Scalar Function
+* Define Two New Indeterminate Cases
+
+Directory trunk:
+
+COMPRO.H:
+  Include Root prototype file.
+
+CUSTOMIZE.C:
+  Define new indeterminate text for CLEAR WS Values Property Page.
+  Include Root symbol in APL Symbol Table.
+
+EXTERNS.H:
+  Define two new indeterminate cases:  0 * ±_.
+
+INITDATA.C:
+  Define Root function as primitive scalar.
+
+KEYBOARDS.H:
+  Remove Alt-'R' from list of available keystrokes.
+  Include Root symbol in APL keyboard tables.
+
+MAKEFILE.INC
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include Root module in makefiles.
+
+PF_ROOT.C:
+  New module implementing Root symbol.
+
+PF_STAR.C:
+  Define []IC actions for new indeterminates:  0 * ±_.
+
+REBAR.C:
+  Define Language Bar entry for Root symbol.
+
+SYMBOLNAMES.H:
+  Define symbol name for Root symbol.
+
+TOKENIZE.C:
+  Define token class for Root symbol.
+
+UNICODE.H:
+  Define Unicode value for Root symbol.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+EDITOROVERLAY.JS:
+  Define keystroke for Root symbol.

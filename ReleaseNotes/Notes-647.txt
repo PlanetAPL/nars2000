@@ -1,0 +1,11 @@
+Build #647 -- Version 0.0.2.10
+------------------------------
+
+* In Pre-Build Event, Rebuild *.pro Files For *.y Files, Too
+
+Directory trunk:
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  In the pre-build event, call <makefile.pro.parse>, too, so as to
+    rebuild the .pro files which correspond to the *.y files.

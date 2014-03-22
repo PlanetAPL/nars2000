@@ -1,0 +1,24 @@
+Build #775 -- Version 0.0.2.19
+------------------------------
+
+* Use Common Macros For When Returning A Result From A Dialog
+
+Directory trunk:
+
+MACROS.H:
+  Update copyright year.
+  Define common macros for when returning a result from a dialog.
+
+MAIN.C:
+  Update copyright year.
+  Delete unused DEBUG var.
+  Reorder ChooseFont flags.
+  Use common macros for when returning a result from a dialog.
+
+VER.C:
+  Update copyright year.
+  Use common macros for when returning a result from a dialog.
+
+WEBCOLORS.C:
+  Update copyright year.
+  Use common macros for when returning a result from a dialog.

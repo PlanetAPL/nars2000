@@ -1,0 +1,15 @@
+Build #394 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DEBUG.C:
+  Move <lpfnOldListBoxWndProc> from <pertab.h> to local in <debug.c>
+    as <lpMemPTD> isn't always set upon entry to <LclListboxWndProc>
+    (in particular, for <WM_DESTROY>).
+
+PERTAB.H:
+  Improve comments.
+  Move <lpfnOldListBoxWndProc> from <pertab.h> to local in <debug.c>
+    as <lpMemPTD> isn't always set upon entry to <LclListboxWndProc>
+    (in particular, for <WM_DESTROY>).

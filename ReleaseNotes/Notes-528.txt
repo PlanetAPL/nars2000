@@ -1,0 +1,40 @@
+Build #528 -- Version 0.0.2.4
+-----------------------------
+
+* Move Name Classes (Result Of []NC) To A Range That Doesn't Overlap
+  Other Vendor's Use
+
+Directory trunk:
+
+EXECDFN.C:
+  Fix Bug:  The OBJNAME_xxx value for System Labels was set to OBJNAME_USR
+    instead of OBJNAME_SYS.
+
+NAMECLASS.H:
+  Update copyright year.
+  Fix typo in comment.
+  Move name classes for System Variables, System Functions, System
+    Labels and Magic Functions to the 21+ range so as not to overlap
+    other vendor's use.
+
+QF_NC.C:
+  Change comments about name class values.
+
+QF_NL.C:
+  Widen the bit bucket which holds the name class values to 64 bits in
+    case the largest name class value increases.
+  Move name classes for System Variables, System Functions, System
+    Labels and Magic Functions to the 21+ range so as not to overlap
+    other vendor's use.
+  In <SysFnDydNL_EM_YY>, widen the nameclass bit bucket to 64 bits.
+  In <SysFnDydNL_EM_YY>, check for valid range for the input.
+
+SC_FNOV.C:
+  Change <stNameType> from <UINT> to <NAME_TYPES> for a better view
+    when debugging.
+  In <CmdFNOV_EM>, when looping through the SYMENTRYs, omit Magic
+    Functions and System Names except for System Labels.
+  In <CmdFNOV_EM>, omit separate check for System and Magic Functions.
+  In <CmdFNOV_EM>, allow for two digit nameclass values in the
+    )NMS output.
+  Optimize FOR stmt with <FillMemoryW>.

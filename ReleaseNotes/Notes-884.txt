@@ -1,0 +1,10 @@
+Build #884 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Display RATs As VFPs In Dyadic Format
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix Bug:  In <PrimFnDydDownTackJot_EM_YY>, clear <bAllChar> for RAT and VFP numbers.
+  In <PrimFnDydDownTackJot_EM_YY>, display RATs as VFPs.

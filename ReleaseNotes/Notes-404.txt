@@ -1,0 +1,10 @@
+Build #404 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+MAIN.RC:
+  Define resource for manifest file.
+
+NARS2000.EXE.MANIFEST:
+  Define new module to allow use of XP visual styles.

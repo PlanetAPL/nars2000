@@ -1,0 +1,17 @@
+Build #594 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Syntax Color Display Where Last Char Has Non-Default Background
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  When Syntax Coloring and the last char on the previous line
+    has a non-default background color, it leaks through to the next line
+    as its default background color.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note changes in Version 0.0.2.4.

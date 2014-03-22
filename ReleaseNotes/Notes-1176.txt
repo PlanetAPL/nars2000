@@ -1,0 +1,42 @@
+Build #1176 -- Version 0.4.4.xx
+-------------------------------
+
+* Implement Convolution Operator
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype file.
+
+EXECFNS.C:
+  Define action for Convolution Operator symbol.
+
+EXECMFN.C:
+EXECMFN.H:
+  Define & Install new magic functions/operators.
+
+INITDATA.C:
+  Define initializations for Convolution Operator.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Define makefile actions for new files.
+
+MF_DIDTACK.H:
+  Define APL code for magic function/operator.
+
+NARS200.32.VCPROJ:
+NARS200.64.VCPROJ:
+  Define VS actions for new files.
+
+PO_DIDTACK.C:
+  Define code for Convolution Operator.
+
+REBAR.C:
+  Document Convolution Operator in Language Bar.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document Convolution Operator.

@@ -1,0 +1,11 @@
+Build #1208 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Monadic Tilde For Numbers Just Outside [0,1]
+
+Directory trunk:
+
+PF_TILDE.C:
+  Update copyright year.
+  Fix bug in <PrimFnMonTildeFisF> for numbers just outside [0,1] such as
+    ~1.000000000000003 ¯1e¯15.

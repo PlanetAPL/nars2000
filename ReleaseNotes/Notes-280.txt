@@ -1,0 +1,42 @@
+Build #280 -- Version 0.0.0.18228
+---------------------------------
+
+Directory trunk:
+
+INIFILE.C:
+  Remove include statement as we no longer use that method.
+  Use <GetEnvironmentVariableW> to get APPDATA= instead of
+    looking at the entire environment block.
+
+MAKEFILE:
+  Move GSL include files to be under "gsl\" directory.
+  Remove references to Cygwin as we no longer need that.
+  Define SDK= to point to where SDK files reside (no longer need be
+    in "$(MSVC)include\" dir).
+  Move MSVC= and following definitions up in the file to make them
+    more easily seen.
+  Define statements to compile <makepro>.
+  Remove <userenv.lib> as we no longer use that method.
+  Define OC= for common intermediate files.
+  Factor out MAKEVER: and MAKEPRO: targets so they can be called separately.
+  Call <makepro> to generate prototypes as we need to launder the output
+    for some compilers.
+  Use $(OC) instead of $(O) for <makever> and <makepro>.
+
+Directory trunk\htdocs:
+
+INDEX_BODY.AHTML:
+  Note that NARS2000 works on Vista.
+  Fix svn:// URL to include repo directory.
+
+MAKEPRO.C:
+  Define new file to generate protypes and fix bugs in the resulting
+    files as necessary.
+
+PF_DTACKJOT.C:
+  Fix bug in monadic format on an empty matrix or higher rank array
+    (the compiler found this one).
+
+PF_INDEX.C:
+  Fix bug in <ArrayIndexRefLstSimpGlb_EM_YY> where a variable was used
+    before it was initialized (the compiler found this one, too).

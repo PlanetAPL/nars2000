@@ -1,0 +1,13 @@
+Build #1161 -- Version 0.4.3.xx
+-------------------------------
+
+* Change Default Value In []IC For "!N for integer N < 0"
+
+Directory trunk:
+
+EXTERNS.H:
+  Change the default value in []IC for "!N for integer N < 0" from DOMAIN ERROR to {infinity}.
+
+PF_QDOT.C:
+  In <PrimFnDydQuoteDotFisFvF>, if the result is zero, change it to zero
+    in case it is {neg}0 which can happen if R-L is a negative integer.

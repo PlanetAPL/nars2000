@@ -1,0 +1,12 @@
+Build #515-- Version 0.0.2.3
+----------------------------
+
+* Append Array Properties to 0 []DR
+
+Directory trunk:
+
+MACROS.H:
+  Define macro for detecting either PV0 or PV1.
+
+QF_DR.C:
+  Append array properties to end of 0 []DR result.

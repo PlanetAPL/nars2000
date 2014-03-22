@@ -1,0 +1,10 @@
+Build #751 -- Version 0.0.2.18
+------------------------------
+
+* Allow Underbar As A Leading Alphabetic Character
+
+Directory trunk:
+
+QF_NC.C:
+TOKENIZE.C:
+  Allow underbar as a leading alphabetic character.

@@ -1,0 +1,22 @@
+Build #947 -- Version 0.0.3.4
+-----------------------------
+
+* Use Gauss-Jordan Elimination For Domino On RATs/VFPs
+
+Directory trunk:
+
+DISPDBG.C:
+MAKEFILE.INC:
+WCOM.BAT:
+  Remove all references to FLINT as we no longer use it.
+
+PF_DOMINO.C:
+  Remove all references to FLINT as we no longer use it.
+  Use Gauss-Jordan elimination to solve monadic and dyadic domino
+    problems with RAT or VFP numbers.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Remove all references to FLINT as we no longer use it.

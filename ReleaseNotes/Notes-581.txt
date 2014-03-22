@@ -1,0 +1,17 @@
+Build #581 -- Version 0.0.2.4
+-----------------------------
+
+* Clear The SkipRefCntIncr Flag When Forming Multiple Item Strands
+
+Directory trunk:
+
+ASSIGN.C:
+  Back out of Build #573 as it can be resolved by clearing the SRCI
+    flag when forming a multiple item strand.
+
+PRIMFNS.C:
+  Define matching routine <ClrVarArraySRCIFlag> to <SetVarArraySRCIFlag>.
+
+STRAND.C:
+  When forming a multiple item strand, clear the SRCI flag because
+    it isn't applicable anymore.

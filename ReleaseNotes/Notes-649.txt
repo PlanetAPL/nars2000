@@ -1,0 +1,16 @@
+Build #649 -- Version 0.0.2.11
+------------------------------
+
+* Fix Bug In Partitioned Enclose
+
+Directory trunk:
+
+DEFINES.H:
+  Update copyright year in initial copyright notice.
+
+PF_LSHOE.C:
+  Fix Bug:  In Partitioned Enclose, the case of 2 1 1 2 1 ... was
+    missed because when the second 2 was parsed the previous value
+    was still 2, so it didn't trigger a new item in the result.
+  In <PrimFnDydLeftShoeGlb_EM>, factor out common code and omit
+    incorrect DEBUG-only assertion.

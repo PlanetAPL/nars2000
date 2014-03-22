@@ -1,0 +1,9 @@
+Build #1063 -- Version 0.3.9.xx
+-------------------------------
+
+* Even More Miscellaneous Build File Changes
+
+Directory trunk:
+
+DEPTXT.BAT:
+  Omit double quote marks around the argument passed to <:subroutine> as they get in the way.

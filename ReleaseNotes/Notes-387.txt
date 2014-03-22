@@ -1,0 +1,33 @@
+Build #387 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMMON.C:
+SC_ERASE.C:
+VER.RC:
+  Update copyright year.
+
+CUSTOMIZE.C:
+  Reorder #defines.
+
+MACROS.H:
+  Define <ByteDiff> macro to get the difference in bytes between two ptrs.
+
+MAIN.H:
+  Improve comments.
+  Remove "Avail:" in bit field as it's unnecessary.
+  Define <strspnW> for string span function.
+
+PL_PARSE.Y:
+STRAND.C:
+  Delete assignment into <Avail> as it no longer exists.
+
+SYSVARS.H:
+  Update copyright year.
+  Improve comments.
+
+DATATYPE.H:
+PL_PARSE.H:
+TOKENS.H:
+  Remove "Avail:" in bit field as it's unnecessary.

@@ -1,0 +1,10 @@
+Build #694 -- Version 0.0.2.14
+------------------------------
+
+* Change The Error Message For An Unknown System Name To VALUE ERROR
+
+Directory trunk:
+
+TOKENIZE.C:
+  Change the error message for an unknown system name to a VALUE ERROR
+    as that seems more appropriate.

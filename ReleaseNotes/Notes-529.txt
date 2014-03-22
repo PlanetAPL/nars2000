@@ -1,0 +1,13 @@
+Build #529 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bugs in Rank Operator
+
+Directory trunk:
+
+PO_DIJOT.C:
+  Fix Bug:  If the result of <#MonRank> or <#DydRank> consists of
+    mixed rank items, the Axis Operator to the Rank Operator was
+    ignored.
+  Fix Bug:  In <#MonRank>, if the right operand to the Rank Operator
+    was a two-element vector, the wrong cell size was used.

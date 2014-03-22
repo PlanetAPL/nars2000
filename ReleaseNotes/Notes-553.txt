@@ -1,0 +1,11 @@
+Build #553 -- Version 0.0.2.4
+-----------------------------
+
+* Fx Bug:  When Indexed Assigning A Character Scalar To A
+  Numeric Vector, The System Crashes
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyGlbAsType_EM>, handle the case of <ARRAY_HETERO>,
+    otherwise a{is}0 1 2 {diamond} a[3]{is}'x' fails.

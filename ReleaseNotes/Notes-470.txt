@@ -1,0 +1,8 @@
+Build #470 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+PF_EQUALUND.C:
+  Fix Bug:  Move the assignment of the loop limit to after
+    handling empty nested arrays.

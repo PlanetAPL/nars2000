@@ -1,0 +1,29 @@
+Build #325 -- Version 0.0.0.21985
+---------------------------------
+
+Directory trunk\htdocs:
+
+LICENSE-BODY.HTML:
+  Slight modification to wording on license agreement.
+
+
+Directory trunk\Extensions\aplchars:
+
+MAKEFILE:
+  Move make macros and targets from <makefile.inc> to here.
+
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Test for necessary environment variables.
+  Move make macros and targets from here to <Extensions\aplchars\makefile>.
+  Remove dependency on $(R) macro.
+  Use $(ZIPPPRG) macro instead of the actual filename.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Remove dependency on $(R) macro.
+  Move $(ZIPPRG) macro to separate file.
+  Remove dependency on $(PFNE) macro.
+  Move $(PCRE), $(SDK), and $(MSVC) macros to separate file.

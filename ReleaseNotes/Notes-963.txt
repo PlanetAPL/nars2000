@@ -1,0 +1,10 @@
+Build #963 -- Version 0.3.6.xx
+------------------------------
+
+* Fix Bug In []NREPLACE File Offset
+
+Directory trunk:
+
+QF_NFNS.C:
+  Fix bug in []NREPLACE where the default file offset is zero instead
+    of the current file pointer.

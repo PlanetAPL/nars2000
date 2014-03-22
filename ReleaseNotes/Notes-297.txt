@@ -1,0 +1,203 @@
+Build #297 -- Version 0.0.0.19172
+---------------------------------
+
+Directory trunk:
+
+DFNHDR.Y:
+  Rename TKT_Lxxx & TKT_Rxxx to TKT_LEFTxxx & TKT_RIGHTxxx similar to other token names.
+
+DISPDBG.C:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Rename TKT_Lxxx & TKT_Rxxx to TKT_LEFTxxx & TKT_RIGHTxxx similar to other token names.
+  Improve comments.
+
+DISPLAY.C:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Improve comments.
+  Use <DEF_DTOA_MODE> instead of constant 2.
+  Implement <DisplayTransferXXX2> functions for 2 []TF.
+
+EDITCTRL.H:
+  Define additional args for PAINTHOOK typedef.
+
+EDITFCN.C:
+  Define additional args for PAINTHOOK typedef.
+  When printing, pass flags down from WM_PRINTCLIENT to subfunctions.
+  In <LclECPaintHook>, calculate width & height in screen coordinates,
+    and if printing, also in printer coordinates.
+  In <LclECPaintHook>, return result in screen coordinates even if printing,
+  Fix bug:  In <MYWM_IZITNAME>, fix calculation of where the name starts.
+
+EXTERNS.H:
+  Define equates for printing.
+  Define equates for []Z.
+  Omit global <iLogPixelsY> as a printer device context has a different resolution.
+  Rename TKT_Lxxx & TKT_Rxxx to TKT_LEFTxxx & TKT_RIGHTxxx similar to other token names.
+  Move translate tables from <sc_in.c> to here so they may be used across modules.
+
+GETFNS.C:
+  Define <GetGlbPtrs> as shorthand for <GetGlbPtrs_LOCK> when not locking.
+  In <GetGlobalPtrs_LOCK>, always return the first value if non-empty.
+
+INIFILE.C:
+  Save/restore printer font to/from .INI file.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Use <DEF_DTOA_MODE> instead of constant 2.
+
+MACROS.H:
+  Fix bug:  The <IsSysname> macro mistakenly tests for {quotequad} as second element instead of first.
+
+MAIN.C:
+  In <InitChooseFont>, pass flag down if defining a printer font, in which case use a printer device context.
+  In <CreateNewFontCom>, pass DC (or NULL) depending upon printer context.
+  Define <CreateNewFontPR> to create printer font.
+  Define <GetPrinterDC> to get a printer device context.
+  Handle request to change the printer font.
+  Handle request to print part of all of the session.
+  Improve comments.
+
+MAIN.H:
+  Improve comments.
+  Use <DEF_DTOA_MODE> instead of constant 2.
+  Define <PRF_xxx> equates for when printing.
+
+MAIN.RC:
+  Define keyboard shortcut for printing.
+  Mark unimplemented menu items as inactive and grayed.
+  Define menu item for printing.
+  Define menu item for changing the printer font.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Include <winspool.lib> for printing functions.
+
+PARSE.Y:
+  Rename TKT_Lxxx & TKT_Rxxx to TKT_LEFTxxx & TKT_RIGHTxxx similar to other token names.
+
+PERTAB.H:
+  Define <lpSymQuadZ>, symbol table entry pointer for []Z.
+  Define <lpwszbaseTemp> to use for re-entrancy (not used in code as yet).
+
+PF_DTACKJOT.C:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Improve comments.
+  Use <DEF_DTOA_MODE> instead of constant 2.
+
+PF_INDEX.C:
+PF_IOTA.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Use <GetGlbHandle> and/or <GetGlbPtrs> instead of <GetGlbPtrs_LOCK> when not locking.
+
+PF_RSHOE.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Fix typo.
+
+PF_RTACK.C:
+  Use <GetGlbHandle> and/or <GetGlbPtrs> instead of <GetGlbPtrs_LOCK> when not locking.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PO_DIJOT.C:
+  Move error message calls to common labels.
+  Use <GetGlbHandle> and/or <GetGlbPtrs> instead of <GetGlbPtrs_LOCK> when not locking.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PRIMFNS.C:
+  Rename TKT_Lxxx & TKT_Rxxx to TKT_LEFTxxx & TKT_RIGHTxxx similar to other token names.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Move error message calls to common labels.
+
+QF_CR.C:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Move error message calls to common labels.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_EA.C:
+  Fix typo.
+
+QF_FX.C:
+  Move error message calls to common labels.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_TF.C:
+  Finish []TF.
+
+RESOURCE.H:
+  Define equates for printing and its fonts.
+
+SAVEFCN.C:
+  Define callback routines for <SaveFunctionCom> when called by []TF.
+
+SAVEFCN.H:
+  Define common routines & strucs for <SaveFunctionCom> when called by []TF.
+
+SC_IN.C:
+  Move code into common routines.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Move error message calls to common labels.
+  Move translate tables into <EXTERNS.H>.
+
+SC_SAVE.C:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Use <DEF_DTOA_MODE> instead of constant 2.
+  Improve comments.
+
+SESSMAN.C:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+
+STARTADDR.H:
+  Include more addresses for debugging purposes.
+
+STRAND.C:
+  Move error message calls to common labels.
+  Rename TKT_Lxxx & TKT_Rxxx to TKT_LEFTxxx & TKT_RIGHTxxx similar to other token names.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+
+SYMTAB.C:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+
+SYSVARS.C:
+  Define system variable []Z.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Move error message calls to common labels.
+
+TOKENIZE.C:
+  Rename TKT_Lxxx & TKT_Rxxx to TKT_LEFTxxx & TKT_RIGHTxxx similar to other token names.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+
+TOKENS.H:
+UNICODE.H:
+UNITRANSTAB.H:
+  Rename TKT_Lxxx & TKT_Rxxx to TKT_LEFTxxx & TKT_RIGHTxxx similar to other token names.
+
+TRANSLATE.C:
+  Define routines to translate between APL2 and NARS.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document {lapm} ... {lamp}.
+  Undocument []TF as unimplemented.
+
+INDEX-LEFT.HTML:
+  Note "Currently Unimplemented" is down to one.
+
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Define {name}s for _alphabet_.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  When printing, pass flags down from WM_PRINTCLIENT to subfunctions.
+  In <EDIT_PaintLine>, if printing a selection or the current page,
+    skip lines before or after the selection/current page.
+
+LOCAL.H:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.

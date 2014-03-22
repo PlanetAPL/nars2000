@@ -1,0 +1,9 @@
+Build #1004 -- Version 0.3.8.xx
+------------------------------
+
+* Allow Double Quotes Around )IN Filename
+
+Directory trunk:
+
+SC_IN.C:
+  Allow double quotes around )IN filename.

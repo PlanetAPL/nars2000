@@ -1,0 +1,9 @@
+Build #1179 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle VFP Infinity
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Somehow, I missed initializing the MPFR value before setting either plus or minus VFP infinity.

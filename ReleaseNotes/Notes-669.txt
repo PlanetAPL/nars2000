@@ -1,0 +1,27 @@
+Build #669 -- Version 0.0.2.14
+------------------------------
+
+* Use Temporary Section For Deletable Entries When Saving A Workspace
+
+Directory trunk:
+
+SC_SAVE.C:
+  Use "sss" consistently as the SI level count in comments.
+  Use [TempGlobals] section in saved workspace file to hold
+    those entries which get deleted after the workspace is
+    saved.  This means we no longer need the SymLink chain
+    and all of its supporting code.
+  Improve comments.
+  When formatting an immediate value, use a SWITCH stmt so as
+    to catch missing cases.
+  When formatting the global object name (:xxxxxxxx), make room
+    for all chars in 64-bit environment.
+  In <SavedWsFormGlbVar>, merge the formatting of NESTED and
+    HETERO objects.
+  In <SavedWsFormGlbVar>, format characters the same way as
+    elsewhere as "x" or "\xNNNN".
+
+WORKSPACE.H:
+  Update copyright year.
+  Define new section for workspaces which holds the temporary
+    entries which get deleted after the workspace is saved.

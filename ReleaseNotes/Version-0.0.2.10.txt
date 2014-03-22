@@ -1,0 +1,84 @@
+Version 0.0.2.10 consists of the following Builds:
+
+
+Build #647 -- Version 0.0.2.10
+------------------------------
+
+* In Pre-Build Event, Rebuild *.pro Files For *.y Files, Too
+
+Directory trunk:
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  In the pre-build event, call <makefile.pro.parse>, too, so as to
+    rebuild the .pro files which correspond to the *.y files.
+
+
+Build #646 -- Version 0.0.2.10
+------------------------------
+
+* Avoid Overwriting Initial Error Message With Subsequent One
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <pl_yyerror>, check to see if we've already encountered an
+    error in which case don't overwrite it.
+
+
+Build #645 -- Version 0.0.2.10
+------------------------------
+
+* Fix Bug in Partitioned Enclose With Singleton Left Arg
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Update copyright year.
+  In <PrimFnMonLeftShoeProto_EM>, check for overflow of 32 bits.
+  Fix Bug:  Wrong attribute (Type instead of Rank) is tested for
+    LEFT RANK ERROR which can cause false signalling of RANK ERROR.
+  Fix Bug:  Handle singleton left argument correctly.
+
+
+Build #644 -- Version 0.0.2.10
+------------------------------
+
+* Update Indices In Header Files
+
+Directory trunk:
+
+CS_PARSE.H:
+  Update length of TOKEN struc.
+
+DATATYPE.H:
+  Update length of VARARRAY_HEADER struc items.
+
+FH_PARSE.H:
+  Update copyright year.
+  Update length of TOKEN struc.
+
+HEADERS.H:
+  Pack strucs to 4 bytes on _WIN32 and 8 bytes on _WIN64.
+
+PL_PARSE.H:
+  Update copyright year.
+  Update length of TOKEN struc.
+
+TOKENS.H:
+  Update copyright year.
+  Correct item lengths in LOCATION, TOKEN_DATA, and TOKEN strucs.
+
+
+Build #643 -- Version 0.0.2.10
+------------------------------
+
+* Fix Bug:  Missing Control Structure Case
+
+Directory trunk:
+
+CS_PROC.C:
+  Include WHILE/ENDWHILE case.
+
+VERSION.RC:
+  Increment version to 0.0.2.10.

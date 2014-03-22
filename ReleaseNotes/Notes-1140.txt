@@ -1,0 +1,10 @@
+Build #1140 -- Version 0.4.1.xx
+-------------------------------
+
+* Fix Yet Another Bug In Temp Variable Re-use
+
+Directory trunk:
+
+SC_IN.C:
+  In <CmdIn_EM>, protect the text after a call to <CmdInCopyAndTranslate_EM>
+    fills in <lpwszTemp> with a new line, and then restore the original ptr on exit.

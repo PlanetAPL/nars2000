@@ -1,0 +1,9 @@
+Build #926 -- Version 0.0.3.4
+-----------------------------
+
+* Include File Omitted In Previous Build
+
+Directory trunk:
+
+MALLOC.PROTO:
+  Include file omitted in previous build.

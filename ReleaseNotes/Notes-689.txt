@@ -1,0 +1,12 @@
+Build #689 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Named Var In Function Strand Mishandled
+
+Directory trunk:
+
+YYFNS.C:
+  In <YYCopyGlbFcn_PTB>, when copying a named var in a function
+    strand, the token type (TKT_VARNAMED) and the data ptr
+    (HGLOBAL) are mismatched.  Instead split cases based upon
+    the token type and copy the LPSYMENTRY for TKT_VARNAMED.

@@ -1,0 +1,12 @@
+Build #566 -- Version 0.0.2.4
+-----------------------------
+
+* Display Numeric and Character Strand Arguments to Operators
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnSub>, display numeric and character strand arguments
+    to monadic and dyadic operators.
+  In <DisplayFcnSub>, insert a blank separator between a dyadic
+    user-defined operator and its right arg.

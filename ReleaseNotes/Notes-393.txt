@@ -1,0 +1,11 @@
+Build #393 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Change Reset Vars text to make it clearer as to which column is which.
+
+MAIN.RC:
+  Fix bug:  Switch names for "System" and "User" and use "CLEAR WS" and
+    "System Default" so as to reference the words in the text.

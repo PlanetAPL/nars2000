@@ -1,0 +1,314 @@
+Version 0.0.1.16 consists of the following Builds:
+
+
+Build #467 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+SC_COPY.C:
+  Disallow copying from a workspace with a later version
+    than this version of the interpreter can handle.
+
+
+Build #466 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  Fix Bug:  In <GetNameType>, include <TKT_OPJOTDOT> case.
+
+
+Build #465 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Mark all IisFvF cases as "No such primitive".
+  Fix Bug:  Several cases of simple vs. simple were misstated in that
+    the wrong type parameter (left instead of right) was used.
+  Fix Bug:  Several cases with a Boolean result didn't handle equal/not-equal
+    between numeric and char.
+  Fix Bug:  Several cases of simple arrays w/axis operator were still guarded
+    by a DbgBrk stmt in which case the system crashed.
+
+
+Build #464 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+QF_WA.C:
+  Coalesce any fragmented memory by allocating the maximum
+    amount of allocatable virtual memory (ignoring the page
+    file).
+
+
+Build #463 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+FMTSPEC.C:
+FMTSPEC.H:
+  Coalesce the various leading text delimiters into one column.
+  Fix Bug:  In <fnSetQual> and <CharTransFS>, the cases of text
+    delimiters for single and double quote were omitted.
+
+
+Build #462 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+DISPDBG.C:
+  Fix Bug:  In <DisplayGlobals>, the conditions on which the entry
+    is displayed were too restrictive.
+  When a global entry has no known signature, display its size.
+
+
+Build #461 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+DATATYPE.H:
+  Define DEBUG-only flag to avoid display of spurious globals
+    in debug window.
+
+DISPDBG.C:
+  Use DEBUG-only flag to avoid display of spurious globals
+    in debug window.
+
+EDITFCN.C:
+  Initialize DEBUG-only flag in <tkLocalVars>.
+
+TOKENIZE.C:
+  Use DEBUG-only flag to avoid display of spurious globals
+    in debug window.
+
+
+Build #460 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+STRAND.C:
+  Fix Bug:  In <MakeFcnStrand_EM_YY>, get the actual NAMETYPE_xxx
+    and use it if it's a Train.  Without this fix, Trains assigned
+    to a name don't work properly.
+
+
+Build #459 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+PO_SLASH.C:
+  Pass ptr to ptr to in <PrimOpMonSlashScalar_EM_YY>.
+  Fix Bug:  If the passed ptr to ptr to is valid, relock
+    the handle after making a prototype.
+
+PO_SLOPE.C:
+  Pass ptr to ptr to in <PrimOpMonSlashScalar_EM_YY>.
+
+PRIMFNS.C:
+  In <MakeMonPrototype_EM>, initialize vars to NULL,
+    and name arrays better.
+
+
+Build #458 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  White space changes.
+
+PF_RSHOE.C:
+QF_DM.C:
+  Use macro <CopySymGlbDirAsGlb>.
+
+PO_SLASH.C:
+  Use macro <CopySymGlbDirAsGlb>.
+
+
+Build #457 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Fix Bug:  The display of multidimensional arrays did not handle
+    the interdimensional spacing correctly.
+
+
+Build #456 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+CS_PROC.C:
+  Fix Bug:  In <CS_ENDWHILE_Stmt>, if we're not stopping execution,
+    be sure to restart as the WHILE stmt is not a single token and
+    we'll get a SYNTAX ERROR if the entire WHILE/ENDWHILE stmt appears
+    on a single line.
+
+
+Build #455 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+MAIN.C:
+  In <SetStatusParts>, change type of variable to that of its enum
+    so as to make debugging easier.
+  In <SetStatusParts>, reorganize code.
+
+
+Build #454 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Handle boxed display of  0 10{rho}0  better.
+
+
+Build #453 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+SC_LOAD.C:
+  Pass down the workspace version string.
+
+
+Build #452 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+QF_SYSVER.C:
+  Append " DEBUG" to sysver string if using DEBUG version.
+  Reorganize the code.
+
+
+Build #451 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+SC_LOAD.C:
+  Disallow loading a workspace with a later version
+    than this version of the interpreter can handle.
+
+
+Build #450 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+IMMEXEC.C:
+  In <WaitForImmExecStmt>, handle DEBUG case where <lpMemPTD> is invalid
+    on entry due to timing issues.
+
+
+Build #449 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  After a Property Page has been initialized, the Group Box
+    text no longer changes when that page is selected again.
+
+
+Build #448 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+SAVEFCN.H:
+SC_COPY.C:
+SC_LOAD.C:
+SC_SAVE.C:
+WORKSPACE.H:
+  Pass down the workspace version string.
+
+
+Build #447 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Define enum for MemVirtStr virtual allocations.
+  Allocate MemVirtStrs in <FEWndProc/WM_NCCREATE>.
+  Use enum for allocation of MemVirtStrs.
+
+MAIN.H:
+  Delete <GWSL_UNDO_INI> as VirtualFree uses the value in the
+    <LclMemVirtStr> struc.
+
+SESSMAN.C:
+  Move individual <LclMemVirtStr> allocations into <WM_CREATE>.
+
+
+Build #446 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Save Customize dialog handle in global for later testing.
+  Zap Customize global handle in WM_DESTROY to indicate that the
+    dialog is no longer active.
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc>, don't call <SetStatusXXX> if our parent is MF.
+  In <LclEditCtrlWndProc>, handle VK_INSERT so as to allow Replace
+    Mode in Customize dialog's Edit Ctrls.
+  In <InsRepCharStr>, allow INS/REP to work if parent is not MF
+    (e.g., Customize dialog).
+
+EXTERNS.H:
+  Define global to hold the Customize dialog handle if it is active.
+
+MAIN.C:
+  Fix Bug:  In <ApplyNewFontSM> if the Customize dialog is active,
+    refont that dialog's Edit Ctrl and ComboBox controls.
+
+VERSION.RC:
+  Bump version #.
+
+
+Build #445 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+TOKENIZE.C:
+  Fix Bug:  In <IsLocalName>, include "[]" in the break lists so as to handle
+    the axis operator syntax in a user-defined function/operator header.
+
+
+Build #444 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  Use <FreeResultGlobalVar> instead of <DbgGlobalFree>
+    on HGLOBALs in case they are permanents.
+
+EDITFCN.C:
+  Fix Bug:  In <LclEditCtrlWndProc/WM_SETFONT>, if the parent is a
+    dialog (such as Customize), we don't set the correct
+    <FONTENUM_xxx> value.
+  Define <IzitDialog> to test for dialog window.
+
+DEFINES.H:
+  Define class name for dialogs.

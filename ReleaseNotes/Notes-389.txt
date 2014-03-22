@@ -1,0 +1,52 @@
+Build #389 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C:
+EXECDFN.C:
+EXECFNS.C:
+FREE.C:
+GETFNS.C:
+MACROS.H:
+PF_COMMA.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_LSHOE.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_SLASH.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_CR.C:
+QF_FX.C:
+QF_MF.C:
+QF_SIZE.C:
+QF_TF.C:
+QF_TYPE.C:
+REFCNT.C:
+SAVEFCN.C:
+SC_COPY.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SC_WSID.C:
+STRAND.C:
+SYMTRANS.C:
+SYSVARS.C:
+TABCTRL.C:
+TYPEMOTE.C:
+YYFNS.C:
+  Remove <ClrPtrTypeDirAsGlb>/<ClrPtrTypeIndAsGlb> as <ClrPtrTypeDir>/<ClrPtrTypeInd>
+    always return an <LPVOID> which is compatible with almost all usages of
+    the former macros.

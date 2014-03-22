@@ -1,0 +1,15 @@
+Build #983 -- Version 0.3.8.xx
+------------------------------
+
+* Use Equate For Rational And VFP Display And Entry Separators
+
+Directory trunk:
+
+DEFINES.H:
+DISPLAY.C:
+FMTSPEC.C:
+PF_DTACKJOT.C:
+PN_PARSE.Y:
+QF_FMT.C:
+REBAR.C:
+  Use equate for Rational and VFP display and entry separators.

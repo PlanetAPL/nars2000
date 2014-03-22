@@ -1,0 +1,9 @@
+Build #1082 -- Version 0.3.9.xx
+-------------------------------
+
+* Call ECM Function As Per Their Recommendation
+
+Directory trunk:
+
+PF_PI.C:
+  Use parameters to ECM calls as per their README file.

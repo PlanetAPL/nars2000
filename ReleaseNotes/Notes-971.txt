@@ -1,0 +1,15 @@
+Build #971 -- Version 0.3.7.xx
+------------------------------
+
+* Define Menu Item For Tutorials
+
+Directory trunk:
+
+MAIN.C:
+  Overcome display bug in Wine.
+  Re-organize code under <WM_DRAWITEM>.
+  Define menu item for Tutorials.
+
+MAIN.RC:
+RESOURCE.H:
+  Define menu item for Tutorials.

@@ -1,0 +1,22 @@
+Build #760 -- Version 0.0.2.18
+------------------------------
+
+* Allow []EM To Be Erased Via )ERASE And []EX
+
+Directory trunk:
+
+QF_EX.C:
+  Include additional parameter to <ExpungeName> so we know whether to
+    erase the global (in <lpMemPTD>) or local (in either <lpSISCur> or
+    <lpMemPTD>) value of []EM.
+  In <EraseableName>, return additional value of whether the name is
+    []DM or []EM.
+  Allow []EM to be erased via )ERASE and []EX.
+
+SC_ERASE.C:
+  Include additional parameter to <ExpungeName> so we know whether to
+    erase the global (in <lpMemPTD>) or local (in either <lpSISCur> or
+    <lpMemPTD>) value of []EM.
+
+SYSVARS.H:
+  Define equate for "[]EM" to compare when erasing []EM.

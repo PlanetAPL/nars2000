@@ -1,0 +1,13 @@
+Build #645 -- Version 0.0.2.10
+------------------------------
+
+* Fix Bug in Partitioned Enclose With Singleton Left Arg
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Update copyright year.
+  In <PrimFnMonLeftShoeProto_EM>, check for overflow of 32 bits.
+  Fix Bug:  Wrong attribute (Type instead of Rank) is tested for
+    LEFT RANK ERROR which can cause false signalling of RANK ERROR.
+  Fix Bug:  Handle singleton left argument correctly.

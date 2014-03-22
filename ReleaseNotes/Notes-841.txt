@@ -1,0 +1,9 @@
+Build #841 -- Version 0.0.2.23
+------------------------------
+
+* Add How-To-Suppress Text To Copyright Message
+
+Directory trunk:
+
+SESSMAN.C:
+  Add how-to-suppress text to the copyright message displayed at startup.

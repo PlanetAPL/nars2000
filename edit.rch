@@ -1,0 +1,56 @@
+//***************************************************************************
+//      NARS2000 -- Includable Edit Menu Items
+//***************************************************************************
+
+/***************************************************************************
+    NARS2000 -- An Experimental APL Interpreter
+    Copyright (C) 2006-2013 Sudley Place Software
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+***************************************************************************/
+
+        MENUITEM "&Undo",                       IDM_UNDO
+        MENUITEM "&Redo",                       IDM_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tShft-Del",              IDM_CUT
+        MENUITEM "&Copy\tCtrl-Ins",             IDM_COPY
+        POPUP "Cop&y to ..."
+        BEGIN
+            MENUITEM "APL+&Win",                IDM_COPY_APLWIN
+            MENUITEM "APL&2",                   IDM_COPY_APL2
+            MENUITEM "&Dyalog",                 IDM_COPY_DYALOG
+            MENUITEM "&ISO",                    IDM_COPY_ISO
+            MENUITEM "&PC3270"                  IDM_COPY_PC3270
+            MENUITEM "&Braces"                  IDM_COPY_BRACES
+        END
+        MENUITEM "&Paste\tShift-Ins",           IDM_PASTE
+        POPUP "Past&e from ..."
+        BEGIN
+            MENUITEM "APL+&Win",                IDM_PASTE_APLWIN
+            MENUITEM "APL&2",                   IDM_PASTE_APL2
+            MENUITEM "&Dyalog",                 IDM_PASTE_DYALOG
+            MENUITEM "&ISO",                    IDM_PASTE_ISO
+            MENUITEM "&PC3270"                  IDM_PASTE_PC3270
+            MENUITEM "&Braces"                  IDM_PASTE_BRACES
+        END
+        MENUITEM "&Delete",                     IDM_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "Select &All",                 IDM_SELECTALL
+        MENUITEM SEPARATOR
+        MENUITEM "Customi&ze...",               IDM_CUSTOMIZE
+
+
+//***************************************************************************
+//      End of File: edit.rch
+//***************************************************************************

@@ -1,0 +1,13 @@
+Build #954 -- Version 0.0.3.5
+-----------------------------
+
+* Remove Two LIMIT ERRORs During Tokenize
+
+Directory trunk:
+
+DEFINES.H:
+  Undefine <DEF_NUM_MAXNELM> and <DEF_STR_MAXNELM> as they are no longer used.
+
+TOKENIZE.C:
+  Remove out-of-range checks for numerics and strings as the global memory
+    handle is automatically increased in size.

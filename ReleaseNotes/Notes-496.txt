@@ -1,0 +1,17 @@
+Build #496-- Version 0.0.2.2
+----------------------------
+
+* Minor changes to EDITCTRL.C.
+
+
+Directory trunk:
+
+VERSION.RC:
+  Increase version # to 0.0.2.2.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Use common inline macro <get_vertical_line_count>.
+  Delete unused DEBUG stmt.

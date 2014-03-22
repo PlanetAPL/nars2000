@@ -1,0 +1,12 @@
+Build #552 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  In Inner Product, Set Prototype Function Vars
+  Only When Prototyping
+
+Directory trunk:
+
+PO_DOT.C:
+  In <PrimOpDydDotCommon_EM_YY>, set prototype function vars
+    only when prototyping, otherwise things like 4 foo.+3
+    return 0 instead of 7.

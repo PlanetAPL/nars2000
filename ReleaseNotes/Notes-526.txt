@@ -1,0 +1,17 @@
+Build #526 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  When saving a function array that contains a user-defined
+  function/operator, copy the function name to the text rather than
+  the global reference as teh global reference has already been
+  resolved.
+
+Directory trunk:
+
+SC_SAVE.C:
+  In <SavedWsFormGlbVar>, widen array to handle FMTCHR_LEAD when
+    using 64-bit ptrs.
+  Fix Bug:  In <SavedWsFormGlbVar>, when saving a function array that
+    contains a user-defined function/operator, copy the function name
+    to the text rather than the global reference as the global
+    reference has already been resolved.

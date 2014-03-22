@@ -1,0 +1,11 @@
+Build #810 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Empty Result From Take/Drop On A Nested Array Has Wrong RefCnt
+
+Directory trunk:
+
+PF_DARROW.C:
+PF_UARROW.C:
+  Update copyright year.
+  Fix Bug:  Increment RefCnt for empty nested results.

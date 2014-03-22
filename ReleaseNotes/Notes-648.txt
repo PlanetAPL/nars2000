@@ -1,0 +1,29 @@
+Build #648 -- Version 0.0.2.11
+------------------------------
+
+* Before Saving a Function Ensure The Old Object Is Also A Function
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define new error message for SI DAMAGE.
+
+EXECMFN.C:
+  In <GetSpecialLabelNums>, include new parameter for Edit Ctrl
+    window handle.
+
+SAVEFCN.C:
+  Improve comments.
+  Convert <MessageBox> calls to Unicode.
+  After displaying a Message Box, set the focus to the parent
+    of the Edit Ctrl window.
+  Before displaying a Message Box, split cases depending upon
+    whether or not we're not called from the Master Frame.
+  Before saving a function, check to see if the old object is
+    also a function and thus can be overwritten by the new one.
+  In <GetSpecialLabelNums> pass down the Edit Ctrl window
+    handle so we can use it to set the focus on an error.
+
+VERSION.RC:
+  Increment version to 0.0.2.11.

@@ -1,0 +1,138 @@
+Version 0.0.2.15 consists of the following Builds:
+
+
+Build #704 -- Version 0.0.2.15
+------------------------------
+
+* Miscellaneous Text Changes
+
+Directory trunk:
+
+EXTERNS.H:
+  Re-order the list of available keystrokes.
+  Spell shriek correctly.
+  Omit Alt-'f' from duplicated symbols as it's used for infinity.
+
+MAIN32.DEF:
+MAIN64.DEF:
+  Increase the heap and stack sizes to 4MB.
+
+TOKENIZE.C:
+UNITRANSTAB.H:
+  Spell shriek correctly.
+
+
+Build #703 -- Version 0.0.2.15
+------------------------------
+
+* Fix Bug:  Prototype Function For Find Missing From Table
+
+Directory trunk:
+
+INITDATA.C:
+  The entry for the prototype function for Find used the old
+    filler rather than the actual function.
+
+
+Build #702 -- Version 0.0.2.15
+------------------------------
+
+* Fix Bug:  Certain Cases of Indexing Broken
+
+Directory trunk:
+
+PL_PARSE.Y:
+STRAND.C:
+  A previous bug fix broke certain cases of indexing.  Pass separate
+    argument for the caret placement instead of bundling it into a
+    single argument in both <InitList1_YY> and <PushList_YY>.
+
+
+Build #701 -- Version 0.0.2.15
+------------------------------
+
+* Fix Bug:  Dyadic Iota Doesn't Handle Left Boolean Not Full Byte Not Found
+
+Directory trunk:
+
+PF_IOTA.C
+  Improve comments.
+  In <PrimFnDydIotaBvB> and <PrimFnDydIotaBvN> if we don't find a right arg
+    value, use the <NotFound> value instead of the value which indicates we
+    didn't find the right arg value as it is always <NBIB> (8).
+
+
+Build #700 -- Version 0.0.2.15
+------------------------------
+
+* Fix Bug:  Domino Doesn't Handle Empty Arguments
+
+Directory trunk:
+
+DOMINO.C:
+  Both monadic and dyadic domino call <gsl_linalg_SV_decomp> which
+    doesn't handle empty arrays well (another good reason to use APL),
+    so we check for that case up front and handle it ourselves.
+  Remove duplicate GSL free code by simple reorganization.
+
+
+Build #699 -- Version 0.0.2.15
+------------------------------
+
+* Display Full 64-bit Registers In Crash Window
+
+Directory trunk:
+
+EXCEPT.C:
+  Display full 64-bit registers in crash window by using %p
+    instead of %016X.
+
+STARTADDR.H:
+  Define <chkstk> depending upon 32- or 64-bits.
+  Include additional files and routines.
+
+
+Build #698 -- Version 0.0.2.15
+------------------------------
+
+* Distinguish Between Various Error Returns From Control Structure Parsing
+
+Directory trunk:
+
+CS_PARSE.H:
+  Reserve an entry for an error message ptr when there is an error
+    from <cs_yyparse>.
+
+CS_PARSE.Y:
+  Handle the return values from <cs_yyparse> via a SWITCH stmt.
+  Set the error message which corresponds to return code.
+  Handle Stack Overflow as exception from <cs_yyparse>.
+
+EXECMFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+SAVEFCN.C:
+  If a call to <ParseCtrlStruc_EM> fails, display the appropriate
+    error message.
+
+MAIN32.DEF:
+MAIN64.DEF:
+  Increase the heap and stack sizes.
+
+
+Build #697 -- Version 0.0.2.15
+------------------------------
+
+* Fix Bug:  Error Caret Missing From Certain RANK ERRORs
+
+Directory trunk:
+
+PL_PARSE.Y:
+STRAND.C:
+  Pass an arg to <InitList0_YY> and <InitList1_YY> so as to
+    provide a character index for error display.  Without this,
+    (say) a three-dimensional array indexed by [;] will display
+    a RANK ERROR but no error caret.
+
+VERSION.RC:
+  Increment version to 0.0.2.15.

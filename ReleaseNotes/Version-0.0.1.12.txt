@@ -1,0 +1,1233 @@
+Version 0.0.1.12 consists of the following Builds:
+
+
+Build #409 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define equate for FORMAT ERROR.
+
+COMPRO.H:
+  Include new module <fmtspec.c>.
+  Remove old module <g_fmt.c>.
+
+CUSTOMIZE.C:
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatFloatFC>.
+
+DATATYPE.H:
+  Define struct and union for Floating Point format.
+  Improve comments.
+
+DISPLAY.C:
+  Define global DTOA mode for each <FLTDISPFMT_xxx> value.
+  Improve comments.
+  Change from Precision to significant digits in comments and var names.
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatImmedFC>/<FormatFloatFC>.
+  In <FormatFloatFC>, Use <dtoa> directly instead of going through
+    <g_fmt> and format the result based upon <FLTDISPFMT_xxx> values..
+  Define new routine <FormatExpFmt> to format a number in exponential
+    format.
+
+DISPLAY.H:
+  Update copyright year.
+  Define bit to indicate whether or not a column consists of all
+    character data (in which case it's left-justified).
+  Delete commented out lines.
+
+DTOA.C:
+  Insert headings so we can see the individual functions more easily.
+
+EXTERNS.H:
+  Move <FLT_DISP_FMT> enum from <display.c> to <externs.h> so it's
+    visible to all modules.
+
+FMTSPEC.C:
+FMTSPEC.H:
+  Define new module to run the left arg of []FMT through an FSA
+    accumulating a parsed version of the format string.
+
+HEADERS.H:
+  Include <fmtspec.h>.
+
+INIFILE.C:
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatFloatFC>.
+
+MAIN.H:
+  Delete references to <DEF_DTOA_MODE> as it's no longer used.
+
+MAKEFILE.INC:
+  Define actions for <fmtspec.c>.
+
+MAKEFILE.SRC:
+NARS2000.VCPROJ:
+  Remove <g_fmt.c> from the list of source files.
+  Include <fmtspec.c> in the list of source files.
+
+PF_DTACKJOT.C:
+  In <WIDPRC> struct define new field for longest exponent (so we may
+    line up the Es in the exponents) and define a new bit to indicate
+    that the column consists of all character data.
+  Delete all references to <FMTTYPE_xxx> as they are not used.
+  Fix bug:  Test for which field (uWid or iPrc) is being set instead
+    of relying on a bad cast.
+  If a column consists of all character data, left-justify it.
+  Improve comments.
+  In <PrimFnDydDownTackJot_EM_YY>, comment out test for last case.
+  Delete FIXME comment for case that's now fixed.
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatFloatFC>.
+  In IMMTYPE_FLOAT case, use F-, RAWINT-, or E-format depending upon
+    the signum of the Precision value.
+
+QF_FMT.C:
+  Finish work on dyadic []FMT.
+
+QF_TF.C:
+SC_SAVE.C:
+  Use <FLTDISPFMT_xxx> equates instead of <DEF_DTOA_MODE> as new
+    parameter to <FormatFloatFC>.
+
+STARTADDR.H:
+  Remove reference to <g_fmt.c>.
+
+SYSVARS.H:
+  Define equate for []FC[4] overflow char which triggers a DOMAIN ERROR.
+
+TOKENIZE.C:
+  In <InitFsaTabs>, call initialization routine for FmtSpec FSA.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note availability of niladic []A.
+  Note availability of monadic and dyadic []FMT.
+
+
+Build #408 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+NARS2000.MANIFEST:
+  Delete incorrectly named file.
+
+NARS2000.EXE.MANIFEST:
+  Include correctly named file.
+
+
+Build #407 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+PF_DARROW.C:
+QF_SYSID.C:
+UNISCRIBE.H:
+  Update copyright year.
+
+
+Build #406 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+MAIN.C:
+  In <MFWndProc>/<WM_SIZE>, run through all tabs resizing their MDI Client
+    windows.
+  Reorganize #defines/#undefs.
+
+SESSMAN.C:
+  Reorganize #defines/#undefs.
+  Delete test for Status Window when calculating size of Debug vs. Session
+    Manager windows as the Status Window has already been accounted for in
+    the MDI Client client area.
+
+TABCTRL.C:
+  Delete commented out code as we don't use it.
+  In <CreateNewTabInThread>, tell the Master Frame to resize itself so as
+    to size the newly created MDI Client window.
+
+
+Build #405 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+SYSVARS.C:
+  Fix bug:  When resetting a system var (assigning an empty vector to it)
+    copy the global (incrementing its reference count).
+
+
+Build #404 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+MAIN.RC:
+  Define resource for manifest file.
+
+NARS2000.EXE.MANIFEST:
+  Define new module to allow use of XP visual styles.
+
+
+Build #403 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+MAIN.C:
+  Load new icon for About box.
+
+MAIN.RC:
+  Define resource for new icon <NARS.ico> used inside About box.
+
+RESOURCE.H:
+  Define ID for NARS icon.
+
+VER.C:
+  Set the window icon for the About box.
+
+
+Directory trunk\Images:
+
+ABOUT.ICO:
+  Change from Letter N to letter A.
+
+NARS.ICO:
+  Define new icon for letter N.
+
+
+Build #402 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+INIFILE.C:
+  Fix bug:  In <CopyConvertDataOfType>, handle {\x0000}
+    in character vector.
+
+
+Build #401 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+INIFILE.C:
+  When loading system vars from the .INI file, check for duplication
+    with the already allocated permanent vars.
+
+SC_LOAD.C:
+  Delete commented out debug code.
+  Reorganize code.
+  Delete FIXME comment as it no longer applies.
+  When loading workspace vars, check for duplication with the already
+    allocated permanent vars.
+  Define routines to check for duplication with permanent globals.
+
+
+Build #400 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+FREE.C:
+  Fix bug:  In <FreeResultGlobalDfnStruc>, do not call <Untokenize>
+    on the function header (duh!) as there's nothing to unlocalize.
+
+
+Build #399 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECDFN.C:
+QF_EX.C:
+SC_COPY.C:
+  Include extra parameter to <EraseSTE> whether or not to erase a []var.
+
+TABCTRL.C:
+  Improve comments.
+  In <LclTabCtrlWndProc>/<TCM_DELETEITEM>, when freeing a name, erase
+    its STE, too so we can keep track of it if we encounter the same
+    name later on in the freeing process.
+  Include extra parameter to <EraseSTE> whether or not to erase a []var.
+
+
+Build #398 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECDFN.C:
+  Reorganize code.
+  In <UnlocalizeSTEs>, include <NAMETYPE_OP3> as possible name type
+    of a function to unlocalize.
+  Fix bug:  If we're localizing a system var which has a global
+    memory handle, increment its reference count as we retain the global
+    value over localization.
+
+
+Build #397 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc>/<WM_SIZE>, invalidate the client area so the
+    window is repainted.  We used to do this in the caller, but now it is
+    done more centrally.
+
+SESSMAN.C:
+  In <SMWndProc>/<WM_SIZE> don't invalidate the Edit Ctrl window as that's
+    done more centrally in the Edit Ctrl window proc.
+
+
+Build #396 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclECPaintHook> when Syntax Coloring, delete the tail of the line
+    to avoid ghosting when the window is resized.
+
+
+Build #395 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DEBUG.C:
+  In <LclListboxWndProc>, make <IDM_CUT> work and change <IDM_DELETE>
+    to <IDM_DELETEALL>, and <IDM_CUT> to <IDM_DELETE>.
+
+RESOURCE.H:
+  Define ID for <IDM_DELETEALL>.
+
+
+Build #394 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DEBUG.C:
+  Move <lpfnOldListBoxWndProc> from <pertab.h> to local in <debug.c>
+    as <lpMemPTD> isn't always set upon entry to <LclListboxWndProc>
+    (in particular, for <WM_DESTROY>).
+
+PERTAB.H:
+  Improve comments.
+  Move <lpfnOldListBoxWndProc> from <pertab.h> to local in <debug.c>
+    as <lpMemPTD> isn't always set upon entry to <LclListboxWndProc>
+    (in particular, for <WM_DESTROY>).
+
+
+Build #393 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Change Reset Vars text to make it clearer as to which column is which.
+
+MAIN.RC:
+  Fix bug:  Switch names for "System" and "User" and use "CLEAR WS" and
+    "System Default" so as to reference the words in the text.
+
+
+Build #392 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMMON.C:
+  In <IsValidHandle>, clear the ptr type bits of the incoming handle so
+    the caller doesn't have to do it.
+
+
+Build #391 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECMFN.C:
+FREE.C:
+SC_FNOV.C:
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+
+PF_INDEX.C:
+  Reorganize code.
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+
+SYMTAB.C:
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+  Delete commented out code.
+  Delete permanent versions of various routines as we no longer use
+    that bit.
+  Improve comments.
+  Use <OBJNAME_NOVALUE> for use in <steNoValue>.
+
+SYMTAB.H:
+  Define <OBJNAME_NOVALUE> for use in <steNovalue>.
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+
+SYSVARS.C:
+  Delete <Perm> bit in <STFLAGS> as it is no longer used.
+  Improve comments.
+
+
+Build #390 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  Delete check for assign to unnamed []var as that is now caught in
+    tokenization.
+
+TOKENIZE.C:
+  Fix bug:  In <fnAlpDone>, test for unknown system var and signal a
+    SYNTAX ERROR if found.
+  Improve comments.
+
+
+Build #389 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C:
+EXECDFN.C:
+EXECFNS.C:
+FREE.C:
+GETFNS.C:
+MACROS.H:
+PF_COMMA.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_LSHOE.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_SLASH.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_CR.C:
+QF_FX.C:
+QF_MF.C:
+QF_SIZE.C:
+QF_TF.C:
+QF_TYPE.C:
+REFCNT.C:
+SAVEFCN.C:
+SC_COPY.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SC_WSID.C:
+STRAND.C:
+SYMTRANS.C:
+SYSVARS.C:
+TABCTRL.C:
+TYPEMOTE.C:
+YYFNS.C:
+  Remove <ClrPtrTypeDirAsGlb>/<ClrPtrTypeIndAsGlb> as <ClrPtrTypeDir>/<ClrPtrTypeInd>
+    always return an <LPVOID> which is compatible with almost all usages of
+    the former macros.
+
+
+Build #388 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Modify #MonFMT Magic Function to reduce the # blanks columns between
+    boxes within a box from two to one (new line #51).
+  Remove blanks lines from the function and renumber the lines.
+
+
+Build #387 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMMON.C:
+SC_ERASE.C:
+VER.RC:
+  Update copyright year.
+
+CUSTOMIZE.C:
+  Reorder #defines.
+
+MACROS.H:
+  Define <ByteDiff> macro to get the difference in bytes between two ptrs.
+
+MAIN.H:
+  Improve comments.
+  Remove "Avail:" in bit field as it's unnecessary.
+  Define <strspnW> for string span function.
+
+PL_PARSE.Y:
+STRAND.C:
+  Delete assignment into <Avail> as it no longer exists.
+
+SYSVARS.H:
+  Update copyright year.
+  Improve comments.
+
+DATATYPE.H:
+PL_PARSE.H:
+TOKENS.H:
+  Remove "Avail:" in bit field as it's unnecessary.
+
+
+Build #386 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+QF_FX.C:
+  Free global on error.
+  Use <FreeResultGlobalIncompleteVar> to free an incomplete var.
+
+
+Build #385 -- Version 0.0.1.12
+------------------------------
+
+Rename file in repo browser.
+
+
+Build #384 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+SC_LOAD.C:
+  In <ParseSavedWsFcn_EM>, reorganize local vars to be local to their
+    specific part.
+  Fix Bug:  In <ParseSavedWsFcn_EM>, if there's a previous definition of the function,
+    increment its reference count so it won't be freed by <LoadWorkspaceGlobal_EM>.
+  In <ParseSavedWsFcn_EM>, move local to narrower scope so it's clear
+    that we don't need to clear it at the end.
+  Fix Bug:  In <ParseSavedWsFcn_EM>, if freeing the previous global, don't clear
+    the STE flags as the STE is still active.
+  In <LoadWorkspaceGlobal_EM> when loading a user-defined function/operator,
+    move the line which sets <SF_Fcns.LclParams> to be nearer other
+    similar lines.
+
+
+Builds #375-#383 -- Version 0.0.1.12
+------------------------------
+
+Repo browser work.
+
+
+Build #374 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+SC_FNOV.C:
+  Fix Bug:  Test for Permanent functions (i.e. Magic Functions) and
+    don't display their names in response to )FNS. or )NMS.
+
+
+Build #373 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+FREE.C:
+  Define new routine <FreeResultGlobalIncompleteVar> to be used when
+    freeing a global handle which might not have been completely filled
+    in; that is, for HETERO/NESTED vars some entries might be NULL.
+
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DTACK.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_LSHOE.C:
+PF_QUERY.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PF_UTACK.C:
+PO_DIERESIS.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_CR.C:
+QF_DR.C:
+QF_EX.C:
+QF_FX.C:
+QF_MF.C:
+QF_NC.C:
+QF_NL.C:
+QF_SIZE.C:
+QF_TF.C:
+QF_UCS.C:
+  Update copyright year.
+  Free global on error.
+  Use <FreeResultGlobalIncompleteVar> to free an incomplete var.
+
+
+Build #372 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECDFN.C:
+PL_PARSE.Y:
+  Improve comments.
+  When exiting via semaphore, don't call <SendCursorMsg> as it references
+    a message loop in another (blocked) thread.
+
+FREE.C:
+  Improve comments.
+  Rename some arguments to better reflect their purpose.
+  Breakout code to free elements of a <DFN_HEADER> struc into a separate
+    function so it may be called from other places.
+
+SESSMAN.C:
+  In <DisplayPrompt>, when exiting via semaphore, release the semaphore
+    without displaying the prompt.
+
+TABCTRL.C:
+  Improve comments.
+  In <LclTabCtrlWndProc/TCM_DELETEITEM>, if the SymTab ptr is valid,
+    first call )RESET to clear the SI stack, then run through the
+    SymTab/HshTab and free all global entries.
+
+
+Build #371 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECDFN.C:
+EXECFNS.C:
+  Clear ptr type bits in <ExecDfnGlb_EM_YY>/<ExecFcnGlb_EM_YY> instead
+    of by the caller.
+
+
+Build #370 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  In <DisplayGlbArr_EM>, when displaying an empty char array,
+    end the line only if it's not the last line or not through Quote-Quad
+    output.  This eliminates the difference in behavior between 0/0 and
+    0/'' when output through Quote-Quad.
+
+
+Build #369 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DISPDBG.C:
+  Improve comments.
+  In <DisplayGlobals>, don't display Magic Functions unless we're
+    displaying all globals.
+
+
+Build #368 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Improve comments.
+  Surround the body of <ParseCtrlStruc_EM> with __try/__except to handle
+    references to uncommitted virtual memory.
+
+
+Build #367 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+FH_PARSE.PROTO:
+SAVEFCN.C:
+  Rename <ParseHeader> to <ParseFcnHeader> to better reflect its purpose.
+
+EXECMFN.C:
+  In <Init1MagicFunction>, use <MyGlobalAlloc> instead of <GlobalAlloc>
+    as we do free the storage when we close a tab.
+  Rename <ParseHeader> to <ParseFcnHeader> to better reflect its purpose.
+
+FH_PARSE.Y:
+  Rename <ParseHeader> to <ParseFcnHeader> to better reflect its purpose.
+  Improve comments.
+  Surround the body of <ParseFcnHeader> with __try/__except to handle
+    references to uncommitted virtual memory.
+
+
+Build #366 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+DISPLAY.C:
+EDITFCN.C:
+ERRMSG.C:
+EXECMFN.C:
+PF_DTACKJOT.C:
+PF_UTACKJOT.C:
+QF_CR.C:
+QF_ERROR.C:
+QF_ES.C:
+QF_FX.C:
+QF_SYSID.C:
+QF_SYSVER.C:
+QF_TF.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_FNOV.C:
+SC_IN.C:
+SC_WSID.C:
+STRAND.C:
+SYMTAB.C:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+  Use <CopyMemoryW>/<MoveMemoryW> instead of the A-forms.
+
+MACROS.H:
+  Define <CopyMemoryW>/<MoveMemoryW> macros.
+
+
+Build #365 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CS_PROC.C:
+DEBUG.C:
+DISPDBG.C:
+EXCEPT.C:
+EXECDFN.C:
+FH_PARSE.Y:
+FREE.C:
+IMMEXEC.C:
+MACROS.H:
+PF_UTACK.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_SLASH.C:
+PRIMFNS.C:
+SC_LOAD.C:
+SESSMAN.C:
+STARTADDR.H:
+STRAND.C:
+SYMTAB.C:
+TABCTRL.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+  Rename <dprintfW>/<dprintfW9> to <dprintfWL9>/<dprintfWL0> to better
+    reflect the debug level they require to display.
+
+PRIMSPEC.C:
+REFCNT.C:
+  Update copyright year.
+  Rename <dprintfW>/<dprintfW9> to <dprintfWL9>/<dprintfWL0> to better
+    reflect the debug level they require to display.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Rename <dprintfW>/<dprintfW9> to <dprintfWL9>/<dprintfWL0> to better
+    reflect the debug level they require to display.
+
+
+Build #364 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+DISPLAY.C:
+ERRMSG.C:
+EXCEPT.C:
+GETFNS.C:
+GOTO.C:
+PF_DSHOE.C:
+PF_DTACKJOT.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PO_DIJOT.C:
+PO_SLASH.C:
+PRIMFNS.C:
+QF_EM.C:
+QF_ES.C:
+QF_EX.C:
+QF_FMT.C:
+QF_FX.C:
+QF_NL.C:
+QF_TF.C:
+SC_COPY.C:
+SC_FNOV.C:
+SC_OUT.C:
+SC_SAVE.C:
+SC_WSID.C:
+SYSVARS.C:
+TRANSLATE.C:
+YYFNS.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+
+CS_PARSE.H:
+QF_CR.C:
+QF_DL.C:
+QF_DM.C:
+QF_ERROR.C:
+QF_ET.C:
+QF_LC.C:
+QF_MF.C:
+SC_IN.C:
+SC_LIB.C:
+SC_RESET.C:
+SC_SI.C:
+  Update copyright year.
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+
+CS_PARSE.Y:
+PL_PARSE.H:
+PL_PARSE.PROTO:
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+
+CS_PROC.C:
+  Improve comments.
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+
+DEBUG.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+  Delete commented out code.
+
+EDITFCN.C:
+EXECDFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_LOAD.C:
+SESSMAN.C:
+STRAND.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+
+DISPDBG.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Improve comments.
+
+EXECMFN.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Improve comments.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+
+MAIN.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Rename <GetPerTabHandle> to <GetPerTabPtr> to reflect its change
+    in result.
+
+SYMTAB.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Improve comments.
+  Rename some arguments to better reflect their purpose.
+
+TABCTRL.C:
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+  Rename <GetPerTabHandle> to <GetPerTabPtr> to reflect its change
+    in result.
+
+THREADS.H:
+  Update copyright year.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+  Improve comments.
+
+TOKENIZE.C:
+  Improve comments.
+  Remove <hGlbPTD> and put <lpMemPTD> into a virtual allocation so we
+    don't have to lock/unlock it all the time.
+  Pass <lpMemPTD> as a direct or indirect arg so we don't have to use
+    <TlsGetValue> all the time.
+
+
+Build #363 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXTERNS.H:
+  Delete entry for []Z as it's unused.
+  Improve comments.
+
+PERTAB.H:
+  Delete entry for []Z as it's unused.
+
+SYSVARS.C:
+  Delete entry for []Z as it's unused.
+
+
+Build #362 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CalcArraySize>, add in one element to <ARRAY_CHAR> args so we
+    always have a zero-terminated string.
+
+QF_NL.C:
+  Delete superfluous <* sizeof (APLCHAR)> as it's already done by
+    <CalcArraySize>.
+
+SC_COMMON.C:
+  No need to add in an extra 1 to the NELM when allocating ARRAY_CHARs
+    as <CalcArraySize> now does that automatically.
+
+SC_WSID.C:
+  Update copyright year.
+  No need to add in an extra 1 to the NELM when allocating ARRAY_CHARs
+    as <CalcArraySize> now does that automatically.
+
+SYSVARS.C:
+  In <ValidateCharVector_EM>, there's no need to copy right arg to a
+    temp location as it's always zero-terminated.
+  No need to add in an extra 1 to the NELM when allocating ARRAY_CHARs
+    as <CalcArraySize> now does that automatically.
+
+
+Build #361 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+TOKENIZE.H:
+  Rename FSA-related vars to make parallel with the <FmtSpec> FSA.
+
+TOKENIZE.C:
+  Delete <SaveErrorPosition> and replace by one line equivalent.
+  Rename FSA-related vars to make parallel with the <FmtSpec> FSA.
+
+TOKENS.H:
+  Update copyright year.
+  Move <FSA_xxx> into <tokenize.h>.
+
+
+Build #360 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CRASH.C:
+DEBUG.C:
+MAIN.C:
+VER.C:
+  Define and use args to <WM_COMMAND>.
+
+
+Build #359 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CRASH.C:
+DEBUG.C:
+PERFMON.C:
+VER.C:
+  Update copyright year.
+  Remove #define of WINVER and _WIN32_WINNT in favor of global
+    defines in <makefile.inc>.
+
+IMMEXEC.C:
+MAIN.C:
+RESDEBUG.C:
+SESSMAN.C:
+TABCTRL.C:
+TOKENIZE.C:
+  Remove #define of WINVER and _WIN32_WINNT in favor of global
+    defines in <makefile.inc>.
+
+MAKEFILE.INC:
+NARS2000.VCPROJ:
+  Remove #define of WINVER and _WIN32_WINNT in favor of global
+    defines in <makefile.inc>.
+  Use /LARGEADDRESSAWARE to handle 3GB 4GT 32-bit systems.
+  Use /OPT:REF to delete unused routines.
+  Include <qf_a.c> and <qf_wa.c> as source files.
+
+
+Build #358 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMMON.C:
+  Define new routine as callback to <EnumDisplayMonitors> so we can
+    get the current monitor's dimensions.
+  Modify <CenterWindow> to center within the window which contains
+    the center point of the Master Frame.
+
+
+Build #357 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+  Append "Web Colors" menu item to the basic and custom colors.
+  Improve comments.
+  In conjunction with the move of Syntax Color names from <LTEXT>
+    entries in <main.rc> to a struc in <externs.h>, we now need
+    to write out the static text within <WM_INITDIALOG> for the
+    Syntax Coloring property page.
+  Remove all references to <ccHookProc> as a means of displaying
+    Web Color Names.
+  When displaying the menu of colors, expand the test for special
+    items to include "Web Colors".
+  In response to <WM_COMMAND>, delete references to the three long
+    list of case stmts of Syntax Color categories in place of code
+    in the default entry for the SWITCH stmt which tests <idCtl>
+    against the first and last IDs of the three categories.
+  In response to the result from <TrackPopupMenu>, include the
+    case of Web Colors.
+
+DEFINES.H:
+  Remove references to Web Color class name of "WCClass" and associated
+    messages as we're using a Dialog instead of a window.
+
+EDITFCN.C:
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+EXTERNS.H:
+  Move Syntax Color names from <LTEXT> entries in <main.rc>
+    to a struc in <externs.h> so we can use them elsewhere.
+  Define struct to contain both the Syntax Color and its name.
+  Improve comments.
+
+INIFILE.C:
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+MAIN.C:
+  Remove references to Web Color class name of "WCClass" and associated
+    messages as we're using a Dialog instead of a window.
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+MAIN.RC:
+  Update copyright year.
+  Move Syntax Color names from <LTEXT> entries in <main.rc> to
+    a struc in <externs.h>.
+  Label each Syntax Color name <LTEXT> entry so we can write to it.
+  Define new Web Colors dialog to allow the user to choose on of
+    those colors.
+
+RESOURCE.H:
+  Update copyright year.
+  Define various IDs for Web Color Names dialog and its controls.
+  Renumber entries to make room for expansion -- numbers are cheap.
+
+SYNTAXCOLORS.H:
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+TOKENIZE.C:
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+WEBCOLORS.C:
+  Update copyright year.
+  Change from window proc to a dialog proc called from the popup
+    menu of basic and custom colors.
+
+
+Build #356 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DEFINES.H:
+  Delete previous caret width equates as they are no longer needed.
+
+EDITCTRL.H:
+  Update copyright year.
+  Define two more extra dwords for VKSTATE and HBITMAP for the caret.
+  In <NMEDITCTRL>, change from ptr to caret width to caret bitmap.
+
+EDITFCN.C:
+  In <FEWndProc>, remove anything to with <VKSTATE> as it's now handled
+    entirely in <LclEditCtrlWndProc>.
+  In <FEWndProc>, change response to <WM_NOTIFY> to pass on to
+    <LclEditCtrlWndProc>.
+  Define new routine to return the current <VKSTATE> from the window
+    extra bytes.
+  In <LclEditCtrlWndProc/WM_NCCREATE>, initialize <VKSTATE> in the
+    window extra bytes.
+  In <LclEditCtrlWndProc/WM_KEYDOWN/VK_INSERT>, remove unnecessary code
+    and use <GetVkState> to get the current <VKSTATE>.
+  Shift the save area for the current <VKSTATE> from the parent window
+    to the Edit Ctrl window.
+  In <InsRepCharStr>, delete the <GWLSF_xxx> arg as it's now the constant
+    <GWLEC_VKSTATE>.
+  In <LclEditCtrlWndProc/WM_SETFONT>, define new replace caret bitmap and
+    delete the old one if any.
+  In <LclEditCtrlWndProc/MYWM_NOTIFY>, handle <WM_NOTIFY> from the Edit
+    Ctrl window.
+  In <LclEditCtrlWndProc/WM_DESTROY>, delete  replace caret bitmap
+    if defined.
+
+MAIN.H:
+  Update copyright year.
+  Delete <GWLSF_VKSTATE> as it's now in <editctrl.h> as <GWLEC_VKSTATE>.
+  Define <MYWM_NOTIFY> for use in handling caret shape issues.
+
+SESSMAN.C:
+  In <SMWndProc>, remove anything to with <VKSTATE> as it's now handled
+    entirely in <LclEditCtrlWndProc>.
+  In <SMWndProc>, change response to <WM_NOTIFY> to pass on to
+    <LclEditCtrlWndProc>.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  In <MyCreateCaret>, ask the superclass window to return a bitmap handle
+    or NULL depending upon which mode (REP vs. INS) were in.
+
+LOCAL.H:
+  Define message to use in notify code for caret shape communication.
+
+
+Build #355 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new file <qf_wa.c>.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Reference new file <qf_wa.obj>.
+
+QF_WA.C:
+  Define new file to handle []WA.
+
+SYSVARS.C:
+  Define entries for new system function []WA.
+
+
+Build #354 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new file <qf_a.c>.
+
+DATATYPE.H:
+  Define new <PERMNDX_QUADA> and alphabetize the names
+    renaming MTCHAR to V0CHAR to match the name in
+    <externs.h>.
+
+ERRMSG.C:
+PRIMFNS.C:
+  Rename <hGlbM3x0Char> to <hGlbQuadEM> to reflect its
+    purpose better.
+
+EXTERNS.H:
+  Define new var <hGlbQuadA> and alphabetize the names
+    renaming <hGlbM3x0Char> to <hGlbQuadEM> and <hGlbAV>
+    to <hGlbQuadAV> to reflect their purpose better.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Reference new file <qf_a.obj>.
+
+QF_A.C:
+  Define new file to handle []A.
+
+QF_AV.C:
+  Update copyright year.
+  Rename <hGlbAV> to <hGlbQuadAV> to reflect its purpose
+    better.
+
+QF_EM.C:
+  Update copyright year.
+  Rename <hGlbM3x0Char> to <hGlbQuadEM> to reflect its
+    purpose better.
+
+SYSVARS.C:
+  Define entries for new system function []A.
+  Rename <hGlbM3x0Char> to <hGlbQuadEM> to reflect its
+    purpose better.
+  Rename <PERMNDX_MTCHAR> to <PERMNDX_V0CHAR> to match the
+    name in <externs.h>.

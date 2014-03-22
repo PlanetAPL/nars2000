@@ -1,0 +1,11 @@
+Build #987 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Scan With Alternating Functions On Nested Arrays
+
+Directory trunk:
+
+PO_SLOPE.C:
+  Fix bug in scan using alternating functions where if the first element
+    of the right arg is a nested array, we fail to increment its
+    reference count.

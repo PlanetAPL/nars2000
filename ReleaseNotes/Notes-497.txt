@@ -1,0 +1,46 @@
+Build #497-- Version 0.0.2.2
+----------------------------
+
+* Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  When sending a <WM_SETFONT> message, use the <MAKELPARAM>
+    macro for the <fRedraw> parameter.
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+  Fix Bug:  When restoring the default Syntax Coloring settings,
+    restore the checkboxes, too.
+
+DEFINES.H:
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+
+EXTERNS.H:
+  Remove unneeded bit struc member <Avail>.
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+
+INIFILE.C:
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+  Fix Bug:  Due to a gap in the #defines for <IDC_FONTS_RADIOxx>
+    a value in <glbSameFontAs> can be out-of-range.
+
+MAIN.C:
+  Whitespace only changes.
+
+MAIN.RC:
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".
+  Lengthen the GroupBox and each Property Page so as to make
+    room for another Syntax Coloring preference.
+
+RESOURCE.H:
+  Fix Bug:  Due to a gap in the #defines for <IDC_FONTS_RADIOxx>
+    a value in <glbSameFontAs> can be out-of-range.
+  Define a new Syntax Coloring preference "Enable Coloring
+    When Printing".

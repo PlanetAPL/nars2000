@@ -1,0 +1,16 @@
+Build #1169 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug When Double-Clicking On Name With More Than 65536 Chars In Buffer
+
+Directory trunk:
+
+COMMON.C:
+  Define common function to launder EM_CHARFROMPOS results.
+
+EDITFCN.C:
+  Use <CharFromPos> to launder EM_CHARFROMPOS results.
+  Imrpove comments.
+
+SESSMAN.C:
+  Use <CharFromPos> to launder EM_CHARFROMPOS results.

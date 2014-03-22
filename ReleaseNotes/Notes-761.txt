@@ -1,0 +1,132 @@
+Build #761 -- Version 0.0.2.18
+------------------------------
+
+* Implement []EC
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for []EC.
+
+DATATYPE.H:
+  Define PERMNDX_xxx values for constant matrices (0 x 0 and 3 x 0).
+
+ERRMSG.C:
+  In <BreakMessage>, save the event type.
+  Improve comments.
+  In <ErrorMessageDirect>, address the parent error control SIS header
+  In <GetPtrQuadEM>, address the parent error control SIS header
+    of the next one up that's not a fcn, op1, op2, or errctrl and return
+    a ptr to hGlbQuadEM in that or the global one in PerTabData global
+    memory.
+  Replace <DFNTYPE_QUADEA> with <DFNTYPE_ERRCTRL> to catch the []EC
+    case, too.
+  If there's no SIS header, save the value of []EM in the PerTabData struc.
+
+EVENTTYPES.H:
+  Update copyright year.
+  Convert #defines to an enum so they show up as text in the debugger.
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, if about to suspend and there's a []EA/[]EC
+    error control in effect, exit the function.
+
+EXTERNS.H:
+  Define global memory handles for constant matrices (0 x 0 and 3 x 0).
+
+FH_PARSE.H:
+  Replace <DFNTYPE_QUADEA> with <DFNTYPE_ERRCTRL> to catch the []EC
+    case, too.
+
+GOTO.C:
+  In <GotoLine_EM>, avoid checking the first element of an empty
+    simple array.
+  In <GotoLine_EM>, save the value of the {goto} target if we're
+    executing under []EC, and skip setting the next stmt # as we're
+    about to abandon this SIS level.
+  Define new routine to save the {goto} target if we're executing
+    under []EC.
+
+HEADERS.H:
+  Move <eventtypes.h> up to before <pertab.h> as the latter header
+    uses an enum name defined in the former header.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include name of new file for []EC.
+
+PERTAB.H:
+  Define PerTabData globals for []EM and []ET which previously had no
+    global value due to misreading the spec.
+
+PF_UTACKJOT.C:
+  In <PrimFnMonUpTackJotCommon_EM_YY>, include additional parameter to
+    pass back the <exitType> of the call to <PrimFnMonUpTackJotCSPLParse>.
+
+PL_PARSE.Y:
+  In <StmtSing:ArrValu> set explicit <EXITTYPE_NOVALUE> for that case, and
+    <EXITTYPE_NODISPLAY> or <EXITTYPE_DISPLAY> depending upon the NoDisplay flag.
+  In <StmtSing:GOTO>, don't set the <RESETFLAG_xxx> if executing under []EC
+    as that only confuses later code.
+  In <ParseLine>, with <EXITTYPE_RESET_ONE_INIT> if the first non-EXEC SIS
+    header up the line is from []EC, don't set the <RESETFLAG_xxx>
+    as that only confuses later code.
+  In <ParseLine> if there's an error to be signalled skip it if we're
+    executing under []EA/[]EC as the error is to be passed up to the
+    error control SIS header.
+  In <ArrExprCheckCaller>,  save the Execute result if there's a error
+    control parent active.
+
+PRIMFNS.C:
+  In <FillSISNxt>, if the immediately preceding SIS header is an error
+    control, set the ptr to it in the current SIS header, and pass on
+    down any previous error control headers.
+
+QF_EA.C:
+  Replace <DFNTYPE_QUADEA> with <DFNTYPE_ERRCTRL> to catch the []EC
+    case, too.
+  In <PrimFnMonUpTackJotCommon_EM_YY>, include additional parameter to
+    pass back the <exitType> of the call to <PrimFnMonUpTackJotCSPLParse>.
+
+QF_EC.C:
+QF_EC.H:
+  New files to implement []EC.
+
+QF_EM.C:
+  In <SysFnEM_EM_YY>, return either the SIS header value or the global
+    value in the PerTabData struc.
+
+QF_ES.C:
+  Omit <eventypes.h> as it's include in <headers.h>.
+
+QF_ET.C:
+  Replace <DFNTYPE_QUADEA> with <DFNTYPE_ERRCTRL> to catch the []EC
+    case, too.
+  In <SetEventTypeMessage> don't return a result as no one uses it.
+  In <SetEventTypeMessage>, save the <EventType> in either the
+    appropriate SIS header or the global value in the PerTabData struc.
+
+SC_IN.C:
+  In <TransferInverseArr2_EM>, handle <EXITTYPE_DISPLAY> now allowed to be
+    returned from <ParseLine> to make []EC work.
+
+SC_SI.C:
+  Fix typo in comments.
+
+SIS.H:
+  Update copyright year.
+  Define ptr to hold the HGLOBAL of the {goto} target when executing
+    under []EC.
+  Define bit field to indicate we're executing under []EC.
+  Define ptr to error control header (if any).
+
+SYSVARS.C:
+  Define entries for []EC as a new system function.
+  In <MakePermVars>, allocate space for a 0 by 0 Boolean matrix
+    to be used in []EC[2].
+  Rename <hGlbQuadEM> to <hGlb3by0> to reflect its value.
+
+TRANSLATE.C:
+  Define new function to translate from EXIT_TYPES to []EC[0] return codes.

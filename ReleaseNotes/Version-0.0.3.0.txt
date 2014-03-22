@@ -1,0 +1,72 @@
+Version 0.0.3.0 consists of the following Builds:
+
+
+Build #868 -- Version 0.0.3.0
+-----------------------------
+
+* Fix Bug:  Handle Output Of Long Lines
+
+Directory trunk:
+
+INITDATA.C:
+  Fix commented out stmt.
+
+PF_DTACKJOT.C:
+  Fix Bug:  Handle output of long lines.
+
+
+Build #867 -- Version 0.0.3.0
+-----------------------------
+
+* Speed Up Alternating Scans
+* Fix Bugs:  If Scan Blows Up, Set Immediate Types And Blow Up Temps
+
+Directory trunk:
+
+PO_SLOPE.C:
+  Speed up alternating scans.
+  Improve comments.
+  Fix Bug:  In case the result blows up, also blow up the right
+    arg token.
+
+TYPEMOTE.C:
+  Fix Bug:  Set the immediate type when promoting types so scan
+    uses the correct type.
+
+
+Build #866 -- Version 0.0.3.0
+-----------------------------
+
+* Fix Bug:  Fails When Parsing The Largest (In Magnitude) Negative Number
+
+Directory trunk:
+
+PN_PARSE.Y:
+  In <PN_NumCalc>, when parsing the largest (in magnitude) negative number,
+    we need to subtract instead of add in order to parse this value correctly.
+
+QF_DR.C:
+  In <SysFnDR_ConvertIntToChar>, always set the result.
+
+
+Build #865 -- Version 0.0.3.0
+-----------------------------
+
+* Fix Bug:  When Loading A Workspace, Set []FPC Vars
+* Fix Bug:  When Saving A Workspace, Set (FPCnnn) For VFPs Only
+* Release Version 0.0.3.0
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix Bug:  When loading a workspace, upon setting []FPC, also set the
+    VFP constants and PTD vars dependent on the value of []FPC.
+
+SC_SAVE.C:
+  Fix Bug:  When appending an array header while saving a workspace,
+    ensure that the var in question is a VFP before checking for a common
+    precision.
+
+VER.RC:
+VERSION.RC:
+  Increment version to 0.0.3.0.

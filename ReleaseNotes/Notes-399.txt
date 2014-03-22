@@ -1,0 +1,16 @@
+Build #399 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+EXECDFN.C:
+QF_EX.C:
+SC_COPY.C:
+  Include extra parameter to <EraseSTE> whether or not to erase a []var.
+
+TABCTRL.C:
+  Improve comments.
+  In <LclTabCtrlWndProc>/<TCM_DELETEITEM>, when freeing a name, erase
+    its STE, too so we can keep track of it if we encounter the same
+    name later on in the freeing process.
+  Include extra parameter to <EraseSTE> whether or not to erase a []var.

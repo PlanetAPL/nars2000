@@ -1,0 +1,8 @@
+Build #467 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+SC_COPY.C:
+  Disallow copying from a workspace with a later version
+    than this version of the interpreter can handle.

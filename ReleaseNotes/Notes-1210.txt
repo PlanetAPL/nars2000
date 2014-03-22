@@ -1,0 +1,10 @@
+Build #1210 -- Version 0.4.6.xx
+-------------------------------
+
+* Localize []DM Within []EC
+
+Directory trunk:
+
+QF_EC.C:
+  Update copyright year.
+  In <SysFnMonEC_EM_YY>, localize the value of []DM so it doesn't change over a call to []EC.

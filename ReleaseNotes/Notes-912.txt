@@ -1,0 +1,22 @@
+Build #912 -- Version 0.0.3.4
+-----------------------------
+
+* Implement In-Place Tooltips
+
+Directory trunk:
+
+MAIN.C:
+  Define extern for QCWA debugging.
+  Improve comments.
+  Pass Boolean argument to <CreateTooltip> to use balloon tolltips.
+
+REBAR.C:
+  Avoid initialization of less often used struc on all messages.
+  Pass Boolean argument to <CreateTooltip> to use balloon tooltips.
+  Zero <tti> struc only when used.
+  Change Font Window ComboBox to owner-drawn.
+  Get Font Window ComboBox font and use for Tooltip Window.
+  Subclass ComboLbox to display in-place tooltip.
+  Handle owner-drawn Font Window ComboBox.
+  Use common routine to get ComboBox font handle.
+  Use routine to handle subclass messages for Font Window ComboLbox.

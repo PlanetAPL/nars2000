@@ -1,0 +1,10 @@
+Build #997 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Primitive Functions On Simple Scalar And Empty Nested Arrays
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDydNestSiSc_EM> and <PrimFnDydSiScNest_EM> the NELM of the
+    result is the NELM of the non-scalar arg, not the larger of the two NELMs.

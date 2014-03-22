@@ -1,0 +1,18 @@
+Build #978 -- Version 0.3.7.xx
+------------------------------
+
+* Fix Bug In Named Strand Assignment
+
+Directory trunk:
+
+ASSIGN.C:
+  Fix typo in comment.
+  In <AssignNamedVars_EM>, handle the missing cases of
+    assigning RAT or VFP to a strand of names.
+
+DEBUG.C:
+  In <oprintfW>, omit direct reference to <ODS> in lieu of
+    <OutputDebugString>.
+
+MAIN.RC:
+  Include "..." in tail of "Check for Updates" menu option.

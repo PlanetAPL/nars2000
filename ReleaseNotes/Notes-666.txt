@@ -1,0 +1,17 @@
+Build #666 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  When Copying Variable In A Function Strand, Increment
+  The RefCnt If Not Called At The Top Level
+
+Directory trunk:
+
+STRAND.C:
+  Pass additional arg to <YYCopyFcn> to tell whether or not it's called
+    from the top level.
+
+YYFNS.C:
+  Pass additional arg to <YYCopyFcn> to tell whether or not it's called
+    from the top level.
+  In <YYCopyFcn> when copying a var in a function strand, if we're
+    called at the top level don't increment the RefCnt, otherwise do.

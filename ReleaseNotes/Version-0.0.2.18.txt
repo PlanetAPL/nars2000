@@ -1,0 +1,1385 @@
+Version 0.0.2.18 consists of the following Builds:
+
+
+Build #768 -- Version 0.0.2.18
+------------------------------
+
+* Document Web Pages; Remove []SIZE
+
+Directory trunk:
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+QF_SIZE.C:
+SYSVARS.C:
+  Remove []SIZE from the list of available system functions.
+
+QF_AT.C:
+  Move routines over from <qf_size.c>.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document []EA, []EC, []EM, []ES, and []ET as available system functions.
+  Document []SIZE as no longer available (use 4 []AT instead).
+  Remove "Currently Unimplemented" from the sections as there are no more
+    such features.
+
+INDEX-LEFT.HTML:
+  Remove "Currently Unimplemented" from the left-hand menu as there are no more
+    such features.
+
+
+Directory trunk\htdocs\downloads:
+
+DOWNLOAD-BODY.PHP:
+  Include instructions on how to install the program and the font.
+
+
+Build #767 -- Version 0.0.2.18
+------------------------------
+
+* Make Full Axes PSDFs Sensitive To Left-/Right-hand Identity Elements
+
+Directory trunk:
+
+AXISFNS.C:
+  Improve comments.
+
+FH_PARSE.H:
+  Include symbol for Error Control SIS level in <cDfnTypeStr>.
+
+IDENTFNS.C:
+  Improve comments.
+  In <GetIdentityElement_EM> in the dyadic case (inner product), pass down
+    the prototype of the left & right args as that's what the UDFO expects,
+    and correspondingly don't {first} the result.
+  In <FillIdentityElement_EM>, return immediately if bad result from
+    <GetIdentityElement_EM> so as to simplify the result, and handle
+    empty nested arguments.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Move quote marks around <??_parse.c> to outside the entire path\name.
+
+PO_DIERESIS.C:
+  Pass left/right identity element flags to <CheckRankLengthError_EM>.
+  Pass left/right identity element flags to <PrimScalarFnDydAllocate_EM>.
+  Pass left/right identity element flags to <CalcLftRhtArgIndices>.
+
+PO_DOT.C:
+  Fix Bug:  Inner dimensions not calculated correctly for scalar
+    extension with empties.
+  Remove unused zero dimension code (because it's handled above).
+
+PO_SLASH.C:
+  Fix Bug:  When reducing an empty (to produce an identity element)
+    and we're prototyping also require the function to be a UDFO,
+    before signalling a NONCE ERROR.
+  Fix Bug:  When reducing an empty (to produce an identity element)
+    and the function is PSDF also require the argument not to be
+    nested before invoking that code.
+  When reducing an empty (to produce an identity element)
+    and the function is a PSDF, there's no need to check for it
+    being an immediate function.
+  Fix Bug:  If the nested result is empty, be sure to convert the identity
+    element to its prototype.
+
+PRIMFNS.C:
+  Pass left/right identity element flags to <PrimScalarFnDydAllocate_EM>.
+  In <PrimScalarFnDydAllocate_EM> when the ranks are equal, choose the
+    left arg if there's a right-hand only identity element, otherwise
+    choose the right arg.
+  In <MakeMonPrototype_EM_PTB>, call <FreeResultGlobalIncompleteVar>
+    instead of <FreeResultGlobalVar> as the result might be incomplete.
+  Pass left/right identity element flags to <CheckRankLengthError_EM>.
+  In <MakeDydPrototype_EM_PTB> when the ranks are equal, choose the
+    left arg if there's a right-hand only identity element, otherwise
+    choose the right arg.
+  In <CheckRankLengthError_EM> when the ranks are equal, choose the
+    left arg if there's a right-hand only identity element, otherwise
+    choose the right arg.
+  In <CopyArray_EM>, call <FreeResultGlobalIncompleteVar> instead of
+    <FreeResultGlobalVar> as the result might be incomplete.
+
+PRIMSPEC.C:
+  Fix Bug:  In <PrimIdentFnScalar_EM_YY>, handle empty nested args.
+  Pass left/right identity element flags to <CheckRankLengthError_EM>.
+  Pass left/right identity element flags to <PrimScalarFnDydAllocate_EM>.
+  Pass left/right identity element flags to <PRIMSPEC> function.
+  Pass left/right identity element flags to <PrimFnDydSimpNest_EM>.
+  Pass left/right identity element flags to <PrimFnDydSiScNest_EM>.
+  Pass left/right identity element flags to <PrimFnDydNestSiSc_EM>.
+  Pass left/right identity element flags to <PrimFnDydNestSimp_EM>.
+  Pass left/right identity element flags to <PrimFnDydMultSing_EM>.
+  Pass left/right identity element flags to <PrimFnDydNestNest_EM>.
+  Pass left/right identity element flags to <PrimFnDydSingMult_EM>.
+  Pass left/right identity element flags to <PrimFnDydSimpSimp_EM>.
+  In <PrimFnDydSimpSimp_EM>, if <lpMemAxisHead> is defined, then it is
+    always significant even if the ranks are the same.
+  Pass left/right identity element flags to <CalcLftRhtArgIndices>.
+  In <CalcLftRhtArgIndices>, take into account the left/right identity
+    element flag when deciding which index to use.
+
+PRIMSPEC.H:
+  Update copyright year.
+  Pass left/right identity element flags to <PRIMSPEC> functions.
+
+
+Build #766 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  In []EC, Handle Named Var on Return From Executing The Right Arg
+
+Directory trunk:
+
+QF_EC.C:
+  In <SysFnMonEC_EM_YY>, handle a named var upon return from executing
+    the right arg.
+
+
+Build #765 -- Version 0.0.2.18
+------------------------------
+
+* Merge PRIMFLAGS and IDENTFNS Into PRIMFLAGS.
+
+Directory trunk:
+
+EXTERNS.H:
+  Merge the <PRIMFLAGS> and <IDENTFNS> strucs into <PRIMFLAGS>.
+
+GETFNS.C:
+  In <GetPrototypeFcnPtr> pass ptr to the function token rather than
+    <PL_YYSTYPE> as that's all that's needed.
+  Merge <GetIdentityFcnPtr> into <GetPrimFlagsPtr> and delete the former.
+
+IDENTFNS.C:
+  Merge the <PRIMFLAGS> and <IDENTFNS> strucs into <PRIMFLAGS>.
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+
+INITDATA.C:
+  Merge the <PRIMFLAGS> and <IDENTFNS> strucs into <PRIMFLAGS>.
+
+PO_CMIDDOT.C:
+PO_DICIRCLE.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+
+PO_DIERESIS.C:
+PO_DITILDE.C:
+  Merge the <PRIMFLAGS> and <IDENTFNS> strucs into <PRIMFLAGS>.
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+
+PO_DOT.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+  Handle not found case of PRIMFLAGS in <GetPrimFlagsPtr>.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.
+
+PO_JOT.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+
+PO_JOTDOT.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+  Handle not found case of PRIMFLAGS in <GetPrimFlagsPtr>.
+
+PO_SLASH.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+  Handle not found case of PRIMFLAGS in <GetPrimFlagsPtr>.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.
+  Handle blow up from Boolean to Integer.
+
+PO_SLOPE.C:
+  Pass function token to <GetPrototypeFcnPtr> instead of <PL_YYSTYPE>.
+  Handle not found case of PRIMFLAGS in <GetPrimFlagsPtr>.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.
+  Handle blow up from Boolean to Integer.
+  Improve comments.
+
+PRIMFNS.C:
+  Improve comments.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.
+
+PRIMSPEC.C:
+  Define Identity Function for PSDFs.
+  Remove unnecessary <PTR_REUSED> fill code now that we have
+    <FreeResultGlobalIncompleteVar>.
+
+
+Build #764 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug (DEBUG-Only):  Click DEBUG Window And Then Language Bar Crashes
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug (DEBUG-Only):  If you click on a window without an Edit Ctrl
+    (such as a DEBUG Window) and then click on a glyph in the language
+    bar, <InsRepCharStr> is entered with an invalid <hWndEC>.
+
+
+Build #763 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug (DEBUG-only):  Code Assumes Arguments On Stack Are 32-bit When They Are 64-bit
+
+Directory trunk:
+
+CS_PARSE.Y:
+FH_PARSE.Y:
+PL_PARSE.Y:
+PN_PARSE.Y:
+  Fix Bug (DEBUG-only):  In <??_yyfprintf> with Win64, the arguments
+    on the stack are assumed to be int32, but they are actually int64.
+
+
+Build #762 -- Version 0.0.2.18
+------------------------------
+
+* Implement NULLOP At Lexical Rather Than Parse Time
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Improve comments.
+  Implement NULLOP in the lexical analyzer instead of the parser.
+
+
+Build #761 -- Version 0.0.2.18
+------------------------------
+
+* Implement []EC
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for []EC.
+
+DATATYPE.H:
+  Define PERMNDX_xxx values for constant matrices (0 x 0 and 3 x 0).
+
+ERRMSG.C:
+  In <BreakMessage>, save the event type.
+  Improve comments.
+  In <ErrorMessageDirect>, address the parent error control SIS header
+  In <GetPtrQuadEM>, address the parent error control SIS header
+    of the next one up that's not a fcn, op1, op2, or errctrl and return
+    a ptr to hGlbQuadEM in that or the global one in PerTabData global
+    memory.
+  Replace <DFNTYPE_QUADEA> with <DFNTYPE_ERRCTRL> to catch the []EC
+    case, too.
+  If there's no SIS header, save the value of []EM in the PerTabData struc.
+
+EVENTTYPES.H:
+  Update copyright year.
+  Convert #defines to an enum so they show up as text in the debugger.
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, if about to suspend and there's a []EA/[]EC
+    error control in effect, exit the function.
+
+EXTERNS.H:
+  Define global memory handles for constant matrices (0 x 0 and 3 x 0).
+
+FH_PARSE.H:
+  Replace <DFNTYPE_QUADEA> with <DFNTYPE_ERRCTRL> to catch the []EC
+    case, too.
+
+GOTO.C:
+  In <GotoLine_EM>, avoid checking the first element of an empty
+    simple array.
+  In <GotoLine_EM>, save the value of the {goto} target if we're
+    executing under []EC, and skip setting the next stmt # as we're
+    about to abandon this SIS level.
+  Define new routine to save the {goto} target if we're executing
+    under []EC.
+
+HEADERS.H:
+  Move <eventtypes.h> up to before <pertab.h> as the latter header
+    uses an enum name defined in the former header.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include name of new file for []EC.
+
+PERTAB.H:
+  Define PerTabData globals for []EM and []ET which previously had no
+    global value due to misreading the spec.
+
+PF_UTACKJOT.C:
+  In <PrimFnMonUpTackJotCommon_EM_YY>, include additional parameter to
+    pass back the <exitType> of the call to <PrimFnMonUpTackJotCSPLParse>.
+
+PL_PARSE.Y:
+  In <StmtSing:ArrValu> set explicit <EXITTYPE_NOVALUE> for that case, and
+    <EXITTYPE_NODISPLAY> or <EXITTYPE_DISPLAY> depending upon the NoDisplay flag.
+  In <StmtSing:GOTO>, don't set the <RESETFLAG_xxx> if executing under []EC
+    as that only confuses later code.
+  In <ParseLine>, with <EXITTYPE_RESET_ONE_INIT> if the first non-EXEC SIS
+    header up the line is from []EC, don't set the <RESETFLAG_xxx>
+    as that only confuses later code.
+  In <ParseLine> if there's an error to be signalled skip it if we're
+    executing under []EA/[]EC as the error is to be passed up to the
+    error control SIS header.
+  In <ArrExprCheckCaller>,  save the Execute result if there's a error
+    control parent active.
+
+PRIMFNS.C:
+  In <FillSISNxt>, if the immediately preceding SIS header is an error
+    control, set the ptr to it in the current SIS header, and pass on
+    down any previous error control headers.
+
+QF_EA.C:
+  Replace <DFNTYPE_QUADEA> with <DFNTYPE_ERRCTRL> to catch the []EC
+    case, too.
+  In <PrimFnMonUpTackJotCommon_EM_YY>, include additional parameter to
+    pass back the <exitType> of the call to <PrimFnMonUpTackJotCSPLParse>.
+
+QF_EC.C:
+QF_EC.H:
+  New files to implement []EC.
+
+QF_EM.C:
+  In <SysFnEM_EM_YY>, return either the SIS header value or the global
+    value in the PerTabData struc.
+
+QF_ES.C:
+  Omit <eventypes.h> as it's include in <headers.h>.
+
+QF_ET.C:
+  Replace <DFNTYPE_QUADEA> with <DFNTYPE_ERRCTRL> to catch the []EC
+    case, too.
+  In <SetEventTypeMessage> don't return a result as no one uses it.
+  In <SetEventTypeMessage>, save the <EventType> in either the
+    appropriate SIS header or the global value in the PerTabData struc.
+
+SC_IN.C:
+  In <TransferInverseArr2_EM>, handle <EXITTYPE_DISPLAY> now allowed to be
+    returned from <ParseLine> to make []EC work.
+
+SC_SI.C:
+  Fix typo in comments.
+
+SIS.H:
+  Update copyright year.
+  Define ptr to hold the HGLOBAL of the {goto} target when executing
+    under []EC.
+  Define bit field to indicate we're executing under []EC.
+  Define ptr to error control header (if any).
+
+SYSVARS.C:
+  Define entries for []EC as a new system function.
+  In <MakePermVars>, allocate space for a 0 by 0 Boolean matrix
+    to be used in []EC[2].
+  Rename <hGlbQuadEM> to <hGlb3by0> to reflect its value.
+
+TRANSLATE.C:
+  Define new function to translate from EXIT_TYPES to []EC[0] return codes.
+
+
+Build #760 -- Version 0.0.2.18
+------------------------------
+
+* Allow []EM To Be Erased Via )ERASE And []EX
+
+Directory trunk:
+
+QF_EX.C:
+  Include additional parameter to <ExpungeName> so we know whether to
+    erase the global (in <lpMemPTD>) or local (in either <lpSISCur> or
+    <lpMemPTD>) value of []EM.
+  In <EraseableName>, return additional value of whether the name is
+    []DM or []EM.
+  Allow []EM to be erased via )ERASE and []EX.
+
+SC_ERASE.C:
+  Include additional parameter to <ExpungeName> so we know whether to
+    erase the global (in <lpMemPTD>) or local (in either <lpSISCur> or
+    <lpMemPTD>) value of []EM.
+
+SYSVARS.H:
+  Define equate for "[]EM" to compare when erasing []EM.
+
+
+Build #759 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Don't Fail Tokenization With Misspelled System Label Name
+
+Directory trunk:
+
+SAVEFCN.C:
+  Fix Bug:  If a System Label name is misspelled, we fail <GetSpecialLabelNums>
+    and hence, tokenization, whereas we want to succeed (and mark the label
+    as a VALUE ERROR) so as to allow the function to be defined.
+
+
+Build #758 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  PSDFs With a Nested Scalar Argument Miscompute Its Index
+
+Directory trunk:
+
+PRIMFNS.C:
+PRIMSPEC.C:
+  In <PrimFnDydSimpNest_EM>, <PrimFnDydNestSimp_EM>, <CalcLftRhtArgIndices>,
+    and <MakeDydPrototype_EM_PTB>, if the smaller rank argument is a nested
+    scalar, the index into it is incorrectly calculated followed shortly by
+    mayhem.
+
+
+Build #757 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  )ERASE May Incorrectly Mark Names As Not Erased
+
+Directory trunk:
+
+SC_ERASE.C:
+  Fix Bug:  )ERASE may incorrectly mark names as not erased.
+
+
+Build #756 -- Version 0.0.2.18
+------------------------------
+
+* Include Semaphores In Resource Debugging
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayGlobals>, also display open semaphores.
+
+EXECDFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+QF_DL.C:
+SC_RESET.C:
+SESSMAN.C:
+TABCTRL.C:
+  Prefix semaphore APIs with "My" so as to be subject to
+    <resdebug.h> substitutions.
+
+RESDEBUG.C:
+  Define storage for Semaphore information.
+  Define routines for semaphore APIs.
+
+RESDEBUG.H:
+  Define substitutions for local semaphore routines.
+
+
+Build #755 -- Version 0.0.2.18
+------------------------------
+
+* Implement []EA
+
+Directory trunk:
+
+CS_PROC.C:
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotPLParse>.
+
+ERRMSG.C:
+  In <ErrorMessageDirect>, test for []EA SIS level and don't
+    unwind through it when saving []EM.
+
+EXECMFN.H:
+  Define additional shortcuts for primitives and system names.
+
+FH_PARSE.H:
+  Define new <DFNTYPE_QUADEA> to use when executing []EA.
+
+IMMEXEC.C:
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotCSPLParse>.
+
+PF_UTACKJOT.C:
+  Include <NoValue> and <ActOnError> parameters to <PrimFnMonUpTackJotCommon_EM_YY>.
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotCSPLParse>.
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotPLParse>.
+
+PL_PARSE.Y:
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotCSPLParse>.
+  Fix Bug:  In <GetEOSIndex>, the test for within a stmt is too tight.
+
+QF_EA.C:
+  Implement this system function.
+
+QF_EM.C:
+  In <SysFnEM_EM_YY>, test for []EA SIS level and don't
+    unwind through it when returning []EM.
+
+QF_ET.C:
+  In <SysFnET_EM_YY>, test for []EA SIS level and don't
+    unwind through it when returning []ET.
+  In <SetEventTypeMessage>, test for []EA SIS level and don't
+    unwind through it when setting []ET.
+
+SC_IN.C:
+SC_LOAD.C:
+  Include <ActOnError> parameter to <PrimFnMonUpTackJotCSPLParse>.
+
+
+Build #754 -- Version 0.0.2.18
+------------------------------
+
+* Avoid Reshaping Singleton Integer To An APA Unless Multi-element result
+
+Directory trunk:
+
+PF_RHO.C:
+  When reshaping a singleton integer, don't create an APA unless
+    the result has > 1 elements.  That way, we don't promote from
+    Boolean in singleton result case which can mess up Reduction
+    of a Singleton.
+
+
+Build #753 -- Version 0.0.2.18
+------------------------------
+
+* Improve Text In Language Bar; Overcome Windows Bug
+
+Directory trunk:
+
+REBAR.C:
+  Improve text in language bar for Lev, Dex, Underbar, and Quad.
+  Reorganize language bar to put operators next to each other.
+  Overcome Windows API bug with TTM_SETTITLE in that it uses a font
+    that can't be changed and doesn't display all chars.  Instead, I
+    rolled my own title.
+
+UNICODE.H:
+  Define additional Line Drawing Characters.
+
+
+Build #752 -- Version 0.0.2.18
+------------------------------
+
+* Allow Undefined System Names In Tokenize
+
+Directory trunk:
+
+TOKENIZE.C:
+  Allow undefined system names as a VALUE ERROR.
+
+
+Build #751 -- Version 0.0.2.18
+------------------------------
+
+* Allow Underbar As A Leading Alphabetic Character
+
+Directory trunk:
+
+QF_NC.C:
+TOKENIZE.C:
+  Allow underbar as a leading alphabetic character.
+
+
+Build #750 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Failed To []FEATURE Range Limit Box In Customize
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  When initializing the Range Limit property page, I forgot
+    to check the []FEATURE box if set.
+
+
+Build #749 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Edge Condition In MemberOf And IndexOf Where The Target Is Boolean
+
+Directory trunk:
+
+PF_EPSILON.C:
+  Fix Bug:  In <PrimFnDydEpsilonBvB>, when the # elements in either
+    or both args was a multiple of eight, the last byte in the arg
+    that was a multiple of eight was not handled correctly in that
+    the number of valid bits was miscalculated.
+  Fix Bug:  In <PrimFnDydEpsilonNvB>, when the # elements in the
+    right arg was a multiple of eight, the last byte in that arg
+    was not handled correctly in that the number of valid bits
+    was miscalculated.
+
+PF_IOTA.C:
+  Fix Bug:  In <PrimFnDydIotaBvB>, when the # elements in the left
+    arg was a multiple of eight, the last byte in that arg was not
+    handled correctly in that the number of valid bits was
+    miscalculated.
+  Fix Bug:  In <PrimFnDydIotaNvB>, when the # elements in the left
+    arg was a multiple of eight, the last byte in that arg was not
+    handled correctly in that the number of valid bits was
+    miscalculated.
+
+
+Build #748 -- Version 0.0.2.18
+------------------------------
+
+* Implement []FEATURE To Specify Various User-Controlled Features
+
+Directory trunk:
+
+AXISFNS.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+  Only if the user allows negative indices, are they enabled.
+
+CUSTOMIZE.C:
+  Implement Allow the user to specify []FEATURE Clear WS values,
+    Range Limit, and Reset Var.
+
+DATATYPE.H:
+  Include []FEATURE in PERMNDX_QUADxxx enum.
+
+DEFINES.H:
+  Specify the default Range Limit and Reset Vars values for []FEATURE.
+
+EXTERNS.H:
+  Define enums and structs for []FEATURE.
+
+INIFILE.C:
+  Read in/write out []FEATURE for .ini file.
+
+MAIN.RC:
+  Widen the Customize dialog to fit []FEATURE.
+  Include []FEATURE in CLEAR WS, range Limit, and Reset Vars sections.
+
+PERTAB.H:
+  Initialize the current values for []FEATURE upon initializing
+    a workspace.
+
+RESOURCE.H:
+  Define resource defines for []FEATURE.
+
+SYSVARS.C:
+  Improve comments.
+  Define []FEATURE as a sysvar.
+  Define routines to validate assignment and indexed assignment
+    to []FEATURE.
+
+SYSVARS.H:
+  Define equates for []FEATURE.
+
+
+Build #747 -- Version 0.0.2.18
+------------------------------
+
+* Convert []DM To A Read-only System Var So It May Be Localized
+
+Directory trunk:
+
+COMPRO.H:
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Omit <qf_dm.*> as it's now a sysvar.
+
+DATATYPE.H:
+  Omit []DM from enum as it's now a sysvar.
+
+ERRMSG.C:
+QF_EX.C:
+  Use new location of []DM as it's now a sysvar.
+
+EXTERNS.H:
+  Omit []DM global as it's now a sysvar.
+  Include error function token in typedef as we need it
+    for []DM validation.
+
+PERTAB.H:
+  Omit []DM global as it's now a sysvar.
+
+PF_INDEX.C:
+  Include error function token in typedef as we need it
+    for []DM validation.
+
+QF_DM.C:
+  Delete this file as []DM is now a sysvar.
+
+SC_COPY.C:
+SC_LOAD.C:
+SC_SAVE.C:
+TABCTRL.C:
+  Omit special hanlding for []DM as it's now a sysvar.
+
+SYSVARS.C:
+  Move []DM from niladic system function to sysvar.
+  Include error function token in typedef as we need it
+    for []DM validation.
+  Define set and index functions for []DM which make it a
+    read-only sysvar.
+  Set appropriate values for []DM as a sysvar.
+
+SYSVARS.H:
+  Delete certain _GLB vars as they are no longer needed.
+  Include []DM in list of sysvars.
+
+
+Build #746 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Windows API FUnction Doesn't Signal Visible Page Fault
+
+Directory trunk:
+
+SAVEFCN.C:
+SC_COPY.C:
+  Replace <lstrcpyW> with own function as W's doesn't signal a
+    Visible Page Fault so the <VirtualAlloc> code doesn't get called
+    to back up a page with RAM.
+
+SC_LOAD.C:
+  Replace <lstrcpyW> with own function as W's doesn't signal a
+    Visible Page Fault so the <VirtualAlloc> code doesn't get called
+    to back up a page with RAM.
+  Improve comments.
+  Fix Bug:  In <LoadWorkspaceGlobal_EM>, mark :nnn entry as having a
+    value so it can be tested in <LoadWorkspace_EM> and not reloaded
+    unnecessarily.
+
+
+Build #745 -- Version 0.0.2.18
+------------------------------
+
+* Reuse Common Code
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Reuse common code.
+
+
+Build #744 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  2 []TF Produces Wrong Answer For Singleton Char Vectors
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  In <DisplayTransferGlb2>, the test for whether or not
+    the item needs to be surrounded in parens is wrong. for singleton
+    char vectors.
+  Fix Bug:  For nested array with multiple adjacent char scalars or
+    vectors a necessary separating space is mistakenly omitted.
+
+EXTERNS.H:
+  Include omitted default element in <OptionFlags>.
+
+IDENTFNS.C:
+INIFILE.C:
+PF_DTACK.C:
+  Improve comments.
+
+QF_TF.C:
+SC_COMMON.C:
+SC_INASCII.C:
+TOKENIZE.C:
+  Use wide char name with W suffix instead of other less memorable name.
+
+
+Build #743 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  If Rectangular Indexed Assignment Promotes And Fails The Name Might Be Freed
+
+Directory trunk:
+
+PF_DQUAD.C:
+  Fix Bug:  In <PrimFnDydSquadGlb_EM_YY>, if indexed assignment promotes
+    the named arg and later fails with an INDEX ERROR, the named arg
+    might be freed.
+
+
+Build #742 -- Version 0.0.2.18
+------------------------------
+
+* Implement Identity Functions
+
+Directory trunk:
+
+COMPRO.H:
+  Include .pro file for the new source file.
+
+EXECDFN.C:
+  Improve comments.
+  In <ExecDfnGlbProto_EM_YY>, rename local var to more appropriate name.
+  Implement new routine to execute a UDFO in an identity context.
+
+EXECMFN.C:
+  Define entries for new magic functions/operators to handle Rank, Inner
+    and Outer Product in an identity context.
+
+EXECMFN.H:
+  Include new magic functions/operators in MFOE enum.
+
+EXTERNS.H:
+  Define union and structs for identity functions.
+  Define table for identity functions.
+
+GETFNS.C:
+  Define routine to return the ptr to an identity function.
+
+IDENTFNS.C:
+  Define new source file to implement identity functions.
+
+INITDATA.C:
+  Define routine to initialize identity functions.
+  Rename <InitPrimSpec> to <Init1PrimSpec> to be less confusing.
+  Rename <InitPrimFlag> to <Init1PrimFlag> to be less confusing.
+  Rename <InitIdentityElement> to <Init1IdentityElement> to be less confusing.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define entries for new source file.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Move common code to common file.
+
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DOMINO.C:
+PF_DTACK.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+PF_TILDE.C:
+PF_UARROW.C:
+PO_DIERESIS.C:
+PO_DITILDE.C:
+PO_JOTDOT.C:
+  Define identity function for this primitive.
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY>, allow axis immediate and arrays as index lists
+    so we may use them in identity functions.
+
+PO_DIJOT.C:
+  Improve comments.
+
+PO_DOT.C:
+  Define identity function for this primitive.
+  Call the appropriate identity function from the reduction inherent in
+    inner product.
+  Eliminate special cases of identity functions.
+
+PO_SLASH.C:
+  Call the appropriate identity function from monadic and dyadic reduction.
+  Eliminate special cases of identity functions.
+
+PRIMFNS.C:
+  In <AttrsOfToken>, allow axis immediate and array so we may use them
+    in identity functions.
+
+STARTADDR.H:
+  Include additional files and routines.
+
+
+Build #741 -- Version 0.0.2.18
+------------------------------
+
+* Check For NULL Undo Text Ptr
+
+Directory trunk:
+
+DEFINES.H:
+  Increase the maximum Undo buffer length.
+
+SAVEFCN.C:
+  In <SF_UndoBufferLW>, check for NULL Undo text ptr.
+
+
+Build #740 -- Version 0.0.2.18
+------------------------------
+
+* Use Non-API Routines To Read .INI Files As The Windows API Has Undocumented Limits
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message for when a workspace is not
+    loadable from its .ini file.
+
+COMPRO.H:
+  Include .pro files for new source files.
+
+DEFINES.H:
+  Define additional wide-character names for various routines.
+
+DICTIONARY.C:
+DICTIONARY.H:
+INIPARSER.C:
+  New files to implement .ini file parsing for workspace )LOAD
+    and )COPY.
+
+HEADERS.H:
+  Include new header file for dictionary struct definition.
+
+INIFILE.C:
+  Define wrapper routines for iniparser code.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define targets for new source files.
+
+SAVEFCN.C:
+SC_COPY.C:
+SC_LOAD.C:
+  Use iniparser routines to read in a private profile items
+    from a workspace.
+
+SAVEFCN.H:
+  Update copyright year.
+  Replace ptr to workspace DPFE with ptr to dictionary in the
+    LoadWorkspace struct.
+
+SC_COMMON.C:
+  In <DisplayWorkspaceStamp>, pass in ptr to dictionary so it may be
+    used when reading a profile string.
+
+WORKSPACE.H:
+  Replace ptr to workspace DPFE with ptr to dictionary in the
+    LoadWorkspace struct.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Include iniparser author as a contributor.
+
+LICENSE-BODY.HTML:
+  Mention license terms for iniparser code.
+
+
+Build #739 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Handle Tab Closing In Proper Order So We Free Everything
+
+Directory trunk:
+
+EXCEPT.C:
+  In <DisplayException>, check for invalid ptr, not just NULL.
+
+SESSMAN.C:
+  In <SMWndProc/WM_CREATE> and <SMWndProc/WM_DESTROY> upon failure to
+    load a workspace, free the SymTab globals.
+
+TABCTRL.C:
+  In <LclTabCtrlWndProc>, break out the code to free SymTab globals
+    into a separate routine so it may be called from multiple places
+    and sooner than where it was before the SymTab itself is freed.
+
+
+Build #738 -- Version 0.0.2.18
+------------------------------
+
+* Define Consistent Wide Character Names For Various Routines
+
+Directory trunk:
+
+COMMON.C:
+CUSTOMIZE.C:
+DEFINES.H:
+FMTSPEC.C:
+INIFILE.C:
+MAIN.C:
+QF_TF.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_COPY.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+  Use wide char name with W suffix instead of other less memorable name.
+
+CS_PROC.C:
+  Improve comments.
+
+
+Build #737 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  When Undoing The No Action Case Increments Instead Of Decrements
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc>/<WM_REDO>, as we move backwards through
+    the Undo buffer, the <undoNone> case increments the pointer
+    instead of decrementing it.
+
+
+Build #736 -- Version 0.0.2.18
+------------------------------
+
+* Display Caller's Function Name In Common Error Message Routines
+
+Directory trunk:
+
+DEFINES.H:
+  Define template for debug-only text to appear in error message.
+
+EXECFNS.C:
+INITDATA.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DSHOE.C:
+PF_DTACK.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_EPSUND.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_LSHOE.C:
+PF_LTACK.C:
+PF_QUERY.C:
+PF_RCARET.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_RTACK.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_TILDE.C:
+PF_UARROW.C:
+PF_UTACK.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y
+PO_CMIDDOT.C:
+PO_DICIRCLE.C:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DITILDE.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMSPEC.C:
+QF_AT.C:
+QF_CR.C:
+QF_DL.C:
+QF_DR.C:
+QF_EA.C:
+QF_ERROR.C:
+QF_ES.C:
+QF_EX.C:
+QF_FMT.C:
+QF_FX.C:
+QF_MF.C:
+QF_NC.C:
+QF_NL.C:
+QF_SIZE.C:
+QF_TF.C:
+QF_UCS.C:
+QF_VR.C:
+  Update copyright year.
+  Append debug-only text to common error message routine.
+
+
+Build #735 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Name Class 5 And 6 Should Be System Vars And Fns
+
+Directory trunk:
+
+NAMECLASS.H:
+  Update the copyright year.
+  Renumber name classes to move 22 and 23 (sys vars & fns) to 5 and 6
+    as per the EAS.
+
+QF_FMT.C:
+  Remove dependency on <nameclass.h>.
+
+QF_NC.C:
+  Renumber name classes to move 22 and 23 (sys vars & fns) to 5 and 6
+    as per the EAS.
+
+QF_NL.C:
+  Define var of valid name classes and use it to validate a potential
+    name class integer.
+
+
+Build #734 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  0 {log} 0 Should Be 1 Not DOMAIN ERROR
+
+Directory trunk:
+
+EXTERNS.H:
+  Change the default value in []IC for 0 {log} 0 from DOMAIN ERROR to 1.
+
+INIFILE.C:
+  Define a new section for Migration issues.
+  Define a new keyname for []IC and 0 {log} 0.
+  Define a new struct for Migration issues.
+  In <ReadIniFileGlb> after reading in the CWS value for []IC, read in
+    the []IC 0 {log} 0 migration level.  If it hasn't been set as yet,
+    change the just read in value to the new default value and increment
+    the old migration level so we don't do this again.
+  In <SaveIniFile>, write out the new Migration Level values.
+
+PF_CSTAR.C:
+  Define a 2 by 2 table of []IC indices for the Boolean vs. Boolean cases.
+  In <PrimFnDydCircleStarFisIvI>, use the above table instead of a
+    SWITCH stmt.
+  In <PrimFnDydCircleStarFisIvI>, check for the L = R case, and return
+    the value 1 as the EAS says to do.
+  In <PrimFnDydCircleStarFisIvI>, check the result for +/- Infinity.
+  In <PrimFnDydCircleStarFisFvF>, move the 2 by 2 table to global.
+  In <PrimFnDydCircleStarFisFvF>, check for the L = R case, and return
+    the value 1 as the EAS says to do.
+
+
+Build #733 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Release Semaphore On )RESET
+
+Directory trunk:
+
+EXECDFN.C:
+  Zero semaphore handle in PerTabData struc just in case anyone looks at it.
+
+IMMEXEC.C:
+  Fix Bug:  In <ImmExecStmtInThread>, when returning from a )RESET, if
+    there's a pending exit semaphore, release it.  Without this fix,
+    closing a tab with a suspended function can wait forever for the
+    hExitphore semaphore to be released.
+
+MAKEPRO.PHP:
+  Strip out "static ..." lines.
+
+TABCTRL.C:
+  In <LclTabCtrlWndProc/TCM_DELETEITEM>, close the handle as we done with
+    this tab.
+
+
+Build #732 -- Version 0.0.2.18
+------------------------------
+
+* Change ChooseFont Dialog Sample text To Something More APL-Like
+
+Directory trunk:
+
+MAIN.C:
+  Change the ChooseFont dialog's sample text to something
+    more APL-like.
+
+
+Build #731 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Enlist of 'cat' (0 0{rho}0) 'dog' Crashes
+
+Directory trunk:
+
+PF_EPSILON.C:
+  In <PrimFnMonEpsilonGlbCopy_EM>, remove special treatment
+    for empty nested as they don't contribute to the result.
+  In <PrimFnMonEpsilonGlbCopy_EM>, skip processing empties as
+    as they don't contribute to the result.
+
+
+Build #730 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Disclose of (say) 'x' ({zilde}) 'y' Returns An Invalid Array (Empty Heterogeneous)
+
+Directory trunk:
+
+PF_RSHOE.C:
+  Include missing Assertion on the incoming function.
+  Handle {disclose}'x' ({zilde}) 3 differently from
+         {disclose} 3  ({zilde}) 'x' in that while they
+    are both 3 by 0 matrices, their prototypes differ.
+  Fix Bug:  If the result is empty heterogeneous, change
+    it to either char or numeric depending upon the first
+    non-empty (simple scalar) item.
+
+
+Build #729 -- Version 0.0.2.18
+------------------------------
+
+* Extend PV Bits To Indexed Reference Between PVs
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRefLstSimpGlb_EM_YY>, transfer PV bits from the
+    name arg to the result if a suitable PV index references another PV.
+
+
+Build #728 -- Version 0.0.2.18
+------------------------------
+
+* Implement Compose Operator
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file.
+
+EXECFNS.C:
+  Call Comnpose operator when invoked.
+
+INITDATA.C:
+  Delete unneeded comoments.
+  Define <PrimFnsTab> and <PrimProtoFnsTab> entries for Compose operator.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include makefile entries for the new file.
+
+PO_DICIRCLE.C:
+  Implement Compose operator.
+
+REBAR.C:
+  Document Compose operator.
+
+TOKENIZE.C:
+  Define FSA column for Compose operator.
+
+UNICODE.H:
+  Improve comments.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.HTML:
+  Document Compose operator.
+
+
+Build #727 -- Version 0.0.2.18
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+MK32.BAT:
+MKD32.BAT
+MK64.BAT:
+MKD64.BAT:
+  Call local batch file W32 or W64 to setup the appropriate environment.
+
+QF_AT.C:
+  Improve comments.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+EDITOROVERLAY.JS:
+  Switch Circle-Middle-Dot and MisMatch on the keyboard.
+  Improve comments.
+
+
+Build #726 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Handle Indexed Assignment When Converting A Hetero Array to Nested
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyGlbAsType_EM>, handle missing Hetero and Nested cases.
+
+
+Build #725 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Mismatched Line Heights In Function Display Between Line Numbers And Text
+
+Directory trunk:
+
+EDITCTRL.H:
+  Define new message to read Edit Ctrl's line height.
+
+EDITFCN.C:
+  In <DrawLineNumsFE>, ask the Edit Ctrl for the text's line height
+    and use it for the function line numbers.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Return the text line height in response to line height message.
+
+
+Build #724 -- Version 0.0.2.18
+------------------------------
+
+* Implement Monadic DownTack As Type Primitive Function (Formerly []TYPE)
+
+Directory trunk:
+
+COMPRO.H:
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Remove <qf_type.*> from list of source files.
+
+EXECDFN.C:
+  Change the name of the internal Type function from system to primitive.
+
+EXECMFN.H:
+  Name the equate for the Type primitive funcion.
+
+PF_DTACK.C:
+  Implement monadic DownTack as Type primitive function (previously []TYPE).
+
+QF_FMT.C:
+  Use symbol for Type primitive function instead of the system function.
+
+QF_TYPE.C:
+  Delete the Type system function.
+
+REBAR.C:
+  Document the Type primitive function.
+
+SYSVARS.C:
+  Remove references to the Type system function.
+
+VERSION.RC:
+  Increment version to 0.0.2.18.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Use Tally function in Trains example.
+  Document the Indices primitive function.
+  Document the Tally primitive function.
+  Document the Mismatch primitive function.
+  Document the Type primitive function.

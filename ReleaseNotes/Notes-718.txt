@@ -1,0 +1,17 @@
+Build #718 -- Version 0.0.2.17
+------------------------------
+
+* Move GSL Directory to NARS Root So It's Common To All Subdirs
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Ensure $(NARSROOT) is defined before proceeding.
+  Define GSL_LIB in terms of $(NARSROOT).
+
+MAKEFILE.W32:
+  Define GSLINC in terms of $(NARSROOT).
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define gsl\libgsl??-double.lib in terms of $(NARSROOT).

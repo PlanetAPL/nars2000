@@ -1,0 +1,12 @@
+Build #429 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  In <FormatArrNested>, optimize code.
+  Fix Bug:  In <FormatArrNested> when displaying (say)
+    2 2{rho}(2 1{rho}0) 'a' 100 'b'
+    the value 100 is displayed on the wrong row because we
+    didn't skip to the next row starting at the rightmost
+    position across all rows so far.

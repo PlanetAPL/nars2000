@@ -1,0 +1,10 @@
+Build #344 -- Version 0.0.1.2
+-----------------------------
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Fix typo in comment.
+  Fix Bug:  In <PN_NumAcc>, ensure the saved numeric string
+    is properly terminated in case there is some trash left
+    over from a previous use.

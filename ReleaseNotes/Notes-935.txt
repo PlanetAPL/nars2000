@@ -1,0 +1,11 @@
+Build #935 -- Version 0.0.3.4
+-----------------------------
+
+* Use DEBUG Version of GSL Libraries
+
+Directory trunk:
+
+MAKEFILE.INC:
+NARS2000.32.vcproj:
+NARS2000.64.vcproj:
+  Change name of GSL library to use DEBUG version (with 'd' suffix).

@@ -1,0 +1,17 @@
+Build #444 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  Use <FreeResultGlobalVar> instead of <DbgGlobalFree>
+    on HGLOBALs in case they are permanents.
+
+EDITFCN.C:
+  Fix Bug:  In <LclEditCtrlWndProc/WM_SETFONT>, if the parent is a
+    dialog (such as Customize), we don't set the correct
+    <FONTENUM_xxx> value.
+  Define <IzitDialog> to test for dialog window.
+
+DEFINES.H:
+  Define class name for dialogs.

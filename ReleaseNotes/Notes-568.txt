@@ -1,0 +1,19 @@
+Build #568 -- Version 0.0.2.4
+-----------------------------
+
+* Fix RefCnt Bug When Copying A Function Array
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyArray_EM>, handle the case when copying a function
+    array with numeric or character strands.
+  In <CopyArray_EM>, handle the case when copying a function
+    array inside a function array by incrementing the RefCnts
+    of each item in the function array.
+
+YYFNS.C:
+  Define new routine to increment the items in a function array
+    token.
+  In <IncrFcnMem>, handle the case of numeric and character strands
+    in a function array.

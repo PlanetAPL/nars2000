@@ -1,0 +1,11 @@
+Build #1167 -- Version 0.4.4.xx
+-------------------------------
+
+* Display Prompt After )RESET With No Suspension
+
+Directory trunk:
+
+SC_RESET.C:
+  Update copyright year.
+  As it turns out, when executing )RESET with no suspension, at no point
+    is the six-space indent displayed, so we explicitly display the prompt.

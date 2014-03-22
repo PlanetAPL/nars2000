@@ -1,0 +1,24 @@
+Build #1189 -- Version 0.4.5.xx
+-------------------------------
+
+* Display Progress Of Execution Timer
+
+Directory trunk:
+
+DEFINES.H:
+  Define timer IDs.
+
+EDITFCN.C:
+EXTERNS.H:
+MAIN.C:
+UPDATES.C:
+  Move timer IDs to <defines.h>.
+  Rename <TIMER_UPDCHK> to <ID_TIMER_UPDCHK>.
+
+SESSMAN.C:
+  Handle <WM_TIMER> message for execution timer.
+
+STATUSBAR.C:
+  Define separate routine to update the status timer.
+  In <SetExecuting>, start a timer for the execution timer if starting execution,
+    and stop the timer if stopping execution.

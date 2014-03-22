@@ -1,0 +1,16 @@
+Build #595 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Omitted Case Of Dyadic Operator And Jot.
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Define omitted case of <LeftOper StrandOp2> which occurs when
+    calling something like +op2{jot}1 2 where the righthand strand
+    may be numeric, character, a constant, or a named var.
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note changes in Version 0.0.2.4.

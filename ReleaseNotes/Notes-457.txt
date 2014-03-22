@@ -1,0 +1,8 @@
+Build #457 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Fix Bug:  The display of multidimensional arrays did not handle
+    the interdimensional spacing correctly.

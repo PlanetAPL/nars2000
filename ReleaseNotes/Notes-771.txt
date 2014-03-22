@@ -1,0 +1,16 @@
+Build #771 -- Version 0.0.2.19
+------------------------------
+
+* Change Error Message For 2a3
+
+Directory trunk:
+
+PN_PARSE.Y:
+  In <pn_yyerror>, don't increment the caret beyond the last char.
+
+TOKENIZE.C:
+  Signal SYNTAX ERROR instead of VALUE ERROR for <2a3> as that's the
+    same message for <2_3>.
+
+TYPES.H:
+  Add this file as it was missed in the last build.

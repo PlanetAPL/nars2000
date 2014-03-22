@@ -1,0 +1,62 @@
+Build #940 -- Version 0.0.3.4
+-----------------------------
+
+* Optimize Certain Pi Functions
+
+Directory trunk:
+
+DEFINES.H:
+  Lengthen the <lpwszFormat> vector to allow larger formats.
+
+DISPDBG.C:
+  Avoid displaying temporary heap allocations from the prime number
+    power table.
+
+ENUMS.H:
+  Update copyright year.
+  Define enum for table state for prime number functions.
+
+EXTERNS.H:
+  Move prime factoring struc from <externs.h> to <primes.h>.
+  Move "primes.h" from <headers.h> to bottom of <externs.h>.
+  Define last value struc for prime number functions.
+
+HEADERS.H:
+  Move "primes.h" from <headers.h> to bottom of <externs.h>.
+
+INITDATA.C:
+  Update copyright year.
+  Initialize prime number function table.
+
+MAIN.C:
+  Update copyright year.
+  Minor optimize in <ApplyNewFontLW>.
+  In <MFWndProc/WM_SIZE>, use #defines for <wParam> and <lParam> args.
+  Change order of initialization for function to initialize tables.
+
+MPFNS.C:
+  Change <mpz_next_prime>/<mpz_prev_prime> to include the result as an
+    arg instead of returning it, and return a Boolean to indicate whether
+    or not the function succeeded.
+
+NARS2000.64.VCPROJ:
+  Omit </nodefault:...> as it's no longer needed.
+
+PF_PI.C:
+  Change <mpz_next_prime>/<mpz_prev_prime> to include the result as an
+    arg instead of returning it, and return a Boolean to indicate whether
+    or not the function succeeded.
+  Optimize calculation of Nth prime and # primes.
+
+PO_SLASH.C:
+  Use <varArrayDataFmBase> instead of <VarArrayBaseToData>.
+
+PRIMES.H:
+  Update copyright year.
+  Define prime number function strucs.
+  Define table of Nth prime #s in increments of 1e5 through 4G.
+  Define table of Nth prime #s as powers of 10.
+
+PRIMSPEC.C;
+  Re-organize code in <PrimFnDydSiScSiScSub_EM> when handling
+    global numerics.

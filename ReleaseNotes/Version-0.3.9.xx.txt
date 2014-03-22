@@ -1,0 +1,496 @@
+Version 0.3.9.xx consists of the following Builds:
+
+
+Build #1083 -- Version 0.3.9.xx
+-------------------------------
+
+* Use More MPIR Data Types
+
+Directory trunk:
+
+MPFNS.C:
+  Convert <unsigned long int> and <signed long int> when used in a <mpz_*>
+    or <mpq_*> context to <mpir_ui> and <mpir_si> to match the types used
+    in MPIR.
+
+
+Build #1082 -- Version 0.3.9.xx
+-------------------------------
+
+* Call ECM Function As Per Their Recommendation
+
+Directory trunk:
+
+PF_PI.C:
+  Use parameters to ECM calls as per their README file.
+
+
+Build #1081 -- Version 0.3.9.xx
+-------------------------------
+
+* Describe New Download File Containing Multi-Precision Source
+
+Directory trunk\htdocs:
+
+FOOTER-MON.HTML:
+FOOTER.HTML:
+  Include GPL license logo in the footer.
+  Change the footer from promoting OpenOffice to LibreOffice.
+
+LICENSE-BODY.HTML:
+  Provide HTML links for LGPL licenses.
+  Include text for the presence of <mpfns.zip>.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Include <mpfns.zip> in list of Special Files.
+
+
+Build #1080 -- Version 0.3.9.xx
+-------------------------------
+
+* Fix Bug When Displaying Certain VFP Numbers
+
+Directory trunk:
+
+DEFINES.H:
+  Define #define stmts for formatting constants.
+
+DISPLAY.C:
+  Define #define stmts for formatting constants.
+  Fix Bug:  In <FormatAplVfpFC>, the parameter <nDigits> was misinterpreted.
+    This changes the display of VFP numbers to no longer use exponential notation
+    to denote insufficient precision; instead we now use trailing underscores.
+
+FMTSPEC.C:
+FMTSPEC.H:
+PF_DTACKJOT.C:
+QF_FMT.C:
+TOKENIZE.C:
+  Use #define stmts for formatting constants.
+
+
+Builds 1070-1079 -- Version 0.3.9.xx
+------------------------------------
+
+* Initial Commit
+
+Directory msieve:
+
+COMMON.H:
+MP.C:
+MP.H:
+MSIEVE.H:
+PRIME_DELTA.C:
+SMALLFACT.C:
+SQUFOF.C:
+TINYQS.C:
+UTIL.H:
+  Initial commit.
+
+
+Build #1069 -- Version 0.3.9.xx
+-------------------------------
+
+* Use MPIR Data Types
+
+Directory trunk:
+
+MPFNS.C:
+MPIFNS.C:
+  Convert <unsigned long int> and <signed long int> when used in a <mpz_*>
+    or <mpq_*> context to <mpir_ui> and <mpir_si> to match the types used
+    in MPIR.
+
+NARS2000.64.VCPROJ:
+  Define _WIN32 and WIN32 in x64 configurations.
+
+PF_PI.C:
+PF_STAR.C:
+  Use 32- and 64-bit types for MPIR functions as appropriate.
+
+
+Build #1068 -- Version 0.3.9.xx
+-------------------------------
+
+* Fix Bug When Making Workspace Backup
+# Define DEBUG Stmts To Catch Unsynchronized Vars
+
+Directory trunk:
+
+DEBUG.C:
+  Update copyright year.
+  Fix Bug:  In <oprintfW>, <dprintfLW0>, and <dprintfWL9> the type of the
+    temp vars needs to be sensitive to the 32- vs. 64-bit compiler.  This
+    fails in the 64-bit DEBUG version only.
+
+DEBUG.H:
+  New file containing #defines, etc. for detecting unsynchronized vars.
+
+EDITFCN.C
+  Update copyright year.
+  Check for unsynchronized vars.
+  In <SyntaxColor>, allocate global memory for the Syntax Color indices instead of
+    relying on synchronization of preallocated memory in <lpMemPTD->lpwszTemp>.
+
+NAMECLASS.H:
+  Improve comments.
+
+PERTAB.H:
+  Define bit to indicate whether or not <lpwszTemp> is in use (open) so as to
+    help catch synchronization errors.
+  Define wchar ptr to point to the <filename #linenum> of the place where
+    <lpwszTemp> was last opened.
+
+QF_CR.C:
+QF_TF.C:
+SC_COPY.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+SC_SI.C:
+STRAND.C:
+SYSVARS.C:
+  Check for unsynchronized vars.
+
+QF_NFNS.C:
+  In <SysErrMsg>, <countof> instead of <strcountof> as the latter is off by one.
+
+SCS_COMMON.C:
+  In <MakeWorkspaceBackup> use high level <CopyFile> instead of low level <fopen/fread/fwrite/fclose>
+    as the latter have shown themselves to fail on access issues.
+
+
+Build #1067 -- Version 0.3.9.xx
+-------------------------------
+
+* Fix Bug In Nested vs. Simple Scalar
+* Fix Bugs In Dyadic Iota
+
+Directory trunk:
+
+AXISFNS.C:
+  Update copyright year.
+  Improve comments.
+
+CONVERT.C:
+  Update copyright year.
+  Breakout <FloatToAplint_CT> into <_FloatToAplint_CT> with integer test arg.
+  Improve comments.
+
+GETFNS.C:
+GOTO.C:
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+MPFNS.C:
+  Fix Bug:  In <mpq_get_sx> return FALSE if the arg is not an integer.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+  Breakout <mpq_get_ctsa> into <mpq_get_sctsx>, <mpq_get_ctsx>, and <_mpq_get_ctsx> to handle integer test for the
+    System []CT comparison.
+  Breakout <mpfr_get_ctsa> into <mpfr_get_ctsx>, <mpfr_get_ctsx>, and <_mpfr_get_ctsx> to handle integer test for the
+    System []CT comparison.
+  Breakout <mpfr_cmp_ct> into <_mpfr_cmp_ct> to handle integer test separately.
+
+PF_CIRCLE.C:
+  Improve comments.
+
+PF_COMMA.C:
+  In <PrimFnMonComma_EM_YY>, check for scalar case in named global.
+  Remove incorrect debug assertion.
+
+PF_CSTILE.C:
+  Update copyright year.
+  Improve comments.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+PF_DARROW.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+PF_DELTASTILE.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  In <PermVecGrade>, remove ARRAY_RAT and ARRAY_VFP cases as they can never happen.
+
+PF_DOTDOT.C:
+  Update copyright year.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+PF_DTACKJOT.C:
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+PF_INDEX.C:
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+  In <ArrayIndexRefLstImm_EM_YY>, remove ARRAY_RAT and ARRAY_VFP cases as they can never happen.
+
+PF_IOTA.C:
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  In <PrimFnDydIota_EM_YY>, get and pass []CT down to the various subroutines rather than getting it in each.
+  Rename <PrimFnDydIotaIvI_EM> to <PrimFnDydIotaIvN_EM> to cover all right arg numeric cases.
+  Rename <PrimFnDydIotaNvN_EM> to <PrimFnDydIotaFvN_EM> as it handles only right arg float cases.
+  Improve comments.
+  Fix bug in <PrimFnDydIotaIvN_EM> where the <IvF> case was missed.
+  Fix bug in <PrimFnDydIotaRvN_EM> where in the <RvF> case the right arg is mistakenly converted to an integer.
+  Fix bug in <PrimFnDydIotaRvN_EM> where we need to compare w.r.t. []CT in the <RvV> and <RvF> cases.
+  Fix bug in <PrimFnDydIotaVvN_EM> where in the <VvF> case the right arg is mistakenly converted to an integer.
+  In <PrimFnDydIotaOther>, pass the proper function token to the Match function.
+  Fix bug in dyadic iota where for everything but I vs. B/I/A/F/R/V and R vs. B/I/A/R, if we search
+    for a number that occurs after a larger number that is within []CT of the
+    searched for number, we miss it.  For example, 1 2 (3+1e{neg}10) 3 {iota} 3
+    where []CT is 1e{neg}10.  After we find a match and have searched
+    down through lower indices to GradeUp, the fix is then to search up through
+    higher indices to GradeUp for values within []CT with lower argument indices.
+
+PF_IOTAUND.C:
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+PF_LSHOE.C:
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+PF_NDCARET.C:
+PF_NUCARET.C:
+  Update copyright year.
+  Improve comments.
+
+PF_PI.C:
+PF_QDOT.C:
+  Improve comments.
+
+PF_QUERY.C:
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+PF_RHO.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+PF_RSHOE.C:
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+PF_SLASH.C:
+PF_SLOPE.C:
+  Update copyright year.
+  Improve comments.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+PF_SQUAD.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+PO_SLASH.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+PO_VARIANT.C:
+  Improve comments.
+
+QF_AT.C:
+  Update copyright year.
+  Improve comments.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+QF_CR.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Improve comments.
+
+QF_ES.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+QF_MF.C:
+  Update copyright year.
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+QF_NFNS.C:
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+QF_NL.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Improve comments.
+
+QF_TF.C:
+  Update copyright year.
+  Improve comments.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+QF_UCS.C:
+  Update copyright year.
+  Improve comments.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+SYSVARS.C:
+  Improve comments.
+
+TYPEMOTE.C:
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Rename <mpq_get_ctsa> to <mpq_get_sctsx> and <mpfr_get_ctsa> to <mpfr_get_sctsx> to better describe their function
+    as using System []CT, and use <sx> suffix instead of <sa> to match that of the MPIR library for 64-bit integers.
+
+
+Build #1066 -- Version 0.3.9.xx
+-------------------------------
+
+* Fix Bug In Nested vs. Simple Scalar
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  In <PrimFnDydNestSiSc_EM>, Assert and allow global numerics along with other simple arrays.
+
+
+Build #1065 -- Version 0.3.9.xx
+-------------------------------
+
+* Fix Bugs In Match
+
+Directory trunk:
+
+PF_EQUALUND.C:
+  Update copyright year.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  In various places where we compare a float with another datatype directly, they should be compared within []CT.
+
+
+Build #1064 -- Version 0.3.9.xx
+-------------------------------
+
+* Use Parent Window Handle In All MessageBox Calls
+
+Directory trunk:
+
+CUSTOMIZE.C:
+EXCEPT.C:
+INIFILE.C:
+MACROS.H:
+MAIN.C:
+SAVEFCN.C:
+SC_COPY.C:
+SC_LOAD.C:
+UPDATES.C:
+  Use a parent window handle in all MessageBox calls so the MessageBox window
+    closes when the app closes.
+
+
+Build #1063 -- Version 0.3.9.xx
+-------------------------------
+
+* Even More Miscellaneous Build File Changes
+
+Directory trunk:
+
+DEPTXT.BAT:
+  Omit double quote marks around the argument passed to <:subroutine> as they get in the way.
+
+
+Build #1062 -- Version 0.3.9.xx
+-------------------------------
+
+* More Miscellaneous Build File Changes
+
+Directory trunk:
+
+DEPINIT.BAT:
+  Use internal mechanism to show progress instead of using an external file.
+
+DEPTXT.BAT:
+  Use batch file processing for all .dep files instead of multiple calls to
+    this batch file by <nmake> as the latter appears to run the batch file in
+    multiple threads which causes a race condition where each batch file is
+    appending to the output file at the same time.  This wasn't a problem until
+    I switched to an SSD drive!
+
+ECHODOT.BAT:
+ECHODOT.PHP:
+ECHODOT.TXT:
+  Delete these files as they are no longer needed.
+
+MAKEFILE.DEP:
+  Update copyright year.
+  Call <deptxt.bat> once with all filenames in the argument instead of multiple
+    times on one filename.
+
+MAKEFILE.IND:
+  Update copyright year.
+  Parameterize <nmake> as set by the caller so we call the same program at all levels.
+
+MK32.BAT:
+MKD32.BAT:
+MK64.BAT:
+MKD32.BAT:
+MKD64.BAT:
+MKN.BAT:
+  Omit DOS-era reference to <NMAKER>.
+  Use FOR loop instead of multiple lines to set a variable.
+
+
+Build #1061 -- Version 0.3.9.xx
+-------------------------------
+
+* Miscellaneous Build File Changes
+
+Directory trunk:
+
+DEPINIT.BAT:
+  Avoid calling php as that only slows down the process.
+
+DEPTXT.BAT:
+  Avoid calling php as that only slows down the process, and on a fast system
+    may trigger an error message saying that "The process cannot access the
+    file because it is being used by another process.".
+
+ECHODOT.TXT:
+  A one-byte file containing a dot ".".  No trailing CR/LF is present so that
+    typing the file from multiple calls spits out a series of dots all on one
+    line until it wraps at the right edge of the CMD window.
+
+VER.RC:
+  Increment version # to 0.3.9.xx.

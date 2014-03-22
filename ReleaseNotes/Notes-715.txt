@@ -1,0 +1,19 @@
+Build #715 -- Version 0.0.2.17
+------------------------------
+
+* Support )LOAD 1 CLEANSPACE
+
+Directory trunk:
+
+SC_COMMON.C:
+  Split out from <DisplayWorkspaceStamp> the code which displays
+    the SAVED message from )LOAD into a separate function named
+    <DisplaySavedMsg> so it can be called from <LoadWorkspace_EM>
+    upon encountering "1 CLEANSPACE".
+
+SC_LOAD.C:
+  Define SYSTEMTIME struc values for the GMT timestamp of "1 CLEANSPACE".
+  In <CmdLoadCom_EM>, check for "1 CLEANSPACE" and process it in the
+    correct order.
+  In <LoadWorkspace_EM>, check for "1 CLEANSPACE", display the timestamp,
+    and treat it otherwise as )CLEAR.

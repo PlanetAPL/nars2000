@@ -1,0 +1,9 @@
+Build #1198 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Partitioned Enclose With Singleton Left Argument
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Don't special case singleton left arg, instead check for it inside loop and re-use the previous value.

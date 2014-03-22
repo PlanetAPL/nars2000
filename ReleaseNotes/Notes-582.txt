@@ -1,0 +1,10 @@
+Build #582 -- Version 0.0.2.4
+-----------------------------
+
+* Display Var With SRCI Flag Set With REFCNT Color In DEBUG Window
+
+Directory trunk:
+
+DISPDBG.C:
+  Display a variable with the SRCI flag set in the REFCNT color
+    in the DEBUG window.

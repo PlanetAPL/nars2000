@@ -1,0 +1,170 @@
+Build #283 -- Version 0.0.0.18322
+---------------------------------
+
+Directory trunk:
+
+COMMON.C:
+DEBUG.C:
+DISPDBG.C:
+EXCEPT.C:
+FREE.C:
+IMMEXEC.C:
+MAIN.H:
+PF_DOMINO.C:
+RESDEBUG.C:
+SC_ERASE.C:
+SC_SAVE.C:
+STARTADDR.H:
+  Prepare for 64-bit compiles.
+
+CONVERT.C:
+  Use <OptionFlags> to hold global Boolean data.
+
+DATATYPE.H:
+  Move <PtrReusedXXX> macros to <macros.h>.
+  Prepare for 64-bit compiles.
+
+DFNHDR.Y:
+  Omit debugging messages from default display.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+EDIT.RC:
+  Define Paste menu item for PC/3270.
+
+EDITCTRL.H:
+  Prepare for 64-bit compiles.
+  Use only one <MYWM_PASTE_APL> message #.
+
+EDITFCN.C:
+  Inlcude UNISCRIBE definition (if any).
+  Split apart the pieces of <Unitrans.h> into <unitranshdr.h>
+    (header defintions only) and <unitranstab.h> (table defintions only).
+  Remove from ToDo list items already done.
+  Prepare for 64-bit compiles.
+  Use only one <MYWM_PASTE_APL> message #.
+  Zap <lpLclMemVirtStr> ptr in WM_DESTROY in case we re-enter this message.
+  Handle UTF16_A_ to UTF16_Z_ with Alternate Font.
+  Use <OptionFlags> to hold global Boolean data.
+  Optionally, translate UTF16_A_ through UTF_Z_ to lowercase.
+
+EXECDFN.C:
+GETFNS.C:
+PF_DTACKJOT.C:
+PF_QUERY.C:
+PRIMFNS.C:
+QF_EX.C:
+QF_NC.C:
+QF_SIZE.C:
+QF_SYSVER.C:
+STRAND.C:
+SYMTAB.C:
+SYSVARS.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+VER.C:
+YYFNS.C:
+  Prepare for 64-bit compiles.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+EXTERNS.H:
+  Define default global options.
+  Move previous separate global options into one struc.
+  Mark UNISCRIBE-sensitive code as such.
+
+MACROS.H:
+  Move <PtrReusedXXX> macros from <datatype.h> to here.
+
+MAIN.C:
+  Include UNISCRIBE definition (if any) for <CreateNewFontSM>.
+  Include Unicode Translation Header for <MYWM_PASTE_APL> arg.
+  Mark UNISCRIBE-sensitive code as such.
+  Prepare for 64-bit compiles.
+  Use only one <MYWM_PASTE_APL> message #.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Split <MAKEFILE> into two parts:  32- and 64-bit.
+
+MK32.BAT:
+MKD32.BAT:
+MK64.BAT:
+MKD64.BAT:
+  Split <MK.BAT> and <mkd.bat> into two parts:  32- and 64-bit
+
+PARSE.Y:
+  Omit debugging messages from default display.
+  Prepare for 64-bit compiles.
+
+PERTAB.H:
+  Move <UNISCRIBE> define to <uniscribe.h>.
+
+QF_TS.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Use <OptionFlags> to hold global Boolean data.
+
+RESOURCE.H:
+  Define Paste menu item for PC/3270.
+
+SAVEFCN.C:
+  Prepare for 64-bit compiles.
+  Reorganize <SF_xxx> functions.
+  Fix Bug:  Define new function <SF_NumLinesM> for []FX char matrix args
+    instead of <SF_NumLinesCom> as we need to return the # rows not cols.
+
+SAVEFCN.H:
+  Remove #define which associates <SF_NumLinesM> with common function
+    as we need a separate function for that now.
+
+SC_LOAD.C:
+  Fix bug:  Surround code in <LoadWorkspace_EM> with __try/__except
+    so we catch Page Faults in uncommitted memory.
+  Use <OptionFlags> to hold global Boolean data.
+
+SESSMAN.C:
+  Include UNISCRIBE definition (if any) for call to <CoInitialize>/<CoUnintialize>.
+  Prepare for 64-bit compiles.
+  Use only one <MYWM_PASTE_APL> message #.
+
+SIS.H:
+  Improve comments.
+
+SYSCMDS.C:
+  Use <OptionFlags> to hold global Boolean data.
+
+TABCTRL.C:
+  Prepare for 64-bit compiles.
+  Mark DRAWTABNUM-specific code as such.
+
+UNICODE.H:
+  Define codes for A underbar through Z underbar
+    using SImPL's Private Use Area.
+
+UNISCRIBE.H:
+  Use separate file for definition of <UNISCRIBE>.
+
+UNITRANSHDR.H:
+UNITRANSTAB.H:
+  Split apart the pieces of <Unitrans.h> into <unitranshdr.h>
+    (header defintions only) and <unitranstab.h> (table defintions only).
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Prepare for 64-bit compiles.
+  Recall parent with EN_MAXTEXT notification as necessary.
+  Define action for PC/2370 paste.
+
+
+Directory trunk\WineHQ\Include:
+
+BASETSD.H:
+WIN.H:
+WINBASE.H:
+  Prepare for 64-bit compiles.
+
+
+Directory trunk\WineHQ\Include\msvcrt\Wine:
+
+DEBUG.H:
+  Prepare for 64-bit compiles.

@@ -1,0 +1,9 @@
+Build #1010 -- Version 0.3.8.xx
+------------------------------
+
+* Extend The Indices Function (IotaUnderbar) To Multirank Arrays
+
+Directory trunk:
+
+PF_IOTAUND.C:
+  Extend the Indices function (IotaUnderbar) to multirank arrays.

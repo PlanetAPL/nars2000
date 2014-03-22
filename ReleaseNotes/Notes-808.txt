@@ -1,0 +1,18 @@
+Build #808 -- Version 0.0.2.23
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+GETFNS.C:
+  Delete blank line.
+
+MAIN.RC:
+  In Syntax Coloring property page, widen text at bottom of page, and
+    move button over to as not to overwrite text to its left.
+
+PF_LTACK.C:
+PF_RTACK.C:
+  Update copyright year.
+  Improve comments.

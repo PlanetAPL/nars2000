@@ -1,0 +1,34 @@
+Build #768 -- Version 0.0.2.18
+------------------------------
+
+* Document Web Pages; Remove []SIZE
+
+Directory trunk:
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+QF_SIZE.C:
+SYSVARS.C:
+  Remove []SIZE from the list of available system functions.
+
+QF_AT.C:
+  Move routines over from <qf_size.c>.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document []EA, []EC, []EM, []ES, and []ET as available system functions.
+  Document []SIZE as no longer available (use 4 []AT instead).
+  Remove "Currently Unimplemented" from the sections as there are no more
+    such features.
+
+INDEX-LEFT.HTML:
+  Remove "Currently Unimplemented" from the left-hand menu as there are no more
+    such features.
+
+
+Directory trunk\htdocs\downloads:
+
+DOWNLOAD-BODY.PHP:
+  Include instructions on how to install the program and the font.

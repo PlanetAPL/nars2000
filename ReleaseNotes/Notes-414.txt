@@ -1,0 +1,25 @@
+Build #414 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Show our own icon for this dialog.
+
+MAIN.C:
+  Load the Customize dialog icon.
+
+MAIN.RC:
+  Define the Customize dialog icon.
+
+MAKEFILE.INC:
+  Include icon dependencies.
+
+RESOURCE.H:
+  Define ID for Customize dialog icon.
+
+
+Directory trunk\Images:
+
+CUSTOM.ICO:
+  Define new icon for Customize dialog.

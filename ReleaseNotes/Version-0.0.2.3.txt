@@ -1,0 +1,553 @@
+Version 0.0.2.3 consists of the following Builds:
+
+
+Build #524 -- Version 0.0.2.3
+-----------------------------
+
+* Convert Assertion on range of ByteRes to WS FULL error message
+
+Directory trunk:
+
+AXISFNS.C:
+ERRMSG.C:
+EXECDFN.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DSHOE.C:
+PF_DTACK.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_LSHOE.C:
+PF_QUERY.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PF_UTACK.C:
+PO_DIERESIS.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_AV.C:
+QF_CR.C:
+QF_DR.C:
+QF_ET.C:
+QF_EX.C:
+QF_FMT.C:
+QF_FX.C:
+QF_LC.C:
+QF_MF.C:
+QF_NC.C:
+QF_NL.C:
+QF_SIZE.C:
+QF_SYSID.C:
+QF_SYSVER.C:
+QF_TC.C:
+QF_TF.C:
+QF_TS.C:
+QF_UCS.C:
+SC_COMMON.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SESSMAN.C:
+STRAND.C:
+SYSVARS.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+  Convert Assertion on range of ByteRes to WS FULL error message
+
+
+Build #523 -- Version 0.0.2.3
+-----------------------------
+
+* Update copyright year
+
+Directory trunk:
+
+CHKESP.C:
+COLORNAMES.H:
+CONVERT.C:
+EVENTTYPES.H:
+PERFMON.H:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_EQUAL.C:
+PF_LCARET.C:
+PF_LCARETUND.C:
+PF_NDCARET.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_RCARET.C:
+PF_RCARETUND.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TIMES.C:
+PF_UCARET.C:
+PF_USTILE.C:
+PO_CMIDDOT.C:
+PO_JOT.C:
+PRIMFNS.H:
+PRIMSPEC.H:
+QF.H:
+QF_EA.C:
+QF_TC.C:
+QF_TS.C:
+RESDEBUG.H:
+SAVEFCN.H:
+SC_DROP.C:
+SORT.C:
+SYMBOLNAMES.H:
+SYSCMDS.C:
+TERMCODE.H:
+UNITRANSHDR.H:
+UNITRANSTAB.H:
+  Update copyright year.
+
+
+Build #522 -- Version 0.0.2.3
+-----------------------------
+
+* Fix Bug:  Handle the case where a named SYMENTRY is an immediate function.
+
+Directory trunk:
+
+STRAND.C:
+  Fix Bug:  In <MakeNameFcnOpr_YY>, handle the case where the named
+    SYMENTRY is immediate to return an unnamed immediate token.
+
+
+Build #521 -- Version 0.0.2.3
+-----------------------------
+
+* Fix Bug:  Integer overflow for {times} reduction not handled correctly
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix Bug:  When calculating reduction on a primitive scalar dyadic
+    function on a simple array, if the result overflows from integer
+    to float along the way the storage type of the result and the
+    temporary right arg are not changed.
+
+
+Build #520 -- Version 0.0.2.3
+-----------------------------
+
+* Fix Bug:  =/1 1 1 returns incorrect result
+* Fix Bug:  +/1 2{jot}.={iota}17 and =/1 2{jot}.={iota}17
+    both return incorrect result
+
+Directory trunk:
+
+FASTBOOL.C:
+  Fix Bug:  =/1 1 1 returns incorrect result due to failure to take into
+    account the parity of the # 1s for {notequal} and the complement of
+    the # 0s for {equal}.
+  Fix Bug:  +/1 2{jot}.={iota}17 and =/1 2{jot}.={iota}17
+    both return incorrect result due to incorrect variable used to
+    calculate length of remaining bits in the last byte.
+
+
+Build #519 -- Version 0.0.2.3
+-----------------------------
+
+* Fix Bug:  The stmt foo{dydop}A{monop}B is not parsed (SYNTAX ERROR)
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Fix Bug:  The stmt foo{dydop}A{monop}B is not parsed and thus signals
+    a SYNTAX ERROR.  (foo{dydop}A{monop})B works, though.
+
+
+Build #518 -- Version 0.0.2.3
+-----------------------------
+
+* Special case 1/R for non-scalar R
+
+Directory trunk:
+
+PF_SLASH.C:
+  Special case 1/R for non-scalar R.
+
+
+Build #517 -- Version 0.0.2.3
+-----------------------------
+
+* Fix Bug:  The Status Window isn't properly hidden under certain
+  circumstances
+
+Directory trunk:
+
+MAIN.C:
+  Fix Bug:  The content of the Status Window is updated as necessary,
+    but if it's hidden, it still displays partially.  This change
+    uses a common message to update the status and then hide the window
+    as appropriate.
+
+
+Build #516 -- Version 0.0.2.3
+-----------------------------
+
+* Allow Monadic and Dyadic Grade Up/down on Scalars and
+  Monadic Grade Up/down on Characters
+
+Directory trunk:
+
+PF_DELTASTILE.C:
+  Allow grade up/down of scalar returning {enclose}{zilde}.
+  Allow grade up/down of character array using []AV as a default
+    collating sequence.
+  Fix Bug:  Monadic Grade up/down marked the result as a PV only
+    if the right arg is a PV -- it should always be a PV.
+  Use names for column indices into <FastBoolTrans>.
+  Fix Bug:  Dyadic grade up/down did not mark the result as a PV.
+
+
+Build #515 -- Version 0.0.2.3
+-----------------------------
+
+* Append Array Properties to 0 []DR
+
+Directory trunk:
+
+MACROS.H:
+  Define macro for detecting either PV0 or PV1.
+
+QF_DR.C:
+  Append array properties to end of 0 []DR result.
+
+
+Build #514 -- Version 0.0.2.3
+-----------------------------
+
+* Fix Bug:  Wrong error line displayed under certain cirumstances.
+
+Directory trunk:
+
+EDITFCN.C:
+  Before calling EM_GETLINE, get the exact line length as sometimes
+    W doesn't return the line when the length is -1 and gives no error.
+  Delete window handle argument from <LPERRHANDFN>, <Errorhandler>,
+    <ErrorMessageDirect>, and related functions as it is unneeded.
+
+ERRMSG.C:
+EXTERNS.H:
+PL_PARSE.Y:
+  Delete window handle argument from <LPERRHANDFN>, <Errorhandler>,
+    <ErrorMessageDirect>, and related functions as it is unneeded.
+
+IMMEXEC.C:
+  Fix Bug:  When an immediate execution mode expression signals an
+    error during tokenization while a user-defined function/operator
+    is suspended, the SI stack hasn't been setup as yet, and so the
+    error message includes the suspended function name and line
+    instead of the immediate execution line which actually signalled
+    the error.
+  Delete window handle argument from <LPERRHANDFN>, <Errorhandler>,
+    <ErrorMessageDirect>, and related functions as it is unneeded.
+
+TOKENIZE.C:
+  Before calling EM_GETLINE, get the exact line length as sometimes
+    W doesn't return the line when the length is -1 and gives no error.
+  Delete window handle argument from <LPERRHANDFN>, <Errorhandler>,
+    <ErrorMessageDirect>, and related functions as it is unneeded.
+
+
+Build #513 -- Version 0.0.2.3
+-----------------------------
+
+* Optimize Unique
+
+Directory trunk:
+
+PF_DSHOE.C:
+  Optimize unique (monadic down shoe) for simple non-hetero args.
+  Rename magic function labels for the Unique function to a common
+    standard for magic functions.
+
+
+Build #512 -- Version 0.0.2.3
+-----------------------------
+
+* Fix Bug:  When calculating a window size, the height of the
+  menu wasn't included
+
+Directory trunk:
+
+COMMON.C:
+  Fix Bug:  When calculating a window size, the height of the
+    menu wasn't included.  Thus, each time the .exe is closed
+    and opened, the height of the window decreases by the height
+    of the menu.
+
+
+Build #511 -- Version 0.0.2.3
+-----------------------------
+
+* Optimize IndexOf and ElementOf on Simple Non-hetero Arrays
+
+Directory trunk:
+
+CONVERT.C:
+  Define <FloatToAplint_CT> function to convert from float to integer
+    using a given comparison tolerance.
+
+EXTERNS.H:
+  Define enum for <FastBoolTrans> columns.
+  Define static var for first two indices into <FastBoolTrans>.
+
+FASTBOOL.C:
+  Use names for column indices into <FastBoolTrans>.
+  Pre-define column index into <FastBoolTrans>.
+
+GETFNS.C:
+  Define <SetQuadIO> to set the current value of []IO.
+
+PF_DELTASTILE.C:
+  Pass Boolean parameter to <PrimFnMonGradeCommon_EM_YY> and
+    <PrimFnDydGradeCommon_EM_YY> to tell the routine to treat the
+    argument as a vector (ravelled) so we don't have to do that
+    ourselves when grading the args to ElementOf or the right arg
+    to IndexOf.
+  Use names for column indices into <FastBoolTrans>.
+
+PF_EPSILON.C:
+  In <PrimFnMonEpsilonGlb_EM_YY>, reformat the call to
+    <PrimFnMonEpsilonGlbCount> to comment each argument.
+  In <PrimFnMonEpsilonGlbCount>, remove spurious comment.
+  In <PrimFnMonEpsilonCount>, reformat the recursive call to
+    <PrimFnMonEpsilonGlbCount> to comment each argument.
+  In <PrimFnDydEpsilon_EM_YY>, define additional routine NvB for
+    <APLINT/APLAPA/APLFLOAT> vs. <APLBOOL>.
+  In <PrimFnDydEpsilon_EM_YY>, expand IvP routine to NvP which
+    now includes floats on the left.
+  In <PrimFnDydEpsilon_EM_YY>, define additional routine NvA for
+    <APLBOOL/APLINT/APLAPA/APLFLOAT> vs. <APLAPA>.
+  In <PrimFnDydEpsilon_EM_YY>, define additional routine NvN for
+    <APLBOOL/APLINT/APLAPA/APLFLOAT> vs. <APLFLOAT> and
+    <APLFLOAT> vs. <APLINT> -- these are the remaining cases for NvN.
+  Simplify the code in <PrimFnDydEpsilonBvB> to a single search
+    for the complement of the first bit.
+  Optimize IvI to grade-up both args and binary search for the
+    values from the left arg in the right.  Use the same algorithm
+    in NvN.
+
+PF_IOTA.C:
+  Fix Bug:  In <PrimFnDydIota_EM_YY>, initialize two vars in case
+    the routine signals an error.
+  In <PrimFnDydIota_EM_YY>, define additional routine BvN for
+    <APLBOOL> vs. <APLINT/APLAPA/APLFLOAT>.
+  In <PrimFnDydIota_EM_YY>, expand PvI routine to PvN which
+    now includes floats on the right.
+  In <PrimFnDydIota_EM_YY>, define additional routine AvN for
+    <APLAPA> vs. <APLBOOL/APLINT/APLAPA/APLFLOAT>.
+  In <PrimFnDydIota_EM_YY>, define additional routine NvN for
+    <APLFLOAT> vs. <APLBOOL/APLINT/APLAPA/APLFLOAT> and
+    <APLINT> vs. <APLFLOAT> -- these are the remaining cases for NvN.
+  Simplify the code in <PrimFnDydIotaBvB> to a single search
+    for the complement of the first bit.
+  Optimize IvI to grade-up both args and binary search for the
+    values from the right arg in the left.  Use the same algorithm
+    in NvN.
+
+RESDEBUG.C:
+  White space changes only.
+
+
+Build #510 -- Version 0.0.2.3
+-----------------------------
+
+* Implement system label []IDENTITY.
+
+Directory trunk:
+
+DEFINES.H:
+  Fix definitions of BIT1 - BIT7.
+
+EXECDFN.C:
+  Rename <startLineNum> to <startLineType> when it refers to the enum.
+  When calling a user-defined function/operator at <LINENUM_IDENTITY>,
+    ignore absence of left arg.
+  In <ExecDfnOprGlb_EM_YY>, do not default to line one if no []PROTOTYPE.
+
+EXECFNS.C:
+  Reformat code.
+  Rename <startLineNum> to <startLineType> when it refers to the enum.
+
+EXECMFN.C:
+  Rename <startLineNum> to <startLineType> when it refers to the enum.
+  Pass additional parameter to <GetSpecialLabelNums> to indicate whether
+    or not to display error messages, and check the return code for error.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Fix Bug:  The directory for "??_parse.c" files was fixed at the Debug
+    dir instead of the OutDir.
+
+PO_SLASH.C:
+  Remove references to CATIDENT as it's now working.
+  In <PrimOpMonSlashCommon_EM_YY>, calculate whether or not the left
+    operand is a user-defined function/operator
+  In <PrimOpMonSlashCommon_EM_YY>, if appropriate, call the user-defined
+    function/operator at []IDENTITY to get the identity element.
+
+PRIMFNS.C:
+  In <IsTknImmed>, include additional immediate token.
+
+SAVEFCN.C:
+  Pass additional parameter to <GetSpecialLabelNums> to indicate whether
+    or not to display error messages, and check the return code for error.
+  In <GetSpecialLablelNums>, check for duplicate labels and return error
+    if found.
+
+SYSVARS.C:
+  Define entry for []IDENTITY.
+
+TOKENS.H:
+  In <TKFLAGS>, omit name from otherwise anonymous bit field.
+
+
+Build #509 -- Version 0.0.2.3
+-----------------------------
+
+* Generate the correct identity element for catenate reduction empty
+
+Directory trunk:
+
+EDITFCN.C:
+  Define additional arg to <CopyGlbMemory> to use <MyGlobalAlloc> so it can
+    be used in <CopyArray_EM>.
+
+EXECFNS.C:
+  Define new function <ExecFcnStrLine_EM_YY> to allow passing of starting
+    line # type.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle <TKT_FCNARRAY> case.
+  In <GetPrototypeFcnPtr>, split out FCNARRAY_HEADERs from DFN_HEADERs.
+
+PF_COMMA.C:
+  Improve comments.
+  Goto ERROR_EXIT instead of returning directly so as to maintain
+    a common exit point.
+  Include additional assertion about the incoming function.
+
+PO_DIERESIS.C:
+  Get the operand axis token along with the operator axis token and
+    use them in the appropriate places.
+
+PO_DITILDE.C:
+  Update copyright year.
+  Fix errors in comments.
+
+PO_SLASH.C:
+  Generate the correct identity elenment for catenate reduction empty.
+  Call user-defined function/operator at []IDENTITY if reducing empty.
+
+PRIMFNS.C:
+  Define additional arg to <CopyGlbMemory> to use <MyGlobalAlloc> so it can
+    be used in <CopyArray_EM>.
+  In <CopyArray_EM>, split out arrays of variables from arrays of functions.
+  Define new routine to determine if a token is a user-defined function/operator.
+
+
+Build #508 -- Version 0.0.2.3
+-----------------------------
+
+* Split Out Syntax Coloring for Primitives into Functions, Monadic, and Dyadic Operators.
+
+Directory trunk:
+
+EXTERNS.H:
+  Define names for new Syntax Coloring categories.
+
+INIFILE.C:
+  Define .ini file key names for additional Syntax Color categories.
+
+MAIN.RC:
+  Define new size of dialog box to accommodate new Syntax Color categories.
+  Define entries for new Syntax Color categories.
+
+RESOURCE.H:
+  Define equates in the Customize dialog for new Syntax Color categories.
+
+SYNTAXCOLORS.H:
+  Define default colors for new Syntax Color categories.
+
+TOKENIZE.C:
+  Use new Syntax Color category names as appropriate.
+
+
+Build #507 -- Version 0.0.2.3
+-----------------------------
+
+* Fix Bug:  When a named function array is used in a statement and an error
+  is signalled because of something in that named function array (e.g. AXIS ERROR),
+  rebase the character indices for all tokens in the function array to that of the
+  named function so as to have the caret point to the named function with the error.
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Pass additional parameter to <MakeNameFcnOpr_YY> to indicate hwether or not
+    we should rebase the function tokens if the named function is a function
+    array.
+  In <pl_yylex/case TKT_OP1IMMED:>, remove unnecessary code.
+
+STRAND.C:
+  Pass additional parameter to <MakeNameFcnOpr_YY> to indicate hwether or not
+    we should rebase the function tokens if the named function is a function
+    array.
+
+YYFNS.C:
+  In <YYCountFcnStr>, count the individual tokens in a function array.
+  In <YYCopyFcn>, copy the individual tokens in a function array and
+    save them at the top level in the result rather than just point to the
+    function array global memory handle.
+  In <IncrFcnMem>, handle immediate axis values.
+
+
+Build #506 -- Version 0.0.2.3
+-----------------------------
+
+* Fix Bug:  An uninitialized variable  in grade up/down causes a system crash
+    if it needs to signal an error.
+
+Directory trunk:
+
+PF_DELTASTILE.C:
+  Fix Bug:  A variable is uninitialized such that if grade up/down signals
+    an error, the system crashes.
+
+
+Build #505 -- Version 0.0.2.3
+-----------------------------
+
+* Avoid Deadlock of Sending Message to Suspended Thread
+
+Directory trunk:
+
+IMMEXEC.C:
+  In <ImmExecStmtInThread>, don't call <ForceSendCursorMsg> if we're
+    not waiting until finished as the message might be sent to another
+    thread.
+
+VERSION.RC:
+  Increment version #.

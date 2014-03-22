@@ -1,0 +1,11 @@
+Build #737 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  When Undoing The No Action Case Increments Instead Of Decrements
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc>/<WM_REDO>, as we move backwards through
+    the Undo buffer, the <undoNone> case increments the pointer
+    instead of decrementing it.

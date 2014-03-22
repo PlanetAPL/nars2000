@@ -1,0 +1,13 @@
+Build #671 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Check For NoValue in Return From ArrExpr
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Define a new terminal <ArrValu> to check for <ArrExpr> as a
+    VALUE ERROR which can come from a UDFO which doesn't return
+    a value and is then passed on as an argument to another function.
+  When Ctrl-Break is pressed, peel back to the first UDFO which is not
+    a magic (internal) function.

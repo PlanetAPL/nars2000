@@ -1,0 +1,20 @@
+Build #652 -- Version 0.0.2.12
+------------------------------
+
+* Hide []Z From Use Other Than When Fixing A Function Via []TF
+
+Directory trunk:
+
+PERTAB.H:
+  Update copyright year.
+  Define Boolean flag to indicate whether or not
+    we're fixing a function via []TF.
+
+QF_TF.C:
+  Save, set, and restore the <bInTF> flag to indicate
+    that we're fixing a function via []TF so tokenize
+    can properly recognize []Z.
+
+TOKENIZE.C:
+  In <fnAlpha>/<fnAlpDone>, mark []Z as an unknown SysName
+    if it's []Z and we're not fixing a function via []TF.

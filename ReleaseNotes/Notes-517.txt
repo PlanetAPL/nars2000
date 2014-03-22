@@ -1,0 +1,13 @@
+Build #517-- Version 0.0.2.3
+----------------------------
+
+* Fix Bug:  The Status Window isn't properly hidden under certain
+  circumstances
+
+Directory trunk:
+
+MAIN.C:
+  Fix Bug:  The content of the Status Window is updated as necessary,
+    but if it's hidden, it still displays partially.  This change
+    uses a common message to update the status and then hide the window
+    as appropriate.

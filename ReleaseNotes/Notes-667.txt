@@ -1,0 +1,14 @@
+Build #667 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Rank Operator Fails To Process The Prototype In The Result
+
+Directory trunk:
+
+PO_DIJOT.C:
+  Fix Bug:  If the result from the Rank Operator is empty, we fail
+    to process the prototype when calculating the minimum/maximum
+    ranks before deciding whether or not to call the Conforming
+    Disclose magic function.
+  Fix Bug:  Both the monadic and dyadic magic functions failed to
+    setup the rank vector arguments when called at []PRO.

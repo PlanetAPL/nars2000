@@ -1,0 +1,17 @@
+Build #1174 -- Version 0.4.4.xx
+-------------------------------
+
+* Handle Named AFO Tokens
+
+Directory trunk:
+
+EXECDFN.C:
+FREE.C:
+GETFNS.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+STARTADDR.H:
+TOKENIZE.C:
+TOKENS.H:
+YYFNS.C:
+  Rename <IsTknTypeXXX> to <IsTknXXX> passing in the entire token so we can look for named AFO tokens.

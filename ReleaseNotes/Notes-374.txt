@@ -1,0 +1,8 @@
+Build #374 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+SC_FNOV.C:
+  Fix Bug:  Test for Permanent functions (i.e. Magic Functions) and
+    don't display their names in response to )FNS. or )NMS.

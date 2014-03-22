@@ -1,0 +1,22 @@
+Build #838 -- Version 0.0.2.23
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+PF_PI.C:
+  Include DEBUG stmts when factoring numbers.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Use common format when describing contributors.
+  Include Jason Papadopoulos as contributor of msieve.
+
+
+Directory trunk\Mediawiki\extensions:
+
+B2A.INC.PHP:
+  Include name and Unicode value for "root".

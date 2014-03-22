@@ -1,0 +1,27 @@
+Build #744 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  2 []TF Produces Wrong Answer For Singleton Char Vectors
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  In <DisplayTransferGlb2>, the test for whether or not
+    the item needs to be surrounded in parens is wrong. for singleton
+    char vectors.
+  Fix Bug:  For nested array with multiple adjacent char scalars or
+    vectors a necessary separating space is mistakenly omitted.
+
+EXTERNS.H:
+  Include omitted default element in <OptionFlags>.
+
+IDENTFNS.C:
+INIFILE.C:
+PF_DTACK.C:
+  Improve comments.
+
+QF_TF.C:
+SC_COMMON.C:
+SC_INASCII.C:
+TOKENIZE.C:
+  Use wide char name with W suffix instead of other less memorable name.

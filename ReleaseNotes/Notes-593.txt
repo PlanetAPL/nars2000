@@ -1,0 +1,13 @@
+Build #593 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Mask Booleans From Token
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  When extracting a Boolean from a token, always mask with BIT0
+    in case there are extra bits set.
+
+VERSION.RC:
+  Increment version to 0.0.2.5.

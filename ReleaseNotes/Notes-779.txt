@@ -1,0 +1,27 @@
+Build #779 -- Version 0.0.2.20
+------------------------------
+
+* Allow NoValue Results From Each and Outer Product Operators
+
+Directory trunk:
+
+PO_DIERESIS.C:
+  Update copyright year.
+  Define var to count # VALUE ERRORs.
+  When checking for NoValue, allow it to pass.
+  Remove PTR_REUSED code as that's handled by <FreeResultGlobalIncompleteVar>.
+  Pass ptr to NoValue counter to <ExecFuncOnToken_EM>.
+  If all results are NoValue, return a NoValue result; if some are and
+    some aren't, signal a VALUE ERROR.
+  In <ExecFuncOnToken_EM>, upon encountering a NoValue result, increment the
+    NoValue counter instead of return an error.
+
+PO_JOTDOT.C:
+  Update copyright year.
+  Define var to count # VALUE ERRORs.
+  Pass ptr to NoValue counter to <ExecFuncOnToken_EM>.
+  If all results are NoValue, return a NoValue result; if some are and
+    some aren't, signal a VALUE ERROR.
+
+VERSION.RC:
+  Increment version to 0.0.2.20.

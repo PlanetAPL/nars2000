@@ -1,0 +1,21 @@
+Build #874 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Ensure That VFP Modulus Result Is Less Than Modulus
+
+Directory trunk:
+
+DISPDBG.C:
+  Don't compile FLINT DEBUG stmts if Win64 (FLINT not available).
+
+INITDATA.C:
+  Omit precision save stmts as they are unused.
+
+MPFNS.C:
+  Remove Assert stmts as they fail on Win64 DEBUG.
+  Fix Bug:  Call <mpf_mod_sub> until the result is less than the modulus
+    as the precision limitations might require that.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Synchronize the 32- and 64-bit versions.

@@ -1,0 +1,17 @@
+Build #1053 -- Version 0.3.8.xx
+-------------------------------
+
+* Restore The "What's new?" Link To The Forum
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Restore the "What's new?" link to the forum.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-MENU.HTML:
+  Restore the "What's new?" link to the forum.

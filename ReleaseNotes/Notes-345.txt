@@ -1,0 +1,60 @@
+Build #345 -- Version 0.0.1.3
+-----------------------------
+
+Directory trunk:
+
+DATATYPE.H:
+  Update the copyright year.
+  Mask the low-order bit only in LPSYMENTRYs/HGLOBALs so as to work
+    under Wine.
+
+MACROS.H:
+  Update the copyright year.
+  Fix Bug:  Handle NULL ptr arg as this is used in Dyadic Epsilon
+    with both args as simple scalar.
+  In <GetPtrTypeDir/Ind>, rename <PTRTYPE_AVAIL> to <PTRTYPE_LENGTH>
+    as we now use only one low-order bit in LPSYMENTRYs/HGLOBALs.
+
+MAKEFILE.INC:
+  Display line before compiling C programs.
+
+
+NARS2000.VCPROJ:
+  Change default struct alignment to one byte.
+
+PERTAB.H:
+  Update the copyright year.
+  Delete <aplInteger> in struct as we no longer use it.
+
+PF_INDEX.C:
+  Update the copyright year.
+  Fix Bug:  A certain mixture of Reach and Scatter indexed assignment
+    didn't work because a Reach element in the index list was incorrectly
+    treated as a Scatter index element.
+
+PN_PARSE.H:
+  Update the copyright year.
+  Define Boolean numeric type as a possible result from Point Notation.
+  Improve comments.
+
+PN_PARSE.Y:
+  Update the copyright year.
+  Define macro to test for Boolean/Integer type.
+  Define Boolean numeric type as a possible result from Point Notation.
+  If the Integer result is Boolean-valued, mark as Boolean type.
+  Convert Integer result to float in case we need it later because of
+    an overflow or conversion.
+
+TOKENIZE.C:
+  Update the copyright year.
+  Delete reference to <lpMemPTD->aplInteger> as we no longer use it.
+  Merge adjacent immediate numeric tokens into a single numeric
+    strand token.
+  Handle Boolean result from <ParsePointNotation>.
+
+
+Directory trunk\MediaWiki\extensions:
+
+APL.CSS:
+  Include additional APL Unicode fonts.
+  Define class for displaying TTF files.

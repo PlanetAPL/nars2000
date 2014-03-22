@@ -1,0 +1,41 @@
+Build #633 -- Version 0.0.2.9
+-----------------------------
+
+* Fix Bug:  Handle Unexpected Messages From COMCTL32.DLL Version < 6.0
+
+Directory trunk:
+
+COMMON.C:
+  In <GetModuleFileNames>, get the COMCTL32.DLL file version for
+    later testing.
+
+EXTERNS.H:
+  Save the COMCTL32.DLL file version # in a global for later testing.
+
+MAIN.C:
+  Fix Bug:  When NARS2000 is used with a COMCTL32.DLL whose version #
+    is less than 6.0 (typically on a Wine distribution), an unexpected
+    WM_NOTIFY (NM_TOOLTIPSCREATED) is sent from the Tab Ctrl tooltip
+    which doesn't occur with version 6.0.
+
+MAKEFILE.INC:
+  Note the dependency of <main.rc> on the appropriate manifest file.
+
+REBAR.C:
+  Tell each of the Toolbars about the common Tooltip Ctrl.
+  In order to support COMCTL32.DLL version 5.81 on Wine platforms
+    we need to specify more extended styles and such for Toolbars
+    so as to display Tooltips on Toolbars.
+  When initializing each Band, use a two pixel margin top and
+    bottom on all buttons so as to display the bottom shadow on
+    the buttons.
+  In <FW_RBWndProc> and <LW_RBWndProc>, fill in a <cbSize> for
+    TOOLINFOW structs which is appropriate to the actual version
+    of COMCTL32.DLL.
+  Improve comments.
+  In <LW_RBWndProc>/<WM_MOUSEMOVE> don't send the <TTM_GETTITLE>
+    message to COMCTL32.DLL if the dll doesn't support it.  Instead
+    fill in appropriate default values in the return struct.
+
+VERSION.RC:
+  Increment version to 0.0.2.9.

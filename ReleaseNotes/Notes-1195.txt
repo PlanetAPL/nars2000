@@ -1,0 +1,10 @@
+Build #1195 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Restart Of Type Promotion Of Simple Scalar vs. Simple Scalar
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDydSiScSiScSub_EM>, unlock a ptr after restart.
+  In <PrimFnDydSiScSiScSub_EM>, ignore type promotion as there's nothing we need to do.

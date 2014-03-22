@@ -1,0 +1,17 @@
+Build #578 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Memory Leak With UDFO Identity Element In Inner Product
+
+Directory trunk:
+
+PO_DOT.C:
+  Factor out common code to execute a function between the
+    prototypes of two arguments.
+  Improve comments.
+  Fix Bug:  when saving the identity element from a UDFO
+    into the result, don't increment the RefCnt of the first
+    item as its RefCnt starts at 1.
+  Fix Bug:  In the normal case of inner product, if one of
+    the comparison steps fails, the test for whether or not
+    to free the reduction result is backwards.

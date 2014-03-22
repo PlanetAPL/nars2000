@@ -1,0 +1,231 @@
+Version 0.0.2.17 consists of the following Builds:
+
+
+Build #723 -- Version 0.0.2.17
+------------------------------
+
+* Implement Monadic IotaUnderbar (Indices)
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype file.
+
+INITDATA.C:
+  Indicate new function entry points are valid.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include references for new source code file.
+
+PF_IOTAUND.C:
+  Implement monadic IotaUnderbar (Indices).
+
+
+Build #722 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  Set Error Caret After Primitive Scalar Dyadic Function
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDyd_EM_YY>, if the result is valid, set the error caret
+    for the function.
+
+
+Build #721 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  Catch Overflow When Calculating Array Size
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CalcArraySize>, test for overflow and return MAX_APLINT if so.
+
+
+Build #720 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  After )RESET Sometimes A Double Indent Occurs
+
+Directory trunk:
+
+IMMEXEC.C:
+  Test for )RESET before displaying the six-space indent.
+    Depending upon the order of thread termination, the six-
+    space indent might occur twice.
+
+SESSMAN.C:
+  Remove debugging code as the problem is thread-related.
+
+SYSCMDS.C:
+  In <ExecSysCmd>, return the type of system command.
+
+
+Build #719 -- Version 0.0.2.17
+------------------------------
+
+* Implement Monadic Right Caret As Tally
+
+Directory trunk:
+
+PF_RCARET.C:
+  Update copyright year.
+  Remove VALENCE ERROR from monadic Right Caret.
+  Implement Tally.
+
+
+Build #718 -- Version 0.0.2.17
+------------------------------
+
+* Move GSL Directory to NARS Root So It's Common To All Subdirs
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Ensure $(NARSROOT) is defined before proceeding.
+  Define GSL_LIB in terms of $(NARSROOT).
+
+MAKEFILE.W32:
+  Define GSLINC in terms of $(NARSROOT).
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define gsl\libgsl??-double.lib in terms of $(NARSROOT).
+
+
+Build #717 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  Display of Precision Overflow Is Syntax Colored Incorrectly
+
+Directory trunk:
+
+TOKENIZE.C:
+  In the FSA for TKROW_POINTNOT, there's a missing action upon
+    encountering an underbar to terminate the Point Notation.
+    This causes expressions such as 30 19{format}(divide)3 to
+    be syntax colored incorrectly.
+
+
+Build #716 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  Display of Floats In Raw Output Isn't Limited By []PP
+
+Directory trunk:
+
+DISPLAY.C
+  In <FormatFloatFC>, if we're displaying raw output, change the
+    precision to []PP and display that many significant digits only.
+
+
+Build #715 -- Version 0.0.2.17
+------------------------------
+
+* Support )LOAD 1 CLEANSPACE
+
+Directory trunk:
+
+SC_COMMON.C:
+  Split out from <DisplayWorkspaceStamp> the code which displays
+    the SAVED message from )LOAD into a separate function named
+    <DisplaySavedMsg> so it can be called from <LoadWorkspace_EM>
+    upon encountering "1 CLEANSPACE".
+
+SC_LOAD.C:
+  Define SYSTEMTIME struc values for the GMT timestamp of "1 CLEANSPACE".
+  In <CmdLoadCom_EM>, check for "1 CLEANSPACE" and process it in the
+    correct order.
+  In <LoadWorkspace_EM>, check for "1 CLEANSPACE", display the timestamp,
+    and treat it otherwise as )CLEAR.
+
+
+Build #714 -- Version 0.0.2.17
+------------------------------
+
+* Implement Mismatch Function
+
+Directory trunk:
+
+EXTERNS.H:
+  Remove Alt-'?' from list of available keystrokes.
+  Move CircleMiddleDot symbol from Alt-'@' to Alt'?'.
+  Define NotEqualUnderbar symbol on Alt-'@' so it's next
+    to EqualUnderbar (Alt-'!').
+
+INITDATA.C:
+  Remove Unfinished mark from Dyadic LeftShoe (Partitioned Enclose)
+    as it's been working for a while.
+  Move CircleMiddleDot symbol from Alt-'@' to Alt'?'.
+  Define NotEqualUnderbar symbol on Alt-'@' so it's next
+    to EqualUnderbar (Alt-'!').
+
+PF_EQUALUND.C:
+  Implement NotEqualUnderbar function and EqualUnderbar via
+    a common function.
+
+REBAR.C
+TOKENIZE.C:
+UNICODE.H
+  Move CircleMiddleDot symbol from Alt-'@' to Alt'?'.
+  Define NotEqualUnderbar symbol on Alt-'@' so it's next
+    to EqualUnderbar (Alt-'!').
+
+SYMBOLNAMES.H:
+  Define symbol name for NotEqualUnderbar.
+  Define alternate symbol names for the underbar alphabet.
+  Define alternate symbol names for EpsilonUnderbar, DeltaUnderbar,
+    IotaUnderbar, LeftCaretUnderbar, RightCaretUnderbar, and
+    EqualUnderbar.
+  Move CircleMiddleDot symbol from Alt-'@' to Alt'?'.
+
+
+Build #713 -- Version 0.0.2.17
+------------------------------
+
+* Display Error Message If Status Window Fails Create
+
+Directory trunk:
+
+MAIN.C:
+  Display an error message and fail startup if creation of
+    the Status Window fails.
+
+
+Build #712 -- Version 0.0.2.17
+------------------------------
+
+* Optimize Ravel Of A vector
+
+Directory trunk:
+
+PF_COMMA.C:
+  Optimize ravel of a vector by passing on the right arg.
+
+
+Build #711 -- Version 0.0.2.17
+------------------------------
+
+* Allow []DM To Be Erased Via )ERASE And []EX
+
+Directory trunk:
+
+ERRMSG.C:
+SC_COPY.C:
+SC_LOAD.C:
+  Use shorter form for the name of []DM.
+
+QF_EX.C:
+  Allow []DM to be erased via )ERASE and []EX.
+
+SYSVARS.H:
+  Remove surrounding parens so it can merge with other
+    wide strings.
+
+VERSION.RC:
+  Increment version to 0.0.2.17.

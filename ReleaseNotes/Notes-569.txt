@@ -1,0 +1,11 @@
+Build #569 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug When Loading A Workspace With An Undo Buffer
+  With A Single Char Selection
+
+Directory trunk:
+
+SAVEFCN.C:
+  In <SF_UndoBufferLW>, handle the case where an undo buffer entry
+    is due to a single character selection.

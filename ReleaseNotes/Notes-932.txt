@@ -1,0 +1,9 @@
+Build #932 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  RAT,[X] RAT Uses Wrong Index On Right Arg
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDydSimpSimp_EM>, <RAT,[X] RAT> uses the wrong index for the right arg.

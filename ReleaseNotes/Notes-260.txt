@@ -1,0 +1,67 @@
+Directory htdocs\dowload:
+
+INDEX.PHP:
+  Include link to browse code in the top menu.
+
+
+Directory trunk:
+
+CHKESP.C:
+EDITCTRL.H:
+EVENTTYPES.H:
+MAKEVER.C:
+MAKEVER.DEF:
+PF_COLONBAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_LCARET.C:
+PF_LCARETUND.C:
+PF_LSHOE.C:
+PF_TACK.C:
+PF_NDCARET.C:
+PF_NEQUAL.C:
+PF_NUCARET.C:
+PF_PLUS.C:
+PF_RCARET.C:
+PF_RCARETUND.C:
+PF_RTACK.C:
+PF_SLASH.C:
+PF_TIMES.C:
+PF_UCARET.C:
+PF_USTILE.C:
+PRIMFNS.H:
+QF_DL.C:
+QF_DM.C:
+QD_EM.C:
+QF_ERROR.C:
+QF_ES.C:
+QF_ET.C:
+QF_LC.C:
+QF_SYSID.C:
+QF_TC.C:
+QF_TS.C:
+QF_TYPE.C:
+QF_UCS.C:
+REFCNT.C:
+SC_ERASE.C:
+SC_RESET.C:
+SORT.C:
+SYSVARS.H:
+TERMCODE.H:
+VER.RC:
+  Remove tabs.
+
+CONVERT.C:
+  Improve comments.
+  Move format string into EXTERNS.H.
+
+EXTERNS.H
+  Move format string into EXTERNS.H.
+  Remove tabs.
+
+SC_COPY.C:
+  Start work on )COPY.
+
+SC_DROP.C:
+  Use equate for output save area length.
+  Improve comments.

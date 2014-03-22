@@ -1,0 +1,9 @@
+Build #1178 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Tokenize On Line Drawing Char
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <scUnkDone>, include the cross line drawing char, mistakenly omitted.

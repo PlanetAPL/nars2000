@@ -1,0 +1,18 @@
+Build #290 -- Version 0.0.0.18562
+---------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Check the return code from FEWndProc/WM_CREATE and display
+    an appropriate message.
+  In FEWndProc/WM_CREATE, test for not a user-defined function/operator
+    and return the NAMETYPE_xxx as the error code.
+
+EXTERNS.H:
+  Define message text for function editor error returns.
+
+PARSE.Y:
+  Fix bug:  In terminal <StrandRec> rule <StrandRec error>, instantiate the
+    strand so we can free its associated storage.  Calling <FreeResult> on
+    the <StrandRec> token accomplishes nothing.

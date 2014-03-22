@@ -1,0 +1,49 @@
+Build #724 -- Version 0.0.2.18
+------------------------------
+
+* Implement Monadic DownTack As Type Primitive Function (Formerly []TYPE)
+
+Directory trunk:
+
+COMPRO.H:
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Remove <qf_type.*> from list of source files.
+
+EXECDFN.C:
+  Change the name of the internal Type function from system to primitive.
+
+EXECMFN.H:
+  Name the equate for the Type primitive funcion.
+
+PF_DTACK.C:
+  Implement monadic DownTack as Type primitive function (previously []TYPE).
+
+QF_FMT.C:
+  Use symbol for Type primitive function instead of the system function.
+
+QF_TYPE.C:
+  Delete the Type system function.
+
+REBAR.C:
+  Document the Type primitive function.
+  Document the Tally primitive function.
+  Document the Indices primitive function.
+
+SYSVARS.C:
+  Remove references to the Type system function.
+
+VERSION.RC:
+  Increment version to 0.0.2.18.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Use Tally function in Trains example.
+  Document the Indices primitive function.
+  Document the Tally primitive function.
+  Document the Mismatch primitive function.
+  Document the Type primitive function.

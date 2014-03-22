@@ -1,0 +1,141 @@
+Version 0.0.2.5 consists of the following Builds:
+
+
+Build #600 -- Version 0.0.2.5
+-----------------------------
+
+* Avoid Screen Flicker With Function Line Numbers
+
+Directory trunk:
+
+EDITFCN.C:
+  Use double buffering when displaying the function line numbers.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  When painting the EC, skip over the left margin (where the
+    function line #s are).
+
+
+Build #599 -- Version 0.0.2.5
+-----------------------------
+
+* Changes To Be Compatible With 64-bit Compiler
+
+Directory trunk:
+
+SC_ERASE.C:
+  Use 32-/64-bit casts for compatibility with 64-bit compiler.
+
+
+Build #598 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Define New Terminal To Handle N-wise Reduction With Ambiguous Operator
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Define <AmbOpX> to include <AmbOp> and <AmbOpAxis> and
+    use that throughout.
+  After <MakePrimXXX>, delete <FreeResult> as there's no
+    increment to <RefCnt> in the Make function.
+  Define new rule to handle N-wise reduction of an <AmbOp>.
+  In terminal <AmbOp:>, remove <AmbOpAxis> as that's now part
+    of <AmbOpX>.
+  In terminal <AmbOpAxis: AmbOp[ArrExpr]>, don't call
+    <MakePrimOp3> as that has already been done in <AmbOp>.
+  Define new terminal <AmbOpX:> to include <AmbOp> and
+    <AmbOpAxis>.
+
+
+Build #597 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Always Display Names That Can't Be Erased
+
+Directory trunk:
+
+SC_ERASE.C:
+  Fix Bug:  If a name isn't erased, always display a message.
+
+SC_LIB.C:
+  Use macro instead of API function.
+
+
+Build #596 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Missing Cases For N-wise Reduction
+
+Directory trunk:
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, handle 0 foo/R via subroutine
+    so it may be reused elsewhere.
+  Define new function <UdfoRedIdentFcn_EM> to handle UDFO reduction
+    identity element function.
+  In <PrimOpDydSlashCommon_EM_YY>, handle N f/ R for N=0 or
+    N=1+({rho}R)[X] and f may be catenate, UDFO, or primitive scalar
+    dyadic function.
+  Fix Bug:  In <PrimOpDydSlashInsertDim_EM>, avoid system crash by
+    moving correct # bytes.
+
+PRIMFNS.C:
+  Remove unneeded comment.
+  Fix Bug:  In <MakeMonPrototype_+EM_PTB>, if return is NULL, don't
+    use <MakePtrTypeGlb> macro on it.
+
+
+Build #595 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Omitted Case Of Dyadic Operator And Jot
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Define omitted case of <LeftOper StrandOp2> which occurs when
+    calling something like +op2{jot}1 2 where the righthand strand
+    may be numeric, character, a constant, or a named var.
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note changes in Version 0.0.2.4.
+
+
+Build #594 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Syntax Color Display Where Last Char Has Non-Default Background
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  When Syntax Coloring and the last char on the previous line
+    has a non-default background color, it leaks through to the next line
+    as its default background color.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note changes in Version 0.0.2.4.
+
+
+Build #593 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Mask Booleans From Token
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  When extracting a Boolean from a token, always mask with BIT0
+    in case there are extra bits set.
+
+VERSION.RC:
+  Increment version to 0.0.2.5.

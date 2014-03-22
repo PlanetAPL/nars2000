@@ -1,0 +1,33 @@
+Build #366 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+DISPLAY.C:
+EDITFCN.C:
+ERRMSG.C:
+EXECMFN.C:
+PF_DTACKJOT.C:
+PF_UTACKJOT.C:
+QF_CR.C:
+QF_ERROR.C:
+QF_ES.C:
+QF_FX.C:
+QF_SYSID.C:
+QF_SYSVER.C:
+QF_TF.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_FNOV.C:
+SC_IN.C:
+SC_WSID.C:
+STRAND.C:
+SYMTAB.C:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+  Use <CopyMemoryW>/<MoveMemoryW> instead of the A-forms.
+
+MACROS.H:
+  Define <CopyMemoryW>/<MoveMemoryW> macros.

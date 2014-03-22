@@ -1,0 +1,12 @@
+Build #717 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  Display of Precision Overflow Is Syntax Colored Incorrectly
+
+Directory trunk:
+
+TOKENIZE.C:
+  In the FSA for TKROW_POINTNOT, there's a missing action upon
+    encountering an underbar to terminate the Point Notation.
+    This causes expressions such as 30 19{format}(divide)3 to
+    be syntax colored incorrectly.

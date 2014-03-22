@@ -1,0 +1,9 @@
+Build #745 -- Version 0.0.2.18
+------------------------------
+
+* Reuse Common Code
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Reuse common code.

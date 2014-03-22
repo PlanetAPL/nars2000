@@ -1,0 +1,20 @@
+Build #957 -- Version 0.0.3.5
+-----------------------------
+
+* Fix Bug In N-wise Reduce
+
+Directory trunk:
+
+PF_CSTILE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PO_SLOPE.C:
+  Test for correct function (CircleStile vs. CircleBar or Slash vs. SlashBar
+    or Slope vs. SlopeBar) when calculating the axis value.
+
+PO_SLASH.C:
+  Test for correct function (Slash vs. SlashBar) when calculating the axis value.
+  Delete special case of N-wise reduce where the left arg is the negative of the
+    axis length.  Not only do we not need this special case, but it's wrong as
+    the function passed to <PrimFnMonCircleStile_EM_YY> isn't one of CircleStile
+    or CircleBar, so the result is calculated on the wrong dimension.

@@ -1,0 +1,12 @@
+Build #1130 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix Bug When Pressing Ctrl-Break In Immediate Execution Mode
+
+Directory trunk:
+
+ERRMSG.C:
+  Handle case where the incoming SIS ptr is NULL, indicating we should set []DM to ''.
+
+PL_PARSE.Y:
+  Call <BreakMessage> every time we are about to execute []ALX, not just from non-immediate execution mode.

@@ -1,0 +1,11 @@
+Build #881 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Set Precision Of VFP Constants Based On # Digits
+
+Directory trunk:
+
+PN_PARSE.Y:
+  In <PN_MakeVfpPoint>, calculate the # significant bits in the number and
+    set the precision to the larger of that and the current precision so as
+    not to under-represent the precision of a constant.

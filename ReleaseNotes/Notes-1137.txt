@@ -1,0 +1,25 @@
+Build #1137 -- Version 0.4.1.xx
+-------------------------------
+
+* Miscellaneous Bug Fixes
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitFcnSTEs>, handle AFO functions.
+
+PF_INDEX.C:
+  Improve comments.
+  Don't call <ArrayInxexValidZilde_EM> if the list arg is not nested.
+
+VER.RC:
+  Increment version # to 0.4.1.xx.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  List additional contributors.
+
+INDEX-BODY.AHTML:
+  Document AFOs as an implemented feature no longer on the Wish List.

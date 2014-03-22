@@ -1,0 +1,10 @@
+Build #1114 -- Version 0.3.11.xx
+--------------------------------
+
+* Simplify Code
+
+Directory trunk:
+
+SC_IN.C:
+SC_OUT.C:
+  Simplify code.

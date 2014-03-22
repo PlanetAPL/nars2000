@@ -1,0 +1,111 @@
+Build #537 -- Version 0.0.2.4
+-----------------------------
+
+* Split Name Class For Magic Functions/Operators In Two
+
+Directory trunk:
+
+DATATYPE.H:
+  Rename <bMFvar> to <bMFOvar> to indicate it include operators.
+
+DISPDBG.C:
+  Rename <bMFvar> to <bMFOvar> to indicate it include operators.
+  Improve comments.
+  Use macro <IsMFOName> instead of direct comparison.
+
+EDITFCN.C:
+  Rename <bMF> to <bMFO> to indicate it includes operators.
+  Improve comments.
+
+EXECDFN.C:
+FH_PARSE.H:
+FREE.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+REFCNT.C:
+SAVEFCN.C:
+SC_SI.C:
+SIS.H:
+  Improve comments.
+
+EXECFNS.C:
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to incidate it includes operators.
+
+EXECMFN.C:
+  Improve comments.
+  Rename <MAGIC_FUNCTION> to <MAGIC_FCNOPR> to indicate it includes operators.
+  Rename <hGlbMF> to <hGlbMFO> to indicate it includes operators.
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to indicate it includes operators.
+  Rename <LPINITMF> to <LPINITMFO> to indicate it includes operators.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+  Rename <MFN_xxx> to <MFON_xxx> to indicate it includes operators.
+  Rename <MF_xxx> to <MFO_xxx> to indicate it includes operators.
+
+EXECMFN.H:
+  Improve comments.
+  Rename <MFN_xxx> to <MFON_xxx> to indicate it includes operators.
+  Rename <MAGIC_FUNCTION> to <MAGIC_FCNOPR> to indicate it includes operators.
+  Rename <LPINITMF> to <LPINITMFO> to indicate it includes operators.
+
+MACROS.H:
+  Rename macro <IsMFName> to <IsMFOName> to indicate it includes operators.
+
+MAIN.C:
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to indicate it includes operators.
+
+NAMECLASS.H:
+  Improve comments.
+  Split name class for magic functions/operators in two.
+
+PERTAB.H:
+  Improve comments.
+  Rename <hGlbMF> to <hGlbMFO> to indicate it includes operators.
+
+PF_DSHOE.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PO_DIJOT.C:
+QF_FMT.C:
+QF_VR.C:
+  Rename <hGlbMF> to <hGlbMFO> to indicate it includes operators.
+  Improve comments.
+  Rename <MFN_xxx> to <MFON_xxx> to indicate it includes operators.
+  Rename <MF_xxx> to <MFO_xxx> to indicate it includes operators.
+  Rename <MAGIC_FUNCTION> to <MAGIC_FCNOPR> to indicate it includes operators.
+
+QF_AT.C:
+QF_MF.C:
+SC_FNOV.C:
+SC_OUT.C:
+SC_SAVE.C:
+TABCTRL.C:
+  Improve comments.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+
+QF_NC.C:
+  Improve comments.
+  Split name class for magic functions/operators in two.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+
+SESSMAN.C:
+  Improve comments.
+  Rename <PTDMEMVIRT_MFx> to <PTDMEMVIRT_MFOx> to indicate it includes operators.
+
+SYMTAB.C:
+  Improve comments.
+  Rename macro <IsMFName> to <IsMFOName> to indicate it includes operators.
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to indicate it includes operators.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+
+SYMTAB.H:
+  Rename <lpHshTabPrvMF> to <lpHshTabPrvMFO> to indicate it includes operators.
+  Rename <OBJNAME_MF> to <OBJNAME_MFO> to indicate it includes operators.
+
+TOKENIZE.C:
+  Rename <bMFvar> to <bMFOvar> to indicate it include operators.
+  Rename <bMF> to <bMFO> to indicate it includes operators.
+  Improve comments.
+
+TOKENIZE.H:
+  Rename <bMF> to <bMFO> to indicate it includes operators.

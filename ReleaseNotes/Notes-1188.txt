@@ -1,0 +1,16 @@
+Build #1188 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Reduce With Type Promotion
+* Simplify Certain Type Promotions
+
+Directory trunk:
+
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PRIMSPEC.C:
+  Add extra argument to <PrimFnDydSiScSiScSub_EM> to return the result storage type
+    in case it changes, and simplify the following code that checks for that case.
+  In <PrimOpMonSlashCommon_EM_YY>, check for type promotion after calling
+    <PrimFnDydSiScSiScSub_EM>.

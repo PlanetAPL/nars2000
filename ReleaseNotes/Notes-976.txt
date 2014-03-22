@@ -1,0 +1,52 @@
+Build #976 -- Version 0.3.7.xx
+------------------------------
+
+* Implement Update Processing
+
+Directory trunk:
+
+COMMON.C:
+  Define <GetSystemDate> routine.
+
+COMPRO.H:
+  Include prototypes for the new file.
+
+CUSTOMIZE.C:
+  Define new user preference for update check frequency.
+  Use proper dialog return macros.
+
+DEFINES.H:
+  Define resource for Updates dialog procedure.
+
+EXTERNS.H:
+  Define update check and frequency data and structs.
+
+HEADERS.H:
+  Move <wininet.h> from <main.c> to <headers.h> so we can use its typedefs in .pro files.
+
+INIFILE.C:
+  Read in and write out update check and frequency info.
+
+MAIN.C:
+  Move <wininet.h> from <main.c> to <headers.h> so we can use its typedefs in .pro files.
+  Move previous update check code to new file <updates.c>.
+
+MAIN.RC:
+  Reorganize the Update Check dialog to include downloading the new version.
+  Include update frequency check user preference. in user preference dialog.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include new file.
+
+RESOURCE.H:
+  Define resource for update frequency checks.
+  Define resources for update download and run.
+
+TABCTRL.C:
+  Remove restoration of display rectangle around workspace tabs.
+
+UPDATES.C:
+  Define new file to handle all update check and download/run code.

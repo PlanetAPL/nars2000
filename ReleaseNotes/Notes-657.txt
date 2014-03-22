@@ -1,0 +1,12 @@
+Build #657 -- Version 0.0.2.13
+------------------------------
+
+* Fix Bug:  Comparison Of Version Numbers In Update Check Is Wrong
+
+Directory trunk:
+
+MAIN.C:
+  Instead of comparing the version #s as strings (which fails for
+    x.x.x.8 vs. x.x.x.12), split out the separate numbers, then
+    combine them each into a single number and compare those two
+    numbers.

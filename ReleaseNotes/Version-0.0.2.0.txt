@@ -1,0 +1,299 @@
+Version 0.0.2.0 consists of the following Builds:
+
+
+Build #490-- Version 0.0.2.0
+----------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk:
+
+MASM64.RULES:
+  Define new file for 64-bit assembler.
+
+
+Build #489-- Version 0.0.2.0
+----------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Changes to enable 64-bit compile.
+
+
+Build #488-- Version 0.0.2.0
+----------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk:
+
+DBGBRK.ASM:
+  Define FPU Status Word record for exception testing.
+  Define <iAsmAdd64>, <iAsmSub64>, and <iAsmMul64> for both
+    32- and 64-bit platforms where the 64-bit version uses
+    integer registers.
+
+DBGBRK.PRO:
+  Put prototypes into separate file.
+
+DTOA.C:
+  Set FPU precision on 32-bit platform only.
+
+MAIN.C:
+  Remove change of rounding precision as it isn't used here anymore.
+
+MAKEFILE.INC:
+  Set compiler flags for WINVER, etc.
+  Define ZIP target and associated actions.
+  Split out ZIP action from EXE target actions.
+
+NARS2000.32.SLN:
+NARS2000.64.SLN:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define new files (derived from NARS2000.sln and NARS2000.vcproj)
+    for separate 32- and 64-bit platforms.
+
+NARS2000.EXE.MANIFEST32:
+  Fix Bug:  Used wrong value for processor architecture.
+
+PRIMFNS.C:
+  Move 32-bit assembler code into separtate file (DBGBRK.ASM) to
+    make it parallel with the 64-bit version.
+
+VER.RC:
+VERSION.RC:
+  Change version # to 0.0.2.0 for 64-bit version.
+
+
+Directory trunk\htdocs:
+
+DOWNLOAD-BODY.PHP:
+  Handle both 32- and 64-bit platforms.
+
+
+Build #487-- Version 0.0.1.18
+------------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk:
+
+EDITFCN.C:
+EXTERNS.H:
+  Changes to enable 64-bit compile.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Changes to enable 64-bit compile.
+
+
+Build #486-- Version 0.0.1.18
+------------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk:
+
+COMMON.C:
+CONVERT.C:
+CRASH.C:
+CUSTOMIZE.C:
+DATATYPE.H:
+DBGBRK.ASM:
+DBGBRK.PRO:
+DEBUG.C:
+DEFINES.H:
+DISPDBG.C:
+EDITFCN.C:
+EDITMAT.C:
+EDITVEC.C:
+EXCEPT.C:
+EXTERNS.H:
+FMTSPEC.C:
+GETREENT.C:
+INIFILE.C:
+MAIN.C:
+MAIN.H:
+MAIN.RC:
+  MAKEFILE.INC:
+  MAKEFILE.W32:
+MAKEFILE.W64:
+MAKEPRO.PHP:
+NARS2000.EXE.MANIFEST:
+NARS2000.EXE.MANIFEST32:
+NARS2000.EXE.MANIFEST64:
+PERFMON.C:
+PERTAB.H:
+PF_CIRCLE.C:
+PF_DTACKJOT.C:
+PF_UTACKJOT.C:
+PRIMFNS.C:
+QF_DR.C:
+QF_FMT.C:
+QF_NC.C:
+QF_SYSVER.C:
+QF_TF.C:
+QF_WA.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SESSMAN.C:
+SYMTAB.C:
+TABCTRL.C:
+TOKENIZE.C:
+VER.C:
+WEBCOLORS.C:
+YYFNS.C:
+  Changes to enable 64-bit compile.
+
+
+Directory trunk\WineHQ:
+
+CONFIG.H:
+LOCAL.H:
+  Changes to enable 64-bit compile.
+
+
+Directory trunk\WineHQ\include:
+
+STDARG.H:
+STDLIB.H:
+STRING.H:
+WINBASE.H:
+  Changes to enable 64-bit compile.
+
+
+Directory trunk\WineHQ\include\msvcrt\Wine:
+
+DEBUG.H:
+  Changes to enable 64-bit compile.
+
+
+Build #485-- Version 0.0.1.18
+------------------------------
+
+* Changes to use new GSL code.
+
+Directory trunk:
+
+INITDATA.C:
+  Define <__infinity> for new GSL code.
+
+MAKEFILE.INC:
+  Define equates for new GSL code.
+
+
+Build #484-- Version 0.0.1.18
+------------------------------
+
+* Remove unnecessary directives from <bjhash.c>
+
+Directory trunk:
+
+BJHASH.C:
+  Remove unnecessary directives.
+
+
+Build #483 -- Version 0.0.1.18
+------------------------------
+
+* Move to more wide char code.
+
+Directory trunk:
+
+COMMON.C:
+  Fix calculation of window size for windows without a menu.
+  Change more code from ASCII to Wide chars.
+
+COMPRO.H:
+DBGBRK.PRO:
+  Move DbgBrk prototypes into separate file.
+
+CRASH.C:
+CUSTOMIZE.C:
+DEBUG.C:
+EDITFCN.C:
+EXECDFN.C:
+EXTERNS.H:
+MAIN.C:
+PL_PARSE.Y:
+QF_DL.C:
+SC_IN.C:
+SC_INASCII.C:
+SESSMAN.C:
+TABCTRL.C:
+VER.C:
+WEBCOLORS.C:
+  Change more code from ASCII to Wide chars.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Change more code from ASCII to Wide chars.
+
+
+Build #482 -- Version 0.0.1.18
+------------------------------
+
+* Fix Bug:  For {times}/{iota}N, the incorrect calculation of the
+    result storage type crashes the system.
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix Bug:  When calculating the storage type of {times} reduction
+    on an APA, the storage type of the result is APA rather than
+    integer because of a missing NELM.
+
+
+Build #481 -- Version 0.0.1.18
+------------------------------
+
+* Reduce Status Msg flicker.
+* Reduce # calls to <SendCursorMsg>.
+
+Directory trunk:
+
+DEFINES.H:
+  Define Status Msg property string.
+
+EDITFCN.C:
+  Reorganize the code.
+  Skip setting the Status Msg and mouse cursor if already the same state.
+  Change <SendCursorMsg> to <ForceSendCursorMsg> to force a value for
+    <lpMemPTD->bExecuting> as that value might not be correctly set
+    when this routine is called.
+
+EXECDFN.C:
+IMMEXEC.C:
+PL_PARSE.Y:
+SESSMAN.C:
+  Remove calls to <SendCursorMsg> in favor of around immediate execution mode
+    and when the siz-space indent prompt is displayed.
+
+MAIN.C:
+  Set the Status Msg property when setting the Status Msg so we can
+    determine the previous state.
+
+
+Build #480 -- Version 0.0.1.18
+------------------------------
+
+* Fix Bug:  When returning a prototype in a dyadic context where
+  the result is an APA, the proper bits in the result weren't set.
+
+Directory trunk:
+
+PRIMFNS.C:
+  Fix Bug:  In <MakeDydPrototype>, return HGLOBAL with ptr type
+    bits set.
+
+VERSON.RC:
+  Start of Version 0.0.1.18.

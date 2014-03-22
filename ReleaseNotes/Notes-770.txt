@@ -1,0 +1,96 @@
+Build #770 -- Version 0.0.2.19
+------------------------------
+
+* Subclass Certain Rebar Windows So We Can Use Multiline Tooltips
+
+Directory trunk:
+
+DATATYPE.H:
+  Move typedefs to common file <types.h>.
+
+DEFINES.H:
+  Move definition of <MYWM_INIT_EC> from <editctrl.h> to here so it
+    can be used by other window procedures.
+
+DICTIONARY.C:
+  Include <enums.h>.
+  Replace <datatype.h> with <types.h>.
+  Remove <main.h> as we're deleting that file.
+
+EDITCTRL.H:
+  Move definition of <MYWM_INIT_EC> from here to <defines.h> so it
+    can be used by other window procedures.
+
+EDITFCN.C:
+  Change the width of character position vars from <DOWRD> to <APLU3264>
+    so it is sensitive to 32- vs. 64-bit.
+  In <LclEditCtrlWndProc/WM_CHAR>, make the <wParam> and <lParam> vars
+    actual vs. #defines in DEBUG vs. non-DEBUG contexts to make it easier
+    to debug.
+  Rename Object Window vars from <FN> to <OW>.
+
+ENUMS.H:
+  Rename Object Window vars from <FN> to <OW>.
+  Move enums to common file <enums.h>.
+
+EXTERNS.H:
+  Rename Object Window vars from <FN> to <OW>.
+  Move struct from <main.h> to <externs.h> as we're deleting
+    the former file.
+  Move typedefs to common file <types.h>.
+
+HEADERS.H:
+  Move preprocessor instructions from <main.h> to <headers.h>
+    as we're deleting the former file.
+  Move <defines.h> up in the order as we need it for earlier includes.
+  Include <types.h> in the list.
+  Remove <main.h> as we're deleting that file.
+
+INIPARSER.C:
+  Replace <datatype.h> with <types.h>.
+  Remove <main.h> as we're deleting that file.
+
+MAIN.C:
+  Rename Object Window vars from <FN> to <OW>.
+  Rename resource vars for functions from <_FN> to <FCN> to
+    avoid conflict with Font Name vars.
+
+MAIN.H:
+  Transfer the contents of thie file to <enums.h>, <types.h>,
+    and <headers.h>, and remove the file
+
+MAIN.RC:
+  Rename Object Window vars from <FN> to <OW>.
+  Rename resource vars for functions from <_FN> to <FCN> to
+    avoid conflict with Font Name vars.
+
+MAKEFILE.INC
+  Remove <main.h> as we're deleting that file.
+
+REBAR.C:
+  Rename Object Window vars from <FN> to <OW>.
+  Use multiple image lists so the tooltip for the dropdown arrows
+    is separate from the tooltip for the icon associated with the
+    dropdown arrow.
+  Subclass the Workspace, Edit, and Objects windows so we can
+    tell the Tooltip Control that we're using multiline tooltips.
+  Rename resource vars for functions from <_FN> to <FCN> to
+    avoid conflict with Font Name vars.
+  Define routine to handle subclassing of the Workspace, Edit, and
+    Objects windows.  In particular, we need to handle the mouse
+    move and leave messages and tell the Tooltip Control that we're
+    using multiline tooltips.
+  Improve comments.
+
+RESOURCE.H:
+  Rename Object Window vars from <FN> to <OW>.
+  Rename resource vars for functions from <_FN> to <FCN> to
+    avoid conflict with Font Name vars.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Remove <main.h> as we're deleting that file.
+  Include <types.h> as it has something in it which used to be
+    in <main.h> and is needed by <ecitctrl.c>.

@@ -1,0 +1,192 @@
+Version 0.0.2.21 consists of the following Builds:
+
+
+Build #796 -- Version 0.0.2.21
+------------------------------
+
+* Allow More Syntax Constructions
+* Coalesce Several Semantic Actions Into A Few
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Allow more syntax constructions such as LeftMonOper:Drv3Func AmbOpX,
+    LeftOper:Drv3Func DydOp RightOper, Train:LeftOper Drv1Func,
+    Train:LeftOper Drv6Func, etc.
+  In <CheckNullOp3>, simplify the code.
+
+
+Build #795 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Quad Input Not Handled Correctly
+
+Directory trunk:
+
+IMMEXEC.C:
+  Update copyright year.
+  In <ImmExecStmtInThread>, handle an exit type of DISPLAY
+    the same as NODISPLAY so as to catch Quad Input the same.
+
+
+Build #794 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Reference Count Is Off
+
+Directory trunk:
+
+FREE.C:
+  Update copyright year.
+  Ensure <FreeResNNU> tests for a named function/operator.
+  When freeing a fcn/opr/var, set the value to <PTR_REUSED> so we
+    can test for it later.
+
+PL_PARSE.Y:
+  Update copyright year.
+  Move the call to <YYFreeArray> out of <MakeFcnStrand_EM_YY> into
+    the actions in <pl_parse.y> as calling in <MakeFcnStrand_EM_YY>
+    is too soon.
+
+STRAND.C:
+  Update copyright year.
+  Move the call to <YYFreeArray> out of <MakeFcnStrand_EM_YY> into
+    the actions in <pl_parse.y> as calling in <MakeFcnStrand_EM_YY>
+    is too soon.
+
+YYFNS.C:
+  Update copyright year.
+  In <YYCopyFcn>, if we encounter a function array that's been
+    YYCopyArray'ed run it through <YYFreeArray>.
+  In <YYFreeArray>, if the global memory handle is <PTR_REUSED>,
+    ignore it.
+  In <YYFreeGlbFcn>, do not ignore the contents of Trains when
+    recursing.
+
+
+Build #793 -- Version 0.0.2.21
+------------------------------
+
+* Implement Customize Category For Specifying Directories
+* Implement [first][-][last] Parameter For )FNS/)LIB/)NMS/)OPS/)VARS
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Include <shlobj.h> for <SHBrowseForFolder>.
+  Implement customize category for specifying directories.
+
+DEFINES.H:
+  Define command line switch char for use in )LIB.
+
+EXTERNS.H:
+INIFILE.C:
+MAIN.RC:
+RESOURCE.H:
+  Implement customize category for specifying directories.
+                                                                 `
+SC_COMMON.C:
+  In <MakeWorkspaceNameCanonical>, ensure there's a backslash
+    between the input and the default directory.
+  Define new function to append a backslash to a string unless
+    there is already one there.
+  Define new function to check for command line switches such as
+    [first][-][last].
+
+SC_FNOV.C:
+  Update copyright year.
+  Implement [first][-][last] parameter for )FNS/)LIB/)NMS/)OPS/)VARS.
+
+SC_LIB.C:
+  Update copyright year.
+  Implement customize category for specifying directories.
+  Implement [first][-][last] parameter for )FNS/)LIB/)NMS/)OPS/)VARS.
+
+SORT.C:
+  Update copyright year.
+  Improve comments.
+  Define <round> routine to do symmetrical rounding.
+  Define comparison routine for LPLPWCHARs.
+  Change the translate tables for <aplcmp> to sort digits before
+    the alphabet so it matches the comparison order used in
+    [first][-][last].
+
+WORKSPACE.H:
+  Update copyright year.
+  Define workspace extensions and their lengths.
+
+
+Build #792 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Handle CapsLock And NumLock In Keyboard Code
+
+Directory trunk:
+
+DEFINES.H:
+  Define additional bit masks.
+
+DISPDBG.C:
+  Update copyright year.
+  Use bit mask instead of constant.
+
+EDITFCN.C:
+  Include <scancodes.h>.
+  Declare <ksXXX> vars as Boolean as they are TRUE/FALSE.
+  In <WM_KEYDOWN> and <WM_SYSKEYDOWN>, handle the CapsLock and
+    NumLock keys.
+
+SCANCODES.H:
+  New file to define scan codes.
+
+SESSMAN.C:
+  Update copyright year.
+  Use bit mask instead of constant.
+  Check for error return from <MyGlobalAlloc>.
+
+
+Build #791 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Floating Point Left Arg To Reshape Not Handled Correctly
+
+Directory trunk:
+
+PF_RHO.C:
+  Update copyright year.
+  After validating the left arg, when referencing it again, convert
+    it to integer using the same algorithm as when validating it.
+  Improve comments.
+
+
+Build #790 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Don't Save []DM To .ATF File
+
+Directory trunk:
+
+SC_IN.C:
+  Update copyright year.
+  Fix Bug:  Skip over []DM if found in a .atf file (should never
+    have been allowed).
+
+SC_OUT.C:
+  Update copyright year.
+  Fix Bug:  Don't save []DM to a .atf file.
+
+
+Build #789 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Display Of Too Long System Names May Crash The System
+
+Directory trunk:
+
+SYMTAB.C:
+  Update copyright year.
+  Fix Bug:  An attempt to display a system name longer than 31
+    chars may crash the system.
+
+VERSION.RC:
+  Increment version to 0.0.2.21.

@@ -1,0 +1,81 @@
+Build #357 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+  Append "Web Colors" menu item to the basic and custom colors.
+  Improve comments.
+  In conjunction with the move of Syntax Color names from <LTEXT>
+    entries in <main.rc> to a struc in <externs.h>, we now need
+    to write out the static text within <WM_INITDIALOG> for the
+    Syntax Coloring property page.
+  Remove all references to <ccHookProc> as a means of displaying
+    Web Color Names.
+  When displaying the menu of colors, expand the test for special
+    items to include "Web Colors".
+  In response to <WM_COMMAND>, delete references to the three long
+    list of case stmts of Syntax Color categories in place of code
+    in the default entry for the SWITCH stmt which tests <idCtl>
+    against the first and last IDs of the three categories.
+  In response to the result from <TrackPopupMenu>, include the
+    case of Web Colors.
+
+DEFINES.H:
+  Remove references to Web Color class name of "WCClass" and associated
+    messages as we're using a Dialog instead of a window.
+
+EDITFCN.C:
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+EXTERNS.H:
+  Move Syntax Color names from <LTEXT> entries in <main.rc>
+    to a struc in <externs.h> so we can use them elsewhere.
+  Define struct to contain both the Syntax Color and its name.
+  Improve comments.
+
+INIFILE.C:
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+MAIN.C:
+  Remove references to Web Color class name of "WCClass" and associated
+    messages as we're using a Dialog instead of a window.
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+MAIN.RC:
+  Update copyright year.
+  Move Syntax Color names from <LTEXT> entries in <main.rc> to
+    a struc in <externs.h>.
+  Label each Syntax Color name <LTEXT> entry so we can write to it.
+  Define new Web Colors dialog to allow the user to choose on of
+    those colors.
+
+RESOURCE.H:
+  Update copyright year.
+  Define various IDs for Web Color Names dialog and its controls.
+  Renumber entries to make room for expansion -- numbers are cheap.
+
+SYNTAXCOLORS.H:
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+TOKENIZE.C:
+  Rename and redefine <gSyntaxColors> from typedef of <SYNTAXCOLORS>
+    to typedef of <SYNTAXCOLORNAME> named <gSyntaxColorName>, item
+    <syntClr>.
+
+WEBCOLORS.C:
+  Update copyright year.
+  Change from window proc to a dialog proc called from the popup
+    menu of basic and custom colors.

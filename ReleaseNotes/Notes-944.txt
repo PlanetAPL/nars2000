@@ -1,0 +1,9 @@
+Build #944 -- Version 0.0.3.4
+-----------------------------
+
+* Define EXTERN For Msieve
+
+Directory msieve:
+
+SMALLFACT.C:
+  Define EXTERN for when we include <primes.h> outside <main.c>.

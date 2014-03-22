@@ -1,0 +1,154 @@
+Build #279 -- Version 0.0.0.18148
+---------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  Tell <HshTabFrisk> which HshTab to frisk.
+
+COMMON.C:
+  Change from registry to .ini file for storing program-specific data.
+  Rename <GetFileNames> to <GetModuleFileNames> to reflect the module aspect better.
+  Use <lpwszWorkDir> in AppData instead of <wszWorkDir> in same dir as program.
+
+COMPRO.H:
+  Change from registry to .ini file for storing program-specific data.
+
+CONVERT.C:
+  Rename <CharToName> to <CharToSymbolName> to reflect the symbol aspect better.
+  Rename <NameToChar> to <SymbolNameToChar> to reflect the symbol aspect better.
+
+DISPDBG.C:
+  Tell <DisplayHshTab> which HshTab to display.
+  Improve comments.
+
+DISPLAY.C:
+  Fix typo in comments.
+
+EDITFCN.C:
+  Skip changing []PW on WM_SIZE if width is zero.
+
+EXECDFN.C:
+  Fix typo in comment.
+
+EXTERNS.H:
+  Define global HshTab constants.
+
+INIFILE.C:
+  Change from registry to .ini file for storing program-specific data.
+
+MACROS.H:
+  Surround macro args in parens to avoid undesired scope changes.
+
+MAIN.C:
+  Use equate for program name.
+  Rename <LAPPEND_DEBUG> to <WS_APPEND_DEBUG> to reflect wide chars better.
+  Change from registry to .ini file for storing program-specific data.
+  Include <Assert> after assigning <hGlbPTD>.
+  In <TCN_SELCHANGE>, skip hide if tabs are the same.
+  Allocate separate HshTab for use with translations to/from {symbol} names as that
+    transl;ation doesn't need a symbol table.  This way, we don't need to be dependent
+    upon <hGlbPTD> being defined.
+  Rename <GetFileNames> to <GetModuleFileNames> to reflect the module aspect better.
+  Create %APPDATA% directories early on before reading from the .ini file.
+  Initialize symbol names before reading from the .ini file.
+
+MAKEFILE:
+  Include <userenv.lib> as we need it to obtain %APPDATA% value from the environment block.
+  Change from registry to .ini file for storing program-specific data.
+
+PERTAB.H:
+  Move HshTab data into struc so we can more easily switch between the two HshTabs.
+
+PF_DSHOE.C:
+  Fix typo in comment.
+
+PF_DTACKJOT.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Improve comments.
+
+PF_RHO.C:
+  Fix typo in comment.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+QF_SYSID.C:
+  Use equate for program name.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+SAVEFCN.C:
+  Fix typo in comments.
+  Rename <NameToChar> to <SymbolNameToChar> to reflect the symbol aspect better.
+
+SC_COPY.C:
+  Use <lpwszWorkDir> in AppData instead of <wszWorkDir> in same dir as program.
+
+SC_DROP.C:
+  Use <lpwszWorkDir> in AppData instead of <wszWorkDir> in same dir as program.
+
+SC_LIB.C:
+  Use <lpwszWorkDir> in AppData instead of <wszWorkDir> in same dir as program.
+
+SC_LOAD.C:
+  Use <lpwszWorkDir> in AppData instead of <wszWorkDir> in same dir as program.
+  Rename <NameToChar> to <SymbolNameToChar> to reflect the symbol aspect better.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+SC_SAVE.C:
+  Use <lpwszWorkDir> in AppData instead of <wszWorkDir> in same dir as program.
+  Improve comments.
+  Rename <CharToName> to <CharToSymbolName> to reflect the symbol aspect better.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+SC_WSID.C:
+  Use <lpwszWorkDir> in AppData instead of <wszWorkDir> in same dir as program.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+SESSMAN.C:
+  Define enum for entries in <lpLclMemVirtStr> in PerTabData.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Move initialization of symbol names to <MAIN.C>
+  In debug version, display both HshTabs on <VK_F2>.
+
+SYMTAB.C:
+  Tell various functions which HshTab to use.
+  Make code independent of which HshTab is being used.
+  Improve comments.
+  Avoid calling <dprintfW> and <DbgMsgW> unless <hGlbPTD> from the thread is valid (crash).
+  Rename <AppendCharValue> and <AppendCharName> to <AppendSymbolValue> and <AppendSymbolName>
+    to reflect their purpose better.
+  In <AppendSymbolValue> and <AppendSymbolName>, remove dependency on <hGlbPTD> as
+    it isn't defined when we use these functions.
+  Rename <InitCharNameValues> to <InitSymbolNameValues> to reflect its purpose better.
+  Rename <CharToName> to <CharToSymbolName> to reflect the symbol aspect better.
+
+SYMTAB.H:
+  Delete commented out lines.
+
+SYSVARS.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Tell <HshTabFrisk> which HshTab to frisk.
+  Use <lpwszWorkDir> in AppData instead of <wszWorkDir> in same dir as program.
+  Use CWS or system value of SysVar depending upon global bit (which will ultimately be
+    selectable from a user option dialog).
+  Rename <bQuadxSA> to <cQuadxSA> as the value isn't Boolean.
+
+SYSVARS.H:
+  Define braces version of default []FC for use in <ReadIniFileGlb>.
+  Define wide-string version of default []ALX/[]ELX for use in <ReadIniFileGlb>.
+
+TABCTRL.C:
+  Improve comments.
+  Include <Assert> after assigning <hGlbPTD>.
+  In <TCM_DELETEITEM>, tell the Master Frame about the change in tab selection.
+
+TRANSLATE.C:
+  In <TranslateTabIndexToID>, check for invalid index or <hGlbPTD>.
+
+VER.RC:
+  Use equate for program name.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Delete debug statements.

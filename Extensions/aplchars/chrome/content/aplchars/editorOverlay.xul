@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay [
+<!ENTITY % aplcharsDTD SYSTEM "chrome://aplchars/locale/aplchars.dtd" >
+%aplcharsDTD;
+<!ENTITY % aplextsDTD  SYSTEM "chrome://aplchars/content/extensions.dtd" >
+%aplextsDTD;
+]>
+
+<overlay id="aplcharsEditorOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <!-- This imports the debugging javascript for this module -->
+    <script type="application/x-javascript"
+            src="chrome://aplchars/content/mydump.js" />
+    <script type="application/x-javascript">
+        // Define globals with the names of extension preferences
+        //   because we can't reference the names directly within
+        //   the Javascript file (editorOverlay.js).
+    var gAplCharsRoot           = "&aplchars.root;";
+    var gAplCharsCharsEnabled   = "&aplchars.charsenabled;";
+    var gAplCharsKeyboardLayout = "&aplchars.keyboardlayout;";
+    </script>
+
+    <!-- This imports the corresponding javascript for this module -->
+    <script type="application/x-javascript"
+            src="chrome://aplchars/content/editorOverlay.js" />
+</overlay>

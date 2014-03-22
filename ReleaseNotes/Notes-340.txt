@@ -1,0 +1,16 @@
+Build #340 -- Version 0.0.1.0
+-----------------------------
+
+Directory trunk:
+
+ADDSYSVAR.TXT:
+  Improve comments.
+
+ECHODOT.BAT:
+ECHODOT.PHP:
+  Use these files instead of <echodot.com> as x64 doesn't
+    execute 16-bit code.
+
+VER.RC:
+VERSION.RC:
+  For first release, set the version # to 0.0.1.0.

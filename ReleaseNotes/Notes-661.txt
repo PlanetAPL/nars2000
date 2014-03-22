@@ -1,0 +1,10 @@
+Build #661 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug In Customize When Changing a Foreground Syntax Color
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  In <CustomizeDlgProc>, when Applying a change to a foreground
+    Syntax Color, a previous optimization caused the change to be lost.

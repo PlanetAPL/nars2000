@@ -1,0 +1,12 @@
+Build #1107 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Each When Calculating The Result Rank
+
+Directory trunk:
+
+PO_DIERESIS.C:
+  Fix bug introduced in build #1093 where the calculation of the result rank
+    was wrong if neither arg is a singleton and the left arg rank is smaller
+    than the right arg rank.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.

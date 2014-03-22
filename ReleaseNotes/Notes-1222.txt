@@ -1,0 +1,16 @@
+Build #1222 -- Version 0.4.6.xx
+-------------------------------
+
+* Update Copyright Year
+
+Directory trunk:
+
+VER.RC:
+  Update copyright year.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+LICENSE-BODY.HTML:
+  Update copyright year.

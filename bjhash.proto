@@ -1,0 +1,4 @@
+int hashword(const int *k, size_t length, int initval);
+int hashlittle( const void *key, size_t length, int initval);
+void hashlittle2(const void *key, size_t length, int *pc, int *pb);
+int hashbig( const void *key, size_t length, int initval);

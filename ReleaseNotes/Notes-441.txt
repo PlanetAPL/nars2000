@@ -1,0 +1,22 @@
+Build #441 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+DISPLAY.H:
+  Move the DEBUG version signatures of the <FMTxxxSTR>s to the end so
+    as to have the same offsets in the non-DEBUG and DEBUG versions
+    as well as make it easier to find bugs that show up in the non-DEBUG
+    version only.
+
+PF_DTACKJOT.C:
+  Fix Bug:  In <CompileArrNestedGlb>, when displaying an array such as
+      1 (0 0{rho}0)
+    although there are no columns in the second element, nonetheless
+    <lpFmtColStr> is used even though it's invalid.  This causes the
+    ptr to increment an element in the preceding <FMTROWSTR> instead
+    of the expected <FMTCOLSTR> and results in too many empty rows in
+    the display.  This bug evidences itself only in the non-DEBUG
+    version because the DEBUG version starts each <FMTxxxSTR> entry
+    with a signature which is what the incorrect ptr increments,
+    harmlessly.

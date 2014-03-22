@@ -1,0 +1,148 @@
+Directory trunk\htdocs:
+
+CONTRIBUTORS.AHTML:
+  Include link to browse code in the top menu.
+
+INDEX.AHTML:
+  Include link to browse code in the top menu.
+  Omit )LOAD in TBD list.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Insert missing (but unused) closing brace.
+
+Directory trunk:
+
+APLERRORS.H:
+  Define error message for when there are too many tabs.
+
+COMMON.C:
+  Change <szSaveDir>/<szLoadDir> to <wszWorkDir>.
+
+DEBUG.C:
+  Unlock/Lock around call to <CreateMDIWindowW> to help track down bug (not found as yet).
+  Call <LCLODSAPI> around call to <DefMDIChildProcW> to provide more debugging info.
+  Remove calls to unhooking <LclListboxWndProc> as we don't need to do that.
+
+EDITFCN.C:
+  When writing error message into the SM of an inactive tab, test for inactive tab
+    in <WM_PAINT> and ignore the msg (it'll get painted when the window is next visible).
+
+EXCEPT.C:
+  Include stack trace code to help track down bug (not found as yet).
+
+EXTERNS.H:
+  Reduce address space allocations so we can fit more tabs.
+  Change <szSaveDir>/<szLoadDir> to <wszWorkDir>.
+  Widen various strings to simplify code elsewhere.
+  Move <gOverTab> to be with other similar vars.
+  Move <lpszVersion> to VER.C as it's used there only.
+
+MAIN.C:
+  Move local PTD vars up to common stack space in <MFWndProc>.
+  Widen various strings to simplify code elsewhere.
+  Can't call <CmdSave_EM> from <MFWndProc> as the MF thread is not tab-specific
+    and so the code it calls won't work.  Instead, define and use new message.
+  Remove calls to unhooking <LclListboxWndProc> as we don't need to do that.
+
+MAIN.H:
+  Can't call <CmdSave_EM> from <MFWndProc> as the MF thread is not tab-specific
+    and so the code it calls won't work.  Instead, define and use new message.
+
+PERTAB.H:
+  Remove <lpwszCurLine> and <lpwszTmpline> in favor of a single global <hGlbCurLine>
+    (uses less address space which I'm trying to conserve to as to get more tabs).
+
+PF_COMMA.C:
+  If catenating a Boolean value and a Boolean APA (e.g., 32{rho}0),
+    make the result Boolean, too.
+
+PF_UTACKJOT.C:
+  Use common routine to get <hWndEC> for the Session Manager.
+
+PRIMSPEC.C:
+  Define routine to check for Boolean APA.
+
+QF_SYSVER.C:
+  Improve comments.
+  Widen various strings to simplify code elsewhere.
+  Re-allocate <hGlbRes> downwards after calculating the actual NELM.
+
+RESDEBUG.C:
+  Omit line # from all calls to <_DeleObj> as it is not used.
+
+SAVEFCN.C:
+  Fix bug in <SF_UndoBufferLW>, by checking for empty Undo Buffer.
+
+SC_DROP.C:
+  Change <szSaveDir>/<szLoadDir> to <wszWorkDir>.
+
+SC_LIB.C:
+  Use command line tail as directory of workspaces to list.
+  Change <szSaveDir>/<szLoadDir> to <wszWorkDir>.
+
+SC_LOAD.C:
+  Change <szSaveDir>/<szLoadDir> to <wszWorkDir>.
+  In <CmdLoadCom_EM>, check for WS NOT FOUND so we don't have to
+    write back into the previous tab.
+  Switch from separate [Globalxxxs] to one [Globals] so we can
+    better handle non-empty SI (though that isn't handled as yet).
+
+SC_SAVE.C:
+  In <MakeWorkspaceNameCanonical>, prepend <wszWorkDir> only if the
+    input string has no drive letter, and not current or root dir.
+  Switch from separate [Globalxxxs] to one [Globals] so we can
+    better handle non-empty SI (though that isn't handled as yet).
+  Change <szSaveDir>/<szLoadDir> to <wszWorkDir>.
+  Rename <SaveNewWsid> to <SaveNewWsid_EM> to mark that it returns
+    an error message.
+  Use <ReplaceLastLineCRPmt> instead of <AppendLine> in case called
+    as inactive tab.
+
+SC_WSID.C:
+  Change <szSaveDir>/<szLoadDir> to <wszWorkDir>.
+  Use <ReplaceLastLineCRPmt> instead of <AppendLine> in case called
+    as inactive tab.
+
+SESSMAN.C:
+  Remove <lpwszCurLine> and <lpwszTmpline> in favor of a single global <hGlbCurLine>
+    (uses less address space which I'm trying to conserve to as to get more tabs).
+  Define common function to return <hWndEC> for the Session Manager.
+  Define common function to replace the last line and end with a CR/LF.
+  Define common function to replace the last line, end with a CR/LF, and display a prompt.
+  Define common function to get the line length of a given line in the Edit Control.
+  Can't call <CmdSave_EM> from <MFWndProc> as the MF thread is not tab-specific
+    and so the code it calls won't work.  Instead, define and use new message.
+
+STARTADDR.H:
+  Append more addresses.
+
+SYMTAB.H:
+  Reduce address space allocations so we can fit more tabs.
+
+SYSCMDS.C:
+  Use <ReplaceLastLineCRPmt> instead of <AppendLine> in case called
+    as inactive tab.
+
+SYSVARS.C:
+  Change <szSaveDir>/<szLoadDir> to <wszWorkDir>.
+
+TABCTRL.C:
+  Set <gCurTab> early in tab creation so we can use it later on.
+  Remove calls to unhooking <LclListboxWndProc> as we don't need to do that.
+  Gray out unimplemented menu entries.
+  In <TCM_DELETEITEM>, call the original window proc so it can delete the tab,
+    and we can get the current tab index afterwards.
+  In <CloseTab_EM>, omit code to close debugger as that's now done at the end
+    of <CreateTabInThread>.
+  Display a number in the tab text to better identify the tab as well as
+    so it can be referred to in )COPY.
+  Define common function to determine if the current tab is active.
+
+VER.C:
+  Widen various strings to simplify code elsewhere.
+
+WORKSPACE.H:
+  Switch from separate [Globalxxxs] to one [Globals] so we can
+    better handle non-empty SI (though that isn't handled as yet).

@@ -1,0 +1,9 @@
+Build #1183 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug When Freeing Global Storage
+
+Directory trunk:
+
+TABCTRL.C:
+  Fix bug in <FreeGlobalStorage> by checking for zero global memory handle.

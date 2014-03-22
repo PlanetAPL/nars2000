@@ -1,0 +1,136 @@
+Directory trunk:
+
+ASSIGN.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+COMMON.C:
+  Define IsWhiteW as wide-char version of IsWhite.
+  Define SkipBlackW as wide-char version of SkipBlack.
+  Define SkipToCharW to skip to a given WCHAR.
+  Define SkipPastCharW to skip past a given WCHAR.
+
+CONVERT.C:
+  Define ConvertWideToNameLength as subroutine to ConvertWideToName.
+    so we can use it with non-zero-terminated text.
+
+DEBUG.C:
+  Use __try/__except in debugger routines to catch errors sooner.
+
+DFNHDR.Y:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+DISPLAY.C:
+  Define FormatImmedFC to use in )SAVE.
+
+DTOA.C:
+  As the comments in this module suggest, we need to set the rounding precision.
+
+EDITFCN.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  In PasteAPLChars, check for no formats on clipboard (i.e., it's empty) to
+    avoid an error.
+
+ERRMSG.C:
+  Improve comments.
+  Slight code reorganization.
+
+EXECDFN.C:
+  Remove DbgStop after calls to DisplayException as that's now done in the function.
+  In ExecuteFunction, check for a RESETFLAG_STOP in which case display the error message
+    and function name/line #.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+EXTERNS.H:
+  Reduce max sizes of VirtualAllocs to reduce WS FULLs (which are actually ADDRESS FULLs).
+  Change arg passed to SM from Ptr to hGlb.
+  Change SYMBOLLNAMES struc from chr * to WCHAR * so it cn be used with
+
+FREE.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+IMMEXEC.C:
+  Use __try/__except in ImmExec routines to catch errors sooner.
+
+MAIN.C:
+  Use __try/__except in WinMain routines to catch errors sooner.
+
+MAIN.H:
+  Define EXITTYPE_STOP for when a VirtualAlloc in ParseLine fails.
+
+MAIN.RC:
+  Grey out "Help Contents" menu item as we don't do that as yet.
+
+MAKEFILE:
+  Omit .HLP file from .ZIP file as we don't have a .HLP file as yet.
+
+PARSE.Y:
+  Delete NameAnyFcn as it is replaced by NameAnyOpN.
+  Handle failed VirtualAlloc with common code.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Treat EXITTYPE_STOP as EXITTYPE_ERROR so it winds back to a suspended function.
+
+PF_DTACKJOT.C:
+  Use DTOA mode 2 instead of 3 as 3 doesn't work for small numbers (e.g., 1E-100).
+
+PF_UTACK.C:
+  Remove DbgStop after calls to DisplayException as that's now done in the function.
+
+PF_UTACKJOT.C:
+  Treat EXITTYPE_STOP as EXITTYPE_ERROR so it winds back to a suspended function.
+
+PRIMFNS.C:
+  Remove DbgStop after calls to DisplayException as that's now done in the function.
+
+PRIMSPEC.C:
+  Remove DbgStop after calls to DisplayException as that's now done in the function.
+
+QF_EX.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+SAVEFCN.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+SC_LOAD.C:
+  Still working on it.
+
+SC_SAVE.C:
+  Define WORKSPACE.H header file to hol common info between )SAVE and )LOAD code.
+  More changes to work inconjunction with )LOAD code.
+
+SESSMAN.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Omit some DbgBrks.
+
+SIS.H:
+  Define RESETFLAG_STOP to accompany EXITTYPE_STOP.
+
+SYMTAB.C:
+  Include __try/__except in HshTabFrisk to catch errors sooner.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Change some routine names to better reflect their purpose.
+  Define HshTabLookupNameHash for use with )LOAD code.
+  Define NameToChar for use with )LOAD code.
+
+SYMTAB.H:
+  Define lpwCharName in union to use with CharIsValid EQ TRUE
+  Define OBJNAME_LOD for use with )LOAD code.
+
+SYSVARS.C:
+  Move GlobalUnlock up to reduce lock time.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+TABCTRL.C:
+  Copy incoming workspace name to global and pass on the global rather than the pointer
+    which is freed too soon.
+
+THREADS.H:
+  Use hGlb instead of Ptr for workspace name.
+
+TRANSLATE.C:
+  Include RESETFLAG_STOP in TranslateResetFlagToExitType.
+  Define TranslateCharToArrayType for use in )LOAD code.
+
+YYFNS.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Remove DbgStop after calls to DisplayException as that's now done in the function.
+

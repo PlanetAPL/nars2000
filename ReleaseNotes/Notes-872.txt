@@ -1,0 +1,17 @@
+Build #872 -- Version 0.0.3.1
+-----------------------------
+
+* Fix Bug:  Fix Memory Overwrite
+* Fix Bug:  Fix Memory Leak
+* Fix Bug:  Divisor Sum Wrong for Prime 2
+
+Directory trunk:
+
+PF_PI.C:
+  Fix Bug:  In <PrimFnDydPiRisRvR>, don't copy the right arg numerator as
+    it is changed by <PrimFnPiCommon>.
+  Fix Bug:  In <PrimFnDydPiRisRvR>, free two MPZs at end to avoid memory leak.
+  Handle <PrimFnDydPiViaVvV> by converting the MPFs to MPQs and calling
+    <PrimFnDydPiRisRvR> directly.
+  Fix Bug:  In <ProcessPrime>, the divisor sum is calculated incorrectly for
+    the prime 2.

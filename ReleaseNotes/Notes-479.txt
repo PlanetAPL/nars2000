@@ -1,0 +1,23 @@
+Build #479 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Include "What's New" as a menu item.
+
+INDEX-BODY.AHTML
+  Note Control Structures can be used in immediate execution mode.
+  Note that Wine runs on virtually every Linux-based system.
+  Change "developers" to "system developers".
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-MENU.HTML:
+  Include "What's New" as a menu item.
+
+INDEX.HTML:
+  New file in case someone opens the directory itself.

@@ -1,0 +1,50 @@
+Build #1068 -- Version 0.3.9.xx
+-------------------------------
+
+* Fix Bug When Making Workspace Backup
+# Define DEBUG Stmts To Catch Unsynchronized Vars
+
+Directory trunk:
+
+DEBUG.C:
+  Update copyright year.
+  Fix Bug:  In <oprintfW>, <dprintfLW0>, and <dprintfWL9> the type of the
+    temp vars needs to be sensitive to the 32- vs. 64-bit compiler.  This
+    fails in the 64-bit DEBUG version only.
+
+DEBUG.H:
+  New file containing #defines, etc. for detecting unsynchronized vars.
+
+EDITFCN.C
+  Update copyright year.
+  Check for unsynchronized vars.
+  In <SyntaxColor>, allocate global memory for the Syntax Color indices instead of
+    relying on synchronization of preallocated memory in <lpMemPTD->lpwszTemp>.
+
+NAMECLASS.H:
+  Improve comments.
+
+PERTAB.H:
+  Define bit to indicate whether or not <lpwszTemp> is in use (open) so as to
+    help catch synchronization errors.
+  Define wchar ptr to point to the <filename #linenum> of the place where
+    <lpwszTemp> was last opened.
+
+QF_CR.C:
+QF_TF.C:
+SC_COPY.C:
+SC_IN.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+SC_SI.C:
+STRAND.C:
+SYSVARS.C:
+  Check for unsynchronized vars.
+
+QF_NFNS.C:
+  In <SysErrMsg>, <countof> instead of <strcountof> as the latter is off by one.
+
+SCS_COMMON.C:
+  In <MakeWorkspaceBackup> use high level <CopyFile> instead of low level <fopen/fread/fwrite/fclose>
+    as the latter have shown themselves to fail on access issues.

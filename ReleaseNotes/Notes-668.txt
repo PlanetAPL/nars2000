@@ -1,0 +1,16 @@
+Build #668 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Clear A Certain Flag To Avoid Confusion If the Array Is Copied
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyArray_EM> when copying a var, be sure to clear
+    the <SkipRefCntIncr> flag as it certainly doesn't apply
+    to the result.
+
+REFCNT.C:
+  Fix Bug:  In <ChangeRefCntDir_PTB> when changing the RefCnt of
+    a permanent var, be sure to clear the <SkipRefCntIncr> flag
+    so it doesn't get copied to a copy of the var.

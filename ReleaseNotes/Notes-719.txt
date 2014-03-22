@@ -1,0 +1,11 @@
+Build #719 -- Version 0.0.2.17
+------------------------------
+
+* Implement Monadic Right Caret As Tally
+
+Directory trunk:
+
+PF_RCARET.C:
+  Update copyright year.
+  Remove VALENCE ERROR from monadic Right Caret.
+  Implement Tally.

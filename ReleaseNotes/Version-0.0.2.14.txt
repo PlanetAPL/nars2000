@@ -1,0 +1,698 @@
+Version 0.0.2.14 consists of the following Builds:
+
+
+Build #696 -- Version 0.0.2.14
+------------------------------
+
+* Fix Minor Makefile Errors
+
+Directory trunk:
+
+NARS2000.32.VCPROJ:
+  Fix typo of "O=$(OutDir)\\" to O="$(OutDir)\\".
+
+NARS2000.64.VCPROJ:
+  Append CR,LF to the end of echo stmts.
+
+
+Directory Trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Update the copyright year.
+
+
+Build #695 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  The RefCnt For (a) As A Right Operand Is Mishandled
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In the terminal <RhtOpVal>, the parenthesized var must be marked
+    to ignore the next RefCnt increment as we do for the expression
+    in parens in SingVar.
+
+
+Build #694 -- Version 0.0.2.14
+------------------------------
+
+* Change The Error Message For An Unknown System Name To VALUE ERROR
+
+Directory trunk:
+
+TOKENIZE.C:
+  Change the error message for an unknown system name to a VALUE ERROR
+    as that seems more appropriate.
+
+
+Build #693 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Empty Right Arg And Non-Zero Left Arg To Partitioned Enclose
+
+Directory trunk:
+
+PF_LSHOE.C:
+  In <PrimFnDydLeftShoeGlb_EM>, if the left arg is a non-zero
+    simple scalar, and the right arg is empty along the specified
+    (or implied) axis, the result should be empty as the left arg
+    is extended to be an empty vector.
+
+
+Build #692 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Empty Result From Partitioned Enclose
+
+Directory trunk:
+
+PF_LSHOE.C:
+  In <PrimFnDydLeftShoeGlb_EM_YY> when the left arg is all zero
+    and the right arg is simple or its prototype is simple, don't
+    nest it in the result.
+
+
+Build #691 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle File | Save As... Correctly
+
+Directory trunk:
+
+DEFINES.H:
+  Define new message to display the prompt.
+
+MAIN.C:
+  Fix Bug:  When selecting File | Save As... from the main
+    menu, do not require that the workspace name already exist.
+  Fix Bug:  Handle Save As in the SWITCH stmt which follows the
+    call to <GetOpenFileName>.
+  Fix Bug:  After calling one of the File | ... menu items, call
+    common code to display the prompt.
+  Move code to display the prompt from IDM_SAVE_WS to MYWM_PROMPT.
+  Fix Bug:  In <OFNHookProc>, save the message ID during <WM_INITDIALOG>
+    and wait until <WM_NOTIFY/CDN_INITDONE> to set the Open button text.
+
+
+Build #690 -- Version 0.0.2.14
+------------------------------
+
+* Insert DEBUG Code To Check For Re-entrancy
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <Tokenize_EM>, insert DEBUG code to check for re-entrancy.
+
+
+Build #689 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Named Var In Function Strand Mishandled
+
+Directory trunk:
+
+YYFNS.C:
+  In <YYCopyGlbFcn_PTB>, when copying a named var in a function
+    strand, the token type (TKT_VARNAMED) and the data ptr
+    (HGLOBAL) are mismatched.  Instead split cases based upon
+    the token type and copy the LPSYMENTRY for TKT_VARNAMED.
+
+
+Build #688 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Display Of Char Var In Function Strand Incorrect
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayVarSub>, the display of character vars doesn't
+    use the incremented counter.
+
+
+Build #687 -- Version 0.0.2.14
+------------------------------
+
+* Delete Code To Handle Variables As Left Operands
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Delete code which handles a variable as the left operand to a
+    monadic or dyadic operator as it needs to be stranded and as
+    such is handled in <DrvXFunc> terminals.
+
+SESSMAN.C:
+  Insert DEBUG code to check ptrs when at top most SI level.
+
+
+Build #686 -- Version 0.0.2.14
+------------------------------
+
+* Display Axis Operator When Used With A UDFO
+
+Directory trunk:
+
+DISPDBG.C:
+  Improve comments.
+  Use common routine to display a variable within a function strand,
+    and use it for numeric and character strands.
+  In <DisplayFcnSub>, display the axis operator when used with a UDFO.
+
+PF_DTACKJOT.C:
+  Improve comments.
+
+STARTADDR.H:
+  Include additional files and routines.
+
+STRAND.C:
+  Improve comments.
+
+YYFNS.C:
+  In <YYCopyFcn>, switch to using <lpToken> instead of <hGlbFcn>.
+  In <YYCopyGlbFcn_PTB>, pass in a ptr to a token instead of the
+    corresponding global memory handle so we can distinguish an
+    axis array from a variable array.
+
+
+Build #685 -- Version 0.0.2.14
+------------------------------
+
+* Allow A Var In Parens As A Left Or Right Operand To An Operator
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Generalize the left and right operand values as variables from strands
+    to variables surrounded by parens.
+  In <LookbehindOp>, return FALSE for ambiguous operators so as to allow
+    1 2 3/4 5 6.
+  In <pl_yylex> upon encountering a right paren surrounding a variable,
+    check for a monadic or dyadic operator as the previous token as well
+    as for a dyadic operator as the next token after the closing left
+    paren.
+
+
+Build #684 -- Version 0.0.2.14
+------------------------------
+
+* Insert Double Quotes In Makefiles To Handle Paths With Spaces, Part II
+
+Directory trunk:
+
+NARS2000.32.vcproj:
+NARS2000.64.vcproj:
+  Surround the tool paths with double quotes to handle paths with
+    embedded spaces.
+
+
+Build #683 -- Version 0.0.2.14
+------------------------------
+
+* Allow Named Vars In Function Strands
+
+Directory trunk:
+
+GETFNS.C:
+  Optimize <GetGlbHandle> as we're using it more often.
+
+PRIMFNS.C:
+  Allow named vars in function strands so as to allow the name type
+    to change.
+
+STARTADDR.H:
+  Rename <YYCopyGlbFcn> to <YYCopyGlbFcn_PTB> as its arg is sensitive
+    to the Ptr Type Bits.
+
+YYFNS.C:
+  As we're now allowing named vars in function strands, we need to
+    call <GetGlbHandle> on the token ptr instead of the <tkGlbData>.
+  Rename <YYCopyGlbFcn> to <YYCopyGlbFcn_PTB> as its arg is sensitive
+    to the Ptr Type Bits.
+  In <YYCopyGlbFcn_PTB>, don't copy the <YYCopyArray> bit as that makes
+    sense at the top level only.
+
+
+Build #682 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Avoid Duplicate Counting When Copying A Function Array
+
+Directory trunk:
+
+STRAND.C:
+  In <YYCopyFcn>, remove TopLvl flag as it's no longer needed.
+
+YYFNS.C:
+  Split <YYCountFcnStr> into two parts <YYCountFcnStr/YYCountFcnGlb>
+    so as to avoid duplicate counting by diving into global memory
+    handles without looking at the outer token count as it isn't
+    relevant.
+  In <YYCopyFcn>, remove TopLvl flag as it's no longer needed.
+  Split <YYCopyFcn> into two parts <YYCopyFcn/YYCopyGlbFcn>
+    so as to avoid duplicate counting by diving into global memory
+    handles without looking at the outer token count as it isn't
+    relevant.
+
+
+Build #681 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle More Cases When Copying A Function Array
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyArray_EM>, use <VFOHDRPTRS> when debugging to be able
+    to see the constituents of different headers.
+  Fix Bug:  In <CopyArray_EM> when copying a function array,
+    handle more cases of vars in the strand.
+  Fix Bug:  In <IsTknImmed>, handle case of FILLJOT.
+
+
+Build #680 -- Version 0.0.2.14
+------------------------------
+
+* Miscellaneous Minor Changes
+
+Directory trunk:
+
+ASSIGN.C:
+  In <GetnameType>, handle immediate var case.
+
+ERRMSG.C:
+  Minor optimization.
+
+IMMEXEC.C:
+  In <ImmExecStmtInThread> upon return from <ParseLine>, handle
+    the exit type of <EXITTYPE_RETURNxLX>.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, use <VFOHDRPTRS> when debugging to
+    be able to see the constituents of different headers.
+
+STARTADDR.H:
+  Include additional files and routines.
+
+
+Build #679 -- Version 0.0.2.14
+------------------------------
+
+* Terminate Output Line From )FNS/)VARS/)OPS/NMS
+
+Directory trunk:
+
+SC_FNOV.C:
+  Terminate the output line from these system commands
+    so as to avoid displaying trailing junk.
+
+
+Build #678 -- Version 0.0.2.14
+------------------------------
+
+* Insert Double Quotes In Makefiles To Handle Paths With Spaces
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Document the importance of the double quotes.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Surround the tool paths with double quotes to handle paths with
+    embedded spaces.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  When deleting all files for a clean build, delete the <??_parse.c>
+    files, too.
+  Surround the tool paths with double quotes to handle paths with
+    embedded spaces.
+
+
+Build #677 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Vars In Function Strands on )LOAD
+
+Directory trunk:
+
+DISPDBG.C:
+DISPLAY.C:
+STRAND.C:
+  Pass function entry point and parameters to convert a global
+    memory object to a function.
+
+SC_LOAD.C:
+  Before loading a var or fcn/opr, check to see if its has already
+    been loaded.
+  Before calling execute to create a function array, skip over the
+    source ptr past its trailing zero so the memory may be serially
+    reusable.
+
+SC_SAVE.C:
+  In <CmdSave_EM>, increment <uGlbCnt> after use so as to allow
+    for multiple functions in one line (function strand).
+  In <SavedWsFormGlbFcn>, pass a ptr to the function name for
+    later use.
+  In <SavedWsFormGlbFcn>, rename <lpGlbCnt> to <lpuGlbCnt> to
+    match its use outside that function.
+  Pass function entry point and parameters to convert a global
+    memory object to a function.
+  In <SavedWsFormGlbFcn>, increment <uGlbCnt> after use so as to
+    allow for multiple functions in one line (function strand).
+  In <SavedWsFormGlbFcn>, setup <SavedWsGlbFcnParm> to be passed to
+    function strand display functions.
+  In <SavedWsFormGlbVar>, rename <lpGlbCnt> to <lpuGlbCnt> to
+    match its use outside that function.
+  Define <SavedWsGlbFcnConv> as callback function from display
+    functions when displaying global functions.
+
+WORKSPACE.H:
+  Rename <lpGlbCnt> to <lpuGlbCnt> to match its use outside
+    that function.
+  Define typedef for <SavedWsGlbFcnConv> parameters.
+
+
+Build #676 -- Version 0.0.2.14
+------------------------------
+
+* Implement System Command )ULIB
+
+Directory trunk:
+
+SC_LIB.C:
+  Implement system command )ULIB to display workspaces which
+    are not backups.
+
+SYSCMDS.C:
+  Update copyright year.
+  Mark )ULIB as a system command.
+
+
+Build #675 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Workspace Internal Convention :CONSTANT In Tokenize
+
+Directory trunk:
+
+TOKENIZE.C:
+PL_PARSE.Y:
+  Handle the workspace internal convention of :CONSTANT (which represents
+    a global memory object) in Tokenize instead of the parser so as to
+    allow it to be used in function strands.
+
+
+Build #674 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Missing Case of <V1 op1 op2 V2 V3>
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitFcnSTEs>, allow a UDFO along with a function strand so
+    as to allow things like 1 2 op2 (+.×) op2 3 4 (5 6).
+
+PL_PARSE.Y:
+  Handle the missing case of <V1 op1 op2 V2 V3> by defining a
+    a new rule <Drv4Func: Drv1Func DydOp StrandOp2>.
+
+
+Build #673 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Catch The {jot} In +op2{jot}23 As FILLJOT
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <pl_yylex> for dyadic ops (TKT_OP2IMMED or TKT_OP2NAMED), if the
+    dyadic operator is a Jot, lookahead for the next token to see if
+    it's also a dyadic operator so as to catch the {jot} in
+    +op2{jot}23 as FILLJOT.
+
+
+Build #672 -- Version 0.0.2.14
+------------------------------
+
+* Pass LPPL_YYSTYPE Instead of LPTOKEN To FreeResult
+
+Directory trunk:
+
+CS_PROC.C:
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.
+  Define <FreeResTkn> to use when there's no YYSTYPE.
+  Fix Bug:  In <CS_SELECT_Stmt_EM>, free the <CASE/CASELIST> result
+    after using it so as to avoid a memory leak.
+
+EXECFNS.C:
+PF_CSLOPE.C:
+PF_INDEX.C:
+PF_RSHOE.C:
+PL_PARSE.Y:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+SC_IN.C:
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.
+  Define <FreeResTkn> to use when there's no YYSTYPE.
+
+FREE.C:
+  If the arg being freed has the YYCopyArray flag set, clear it.
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.
+  Define <FreeResTkn> to use when there's no YYSTYPE.
+
+EXECDFN.C:
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.
+  Define <FreeResTkn> to use when there's no YYSTYPE.
+  Fix Bug:  In <InitFcnSTEs> when passing a function strand, handle
+    more cases such as vars and immediates.
+
+STRAND.C:
+  Fix Bug:  In <MakeFcnStrand_EM_YY> at the end, free YYCopyArray'ed
+    items in the arg recursively.
+  In <MakeNameFcnOpr_YY>, save back the result into te arg so it may
+    be freed.
+
+YYFNS.C:
+  In <YYCopyFcn>, delete the test for <UUCopyArray> as that's now
+    done in <YYFreeArray>.
+  Change argument to <FreeResult> and friends so as to gain access
+    to more elements of the argument.
+
+
+Build #671 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Check For NoValue in Return From ArrExpr
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Define a new terminal <ArrValu> to check for <ArrExpr> as a
+    VALUE ERROR which can come from a UDFO which doesn't return
+    a value and is then passed on as an argument to another function.
+  When Ctrl-Break is pressed, peel back to the first UDFO which is not
+    a magic (internal) function.
+
+
+Build #670 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Avoid Freeing A Named UDFO As Its RefCnt Is
+  Not Incremented In MakeNameFcnOpr_YY
+
+Directory trunk:
+
+FREE.C:
+PL_PARSE.Y:
+  Define new function <FreeResNNU> which frees its arg if it's
+    Not a Named UDFO.
+
+
+Build #669 -- Version 0.0.2.14
+------------------------------
+
+* Use Temporary Section For Deletable Entries When Saving A Workspace
+
+Directory trunk:
+
+SC_SAVE.C:
+  Use "sss" consistently as the SI level count in comments.
+  Use [TempGlobals] section in saved workspace file to hold
+    those entries which get deleted after the workspace is
+    saved.  This means we no longer need the SymLink chain
+    and all of its supporting code.
+  Improve comments.
+  When formatting an immediate value, use a SWITCH stmt so as
+    to catch missing cases.
+  When formatting the global object name (:xxxxxxxx), make room
+    for all chars in 64-bit environment.
+  In <SavedWsFormGlbVar>, merge the formatting of NESTED and
+    HETERO objects.
+  In <SavedWsFormGlbVar>, format characters the same way as
+    elsewhere as "x" or "\xNNNN".
+
+WORKSPACE.H:
+  Update copyright year.
+  Define new section for workspaces which holds the temporary
+    entries which get deleted after the workspace is saved.
+
+
+Build #668 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Clear A Certain Flag To Avoid Confusion If the Array Is Copied
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyArray_EM> when copying a var, be sure to clear
+    the <SkipRefCntIncr> flag as it certainly doesn't apply
+    to the result.
+
+REFCNT.C:
+  Fix Bug:  In <ChangeRefCntDir_PTB> when changing the RefCnt of
+    a permanent var, be sure to clear the <SkipRefCntIncr> flag
+    so it doesn't get copied to a copy of the var.
+
+
+Build #667 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Rank Operator Fails To Process The Prototype In The Result
+
+Directory trunk:
+
+PO_DIJOT.C:
+  Fix Bug:  If the result from the Rank Operator is empty, we fail
+    to process the prototype when calculating the minimum/maximum
+    ranks before deciding whether or not to call the Conforming
+    Disclose magic function.
+  Fix Bug:  Both the monadic and dyadic magic functions failed to
+    setup the rank vector arguments when called at []PRO.
+
+
+Build #666 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  When Copying Variable In A Function Strand, Increment
+  The RefCnt If Not Called At The Top Level
+
+Directory trunk:
+
+STRAND.C:
+  Pass additional arg to <YYCopyFcn> to tell whether or not it's called
+    from the top level.
+
+YYFNS.C:
+  Pass additional arg to <YYCopyFcn> to tell whether or not it's called
+    from the top level.
+  In <YYCopyFcn> when copying a var in a function strand, if we're
+    called at the top level don't increment the RefCnt, otherwise do.
+
+
+Build #665 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Pass On Operand Axis Token For Certain Operators
+
+Directory trunk:
+
+PO_CMIDDOT.C:
+PO_DITILDE.C:
+  Update copyright year.
+  Rename <lptkAxis>/<lptkAxis2> to operator/operand-specific names.
+
+PO_DIERESIS.C:
+  Rename <lptkAxis>/<lptkAxis2> to operator/operand-specific names.
+  Pass on the operand axis token when calling <ExecFuncOnToken_EM>.
+  Check for operand axis token presence before marking as
+    primitive scalar dyadic.
+
+PO_DOT.C:
+PO_SLASH.C:
+  Rename <lptkAxis>/<lptkAxis2> to operator/operand-specific names.
+  Check for operand axis token presence before marking as
+    primitive scalar dyadic.
+
+PO_JOTDOT.C:
+  Rename <lptkAxis>/<lptkAxis2> to operator/operand-specific names.
+  Pass on the operand axis token when calling <ExecFuncOnToken_EM>.
+
+
+Build #664 -- Version 0.0.2.14
+------------------------------
+
+* Rename Internal Variables To Reflect Non-ASCIIZ Nature
+
+Directory trunk:
+
+SYMTAB.C:
+  In <SymTabLookupNameLength>, rename "lpwsz" prefixed-names
+    to "lpw" as the names aren't zero-terminated.
+  Improve comments.
+
+
+Build #663 -- Version 0.0.2.14
+------------------------------
+
+* Allow :SWITCH As An Alias of :SELECT
+
+Directory trunk:
+
+TOKENIZE.C:
+  Allow :SWITCH as an alias of :SELECT.
+
+
+Build #662 -- Version 0.0.2.14
+------------------------------
+
+* Widen Syntax Color Categories To Avoid Truncation Of Names
+
+Directory trunk:
+
+EXTERNS.H:
+  Expand the wording of Syntax Color categories.
+
+MAIN.RC:
+  Widen the Syntax Color categories so we don't truncate names.
+
+
+Build #661 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug In Customize When Changing a Foreground Syntax Color
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  In <CustomizeDlgProc>, when Applying a change to a foreground
+    Syntax Color, a previous optimization caused the change to be lost.
+
+
+Build #660 -- Version 0.0.2.14
+------------------------------
+
+* Check for System Label Conflict
+
+Directory trunk:
+
+PO_SLASH.C:
+  Test for simultaneous use of []ID and []PRO and signal a
+    NONCE ERROR if so as we need to work on System Labels more.
+
+VERSION.RC:
+  Increment version to 0.0.2.14.

@@ -1,0 +1,498 @@
+Build #335 -- Version 0.0.0.22733
+---------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+CRASH.C:
+CS_PROC.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITMAT.C:
+EDITVEC.C:
+ERRMSG.C:
+EXCEPT.C:
+EXECDFN.C:
+EXECFNS.C:
+EXECMFN.C:
+FASTBOOL.C:
+GETFNS.C:
+GOTO.C:
+IMMEXEC.C:
+INITDATA.C:
+PERFMON.C:
+PF_*.C:
+PO_*.C:
+PRIMPSEC.C:
+QF_*.C:
+REFCNT.C:
+RESDEBUG.C:
+SC_*.C:
+SORT.C:
+STRAND.C:
+SYMTRANS.C:
+SYSCMDS.C:
+TRANSLATE.C:
+TYPEMOTE.C:
+WEBCOLORS.C:
+YYFNS.C:
+  Move .h files into <headers.h> for <makepro.php>.
+
+BISON.RULES:
+  VC Express rule file.
+
+BJHASH.PROTO:
+  Prototype file for <bjhash.c> copied to OutDir as needed.
+
+COLORNAMES.H:
+  Names of lots of colors, replacing <COLORS.H>.
+
+COMMON.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Rename <DEF_APLFONT_TTF> to <DEF_APLFONT_EXT>.
+  Rename <IsGlbPtr> to <IsvalidHandle>.
+  Define new routine <IsValidPtr>.
+
+COMPRO.H:
+  Use <qdebug\qdebug.pro> instead of <Qdebug.pro> because we
+    no longer use <DbgStop> as a separate function.
+
+CONVERT.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  In <ConvertWideToNameLength>, change the length arg type from
+    UINT to DWORD to avoid an error in VC Express.
+
+CS_PARSE.PROTO:
+  Prototype file for <cs_parse.c> copied to OutDir as needed.
+
+CS_PARSE.Y:
+  Move .h files into <headers.h> for <makepro.php>.
+  Define common prototypes and defines.
+
+CUSTOMIZE.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Use extra cast to handle /Wp64.
+  Implement new User Pref for state of INS key on startup.
+  Use resource debugging functions.
+
+DATATYPE.H:
+  Redefine <MAX_APLxxx> to omit high-order (signed) bit.
+
+DBGBRK.ASM:
+  Delete <DbgStop> function in favor of #define _asm int 3
+
+DEBUG.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Rename <IsGlbPtr> to <IsValidHandle>.
+
+DEFINES.H:
+  Rename <DEF_APLFONT_TTF> to <DEF_APLFONT_EXT>.
+  Use "Code2000" for Tab Ctrl and Alternate SM font.
+  Reduce point size for Tab Ctrl from 10 to 9 to fit better.
+  Implement new User Pref for state of INS key on startup.
+  Implement Status Bar.
+
+DEPINIT.BAT:
+  Batch file called from <makefile.dep> to initialize a .dep file.
+
+DEPTXT.BAT:
+  Batch file called from <makefile.dep> to append to <dep.txt>.
+
+DTOA.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Use <> around global includes.
+  Allow testing of other <strtod> routines.
+
+DTOA.PROTO:
+  Prototype file for <dtoa.c> copied to OutDir as needed.
+
+ECHODOT.COM:
+  Small executable to output a single dot without a trailing CR/LF.
+
+EDITFCN.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Define struct for keyboard data.
+  Include new arg to <ActivateMDIMenu> to specify the position
+    of the View menu.
+  In <WM_COMMAND/EN_CHANGE>, if the change is on line 0 of a
+    function, invalidate the Edit Ctrl window so variables can
+    reflect Local/Global Syntax Coloring.
+  In <SyntaxColor> change length arg type from <APLNELM> (overkill)
+    to <UINT>.
+  In <SyntaxColor>, use proper type for <wchColNum> and rename it
+    to <chColNum>.
+  In <SyntaxColor>, use Critical Section Object to avoid
+    re-entrancy in the Tokenize <fnXxxxXxx> routines.
+  In <SyntaxColor> initialize more fields to <tkLocalVars>.
+  Fix Bug:  In <LclECPaintHook>, group || expression to be at the
+    same level as the preceding && expression.
+  In <LclECPaintHook>, use <hWndEC> instead of <WindowFromDC> as they
+    are the same thing.
+  Use resource debugging functions.
+  In <LclEditCtrlWndProc>, use <ksMenu> as Boolean for Menu key pressed.
+  In <lclEditCtrlWndProc>, make <lpfnOldEditCtrlWndProc> static as it
+    doesn't change.
+  Implement Alt-nnnn as a way to enter Unicode chars in decimal.
+  Tell W to give us all messages for the Edit Ctrl so we can implement
+    Alt-nnnn.
+  Improve comments.
+  After the Insert key is toggled, change the state in the Status Window.
+  In <VK_INSERT> set the Status Bar state.
+  Handle <VK_KEYUP> to set line/char position in Status Bar as well as
+    NumLock and Alt-nnnn.
+  Handle <WM_SYSKEYDOWN> to implement Alt-nnnn.
+  Rename <chCharCode> to <wchCharCode> as it's now wide.
+  Use extra cast to handle /Wp64.
+  In <LclEditCtrlWndProc>, use <WM_SETFOCUS> and <WM_LBUTTONDOWN> to
+    pass repaint the status window and set the status line/pos.
+  Rename <IsGlbPtr> to <IsValidHandle>.
+  In <CopyAplChars_EM>, use <APLU3264> instead of <SIZE_T> for the
+    result of <GlobalSize>.
+  In <InsRepCharStr>, set the line/char position in the Status Bar.
+  In <ActivateMDIMenu>, check/uncheck the View menu state.
+
+EXTERNS.H:
+  Move .h files into <headers.h> for <makepro.php>.
+  Define another Critical Section Object for tokenization.
+  Move Status parts enum to <externs.h>.
+  Define Status Bar window handle.
+  Define bits for Ins State and Status Bar state.
+  Rename <iPtSize> to <iDefPtSize>.
+  Define typedefs for <editctrl.c> for use in .pro files.
+
+FH_PARSE.H:
+  Define bit to indicate to save STE flags when deleting a <DFN_HEADER>.
+
+
+FH_PARSE.PROTO:
+  Prototype file for <fh_parse.c> copied to OutDir as needed.
+
+FH_PARSE.Y:
+  Move .h files into <headers.h> for <makepro.php>.
+  Define common prototypes and defines.
+
+FREE.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Improve comments.
+  When freeing a <DFN_HEADER>, don't clear the flags for the
+    function name STE if asked not to.
+
+GETREENT.C:
+  Replace call to <DbgBrk> with <_asm int 1>.
+
+GRADE.H:
+  Move structs to .h file so they can be referenced in .pro files.
+
+HEADERS.H:
+  Put almost all .h files in one file for <makepro.php>.
+
+INIFILE.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Read in and write out the Ins State and Status Bar states.
+
+MAIN.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Move conditional data declarations into separate line so
+    <makepro.php> can parse them.
+  Define new routine to set the Status Parts and right edges.
+  Define new routines to set various Status Parts.
+  In <InitChooseFont>, save and restore the old mapping mode.
+  Rename <iPtSize> to <iDefPtSize>.
+  Improve comments.
+  In <CreateNewFontCom>, save and restore the old mapping mode.
+  In <CreateNewFontCom>, don't reset the width as that screws
+    up the Tab Ctrl title.
+  Create the Status Bar window.
+  Define message to resize the master Frame to show/hide the
+    Status Bar window.
+  In <WM_SIZE> handle the space taken up (if any) by the Status Bar.
+  Handle check/uncheck of the Status Bar item in the View menu.
+  In <WM_COMMAND/IDM_ABOUT>, use Unicode version of <DialogBox> call.
+  Rename <IsGlbPtr> to <IsValidHandle>.
+  Define another Critical Section Object for tokenization.
+  Specify menus for <RegisterClassExW> of SM, FE, and DB.
+
+MAIN.H:
+  Move .h files into <headers.h> for <makepro.php>.
+  Define <DbgStop> in terms of _asm.
+  Define new message to handle Master Frame resize.
+  Define <strpbrkW>.
+
+MAIN.RC:
+  Define menu item for View.
+  In <IDD_ABOUT>, move ICON stmt to follow Copyright stmt
+    so is can overlap the extra space in the latter.
+  Label the ICON stmt so it can be subclassed for a tooltip.
+  In the ICON stmt, specify <SS_REALSIZEIMAGE> and zero the
+    width/height.
+  Define checkbox for Ins key on startup.
+
+MAKEDEP.PHP:
+  Rewrite <depscan.exe> as a PHP script (which speeds it up
+    considerably).
+
+MAKEFILE.DEP:
+  Define new makefile to generate <dep.txt> which is !included
+    in <makefile.inc> to import and the .dep files.
+
+MAKEFILE.INC:
+  Remove dependency on <PCRE> environment variable.
+  Include <makefile.src> to get the names of all the source
+    files.
+  Use lowercase names and extensions.
+  Remove comment on PRO entry in ALL stmt as it now can be
+    generated every time the makefile is called.
+  Remove dependency on MAKEPRO.
+  Define various <INITIAL_xxx> targets to display a separator
+    in the output.
+  Use $(SRC:???=XXX) instead of listings all the source files.
+  Include <dep.txt> to import all the .dep files.
+  Remove duplicate entry.
+  Define additional; dependency for <editctrl.c>.
+
+MAKEFILE.PRO:
+  Define new makefile to generate .pro files under VC Express.
+
+MAKEFILE.SRC:
+  Define new makefile to define a single var (<SRC>) with all
+    of the source filenames for use with various substitutions.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Omit <PROJPATH> as it's always the current directory.
+
+MAKEPRO.C:
+MAKEPRO.DEF:
+  Delete these files in favor of <makepro.php>.
+
+MAKEPRO.PHP:
+  Rewrite <makepro.c> as PHP script which analyzes the source
+    file itself instead of running it through the compiler with
+    /Zg (deprecated).  In a GCC world, <protoize> performs a
+    similar function, but I can't get it to work.
+
+MKD32.BAT:
+  White space changes only.
+
+PERTAB.H:
+  Delete vars no longer used.
+  Define var to hold the thread ID for use with <PostThreadMessage>
+    when deleting a tab.
+
+PF_DELTASTILE.C:
+  Move structs to .h file so they can be referenced in .pro files.
+
+PF_RHO.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Fix Bug:  Check for left arg too small (negative) or too large.
+
+PL_PARSE.PROTO:
+  Prototype file for <pl_parse.c> copied to OutDir as needed.
+
+PL_PARSE.Y:
+  Move .h files into <headers.h> for <makepro.php>.
+  Define common prototypes and defines.
+  Define start of support for Trains.
+
+PN_PARSE.H:
+  Define the name and far ptr to <tagPN_NUMTYPE> for use in
+    .pro files.
+
+PN_PARSE.PROTO:
+  Prototype file for <pn_parse.c> copied to OutDir as needed.
+
+PN_PARSE.Y:
+  Move .h files into <headers.h> for <makepro.php>.
+  Define common prototypes and defines.
+  Handle +/- Infinity as Point Notation.
+
+PO_JOT.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Change the definition of dyadic derived function from
+    f{jot}g back to L f g R.
+
+PO_SLASH.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Fix Bug:  In <PrimOpDydSlashCommon_EM_YY> (dyadic slash), the
+    index into the result is calculated incorrectly.  As the result
+    is generated sequentially in row major order, we need only
+    increment a variable starting from zero.
+
+PRIMFNS.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Rename <IsGlbPtr> to <IsValidHandle>.
+
+PROTOTYPE.RULES:
+  VC Express rule file.
+
+QF.H:
+  Define new file to hold typedef to use in .pro files.
+
+RESOURCE.H:
+  Define position of View menu.
+  Define ID for Status Bar window.
+  Define ID for ICON stmt.
+  Define ID for InsState checkbox.
+
+SAVEFCN.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Fix Bugs:  In <SaveFunctionCom>, if an existing function
+    is edited and then a save is attempted which fails, the
+    function is erased prematurely, and when that is corrected,
+    the flags in the STE of the function are cleared mistakenly.
+
+SC_LOAD.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Fix Bug:  Protect <lpMemPTD->lpwszTemp> over call to
+    <ImmExecStmt>.
+
+SESSMAN.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Set the Ins key on startup to the .ini file saved value
+    and tell the Status Bar window about it.
+  Improve comments.
+  When the SM window is up and running, tell the Master Frame
+    to resize itself (to the same size) and thus show/hide the
+    Status Bar Window.
+  When the SM window is up and running, repaint the Status Window
+    and tell it about the new positions.
+  Include new arg to <ActivateMDIMenu> to specify the position
+    of the View menu.
+  When debugging and initializing the DB/SM windows take into
+    account the Status Window if it's visible.
+
+STARTADDR.H:
+  Add/delete some references.
+
+SYMTAB.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Move typedefs to .h file so they can be referenced in .pro files.
+
+SYSVARS.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Move struct to .h file so it can be referenced in .pro files.
+
+SYSVARS.H:
+  Move struct to .h file so it can be referenced in .pro files.
+
+TABCTRL.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  In <CreateNewTab>, save the thread ID for later use when we
+    close the tab.
+  In <PointToWsName>, use temp var for L"  CLEAR WS" so the
+    circled number can be written into it.  VC Express puts
+    such vars into a read-only section so we can't write into
+    it directly.
+
+THREADS.H:
+  Define new entry in struct for the thread ID.
+
+TOKENIZE.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Define var to mark whether or not the tokenizer is in use
+    to test for re-entrancy.
+  Handle +/- Infinity as Point Notation.
+  Delete references to unused pertab vars.
+  Handle detection of local names in function header.
+  Improve comments.
+  Fix Bug:  In <fnAlpDone>, initialize <bRet> in case we're
+    called from <SyntaxColor>.
+  Remove <fnInfinity> as it's now handled as Point Notation.
+  Fix Bug:  In <fnComDone>, if we're called in the middle of
+    the Edit Ctrl buffer we need to use the smallwe of
+    <lstrlenW> and the first occurrence of CR/LF.
+  Define new action <fnSyntPrm> to mark a syntax color as
+    that of a primitive function.
+  In <Tokenize_EM>, use Critical Section Object to avoid
+    re-entrancy problems.
+
+TOKENIZE.H:
+  Define struc item to hold the length of the line to be
+    syntax colored to avoid a problem when dealing with
+    Ctrl Strucs.
+
+UNITRANSTAB.H:
+  Fix typo in comment.
+
+VER.C:
+  Move .h files into <headers.h> for <makepro.php>.
+  Display a tooltip on the About box ICON to display
+    from where the executable file was loaded.
+
+VER.RC:
+  Include files to keep VC Express happy.
+
+WINEHQ.RULES:
+  VC Express rule file.
+
+
+Directory trunk\WineHQ\Include\msvcrt:
+
+CTYPE.H:
+  Omit references to prototypes of unused functions that VC
+    Express doesn't like.
+
+
+Directory trunk\WineHQ:
+
+WINEHQ.BAT:
+  Batch file used in <WineHQ.rules>.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Insert horizontal line.
+
+LICENSE-BODY.HTML:
+  Note license terms for <SImPL medium> font.
+
+
+Directory trunk\Extensions\aplchars:
+
+CHROME.MANIFEST:
+  Remove unneeded style.
+  Overlay <customizeToolbar.xul> to set the initial image state.
+
+INSTALL.RDF:
+UPDATE.RDF:
+  Change version #.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+ABOUT.XUL:
+  Change version #.
+
+CUSTOMIZETOOLBAR.JS:
+CUSTOMIZETOOLBAR.XUL:
+  Set the initial image state.
+
+EDITOROVERLAY.JS:
+  Comment out calls to <MyDump>.
+  Rename arg to <onInputAPLKeyPress>.
+
+EXTENSIONS.DTD:
+  Define "customize" entity to trigger the observer.
+
+MAINWINDOW.JS:
+  Fix Bug:  In <onClickAPL>, handle the case where there
+    is no button on the toolbar.
+  In <onFocusAPL>, handle null <iconsize> because that attribute
+    isn't defined.
+  Rename <gAPLObserver> to <gPrefObserverAPL> to reflect its use
+    as an observer of preference changes.
+  In <gPrefObserverAPL>, handle changew to "customize" to
+    initialize the image state.
+  Comment out code to handle change to fontNameRoot.fontNameType
+    until we decide to implement that feature.
+
+MAINWINDOW.XUL:
+  Define "customize" name.
+
+
+Directory trunk\Extensions\aplchars\defaults\preferences:
+
+APLPREFS.JS:
+  Define default value for "customize" state.

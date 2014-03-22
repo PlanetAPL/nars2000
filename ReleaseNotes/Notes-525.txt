@@ -1,0 +1,29 @@
+Build #525 -- Version 0.0.2.4
+-----------------------------
+
+* Implement []AT
+
+Directory trunk:
+
+COMPRO.H:
+  Include "qf_at.pro" in the list of prototype files.
+
+EXECMFN.C:
+  When initializing a magic function at system startup,
+    save the current time in the function header so it may
+    be retrieved by []AT.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define entries for new files for []AT.
+
+QF_AT.C:
+  New module to implement []AT.
+
+SYSVARS.C:
+  Enable []AT as a system function.
+
+VERSION.RC:
+  Increment version to 0.0.2.4.

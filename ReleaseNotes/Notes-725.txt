@@ -1,0 +1,19 @@
+Build #725 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Mismatched Line Heights In Function Display Between Line Numbers And Text
+
+Directory trunk:
+
+EDITCTRL.H:
+  Define new message to read Edit Ctrl's line height.
+
+EDITFCN.C:
+  In <DrawLineNumsFE>, ask the Edit Ctrl for the text's line height
+    and use it for the function line numbers.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Return the text line height in response to line height message.

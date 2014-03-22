@@ -1,0 +1,9 @@
+Build #1115 -- Version 0.3.11.xx
+--------------------------------
+
+* Cleanup Code For The {enclose}[{zilde}] Case
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Cleanup code for the {enclose}[{zilde}] case.

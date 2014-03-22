@@ -1,0 +1,10 @@
+Build #1221 -- Version 0.4.6.xx
+-------------------------------
+
+* Handle Exceptions Better, Part 2
+
+Directory trunk:
+
+STRAND.C:
+  In <PushVarStrand_YY>, <PushNameStrand_YY>, and <PushListStrand_YY> handle
+    exception (LIMIT ERROR) while also <YYFree>ing the <YYAlloc>ed item.

@@ -1,0 +1,12 @@
+Build #1005 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Inner Product With Empty Global Numerics
+
+Directory trunk:
+
+PO_DOT.C:
+  Fix bug in inner product when the result is an empty global numeric.
+
+PRIMFNS.C:
+  In <MakeDydPrototype_EM_PTB>, allow the result to be an empty global numeric.

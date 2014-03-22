@@ -1,0 +1,14 @@
+Build #674 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Missing Case of <V1 op1 op2 V2 V3>
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitFcnSTEs>, allow a UDFO along with a function strand so
+    as to allow things like 1 2 op2 (+.×) op2 3 4 (5 6).
+
+PL_PARSE.Y:
+  Handle the missing case of <V1 op1 op2 V2 V3> by defining a
+    a new rule <Drv4Func: Drv1Func DydOp StrandOp2>.

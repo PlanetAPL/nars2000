@@ -1,0 +1,9 @@
+Build #427 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug:  When pasting text into NARS2000, the code to
+    save the existing formats used the wrong connector
+    so it didn't save any existing format.

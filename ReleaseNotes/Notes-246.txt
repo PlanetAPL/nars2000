@@ -1,0 +1,85 @@
+Directory trunk:
+
+DFNHDR.H:
+  Implement non-displayable result in user-defined fcn/opr
+DFNHDR.Y:
+  Implement non-displayable result in user-defined fcn/opr
+  Change symbols for ambivalent fcn/opr from [] to {}
+  Limit single-name lists in user-defined fcn/opr to singletons
+DISPDBG.C:
+  Signal VALUE ERROR if unknown []fn in fcn/opr header
+  Keep astFlagNames and TokenNames up-to-date
+EXECDFN.C:
+  Check for left/right arg presence before testing for errors
+  Implement non-displayable result in user-defined fcn/opr
+EXECMFN.C:
+  Put Magic Functions into SymTab
+  Implement non-displayable result in user-defined fcn/opr
+EXTERNS.H:
+  Set []WSID & name in Tab Ctrl when workspace name changes
+FREE.C:
+  Delete .NotCase as it was never meaningful because of name hash
+IMMEXEC.C:
+  Move global ieThread to static local
+  Copy DbgGlobalAlloc result to local so we may use it later in case static is overwritten
+  Unlock memory around WaitForSingleObject
+PARSE.Y:
+  Rename nodes to allow easier searching
+  Mark error node conflicts for later inspection
+  Set ExitType on error
+  Define new error nodes
+  Implement non-displayable result in user-defined fcn/opr
+PF_RSHOE.C:
+  Minimize calls to GetSteZero/On1/Blank
+PO_DIJOT.C:
+  Simplify #Conform magic function
+  Fix bug in #DydRank when called at []PROTOTYPE
+PO_JOT.C:
+  Move error message calls to common labels
+PRIMFNS.C:
+  Implement non-displayable result in user-defined fcn/opr
+QF_CR.C:
+  Move error message calls to common labels
+  Implement -1 & -2 []CR to display Magic Functions
+SAVEFCN.C:
+  Implement non-displayable result in user-defined fcn/opr
+SC_LOAD.C:
+  Start of )LOAD code
+SC_SAVE.C:
+  Change NewWsName to NewTabName to better reflect its function
+  Change array display to work with )LOAD
+SC_WSID.C:
+  Change NewWsName to NewTabName to better reflect its function
+SESSMAN.C:
+  Display intial copyright message only once per session
+  Load the workspace within SMWndProc after all is setup
+STRAND.C:
+  Implement non-displayable result in user-defined fcn/opr
+SYMTAB.C:
+  Put Magic Functions into SymTab
+  Delete .NotCase as it was never meaningful because of name hash
+  In SymTabAppendNewName_EM, ensure the SYMENTRY is zero before using it
+SYMTAB.H:
+  Define OBJNAME_MF for Magic Functions
+  Delete .NotCase as it was never meaningful because of name hash
+SYSCMDS.C:
+  Define )LAOD as synonym for )LOAD
+SYSVARS.C:
+  Delete .NotCase as it was never meaningful because of name hash
+  Use TRUE instead of constant 1
+TABCTRL.C:
+  Pass workspace name to SMWndProc at WM_CREATE time so it can be loaded
+  In PointToWsName, check for valid []WSID before using it
+  Change NewWsName to NewTabName to better reflect its function
+TOKENIZE.C:
+  Implement non-displayable result in user-defined fcn/opr
+  Fix bug in tokenization of dot when used as inner product operator
+TOKENS.H:
+  Implement non-displayable result in user-defined fcn/opr
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Bring up-to-date
+RenderAPL.php
+  Implement <apll> as synonym for <apl size="large">

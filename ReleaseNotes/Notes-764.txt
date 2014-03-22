@@ -1,0 +1,11 @@
+Build #764 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug (DEBUG-Only):  Click DEBUG Window And Then Language Bar Crashes
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix Bug (DEBUG-Only):  If you click on a window without an Edit Ctrl
+    (such as a DEBUG Window) and then click on a glyph in the language
+    bar, <InsRepCharStr> is entered with an invalid <hWndEC>.

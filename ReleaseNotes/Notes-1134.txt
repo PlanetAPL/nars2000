@@ -1,0 +1,15 @@
+Build #1134 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix Bug In Customize When Saving []RL
+
+Directory trunk:
+
+COMMON.C:
+  Define 64-bit version of <GetDlgItemInt>.
+
+CUSTOMIZE.C:
+  When saving the value in a CLEAR WS of []RL, be sure to use a function that can handle 64-bit integers.
+
+INIFILE.C:
+  Check for  the []RL bug in Customize and convert a value of zero to the default seed.

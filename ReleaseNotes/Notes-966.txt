@@ -1,0 +1,10 @@
+Build #966 -- Version 0.3.6.xx
+------------------------------
+
+* Remove Unused Function
+
+Directory trunk:
+
+HEADERS.H:
+MPFNS.C:
+  Remove unused function <mpfr_init_set_f>.

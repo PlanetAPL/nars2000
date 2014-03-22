@@ -1,0 +1,20 @@
+Build #1157 -- Version 0.4.3.xx
+-------------------------------
+
+* Implement Determinant Operator
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define new Magic Operator <#MonDot> for the determinant.
+
+MF_DOT.H:
+  Include Magic Function code for the determinant operator.
+
+PO_DOT.C:
+  Implement monadic derived function from inner product as the determinant operator.
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Use GSL determinant code for -.x on BOOL/INT/FLOAT/APAs
+  Use local Gauss/Jordan determinant code for -.x on RAT/VFPs.
+  Use a Magic Operator for all other cases.

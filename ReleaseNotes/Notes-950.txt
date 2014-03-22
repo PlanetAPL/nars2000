@@ -1,0 +1,17 @@
+Build #950 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug In DotDot
+
+Directory trunk:
+
+PF_DOTDOT.C
+  Update copyright year.
+  The case where the starting value(s) are higher than the ending value(s)
+    wasn't well thought out.  This is corrected in the Magic Function.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document DotDot.

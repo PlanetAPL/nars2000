@@ -1,0 +1,34 @@
+Build #969 -- Version 0.3.7.xx
+------------------------------
+
+* Implement Progress Bar
+
+Directory trunk:
+
+COMPRO.H:
+  Include new file's prototypes.
+
+DEFINES.H:
+  Define Progress Bar class.
+  Define Progress Bar window extra bytes.
+  Define Progress Bar message equates.
+
+MAIN.C:
+  Define Progress Bar error messages.
+  Register class for Progress Bar.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include new file in makefile.
+
+PROGBAR.C:
+  Progress bar file.
+
+TABCTRL.C:
+  Modify <FillTabBackground> to accept a top and bottom color so we may
+    paint the top half of the Progress Bar as a mirror image of the bottom half.
+
+VER.RC:
+  Increment version # to 0.3.7.xx.

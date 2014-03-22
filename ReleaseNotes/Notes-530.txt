@@ -1,0 +1,11 @@
+Build #530 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  The primitive dyadic scalar case of singleton APA vs.
+  multiple array returning a Boolean was omitted.
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Fix Bug:  The primitive dyadic scalar case of singleton APA vs.
+    multiple array returning a Boolean was omitted.

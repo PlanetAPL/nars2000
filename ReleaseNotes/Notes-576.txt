@@ -1,0 +1,21 @@
+Build #576 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Handle Numeric Strand To Left of Ambiguous Operator
+
+Directory trunk:
+
+MACROS.H:
+  Define new macros for <DbgIncrRefCntTkm> and <DbgDecrRefCntTkn>.
+
+PL_PARSE.Y:
+  In <ArrExpr:  error AmbOp StrandOp1>, don't free <StrandOp1>
+    as it hasn't had RefCnt incremented by <MakeFcnStrand_EM_YY>.
+  In <ArrExpr:  ArrExpr AmbOp StrandOp1>, increment the RefCnt
+    for <StrandOp1> as it doesn't go through <MakeFcnStrand_EM_YY>
+    as usual because this instance <AmbOp> isn't an operator.
+
+REFCNT.C:
+  Clear the <SkipRefCntIncr> flag on decrement because if it's not
+    increment that flag is no longer meaningful.
+  Define new routines to increment/decrement RefCnt given a token.

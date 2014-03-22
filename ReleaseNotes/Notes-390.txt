@@ -1,0 +1,13 @@
+Build #390 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  Delete check for assign to unnamed []var as that is now caught in
+    tokenization.
+
+TOKENIZE.C:
+  Fix bug:  In <fnAlpDone>, test for unknown system var and signal a
+    SYNTAX ERROR if found.
+  Improve comments.

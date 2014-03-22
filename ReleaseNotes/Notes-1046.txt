@@ -1,0 +1,11 @@
+Build #1046 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug When Displaying Numbers Between -1 and 1 In Integer Format
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatFloatFC>, when displaying a number in integer format, round it to
+    the nearest integer even if it's not a power of two.  This corrects the
+    result of 3 0{format}-0.5

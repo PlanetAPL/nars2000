@@ -1,0 +1,12 @@
+Build #1056 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In DEBUG Version:  Untokenize Should Not Test Named Vars/Fcns/Ops
+
+Directory trunk:
+
+SC_LOAD.C:
+  Use four-byte sscanf format string for four-byte var.
+
+TOKENIZE.C:
+  In <Untokenize>, don't test named vars/fcns/ops in DEBUG version as they need not be defined.

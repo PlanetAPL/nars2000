@@ -1,0 +1,22 @@
+Build #1061 -- Version 0.3.9.xx
+-------------------------------
+
+* Miscellaneous Build File Changes
+
+Directory trunk:
+
+DEPINIT.BAT:
+  Avoid calling php as that only slows down the process.
+
+DEPTXT.BAT:
+  Avoid calling php as that only slows down the process, and on a fast system
+    may trigger an error message saying that "The process cannot access the
+    file because it is being used by another process.".
+
+ECHODOT.TXT:
+  A one-byte file containing a dot ".".  No trailing CR/LF is present so that
+    typing the file from multiple calls spits out a series of dots all on one
+    line until it wraps at the right edge of the CMD window.
+
+VER.RC:
+  Increment version # to 0.3.9.xx.

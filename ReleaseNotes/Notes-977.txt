@@ -1,0 +1,15 @@
+Build #977 -- Version 0.3.7.xx
+------------------------------
+
+* Fix Bug In []FMT When Displaying Infinity
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplVfpFC>, test for infinity and handle separately.
+
+QF_FMT.C:
+  Test for infinity and display without trailing zeros, etc.
+
+WCOM.BAT:
+  Fix typo in comment.

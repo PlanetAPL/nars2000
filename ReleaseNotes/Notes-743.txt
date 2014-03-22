@@ -1,0 +1,11 @@
+Build #743 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  If Rectangular Indexed Assignment Promotes And Fails The Name Might Be Freed
+
+Directory trunk:
+
+PF_DQUAD.C:
+  Fix Bug:  In <PrimFnDydSquadGlb_EM_YY>, if indexed assignment promotes
+    the named arg and later fails with an INDEX ERROR, the named arg
+    might be freed.

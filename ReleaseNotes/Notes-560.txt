@@ -1,0 +1,24 @@
+Build #560 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Increment/decrement RefCnts For Arguments At Start/End
+  Of <ExecFunc_EM_YY> To Handle Erasure Of Global Name During
+  UDFO Suspension
+
+Directory trunk:
+
+ASSIGN.C:
+  Include parameters to <ExecFunc_EM_YY> to indicate which args
+    to Incr/Decr RefCnts.
+
+EXECFNS.C:
+  Include parameters to <ExecFunc_EM_YY> to indicate which args
+    to Incr/Decr RefCnts.
+  In <ExecFunc_EM_YY>, make sure all exits go through a common
+    label.
+
+PL_PARSE.Y:
+  Include parameters to <ExecFunc_EM_YY> to indicate which args
+    to Incr/Decr RefCnts.
+  Delete all occurrences of <FreeResult> on one or more variable
+    args after <ExecFunc_EM_YY> as that function frees the args itself.

@@ -1,0 +1,86 @@
+Build #785 -- Version 0.0.2.20
+------------------------------
+
+* Use Themes For Display Of Ownerdrawn Buttons In Customize Dialog
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Use Themes to display the keycap buttons.
+  Improve comments.
+  Remove code to remove the highlight on a keycap button as we now
+    use OwnerDraw to paint the buttons.
+  Separate more keyboard layout names into Glb and Lcl versions
+    so a final Cancel changes nothing after the last Apply.
+  Delete the code to create, use, and destroy a special font for
+    the Fonts buttons, which are no longer ownerdrawn.
+  Provide Tooltips for the Keyboard Layout Combobox and special
+    Keycaps.
+  Draw the Keycap buttons ourselves in WM_DRAWITEM.  Previously,
+    I used NMCUSTOMDRAW, but Wine doesn't support that so I changed.
+  Handle <WM_THEMECHANGED>.
+  If the user clicks on a special Keycap, beep and ignore.
+  Allow BS in the Unicode Edit Ctrl.
+
+DEFINES.H:
+  Remove unused MYWM_xxx message.
+  Define additional single- and wide-chars.
+
+EDITFCN.C:
+  Use equates instead of numbers.
+
+EXTERNS.H:
+  Remove font handle for the Font buttons as we no longer need it.
+  Remove initial value from <uNumRecentFiles> as we no longer need it.
+
+INIFILE.C:
+  When reading in the # Recent Files from the .ini file, set the default
+    to zero as it represents the # of files in the .ini file, which is zero
+    at the start.
+  When allocating glkobal memory for the Recent Files, use <DEF_RECENTFILES>
+    as that's the maximum we keep track of.
+  Separate more keyboard layout names into Glb and Lcl versions
+    so a final Cancel changes nothing after the last Apply.
+
+KEYBOARDS.H:
+  Separate more keyboard layout names into Glb and Lcl versions
+    so a final Cancel changes nothing after the last Apply.
+
+MAIN.C:
+  ToolTip => Tooltip.
+  Move <MFWndProc/TCN_SELCHANGE:> code to new function so it may be called
+    separately.
+  In <MFWndProc/WM_CLOSE:>, if the Customize dialog is still open,
+    check ask it to close and if the user doesn't want to, fail the return.
+  Remove font handle for the Font buttons as we no longer need it.
+  Define new function to handle <MFWndProc/TCN_SELCHANGE:>.
+
+MAIN.RC:
+  Change the Font buttons to use constant text and not be ownerdrawn.
+  Change the Keyboards property page Keycap buttons to be ownerdrawn.
+
+REBAR.C:
+  Update copyright year.
+  Improve comments.
+  Change from <_TrackMouseEvent> to <SetCapture/ReleaseCapture> as
+    Wine doesn't handle the former well.
+  Create separate Tooltip windows for the toolbars so we don't need to
+    avoid leakage of parameters between the various uses.
+  In <LclWS_ED_OWToolbarWndProc>, handle <WM_SETFONT>.
+  In <LclWS_ED_OWToolbarWndProc>, handle <WM_LBUTTONUP>.
+  In <LclWS_ED_OWToolbarWndProc/WM_DESTROY:>, destroy the Tooltip
+    window instead of deleting the various tools.
+  Define a new function to set the maximum tip width to depend upon the
+    Tooltip font in use.
+
+RESOURCE.H:
+  Remove <xxx_BUTTON_TEXT> defines as they are no longer used.
+
+SC_COMMON.C:
+  Update copyright year.
+  In <SaveRecentWSID>, append new WSID to end of short list if room.
+
+TABCTRL.C:
+  Update copyright year.
+  In <LclTabCtrlWndProc/TCM_DELETEITEM:>, call common routine to effect
+    <TCN_SELCHANGE>.

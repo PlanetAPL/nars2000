@@ -1,0 +1,580 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <title>NARS2000 Welcome Page</title>
+  <base target="_top" />
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta name="Braces2APL" content="title,deccode,hexcode" />
+  <link rel="stylesheet"
+        href="http://www.sudleyplace.com/styles/common.css"
+        type="text/css" />
+  <link rel="stylesheet"
+        href="http://www.nars2000.org/styles/common.css"
+        type="text/css" />
+</head>
+
+<body><!--#config timefmt="%d %B %Y %H:%M:%S" -->
+
+<h1 class="header"
+    title="Last Changed <!--#echo var='LAST_MODIFIED' -->">
+Welcome to NARS2000</h1>
+
+<div class="section">
+  <h2 id="Introduction">Introduction</h2>
+
+  <p>The first NARS (Nested Arrays Research System) was designed and
+    implemented in the early 1980s as a testbed for new ideas in APL,
+    principally with nested arrays.  A quarter of a century later,
+    it's time to try again.</p>
+
+  <p>The goal of this effort, as with the last one, is to foster
+    new ideas about the language and its implementation.</p>
+
+  <p>Language ideas include new functions, operators, and
+    datatypes.  To aid in getting your ideas into an implementation,
+    there will be a mechanism for telling NARS that a user-defined
+    APL function represents a new primitive function,
+    operator, or datatype.  In order to experiment with your
+    ideas for new extensions, all you need to know is how to write
+    APL programs.</p>
+
+  <p>Implementation ideas include algorithms to enhance
+    code space (smaller executable), time space (faster execution
+    times), or expressibility (clearer and more understandable code).
+    A goal of the existing implementation is to be open
+    and easy for others to change so that new ideas may be inserted
+    smoothly.</p>
+
+  <p>Moreover, this project is made available as
+    <a class="linkleft" href="http://www.gnu.org/philosophy/free-sw.html">Free Software</a>
+    so, among other things, any developer may pick it up and add new features, and any end user
+    may use it free of charge.</p>
+</div>
+
+<div class="section">
+  <h2 id="Language_Features">Language Features</h2>
+
+  <h3>Current Language Features</h3>
+  <ul>
+    <li>ISO/IEC 13751 Extended APL Compliant</li>
+
+    <li>Consistent Extensions to ISO/IEC 13751
+      <ul>
+        <li>Strand Assignment (e.g., <span class="APL">(A B){is}1 2</span> is the same as
+          <span class="APL">A{is}1</span> and
+          <span class="APL">B{is}2</span>)</li>
+        <li>Modify Assignment (e.g.,
+          <span class="APL">A+{is}1</span> is the same as <span class="APL">A{is}A+1</span>)</li>
+        <li>Modify Strand Assignment (e.g.,
+          <span class="APL">(A B)+{is}1</span> is the same as
+          <span class="APL">A{is}A+1</span> and
+          <span class="APL">B{is}B+1</span>)</li>
+        <li>Function/operator assignment (e.g.,
+          <span class="APL">F{is}+.{times}</span> and
+          <span class="APL">F{is}{dieresis}</span> and
+          <span class="APL">F{is}{jot}</span>)</li>
+        <li>Sink (monadic <span class="APL">{is}A</span>
+          to suppress the display of <span class="APL">A</span>)</li>
+        <li>Unified index reference, assignment, and modify assignment:
+              <span class="APL">R[L]</span>,
+              <span class="APL">R[L]{is}A</span>,
+          and <span class="APL">R[L]<i>f</i>{is}A</span>
+          allow both Reach and Scatter indexing &mdash; that is, if
+          <span class="APL">L{pick}R</span> is valid, it is equivalent to
+          <span class="APL">{disclose}R[{enclose}L]</span>, and if
+          <span class="APL">L{squad}R</span> is valid, it is equivalent to
+          <span class="APL">R[{disclose}{jot}.,/L]</span> &mdash; Reach
+          and Scatter indexing may appear together within a single instance of
+              <span class="APL">R[L]</span>,
+              <span class="APL">R[L]{is}A</span>,
+          and <span class="APL">R[L]<i>f</i>{is}A</span></li>
+        <li>Dyadic operator jot (<span class="APL"><i>f</i>{jot}<i>g</i></span>) (Compose) (e.g.,
+          <span class="APL">f{is},{jot}{gradeup}{jot}{gradeup}{jot},</span>)</li>
+        <li>Axis operator allowed with primitive scalar dyadic functions (e.g.,
+          <span class="APL">1 2+[1] 2 3{rho}R</span>)</li>
+        <li>Axis operator to primitive scalar dyadic functions may transpose coordinates (e.g.,
+          <span class="APL">(2 3{rho}L)+[1 2] 2 3 4{rho}R</span> and
+          <span class="APL">({circleslope}2 3{rho}L)+[2 1] 2 3 4{rho}R</span> are identical)</li>
+        <li>Axis operator to Ravel may transpose coordinates (e.g.,
+          <span class="APL">,[2 1] R</span> and <span class="APL">,[1 2] R</span>
+          are both valid but, in general, have the same values in different order)</li>
+        <li>Axis operator is allowed on the dyadic derived function from the Each operator (e.g.,
+          <span class="APL">(2 3{rho}L){rho}{each}[1 2] 2 3 4{rho}R</span>)</li>
+        <li>Axis operator is allowed on user-defined functions/operators (e.g.,
+          <span class="APL">FOO[2 3] R</span> by specifying it in the
+          function header, as in <span class="APL">{del} Z{is}FOO[X] R</span>)</li>
+        <li>Axis operator values may be negative.
+          That is, if the largest allowed value is <span class="APL">N</span>,
+          then the allowable range for axis operator values is
+          <span class="APL">1 {neg}1[1]-N</span> to <span class="APL">N</span>, inclusive</li>
+        <li>Strand left and right arguments and result to user-defined
+          functions/operators along with optional left argument (e.g., <span class="APL">{del}
+          Z{is}FOO (R<sub>1</sub> R<sub>2</sub> R<sub>3</sub> R<sub>4</sub>)</span> or, more fully, <span class="APL">{del}
+          (Z<sub>1</sub> Z<sub>2</sub>){is}{L<sub>1</sub> L<sub>2</sub> L<sub>3</sub>} (LO OP2[X] RO) (R<sub>1</sub> R<sub>2</sub> R<sub>3</sub> R<sub>4</sub>)</span>)</li>
+        <li>Note that braces are <b>required</b> to surround the left
+          argument of an ambivalent function as in <span class="APL">{del} Z{is}{L} FOO R</span></li>
+        <li>The result of a user-defined function/operator may be marked as non-displayable
+          by enclosing it in braces, as in <span class="APL">{del} {Z}{is}FOO R</span>.
+          If the result part of the header consists of multiple names, either
+          <span class="APL">{del} {Z<sub>1</sub> Z<sub>2</sub>}{is}FOO R</span> or
+          <span class="APL">{del} ({Z<sub>1</sub> Z<sub>2</sub>}){is}FOO R</span> or
+          <span class="APL">{del} {(Z<sub>1</sub> Z<sub>2</sub>)}{is}FOO R</span> may be used to mark
+          the result as non-displayable</li>
+        <li>User-defined function/operator prototype entry point
+          (<span class="APL">{quad}PRO:</span>)</li>
+        <li>User-defined function/operator identity element entry point
+          (<span class="APL">{quad}ID:</span>)</li>
+        <li>Monadic operator null (<span class="APL"><i>f</i>{circlemiddledot}</span>) to aid in
+          resolving ambiguities with slash/slope as function/operator
+          (e.g., use <span class="APL">(/{circlemiddledot})/3 4</span>
+          instead of <span class="APL">(/)/3 4</span>)</li>
+        <li>Monadic iota (<span class="APL">{iota}R</span>) extended to negative values.  For example, in origin-0,
+          <span class="APL">{iota}{neg}3</span> returns <span class="APL">{neg}3 {neg}2 {neg}1</span></li>
+        <li>Monadic iota (<span class="APL">{iota}R</span>) extended to length &gt; 1 vector right arguments
+          returns an array of indices whose shape is that of the right argument
+          (via an internal magic function)</li>
+        <li>Dyadic iota (<span class="APL">L{iota}R</span>) extended to rank &gt; 1 left arguments returns an array
+          of vector indices to the left argument (via an internal magic function)</li>
+        <li>Index reference, assignment, modify assignment, squad, transpose, and pick
+             (<span class="APL">R[L]</span>,
+              <span class="APL">R[L]{is}A</span>,
+              <span class="APL">R[L]<i>f</i>{is}A</span>,
+              <span class="APL">L{squad}R</span>,
+              <span class="APL">L{transpose}R</span>,
+          and <span class="APL">L{pick}R</span>)
+          are each extended to negative values for <span class="APL">L</span> in the same way the axis operator is (see above).
+          For example,
+          <span class="APL">A</span>,
+          <span class="APL">A[{iota}{rho}A]</span>, and
+          <span class="APL">A[{iota}-{rho}A]</span>, and even
+          <span class="APL">A[{iota}{neg}1 1[?({rho}{rho}A){rho}2]{times}{rho}A]</span>
+          are all identical for any array <span class="APL">A</span> in either origin</li>
+        <li>Monadic and dyadic domino (<span class="APL">{domino}R</span> and <span class="APL">L{domino}R</span>)
+          &mdash; matrix inverse/divide extended to use Moore-Penrose pseudo-inverse algorithm via Singular Value
+          Decomposition</li>
+        <li>Prototypes for all primitive functions and operators</li>
+        <li>Jot may be used as either operand to a user-defined operator in which case
+          the name associated with the jot inside the operator is undefined, that is,
+          <span class="APL">{quad}NC</span> on the name returns <span class="APL">0</span></li>
+        <li>Catenate identity function for reduction and inner product</li>
+        <li>Control structures on one line or split across multiple lines
+          (e.g., <span class="APL">:for I :in {iota}N {diamond} ... {diamond} :endfor</span>).
+          A one line control structure may be used in immediate execution mode</li>
+        <li>Trains are supported, e.g., <span class="APL">avg{is}(+{slashbar} {divide} {mismatch})</span> creates a
+          function that calculates the average of a numeric vector</li>
+        <li>Primitive dyadic function left shoe (<span class="APL">L{leftshoe}R</span>) (Partitioned Enclose)</li>
+        <li>Primitive dyadic function epsilon underbar (<span class="APL">L{epsilon_}R</span>) (Find)</li>
+        <li>Reshape (<span class="APL">L{rho}R</span>) is extended to allow a non-empty Reshape of an empty in which case the right argument
+          fill element is used, e.g., <span class="APL">2 3{rho}{zilde}</span></li>
+        <li>Primitive monadic function iota underbar (<span class="APL">{iota_}R</span>) (Indices)</li>
+        <li>Primitive dyadic function iota underbar (<span class="APL">L{iota_}R</span>) (Array Lookup)</li>
+        <li>Primitive monadic function not equal underbar (<span class="APL">{mismatch}R</span>) (Tally)</li>
+        <li>Primitive dyadic function not equal underbar (<span class="APL">L{mismatch}R</span>) (Mismatch)</li>
+        <li>Primitive monadic function down tack (<span class="APL">{downtack}R</span>) (Type)</li>
+        <li>Primitive dyadic operator dieresis circle (<span class="APL">L f{circledieresis}g R</span>) (Composition)</li>
+        <li>Primitive monadic operator (<span class="APL"><i>f</i>{multiset}</span>) (Multiset)</li>
+        <li>Primitive dyadic function (<span class="APL">L{leftshoe_}R</span>) (Subset Of)</li>
+        <li>Primitive dyadic function (<span class="APL">L{rightshoe_}R</span>) (Superset Of)</li>
+        <li>Primitive monadic/dyadic functions (<span class="APL">{pi}R</span>) (Prime Decomposition)
+          and (<span class="APL">L{pi}R</span>) (Number Theoretic)</li>
+        <li>Primitive dyadic function (<span class="APL">L..R</span>) (Sequence)</li>
+        <li>Primitive dyadic operator quad colon (<span class="APL">f{variant}b R</span> and <span class="APL">L f{variant}b R</span>) (Variant)</li>
+        <li>Anonymous Functions/Operators:  one-line grouping of one or more statements all enclosed in braces such as <span class="APL">{(+{slashbar}{omega}){divide}{mismatch}{omega}}</span></li>
+        <li>Primitive dyadic operator <span class="APL">f.g R</span> as a monadic derived function (Determinant Operator)</li>
+        <li>Primitive dyadic operator dieresis-downtack (<span class="APL">f{convolution}g</span>) as a dyadic derived function (Convolution Operator)</li>
+        <li>System variables:
+          <ul>
+            <li><span class="APL">{quad}DT</span> (Distribution Type)</li>
+            <li><span class="APL">{quad}FC</span> (Format Control)</li>
+            <li><span class="APL">{quad}FPC</span> (Floating Point Control)</li>
+            <li><span class="APL">{quad}IC</span> (Indeterminate Control)</li>
+          </ul>
+        </li>
+        <li>System functions:
+          <ul>
+            <li><span class="APL">{quad}A</span></li>
+            <li><span class="APL">{quad}AT</span></li>
+            <li><span class="APL">L {quad}CR R</span> for
+                <span class="APL">L=1</span> and
+                <span class="APL">2</span></li>
+            <li><span class="APL">{quad}DM</span></li>
+            <li><span class="APL">{quad}DR R</span></li>
+            <li><span class="APL">L {quad}DR R</span> for
+                <span class="APL">L=0</span>,
+                <span class="APL">1</span>,
+                <span class="APL">2</span>, and higher</li>
+            <li><span class="APL">L {quad}EA R</span></li>
+            <li><span class="APL">{quad}EC R</span></li>
+            <li><span class="APL">{quad}EM</span></li>
+            <li><span class="APL">{quad}ERROR R</span></li>
+            <li><span class="APL">{quad}ES R</span></li>
+            <li><span class="APL">L {quad}ES R</span></li>
+            <li><span class="APL">{quad}ET</span></li>
+            <li><span class="APL">{quad}FMT R</span></li>
+            <li><span class="APL">L {quad}FMT R</span></li>
+            <li><span class="APL">{quad}MF R</span></li>
+            <li><span class="APL">L {quad}MF R</span></li>
+            <li><span class="APL">L {quad}NAPPEND R</span></li>
+            <li><span class="APL">L {quad}NCREATE R</span></li>
+            <li><span class="APL">L {quad}NERASE R</span></li>
+            <li><span class="APL">{quad}NNAMES</span></li>
+            <li><span class="APL">{quad}NNUMS</span></li>
+            <li><span class="APL">{quad}NREAD R</span></li>
+            <li><span class="APL">L {quad}NRENAME R</span></li>
+            <li><span class="APL">L {quad}NREPLACE R</span></li>
+            <li><span class="APL">L {quad}NRESIZE R</span></li>
+            <li><span class="APL">{quad}NSIZE R</span></li>
+            <li><span class="APL">L {quad}NTIE R</span></li>
+            <li><span class="APL">{quad}NUNTIE R</span></li>
+            <li><span class="APL">{quad}SYSID</span></li>
+            <li><span class="APL">{quad}SYSVER</span></li>
+            <li><span class="APL">{quad}TC</span> and other related <span class="APL">{quad}TC</span>xxx</li>
+            <li><span class="APL">L {quad}TF R</span> for
+                <span class="APL">L={neg}2</span>,
+                <span class="APL">{neg}1</span>,
+                <span class="APL">1</span>, and
+                <span class="APL">2</span></li>
+            <li><span class="APL">{quad}UCS R</span></li>
+            <li><span class="APL">{quad}VR R</span></li>
+            <li><span class="APL">{quad}WA</span></li>
+          </ul>
+        </li>
+        <li>System commands:
+          <ul>
+            <li><span class="APL">)CLOSE</span></li>
+            <li><span class="APL">)EDIT</span></li>
+            <li><span class="APL">)EXIT</span></li>
+            <li><span class="APL">)IN</span></li>
+            <li><span class="APL">)INASCII</span></li>
+            <li><span class="APL">)NEWTAB</span></li>
+            <li><span class="APL">)OFF</span></li>
+            <li><span class="APL">)OUT</span></li>
+            <li><span class="APL">)RESET</span></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+
+    <li>Optional Facilities Included
+      <ul>
+        <li>Statement Separator (<span class="APL">{diamond}</span>)</li>
+      </ul>
+    </li>
+
+    <li>Optional Facilities Not Included (as yet)
+      <ul>
+        <li>Shared Variables</li>
+        <li>Trace and Stop Control</li>
+        <li>Complex Arithmetic</li>
+      </ul>
+    </li>
+
+    <li>Facilities Purposely Omitted
+     <ul>
+       <li>Locked functions (<span class="APL">{deltilde}</span>)</li>
+     </ul>
+    </li>
+  </ul>
+
+  <h3>Wish List of Language Features</h3>
+  <ul>
+    <li>User-defined function/operator inverse entry point
+      (<span class="APL">{quad}INV:</span>)</li>
+    <li>Primitive functions and operators user extensible via user-defined APL functions</li>
+    <li>Primitive dyadic function down tack (<span class="APL">L{downtackjot}R</span>) with character left argument
+      (Format By Example)</li>
+    <li>Primitive dyadic operator dieresis-del (<span class="APL"><i>f</i>{deldieresis}<i>g</i></span>) (Dual)</li>
+    <li>Primitive dyadic operator dieresis-star
+     (<span class="APL"><i>f</i>{stardieresis}<i>g</i></span>,
+      <span class="APL"><i>f</i>{stardieresis}<i>N</i></span>, and
+      <span class="APL"><i>f</i>{stardieresis}{jot}</span>) (Power)</li>
+    <li>Primitive dyadic operator stile-tilde (<span class="APL"><i>f</i>{stiletilde}</span>) (Partition)</li>
+    <li>Selective assignment (e.g., <span class="APL">(1 1{transpose}M){is}0</span>)</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2 id="Datatypes">Datatypes</h2>
+
+  <h3>Current Datatypes</h3>
+  <ul>
+    <li>1-bit Booleans</li>
+    <li>2-byte Characters (Unicode, that is, UCS-2)</li>
+    <li>64-bit Integers</li>
+    <li>64-bit Floats (double precision)</li>
+    <li>Heterogeneous arrays</li>
+    <li>Nested arrays</li>
+    <li>APAs (Arithmetic Progression Arrays) (e.g.,
+      <span class="APL">2 3 4{rho}{iota}24</span>)</li>
+    <li>± Infinity (e.g., <span class="APL">{infinity}</span> for infinity
+      and <span class="APL">{overbar}{infinity}</span> for negative infinity)</li>
+    <li>Array predicates (a la Bernecky) for Permutation Vectors</li>
+    <li>Rational numbers (e.g., <span class="APL">1r3</span>
+      and <span class="APL">12345x</span>)</li>
+    <li>Variable precision floating point numbers (e.g., <span class="APL">1.234v</span>
+      and <span class="APL">12v</span>)</li>
+    </ul>
+
+  <h3>Wish List of Datatypes</h3>
+  <ul>
+    <li>Unicode support via multiple character widths
+      (8-, 16-, and 32-bits) instead of the current 16-bit fixed width (UCS-2)</li>
+    <li>Complex numbers (e.g., <span class="APL">2i3.4</span>
+      or <span class="APL">2J3.4</span>)</li>
+    <li>Quaternions (e.g., <span class="APL">2i3j4ij5</span>
+      or <span class="APL">2i3j4k5</span>)</li>
+    <li>Octonions (e.g., <span class="APL">2i3j4k5l6il7jl8kl9</span>)</li>
+    <li>Datatypes user extensible via user-defined APL functions</li>
+    <li>Array predicates (a la Bernecky) for other special arrays</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2 id="Miscellaneous">Miscellaneous Features</h2>
+
+  <h3>Current Miscellaneous Features</h3>
+  <ul>
+    <li>Workspace size limited only by the available address space</li>
+    <li>Multiple workspaces may be open at the same time
+      and switched between via with the click of a mouse</li>
+    <li>Workspaces saved as plain text ASCII files</li>
+    <li>All variable names are two-byte characters
+      (Unicode, that is, UCS-2)</li>
+    <li>Array rank and dimension limit of 64 bits</li>
+    <li>Multilevel Undo in function editing</li>
+    <li>Undo buffer saved with function for reuse on next edit</li>
+    <li>Fast Boolean reduction (<span class="APL">{lessthan}{notmore}{equal}{notless}{morethan}{notequal}{or}{nor}{and}{nand}{plus}</span>)
+      and scan (<span class="APL">{lessthan}{notmore}{equal}{notless}{morethan}{notequal}{or}{nor}{and}{nand}</span>)
+      along contiguous bits</li>
+    <li>Right double click on an editable name brings up the function editor on that name</li>
+    <li>Control chars (<span class="APL">{quad}TCBEL</span>, <span class="APL">{quad}TCBS</span>,
+      <span class="APL">{quad}TCESC</span>,
+      <span class="APL">{quad}TCFF</span>, <span class="APL">{quad}TCHT</span>,
+      <span class="APL">{quad}TCLF</span>, <span class="APL">{quad}TCNL</span>, and
+      <span class="APL">{quad}TCNUL</span>) display correctly in simple and nested output</li>
+    <li>Out of range numeric assignments to
+      <span class="APL">{quad}CT</span>,
+      <span class="APL">{quad}IC</span>,
+      <span class="APL">{quad}IO</span>,
+      <span class="APL">{quad}PP</span>,
+      <span class="APL">{quad}PW</span>, and
+      <span class="APL">{quad}RL</span> are set to the value in the allowable range
+      nearest the ceiling of the given number.  For example, if
+      <span class="APL">{quad}PP</span> is set to <span class="APL">23.7</span>,
+      that value is rounded down to <span class="APL">17</span>, the largest value
+      that system variable may assume</li>
+    <li>An empty vector assignment to
+      <span class="APL">{quad}CT</span>,
+      <span class="APL">{quad}DT</span>,
+      <span class="APL">{quad}FC</span>,
+      <span class="APL">{quad}IC</span>,
+      <span class="APL">{quad}IO</span>,
+      <span class="APL">{quad}PP</span>,
+      <span class="APL">{quad}PW</span>, and
+      <span class="APL">{quad}RL</span> is converted to the System or CLEAR WS default value
+      (selected by User Preference)</li>
+    <li>Control structures on one line or split across multiple lines
+      (e.g., <span class="APL">:for I :in {iota}N {diamond} ... {diamond} :endfor</span>)</li>
+    <li>Syntax coloring of lines of APL in Function Editor and Session Manager windows</li>
+    <li>Base, Euler, and Pi Point Notation as extensions to Decimal Point and Exponential Point Notations
+      for entering certain numeric constants</li>
+    <li>A <b>Status Window</b> at the bottom of the screen displays various pieces of information about
+      the cursor position and key states</li>
+    <li><b>Alt-<i>nnnn</i></b> may be used to enter arbitrary Unicode characters in decimal.  For example,
+      <b>Alt-9735</b> is a lightning bolt (<span class="APL">&#9735;</span>)</li>
+    <li>Available as either a 32- or 64-bit executable</li>
+    <li>Language bar</li>
+    <li>User-defined keyboard layout support (copied with minor changes from APL2)</li>
+  </ul>
+
+  <h3>Wish List of Miscellaneous Features</h3>
+  <ul>
+    <li>Line continuation marker for easier display of long lines &mdash;
+      this also allows comments within a line</li>
+    <li>Idiom recognition at tokenization time</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2 id="Platforms">Platforms</h2>
+
+    <p>At the moment, NARS2000 is available as a 32- or 64-bit Windows-based
+      executable only, initially designed to run on Windows XP, Vista, and
+      Windows 7.</p>
+
+    <p>However, thanks to a translation layer program such as
+      <a class="linkleft" href="http://www.winehq.org">Wine</a>,
+      NARS2000 can run on any operating system that can run Wine (which
+      includes virtually every Linux-based system, among others).  Note that
+      Wine is not an emulator, but a layer between the Windows executable
+      and the non-Windows operating system.  In fact, the name <b>Wine</b> is a
+      <a class="linkleft" href="http://en.wikipedia.org/wiki/Recursive_acronym">recursive acronym</a>
+      for <b>Wine Is Not an Emulator</b>.</p>
+
+    <p>For more details on running NARS2000 on your operating system, see
+      <a class="linkleft" href="http://wiki.nars2000.org/index.php/Platforms">Platforms</a>
+      in the Wiki.</p>
+</div>
+
+<div class="section">
+  <h2 id="Documentation">Documentation</h2>
+
+  <p>As with many open source software projects, the documentation for
+    this project is managed by a Wiki.  To see the current
+    effort, goto the
+    <a class="linkleft" href="http://wiki.nars2000.org">NARS2000 Wiki</a>.
+    For information about other APL interpeters and APL in general,
+    see the <a class="linkleft" href="http://aplwiki.com">APL Wiki</a>
+    where, among other things, you'll find an excellent APL tutorial.</p>
+
+</div>
+
+<div class="section">
+  <h2 id="What_It_Isnt">What It Isn't</h2>
+
+    <ul>
+      <li><b>Performance:</b>  NARS2000 is not intended to be a high performance
+        system, other than as a fallout of interesting algorithms.
+        Any good or bad performance on your favorite benchmark is
+        purely accidental.
+      </li>
+
+      <li><b>Commercial Systems:</b>  NARS2000 is not intended to compete with
+        commercial systems.
+        As such it lacks the features one expects to find in a
+        commercial system, such as a Windows interface, .NET interface, COM
+        server, etc., although I've not made any conscious effort to make it
+        difficult to add such features.  These features may be included at some later
+        time &mdash; they just aren't high priority up front.  You are, of course,
+        free to use the program commercially, subject to the license agreement
+        (see the next section).
+      </li>
+    </ul>
+</div>
+
+<div class="section">
+  <h2 id="Get_The_Code">Get The Code</h2>
+
+    <p>For Copyright and Licensing terms of the code, see the
+      <a class="linkleft" href="License.html">License Agreement</a>.
+      The code is available in several forms:</p>
+
+    <ul>
+      <li><b>Executable:</b>
+        <a class="linkleft" href="/download/Download.html">Windows only</a>,
+          but see <a class="linkleft" href="#Platforms">Platforms</a> to
+          see how to run this executable under other operating systems.
+      </li>
+
+      <li><b>Source Code Under Version Control:</b>
+        <ul>
+          <li>The source may be
+            <a class="linkleft" href="http://code.google.com/p/nars2000/source/browse/trunk">viewed</a>,
+            as well as downloaded, one file at a time, from your browser.
+          </li>
+
+          <li>Or, using a version control program, the source may be
+            downloaded, one file at a time or the whole lot.  In
+            particular, the source code is maintained on the Google Code site using
+            <a class="linkleft" href="http://subversion.tigris.org/">Subversion</a>.
+            There are various clients which may commmunicate with a Subversion
+            server depending upon the operating system running on your computer.
+            For example, if you are running Windows, you may download (for free)
+            the program <a class="linkleft" href="http://tortoisesvn.tigris.org/">Tortoise SVN</a>.
+            This is one means by which developers may checkout and commit changes to
+            the code.
+            Using a version control program, the source code may be viewed using the URL
+            <a class="linkleft" href="http://code.google.com/p/nars2000/source/browse/trunk">http://code.google.com/p/nars2000/source/browse/trunk</a>.
+          </li>
+        </ul>
+      </li>
+    </ul>
+</div>
+
+<div class="section">
+  <h2 id="If_You_Want_To_Help">If You Want To Help</h2>
+
+  <p>This project was designed to be extensible by both the end
+  user (via APL magic functions) as well as by system developers.  This is
+  your chance to add a valuable feature to NARS2000.</p>
+
+  <p>The source code is written in a combination of APL (as internal
+  magic functions) and C, so knowledge of either or both languages
+  is all you need.</p>
+
+  <p>Also, don't forget that documentation is an area in need of
+  improvement, so if your skills are in writing, your help is needed.</p>
+
+  <p>The best way to help is to find an area of the project in which
+  you'd like to contribute, write up a short description of what you
+  want to do and submit it to the project via the Discussion Groups.</p>
+
+  <p>When you contribute content to the project, your name will be placed in
+  the <a class="linkleft" href="/Contributors.html">List of Contributors</a>.
+  First time contributors will also need to
+  <a class="linkleft" href="http://www.gnu.org/licenses/why-assign.html">assign
+  copyright</a> of what you contribute to the project, in particular
+  to the principal author, Bob Smith.  This is by no means an attempt
+  to take credit for what you have contributed &mdash; instead, it provides a
+  single point of reference from a legal standpoint in case the program's copyright
+  (actually <a class="linkleft" href="http://www.gnu.org/copyleft/copyleft.html">copyleft</a>)
+  needs to be enforced.  See the "assign copyright" link above for why this is
+  necessary.</p>
+</div>
+
+<div class="section">
+  <h2 id="Discussion_Forum">Discussion Forum</h2>
+
+  <p>To facilitate discussion about this project, there is a
+    <a class="linkleft" href="http://forum.nars2000.org/">forum</a>
+    available for your use.  This forum is for discussion relative to this
+    project, and is not meant to supplant other forums such as the
+    <a class="linkleft" href="news:comp.lang.apl">comp.lang.apl</a>
+    newsgroup.</p>
+</div>
+
+<div class="section">
+  <h2 id="Fonts">Fonts</h2>
+
+  <p>The pages on this site were designed to be displayed with an
+    attractive APL font such as <a class="ttfLeft"
+    title="If the APL characters on this page don't display correctly, ..."
+    href="http://www.chastney.com/~philip/sixpack/sixpack_medium.ttf">SImPL (Unicode)</a>,
+    <a class="ttfLeft"
+       title="If the APL characters on this page don't display correctly, ..."
+       href="http://archive.vector.org.uk/resource/apl385.ttf">APL385 Unicode</a>,
+    or any of the other Unicode APL fonts (assuming they have all of the
+    <a class="linkleft" href="http://wiki.nars2000.org/index.php/APL_Font">extra
+    APL glyphs</a> used on this site).
+    Moreover, your choice of browser can materially affect how the APL
+    characters appear.  Either <a class="linkleft"
+    href="http://www.getfirefox.com">Firefox</a> or Internet Explorer
+    (Version 7 or later, only) are good choices.</p>
+</div>
+
+<div class="section">
+  <h2 id="Changes">Changes</h2>
+
+  <p>Rather than gather email addresses, maintain a mailing list, deal with
+    privacy issues, etc., I'd prefer that if you are interested in being
+    notified when a new version is released that you sign up with a (free)
+    service that does this such as the one linked to at the bottom of this
+    page (for new <b>features</b>) and/or the <a class="linkleft" href="/download">download</a>
+    page (for new <b>releases</b>).</p>
+</div>
+
+<div class="section">
+  <h2 id="Author">Author</h2>
+
+  <p>This project was started by
+  <script type="text/javascript"
+          src="/email.cgi?n=bsmith&amp;d=sudleyplace.com&amp;t=Bob%20Smith&amp;class=mailright"></script>
+  and is &copy; 2006-2014, Sudley Place Software.  Here's a link to some of my other
+  <a class="linkleft" href="http://www.sudleyplace.com/APL/projects.html">APL-related pages</a>.</p>
+</div>
+
+<!--#include virtual="/ValidXHTML-CSS.html" -->
+<!--#include virtual="/footer-mon.html" -->
+</body></html>

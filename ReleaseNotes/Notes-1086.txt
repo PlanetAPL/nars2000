@@ -1,0 +1,36 @@
+Build #1086 -- Version 0.3.10.xx
+--------------------------------
+
+* Implement Execution Timer In StatusBar
+
+Directory trunk:
+
+COMPRO.H:
+  Include new file's prototypes.
+
+DEFINES.H:
+  Define superclassed class name.
+
+EDITFCN.C:
+EXECDFN.C:
+PL_PARSE.Y:
+SESSMAN.C:
+  Set execution state via a subroutine.
+
+EXTERNS.H:
+  Define new StatusBar part.
+
+MAIN.C:
+  Move all StatusBar code to <statusbar.c>.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include entry for new file.
+
+PERTAB.H:
+  Define pertab entry for starting tick count.
+
+STATUSBAR.C:
+  New file to contain all StatusBar code.

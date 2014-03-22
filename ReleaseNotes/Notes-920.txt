@@ -1,0 +1,11 @@
+Build #920 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug In :FOR/:FORLCL With Nested Arrays
+
+Directory trunk:
+
+GETFNS.C:
+  Update copyright year.
+  In <GetNextValueTokenIntoNamedVar_EM>, handle nested array case where
+    <immType> is <IMMTYPE_ERROR>.  Bug introduced in Build 853.

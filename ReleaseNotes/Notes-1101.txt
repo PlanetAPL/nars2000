@@ -1,0 +1,9 @@
+Build #1101 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Scalar Dyadic Functions With FLOAT Result From APA vs. BOOL/INT/APA And Vice Versa
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDydSingMult_EM> and <PrimFnDydMultSing_EM>, handle FLOAT result from APA on the left vs. BOOL/INT/APA on the right and vice versa.

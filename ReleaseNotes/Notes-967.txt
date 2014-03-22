@@ -1,0 +1,31 @@
+Build #967 -- Version 0.3.6.xx
+------------------------------
+
+* Extend Keyboard Table
+* Fix Bug In Scancode Table
+* Define Danish 101 Extended Keyboard
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Fix bug in scan code table for extra key on international keyboards
+    between LShift and Z.
+  In DEBUG mode, add a tooltip for each keycap to show the underlying scancode.
+
+EXECMFN.H:
+SYMBOLNAMES.H:
+  Rename UTF16_POUND as UTF16_NUMBER so we can use the former for a currency symbol.
+
+KEYBOARDS.H:
+  Update copyright year.
+  Extend each keyboard table to include 0x56 as the last defined scancode so as to handle
+    international keyboards.
+  Define Danish extended keyboard layout.
+
+TOKENIZE.C:
+  Rename UTF16_POUND as UTF16_NUMBER so we can use the former for a currency symbol.
+
+UNICODE.H:
+  Define more Unicode points to handle international keyboards.
+  Rename UTF16_POUND as UTF16_NUMBER so we can use the former for a currency symbol.

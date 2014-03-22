@@ -1,0 +1,1017 @@
+Version 0.0.3.4 consists of the following Builds:
+
+
+Build #950 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug In DotDot
+
+Directory trunk:
+
+PF_DOTDOT.C
+  Update copyright year.
+  The case where the starting value(s) are higher than the ending value(s)
+    wasn't well thought out.  This is corrected in the Magic Function.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document DotDot.
+
+
+Build #949 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug In Reduction Of RAT/VFP Numbers
+
+Directory trunk:
+
+PO_SLASH.C:
+  When calling <PrimFnDydSiScSiScSub_EM>, don't pass result global memory
+    handle as it doesn't know which element to write into.  By passing NULL,
+    the called routine allocates memory itself which we need to free after
+    we've copied the RAT/VFP.
+
+
+Build #948 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bugs In Rational GCD/LCM
+
+Directory trunk:
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Remove all references to FLINT as we no longer use it.
+
+PF_DCARET.C:
+PF_UCARET.C:
+  Update the copyright year.
+  In <PrimFnDydDownCaretRisRvR> and <PrimFnDydUpCaretRisRvR>, initialize
+    the result before passing it to <mpz_gcd>/<mpz_lcm>.
+  In <PrimFnDydDownCaretRisRvR> and <PrimFnDydUpCaretRisRvR>, pass both
+    args, not just the left one twice.
+  In <PrimFnDydDownCaretRisRvR> and <PrimFnDydUpCaretRisRvR>, when the
+    left arg is negative change the sign of the result, not the left arg.
+
+
+Build #947 -- Version 0.0.3.4
+-----------------------------
+
+* Use Gauss-Jordan Elimination For Domino On RATs/VFPs
+
+Directory trunk:
+
+DISPDBG.C:
+MAKEFILE.INC:
+WCOM.BAT:
+  Remove all references to FLINT as we no longer use it.
+
+PF_DOMINO.C:
+  Remove all references to FLINT as we no longer use it.
+  Use Gauss-Jordan elimination to solve monadic and dyadic domino
+    problems with RAT or VFP numbers.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Remove all references to FLINT as we no longer use it.
+
+
+Build #946 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug When Replacing Item In Global Numeric Array
+
+Directory trunk:
+
+PF_INDEX.C:
+  Update copyright year.
+  Fix bug with missing case in <ArrayIndexReplace_EM>.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Document contribution of GMP-ECM team.
+
+
+Build #945 -- Version 0.0.3.4
+-----------------------------
+
+* Reorder Left Arg To {pi} To Reflect Pairs Of Inverses
+* Convert Dyadic {pi} From Scalar To Mixed Function
+* Use ECM To Factor Large Numbers
+
+Directory trunk:
+
+DEFINES.H:
+  Increase MAXOBJ to handle the large number of heap objects when using ECM.
+
+EXTERNS.H:
+  Define global Boolean for resource debugging.
+
+INITDATA.C:
+  Remove scalar function definitions for {pi}.
+
+MAKEFILE.INC:
+  Ensure that <ECM_DIR> is defined before running <make>.
+  Define vars involving ECM directories.
+
+MPFNS.C:
+  Define <mpz_fits_sx>.
+
+MPIFNS.C:
+  Define infinity version of <mpz_probable_prime_p>.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Reorganize definitions for consistency.
+
+PF_PI.C:
+  Convert {pi} from a scalar dyadic function to a mixed functions so
+    it can return results of matching datatype to the right arg.
+  Reorder dyadic functions to reflect pairs of inverses.
+  Use ECM to factor larger numbers.
+
+REBAR.C:
+  Reorder dyadic functions to reflect pairs of inverses.
+
+RESDEBUG.C:
+  Use global variable to control whether or not we debug resource allocations.
+
+WCOM.BAT:
+  Define directory for ECM include files and libraries.
+
+
+Build #944 -- Version 0.0.3.4
+-----------------------------
+
+* Define EXTERN For Msieve
+
+Directory msieve:
+
+SMALLFACT.C:
+  Define EXTERN for when we include <primes.h> outside <main.c>.
+
+
+Build #943 -- Version 0.0.3.4
+-----------------------------
+
+* Remove Surrounding #ifdef/#endif For Certain DEBUG Statements
+
+Directory trunk:
+
+EXCEPT.C:
+EXECDFN.C:
+FH_PARSE.Y:
+IMMEXEC.C:
+MACROS.H:
+PF_IOTAUND.C:
+PF_PI.C:
+PF_UTACK.C:
+PF_UTACKJOT.C:
+PO_SLASH.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+RESDEBUG.C:
+SC_LOAD.C:
+SESSMAN.C:
+SYMTAB.C:
+TABCTRL.C:
+  Remove surrounding #ifdef/#endif on certain DEBUG statements.
+
+
+Build #942 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug In Reference Count For Trains
+
+Directory trunk:
+
+PL_PARSE.Y:
+  When forming a Train (even a single function train), don't free the arg on error
+    if it hasn't been incremented as yet.
+
+
+Build #941 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug In Certain Overflow Cases
+
+Directory trunk:
+
+PRIMSPEC.C;
+  In certain cases when we overflow from one type to another, the array header is not updated.
+
+
+Build #940 -- Version 0.0.3.4
+-----------------------------
+
+* Optimize Certain Pi Functions
+
+Directory trunk:
+
+DEFINES.H:
+  Lengthen the <lpwszFormat> vector to allow larger formats.
+
+DISPDBG.C:
+  Avoid displaying temporary heap allocations from the prime number
+    power table.
+
+ENUMS.H:
+  Update copyright year.
+  Define enum for table state for prime number functions.
+
+EXTERNS.H:
+  Move prime factoring struc from <externs.h> to <primes.h>.
+  Move "primes.h" from <headers.h> to bottom of <externs.h>.
+  Define last value struc for prime number functions.
+
+HEADERS.H:
+  Move "primes.h" from <headers.h> to bottom of <externs.h>.
+
+INITDATA.C:
+  Update copyright year.
+  Initialize prime number function table.
+
+MAIN.C:
+  Update copyright year.
+  Minor optimize in <ApplyNewFontLW>.
+  In <MFWndProc/WM_SIZE>, use #defines for <wParam> and <lParam> args.
+  Change order of initialization for function to initialize tables.
+
+MPFNS.C:
+  Change <mpz_next_prime>/<mpz_prev_prime> to include the result as an
+    arg instead of returning it, and return a Boolean to indicate whether
+    or not the function succeeded.
+
+NARS2000.64.VCPROJ:
+  Omit </nodefault:...> as it's no longer needed.
+
+PF_PI.C:
+  Change <mpz_next_prime>/<mpz_prev_prime> to include the result as an
+    arg instead of returning it, and return a Boolean to indicate whether
+    or not the function succeeded.
+  Optimize calculation of Nth prime and # primes.
+
+PO_SLASH.C:
+  Use <varArrayDataFmBase> instead of <VarArrayBaseToData>.
+
+PRIMES.H:
+  Update copyright year.
+  Define prime number function strucs.
+  Define table of Nth prime #s in increments of 1e5 through 4G.
+  Define table of Nth prime #s as powers of 10.
+
+PRIMSPEC.C;
+  Re-organize code in <PrimFnDydSiScSiScSub_EM> when handling
+    global numerics.
+
+
+Build #939 -- Version 0.0.3.4
+-----------------------------
+
+* Renumber {pi} Functions
+
+Directory trunk:
+
+PF_PI.C:
+REBAR.C:
+  Renumber {pi} functions.
+
+
+Build #938 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  )CLOSE Doesn't Select The Incoming Tab
+
+Directory trunk:
+
+SYSCMDS.C:
+  Update copyright year.
+  In <CmdClose_EM>, set the over tab index so we know the current tab.
+
+
+Build #937 -- Version 0.0.3.4
+-----------------------------
+
+* Implement R-format In []FMT To Display Rational Numbers
+
+Directory trunk:
+
+FMTSPEC.C:
+  Update copyright year.
+  Handle dual meaning of R-format vs. R-qualifier in the FSA.
+  Improve comments.
+  In <fnSetQual>, handle R-format case.
+
+FMTSPEC.H:
+  Update copyright year.
+  Include the R-format spec in the <FMTSPECVAL> enum.
+  Improve comments.
+  Include 'r' in the list of allowable Symbol Substitutions.
+
+QF_FMT.C:
+  Update copyright year.
+  In <SysFnDydFMT_EM_YY>, handle new R-format specification.
+  Fix Bug:  Second and subsequent rows of Hetero arrays not formatted.
+  Substitute for the Rational Separator if desired.
+
+STARTADDR.H:
+  Note new name for []FMT subfunction.
+
+
+Build #936 -- Version 0.0.3.4
+-----------------------------
+
+* Miscellaneous Cases
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <MakeMonPrototype_EM_PTB>, widen the Assert to allow Hetero cases.
+
+TYPEMOTE.C:
+  In <TypeDemote>, handle more datatype cases.
+
+
+Build #935 -- Version 0.0.3.4
+-----------------------------
+
+* Use DEBUG Version of GSL Libraries
+
+Directory trunk:
+
+MAKEFILE.INC:
+NARS2000.32.vcproj:
+NARS2000.64.vcproj:
+  Change name of GSL library to use DEBUG version (with 'd' suffix).
+
+
+Build #934 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Various Display Bugs
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplVfpFC> if <bFractDigs>, add in <expptr> to <nDigits> to
+    get the # signifcant digits.
+  In <FormatAplVfpFC>, if # is zero, and E-format (nDigits < 0),
+    return 0.000E0 or the like.
+
+PF_DTACKJOT.C:
+  Update copyright year.
+  Improve comments.
+  Ensure <bFractDigs> flag to <FormatAplVfpFC> is 0 for E-format which
+    is always in # significant digits.
+
+SC_SAVE.C:
+  Improve comments.
+
+
+Build #933 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  )COPY Of A Var May Fail If Src WS Internal Name (:nnn) Is Same In Dest WS
+
+Directory trunk:
+
+SC_COPY.C:
+  Update copyright year.
+  Pass flag to <ParseSavedWsVar_EM, to indicate that it's called from
+    the )COPY command.
+
+SC_LOAD.C:
+  Pass flag to <ParseSavedWsVar_EM, to indicate that it's called from
+    the )COPY command.
+  In <ParseSavedWsVar_EM>, load the var from the workspace globals if called
+    from the )COPY command.
+
+
+Build #932 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  RAT,[X] RAT Uses Wrong Index On Right Arg
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDydSimpSimp_EM>, <RAT,[X] RAT> uses the wrong index for the right arg.
+
+
+Build #931 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Catenate Of RAT/VFP and FLT Uses Wrong Conversion
+
+Directory trunk:
+
+PF_COMMA.C:
+  In <PrimFnDydComma_EM_YY>, RAT/VFP catenate FLT where the FLT is
+    on the right, promotes the float as if it were an integer.
+
+
+Build #930 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Printing A Selection Not All On Current Page Prints Current Page Only
+
+Directory trunk:
+
+EDITCTRL.C:
+  Printing a selection not all of which fits on the current page
+    prints the selection on the current page only.
+
+
+Build #929 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Tab Delete Fails To Select The Current Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  In <LclTabCtrlWndProc/TCM_DELETEITEM>, if the current tab and the
+    deleted tab are at the leftmost, <gOverTabIndex> is decremented
+    when it should be left alone.
+  In <LclTabCtrlWndProc/TCM_DELETEITEM>, the call to <TabCtrl_GetCurSel>
+    returns -1 because it is issued too soon after the call to delete a
+    tab.  Instead, we select the new tab explicitly.
+
+
+Build #928 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  DotDot In Char Str '..'
+
+Directory trunk:
+
+TOKENIZE.C:
+  Fix bug where a .. inside a char string is converted to a single dot as
+    it is outside a char string because .. is a digraph for a primitive
+    function.
+
+
+Build #927 -- Version 0.0.3.4
+-----------------------------
+
+* Include File Omitted In Previous Build
+
+Directory trunk:
+
+MALLOC.H:
+  Include file omitted in previous build.
+
+
+Build #926 -- Version 0.0.3.4
+-----------------------------
+
+* Include File Omitted In Previous Build
+
+Directory trunk:
+
+MALLOC.PROTO:
+  Include file omitted in previous build.
+
+
+Build #925 -- Version 0.0.3.4
+-----------------------------
+
+* Use Custom <malloc> Routines Instead of <HeapAlloc>
+
+Directory trunk:
+
+COMMON.C:
+  Update copyright year.
+  In <IsValidPtr>, check for bad ptrs that <IsBadReadPtr> doesn't catch.
+
+COMPRO.H:
+  Update copyright year.
+  Include custom <malloc> prototype file.
+
+DISPDBG.C:
+  In <DisplayHeap>, use custom <malloc> routines and display the block's size.
+
+DISPLAY.C:
+  Update copyright year.
+  In <DisplayGlbArr_EM>, in case of WS FULL, set a serially reusable return point.
+
+EDITFCN.C:
+  Update copyright year.
+  In <DrawTextFLsub>, also release the font mapping.
+
+EXTERNS.H:
+  Define long jump target variable.
+
+HEADERS.H:
+  Include <setjmp.h> as a global header.
+  Include "malloc.h" as a local header.
+
+INIFILE.C:
+  Update copyright year.
+  Improve comments.
+  In <ReadAplFontNames>, handle empty section same as missing section.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Update copyright year.
+  Include <malloc.?> as new source file.
+
+MALLOC.C:
+  Define new source file for heap allocations.
+
+MPFNS.C:
+  In <mp_alloc>, <mp_realloc>, and <mp_free>, use custom <malloc> routines instead of <HeapAlloc>.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <malloc.c> as new source file.
+
+PL_PARSE.Y:
+  In <ParseLine>, handle WS FULL exception.
+
+RESDEBUG.C:
+  Update copyright year.
+  In <MyHeapAlloc>, <MyHeapRealloc>, and <MyHeapFree>, use custom <malloc> routines instead of <HeapAlloc>.
+
+
+Build #924 -- Version 0.0.3.4
+-----------------------------
+
+* Rename Local MPIR Routines To Use Same Convention As MPIR
+
+Directory trunk:
+
+AXISFNS.C:
+MPFNS.C:
+PF_COMMA.C:
+PF_CSTILE.C:
+PF_DOMINO.C:
+PF_EPSILON.C:
+PF_EQUALUND.C:
+PF_IOTA.C:
+PF_PI.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_UTACK.C:
+PN_PARSE.Y:
+PRIMSPEC.C:
+STARTADDR.H:
+STRAND.C:
+SYSVARS.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+  Update copyright year.
+  Rename local MPIR routines to use the same convention as MPIR.
+
+EXTERNS.H:
+  Delete MPIR aliases as we use the new naming convention.
+
+
+Build #923 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bugs In Factoring Code
+
+Directory trunk:
+
+EXTERNS.H:
+  Define common struc for factoring code.
+
+PF_PI.C:
+  Define initial and incremental counts when allocating and
+    re-allocating temp memory to hole prime factors.
+  Replace use of fixed size virtual memory temp for prime factors
+    with variable size global memory temp.
+  In <PrimFnMonPi_EM_YY>, check the return of <PrimFnPiCommon> for
+    multiple errors.
+  In <PrimFnPiCommon>, set the result to a known value in case we fail.
+  In <PrimFnPiCommon>, simplify the code for when we find a factor, and
+    resize the factor struc, too, if necessary.
+  In <PrimFnPiCommon>, don't free <aplTmp> until the end in case we
+    signal an error.
+  Define separate routine to resize the factor struc as necessary.
+
+
+Build #922 -- Version 0.0.3.4
+-----------------------------
+
+* MPIR 64-bit Build Fixes
+
+Directory trunk:
+
+EXTERNS.H:
+MPFNS.C:
+  Update copyright year.
+  Use new MPIR 64-bit integer function in place of local versions.
+
+HEADERS.H:
+  Update copyright year.
+  Include <stdint.h> to enable new MPIR 64-bit integer functions.
+
+MAKEFILE.INC:
+  Set old-style debugging format flag when debugging.
+  Use debug suffix of 'd' for debug version of certain libraries.
+
+MPIFNS.C:
+  Update copyright year.
+  Omit <mpir.h> as it's already in <headers.h>.
+
+NARS2000.64.vcproj:
+  Call batch files <w64> before and <w32> after the build to set and
+    reset 64-bit parameters.
+  Omit non-existant <qdebug64> library.
+  Use debug suffix of 'd' for debug version of certain libraries.
+
+PF_PI.C:
+  Update copyright year.
+  Omit <mpir.h> as it's already in <headers.h>.
+  Use new MPIR 64-bit integer function in place of local versions.
+
+STARTADDR.H:
+  Update copyright year.
+  Use new MPIR 64-bit integer function in place of local versions.
+
+
+Build #921 -- Version 0.0.3.4
+-----------------------------
+
+* Miscellaneous Build Fixes
+
+Directory trunk:
+
+DISPDBG.C:
+  Update copyright year.
+  Avoid harmless warning of unreferenced var.
+
+PF_CIRCLE.C:
+PF_DOMINO.C:
+PF_QDOT.C:
+  Update copyright year.
+  Change GSL include files to use <Set INCLUDE=> search path
+    instead of local dirs so we use global versions for common files.
+
+
+Build #920 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug In :FOR/:FORLCL With Nested Arrays
+
+Directory trunk:
+
+GETFNS.C:
+  Update copyright year.
+  In <GetNextValueTokenIntoNamedVar_EM>, handle nested array case where
+    <immType> is <IMMTYPE_ERROR>.  Bug introduced in Build 853.
+
+
+Build #919 -- Version 0.0.3.4
+-----------------------------
+
+* Optimize Left/Right Tack Reduction/Scan
+
+Directory trunk:
+
+PO_SLASH.C:
+  Optimize left/right tack reduction.
+
+PO_SLOPE.C:
+  Optimize left/right tack scan.
+
+
+Build #918 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  During Tokenize, Allow LFs Inside String Constants
+* Fix Bug:  Allow '\0' In Execute String If Inside String Constant
+
+Directory trunk:
+
+DEFINES.H:
+  Update copyright year.
+  Increase length of strings for execute.
+
+IMMEXEC.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+QF_EA.C:
+QF_EC.C:
+SC_IN.C:
+SC_LOAD.C:
+  Update copyright year.
+  Pass string length to execute functions to allow '\0' inside
+    string constants.
+
+TOKENIZE.C:
+  Update copyright year.
+  In <Tokenize_EM> when checking for a line continuation char,
+    ensure it's not inside a string constant.
+
+
+Build #917 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Restore Tooltips For The Language Bar
+
+Directory trunk:
+
+REBAR.C:
+  Update copyright year.
+  A previous Build (#912) mistakenly changed a local var from static to normal after which
+    that var was no longer properly initialized.  This had the effect of no longer displaying
+    tooltips for the Language Bar.  Instead of restoring the static attribute, I chose to
+    initialize the var when needed.
+
+
+Build #916 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Deleting Non-current Tab Loses Focus For Current Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  Update copyright year.
+  In <LclTabCtrlWndProc>/TCM_DELETEITEM, change order in which events occur so
+    as to get current tab's ID correctly.
+
+
+Build #915 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  +/'ab' Crashes
+
+Directory trunk:
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY> at the end, handle an error result.
+
+
+Build #914 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  'a'<'b' Crashes
+
+Directory trunk:
+
+MACROS.H:
+  Update copyright year.
+  Define macro to detect <ARRAY_ERROR> and use it in <IsSimple> and
+    friends so that they don't return TRUE for that argument.
+
+PF_RSHOE.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+  Update copyright year.
+  Use <IsErrorType> macro instead of <EQ ARRAY_ERROR>.
+
+
+Build #913 -- Version 0.0.3.4
+-----------------------------
+
+* Allow Language Bar To Split Into Multiple Bands
+
+Directory trunk:
+
+REBAR.C:
+  Handle resize of Language Bar into multiple bands.
+  Handle painting of Language Bar into multiple bands.
+  Indicate that the Language Bar may break into multiple bands.
+
+
+Build #912 -- Version 0.0.3.4
+-----------------------------
+
+* Implement In-Place Tooltips
+
+Directory trunk:
+
+MAIN.C:
+  Define extern for QCWA debugging.
+  Improve comments.
+  Pass Boolean argument to <CreateTooltip> to use balloon tooltips.
+
+REBAR.C:
+  Avoid initialization of less often used struc on all messages.
+  Pass Boolean argument to <CreateTooltip> to use balloon tooltips.
+  Zero <tti> struc only when used.
+  Change Font Window ComboBox to owner-drawn.
+  Get Font Window ComboBox font and use for Tooltip Window.
+  Subclass ComboLbox to display in-place tooltip.
+  Handle owner-drawn Font Window ComboBox.
+  Use common routine to get ComboBox font handle.
+  Use routine to handle subclass messages for Font Window ComboLbox.
+
+
+Build #911 -- Version 0.0.3.4
+-----------------------------
+
+* Miscellaneous Build Files
+
+Directory trunk:
+
+COMPRO.H:
+  Qdebug directory is now in NARSROOT on include path.
+
+DICTIONARY.C:
+INIPARSER.C:
+  Define pseudo terms to handle unreferenced names.
+
+MAKEFILE.INC:
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Coalesce various common terms into single file.
+  Define MPIR_DIR/MPFR_DIR/FLINT_DIR as external directories.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define MPIR_DIR/MPFR_DIR/FLINT_DIR as external directories.
+
+W32.BAT:
+W64.BAT:
+WCOM.BAT:
+  Add files needed for the build process.
+
+
+Build #910 -- Version 0.0.3.4
+-----------------------------
+
+* Implement DotDot
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype of new module.
+
+EXECMFN.C:
+  Include new magic function in the initialization table.
+
+EXECMFN.H:
+  Define enum value for new magic function.
+  Define name for new magic function.
+  Define equates for magic function symbols.
+
+EXTERNS.H:
+  Define table for operator prototypes.
+  Move <TP_MAT> definition to <typemote.h>.
+
+GETFNS.C:
+  Use separate tables for prototype functions and operators.
+
+INITDATA.C:
+  Improve comments.
+  Define <InitPrimFn> entry for DotDot.
+  Define <InitPrimProtoFn> entry for DotDot.
+  Use separate tables for prototype functions and operators.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define entry for new module.
+
+PF_DOTDOT.C:
+  Define new module for DotDot.
+
+TOKENIZE.C:
+  In <CharTransTK>, define entry for DotDot as a function.
+
+TYPEMOTE.C:
+  Define action routines for Type Conversion.
+
+TYPEMOTE.H:
+  Move <TP_MAT> definition to <typemote.h>.
+  Define <aTypeActConvert> table.
+
+
+Build #909 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Handle )COPY/)LOAD Of Nested Array With RATs
+
+Directory trunk:
+
+MPIFNS.C:
+  Fix Bug:  In <mpiq_set_str>, the call to <mpz_cmp_ui> fails to
+    test the result against zero, so that a )COPY of an array or a )LOAD
+    of a workspace converts all non-zero RATs to Infinity.
+
+
+Build #908 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Handle Disclose Of A Rat/VFP Scalar
+
+Directory trunk:
+
+PF_RSHOE.C:
+  In <PrimFnMonRightShoeGlb_EM_YY>, handle disclose of RAT/VFP scalar.
+
+
+Build #907 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Indexing of ((1 2x)1)[2] Fails
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRefLstImm_EM_YY>, handle the case where the indexed item
+    is an immediate.
+
+
+Build #906 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Floor And Ceiling On RAT/VFPs Not Working With []CT
+
+Directory trunk:
+
+MPFNS.C:
+  In <mpz_get_sa>, return the low-order 64 bits even if too large.
+  In <mpq_get_sa>, use <mpz_get_sa> on the quotient of numerator
+    to denominator.
+  Improve comments.
+  Implement <mpq_sub_ui> for use in <PrimFnMonDownStileRisR>.
+  In <mpf_get_sa>, convert the VFP to RAT and call <mpq_get_sa>.
+  In <mpf_cmp_ct>, use an algorithm similar to the one in <_CompareCT>.
+
+PF_DSTILE.C:
+  Improve comments.
+  Change algorithm for floor/ceiling on RAT/VFPs to match the one
+    in <_CompareCT>.
+
+PF_USTILE.C:
+  Improve comments.
+  Call the RAT/VFP floor/ceiling code in DownStile for UpStile on RAT/VFPs.
+
+
+Build #905 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Syntax Coloring Of Local Vs. Global System Vars Wrong
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <IsLocalName>, before checking the given name against the function
+    header, ensure that the parent of the Edit Ctrl window is a Function
+    Editor window.
+
+
+Build #904 -- Version 0.0.3.4
+-----------------------------
+
+* Remove Google Ads From Web Pages
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-LEFT.HTML:
+INDEX_LEFT.HTML:
+LICENSE-LEFT.HTML:
+  Remove Google ads.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-LEFT.HTML:
+  Remove Google ads.
+
+
+Build #903 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Handle ReAlloc In Dyadic Reduction
+
+Directory trunk:
+
+PO_SLASH.C:
+  In <PrimOpDydSlashInsertDim_EM>, handle the case where we
+    ReAlloc the arg to insert a unit dimension and the array
+    moves.
+
+REBAR.C:
+  Improve comments.
+
+
+Build #902 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Wrong Var Used When Computing L!R On Rationals
+
+Directory trunk:
+
+PF_QDOT.C:
+  The wrong var was used when computing L!R on rationals.
+
+VERSION.RC:
+  Increment version to 0.0.3.4.

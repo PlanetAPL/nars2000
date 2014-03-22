@@ -1,0 +1,66 @@
+Release #270 -- Version 0.0.0.17530
+-----------------------------------
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Body file for the Contributors page.
+
+CONTRIBUTORS-LEFT.HTML:
+  Local page navigation file for the Contributors page.
+
+CONTRIBUTORS-MENU.HTML:
+  Menu file for the Contributors page.
+
+CONTRIBUTORS.HTML:
+  Frameset/frame file for the Contributors page.
+
+INDEX-BODY.AHTML:
+  Body file for the main page.
+
+INDEX-LEFT.HTML:
+  Local page navigation file for the Main page.
+
+INDEX-MENU.HTML:
+  Menu file for the Main page.
+
+INDEX.HTML:
+  Frameset/frame file for the Main page.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Body file for the Download page.
+
+DOWNLOAD-LEFT.HTML:
+  Local page navigation file for the Download page.
+
+DOWNLOAD-MENU.HTML:
+  Menu file for the Download page.
+
+DOWNLOAD.HTML:
+  Frameset/frame file for the Download page.
+
+
+Directory trunk\htdocs\styles:
+
+COMMON.CSS:
+  In order to avoid a blank space above <h1>s, set the top margin to zero.
+
+
+Directory trunk:
+
+CONVERT.C:
+  Change name of <FloatToAplchar> to <IntFloatToAplchar> as
+    it's now used to convert both integers and floats to chars.
+
+QF_DR.C:
+  Define typedef for <lpConvertToChar> so we can use a common function
+    for both floats and ints.
+  Define values & actions for DR_CHAR2INT and DR_INT2CHAR.
+  Factor out common ending code for actions which result in a YYAlloc, etc.
+  Improve comments.
+  Convert old <SysFnDR_FloatToChar> to a routine common to floats and ints
+    as well as wrappers for the float- and int-specific calls.
+  Allow for error return from conversion functions and free <hGlbRes> if so.

@@ -1,0 +1,119 @@
+Build #287 -- Version 0.0.0.18444
+---------------------------------
+
+Directory trunk:
+
+COMMON.C:
+  Define function rather than macro for <IsGlbPtr> so we can trap
+    errors (such as when using the result of GetClipboardData
+    (which can't be trusted) after copying data from MS Word.
+
+DEBUG.C:
+  Use wide char routines for <GetMessage> and <DispatchMessage> as
+    we're using Unicode windows.
+
+EDITFCN.C:
+  In <CopyGlbMemory>, use <IsGlbPtr> on incoming handle instead of
+    just checking for non-zero.
+  In <PasteAPLChars>, skip setting clipboard data for our format or
+    invalid formats.
+
+EXTERNS.H:
+  Rename <szOpenFile> (unused) to <wszLoadFile> to hold the workspace
+    name on the command line.
+
+MACROS.H:
+  Switch <IsGlbPtr> from macro to function.
+
+MAIN.C:
+  Improve comments.
+  At startup, load the workspace on the command line (if present) or
+    a CLEAR WS.
+  In <ParseCommandLine>, check for initial workspace name and save it.
+  Use wide char routines for <GetMessage> and <DispatchMessage> as
+    we're using Unicode windows.
+
+MAIN.H:
+  Define length of <WS_WKSEXT>.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Reorganize code.
+  Define and use target for "C:\Program Files\NARS2000\W32\NARS2000.EXE".
+  Define and use target for PCRE (Perl-Compatible Regular Expression library).
+  Comment out PRO target from ALL so we don't automatically generate
+    .pro files and thus don't always trigger a full build in Visual Studio.
+  Make changes in <makepro> actions to match changes in the program.
+  Use <copy> command instead of <xc> to make usage more general.
+
+MAKEPRO.C:
+  Prepare for PCRE usage.
+  Split out source file from the switches so we can compare the new and old
+    .pro files.
+
+SC_COPY.C:
+SC_DROP.C:
+  Change from <WKSEXT> to <WS_WKSEXT>.
+
+SC_LOAD.C:
+  Change from <WKSEXT> to <WS_WKSEXT>.
+  In <LoadWorkspace_EM>, allow incoming handle to be NULL to indicate
+    loading a "CLEAR WS".
+  Improve comments.
+  Fix bug:  The value of <uMaxSize> passed down to <SF_ReadLineLW>
+    and <LoadWorkspaceGlobal_EM> (when loaded through <LoadWsGlbVarConv>)
+    was incorrect.
+
+SC_SAVE.C:
+  Change from <WKSEXT> to <WS_WKSEXT>.
+  Strip off leading/trailing double-quote from workspace name on the
+    command line.
+  In <MakeWorkspaceNameCanonical>, strip off trailing <WS_WKSEXT> (if present).
+  Use <WS_WKSEXT_LEN> instead of longer calculation.
+
+SESSMAN.C:
+  In <SMWndProc>, define <lResult> as return value from <WM_CREATE>.
+  In <SMWndProc>, move initial load message display to precede call to
+    <LoadWorkspace_EM> as that might display a message itself (WS NOT FOUND
+    or SAVED ...).
+  In <SMWndProc>, if the load of the command line workspace fails (WS NOT FOUND?),
+    load a CLEAR WS instead.
+  In <SMWndProc>, before returning from <WM_CREATE> free the global
+    memory handle for the workspace name instead of in <CreateNewTabInThread>.
+
+TABCTRL.C:
+  Move tab color of Crimson to the end.
+  Improve comments.
+  Use wide char routines for <GetMessage> and <DispatchMessage> as
+    we're using Unicode windows.
+  Omit free of global memory handle for the workspace name as it's now freed in
+    <SMWndProc> at the end of <WM_CREATE>.
+
+UNITRANSTAB.H:
+  Fix bug in translation of {eaualunderbar}.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Define and use new routines to handle <Ctrl-home> and <Ctrl-end> to do the CUA thing.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-LEFT.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML;
+  Switch from forums to groups.
+
+INDEX-BODY.AHTML:
+  Include mention of large workspace size.
+  Make wording clearer.
+  Switch from forums to groups.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-MENU.HTML:
+  Switch from forums to groups.

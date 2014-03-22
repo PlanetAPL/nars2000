@@ -1,0 +1,24 @@
+Build #835 -- Version 0.0.2.23
+------------------------------
+
+* Reorganize Make Functions
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Move common definitions from <MAKEFILE.W32/.W64> to <MAKEFILE.INC>.
+
+MAKEFILE.IND:
+  Define intermediate makefile to handle <DEP.TXT>.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Update copyright year.
+  Move common definitions from <MAKEFILE.W32/.W64> to <MAKEFILE.INC>.
+
+MK32.BAT:
+MK64.BAT:
+MKD32.BAT:
+MKD64.BAT:
+MKN.BAT:
+  Test for "/n" and "DEL" in command line so we can handle them separately.

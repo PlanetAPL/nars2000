@@ -1,0 +1,130 @@
+Build #1050 -- Version 0.3.8.xx
+-------------------------------
+
+* Implement Variant Operator
+
+Directory trunk:
+
+COMPRO.H:
+  Update copyright year.
+  Include prototype file for Variant Operator.
+
+CUSTOMIZE.C:
+  Make room for Variant Operator symbol in APL keyboard table.
+  Define entries for []DT.
+  Improve text description for how Fonts property page works.
+
+DEFINES.H:
+  Update copyright year.
+  Define entries for []DT.
+
+EXECFNS.C:
+  Update copyright year.
+  In <ExecFunc_EM_YY>, allow not YYInUse if the incoming function is immediate.
+  In <ExecOp2_EM_YY, handle Variant Operator case.
+
+EXTERNS.H:
+  Define entries for []DT.
+  Define entries for Variant Operator enums and strucs.
+
+GETFNS.C:
+  Update copyright year.
+  Define routines needed for Variant Operator.
+  In <GetNextValueToken>, handle numeric scalar and char/num strand tokens.
+
+INIFILE.C:
+  Define entries for []DT.
+  In <SaveIniFile>, factor out <uLen> to be local to the top level function.
+
+INITDATA.C:
+  Remove QuoteDot from Alt-'_' and replace with Variant Operator.
+  Define table entries for Variant Operator.
+  In <InitPrimFlags>, include all primitive operators.
+
+KEYBOARDS.H:
+  Update copyright year.
+  Define keystroke for Variant Operator symbol.
+
+MAIN.RC:
+  In CLEAR WS property page, include entry for []DT.
+  In Fonts property page, widen the text box for the description.
+  In Reset Vars property page, include entry for []DT.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Update copyright year.
+  Include entry for Variant Operator entry.
+
+MPIFNS.C:
+  Define missing <mpifr_cmp_d>.
+  Fix Bug:  In <mpifr_reldiff>, handle special case of either or both args zero.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include entry for Variant Operator.
+
+PERTAB.H:
+  Update copyright year.
+  Include entry for GSL random # generator ptr.
+
+PF_QUERY.C:
+  Include GSL includes for random # generators.
+  Use GSL random # generators if []DT != 'r'.
+
+PO_VARIANT.C:
+  New file to implement Variant Operator.
+
+REBAR.C:
+  Include Variant Operator in the Language Bar.
+  Miscellaneous fixes to the Language Bar text.
+
+RESOURCE.H:
+  Include defines for various []DT entries.
+
+SYMBOLNAMES.H:
+  Update copyright year.
+  Include entry for Variant Operator.
+
+SYSVARS.C:
+  Update copyright year.
+  Include entries for []DT.
+  Include entries for Variant Operator.
+  Define new routine to validate the various variant Operator names/value pairs.
+
+SYSVARS.H:
+  Include entries for []DT.
+
+TABCTRL.C:
+  Include GSL includes for delete of PerTabData.
+
+TOKENIZE.C:
+  Include entries for Variant Operator.
+
+UNICODE.H:
+  Update copyright year.
+  Include entries for Variant Operator.
+
+UNITRANSTAB.H:
+  Update copyright year.
+  Improve comments.
+  Include entries for Variant Operator.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Include reference to ±infinity in list of Consistent Extensions to
+    ISO/IEC 13751 Extended APL Standard.
+  Include Variant Operator in the above list of extensions.
+  Remove []TCDEL from the list of quad functions as we don't implement it anymore.
+  Include []DT in list of new system vars.
+  Include []DT in list of system vars that allow an empty vector assignment to reset them.
+
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Include entries for <dagger>, <doubledagger>, and <variant>.
+
+BRACESTOUNICODE.PHP:
+  Parameterize the <b2a.inc.php> file name.

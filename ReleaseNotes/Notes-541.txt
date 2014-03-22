@@ -1,0 +1,10 @@
+Build #541 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Display Of Strands With Ptrs
+
+Directory trunk:
+
+DISPDBG.C:
+  Fix the display of a strand with a named ptr:  on a 32-bit system,
+    the high-order dword need not be zero but it's displayed anyway.

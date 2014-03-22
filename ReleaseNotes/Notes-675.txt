@@ -1,0 +1,12 @@
+Build #675 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle Workspace Internal Convention :CONSTANT In Tokenize
+
+Directory trunk:
+
+TOKENIZE.C:
+PL_PARSE.Y:
+  Handle the workspace internal convention of :CONSTANT (which represents
+    a global memory object) in Tokenize instead of the parser so as to
+    allow it to be used in function strands.

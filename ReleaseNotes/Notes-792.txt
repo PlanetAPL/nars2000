@@ -1,0 +1,27 @@
+Build #792 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Handle CapsLock And NumLock In Keyboard Code
+
+Directory trunk:
+
+DEFINES.H:
+  Define additional bit masks.
+
+DISPDBG.C:
+  Update copyright year.
+  Use bit mask instead of constant.
+
+EDITFCN.C:
+  Include <scancodes.h>.
+  Declare <ksXXX> vars as Boolean as they are TRUE/FALSE.
+  In <WM_KEYDOWN> and <WM_SYSKEYDOWN>, handle the CapsLock and
+    NumLock keys.
+
+SCANCODES.H:
+  New file to define scan codes.
+
+SESSMAN.C:
+  Update copyright year.
+  Use bit mask instead of constant.
+  Check for error return from <MyGlobalAlloc>.

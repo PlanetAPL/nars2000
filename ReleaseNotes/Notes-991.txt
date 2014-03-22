@@ -1,0 +1,10 @@
+Build #991 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Type Demotion From Nested/Hetero To RAT/VFP
+
+Directory trunk:
+
+TYPEMOTE.C:
+  In <DemoteData> when demoting from Nested/Hetero to either RAT or VFP,
+    the LPSYMENTRY case was missed.

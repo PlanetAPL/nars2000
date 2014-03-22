@@ -1,0 +1,9 @@
+Build #607 -- Version 0.0.2.7
+-----------------------------
+
+* Define Tools Directory
+
+Directory \:
+
+TOOLS:
+  Define Tools directory to hold global tools.

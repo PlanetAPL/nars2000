@@ -1,0 +1,11 @@
+Build #1122 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix Bug In Temp Variable Re-use
+
+Directory trunk:
+
+SC_COPY.C:
+SC_LOAD.C:
+  Protect data in <lpMemPTD->lpwszTemp> around call to <ParseSavedWsFcns>.
+  Use <xxx_TEMP_OPEN> macros around calls to <ParseSavedWsFcns_EM> to catch bugs.

@@ -1,0 +1,9 @@
+Build #1131 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix Yet Another Bug In Temp Variable Re-use
+
+Directory trunk:
+
+SC_COPY.C:
+  In <CopyWsFcns>, move the call to <CHECK_TEMP_OPEN> to after the following goto and return.

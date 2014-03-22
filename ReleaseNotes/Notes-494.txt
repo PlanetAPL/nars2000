@@ -1,0 +1,13 @@
+Build #494-- Version 0.0.2.1
+----------------------------
+
+* Fix Bug:  File | Save from the main menu still crashes the system;
+    sadly, not in the DEBUG version.
+
+Directory trunk:
+
+SC_SAVE.C:
+  Fix Bug:  Check for empty command line before zapping it.
+    I thought that this bug was fixed by disabling String Pooling
+    and, indeed, it is in the DEBUG version (yuck!), but there must
+    be something more to it.

@@ -1,0 +1,25 @@
+Build #403 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+MAIN.C:
+  Load new icon for About box.
+
+MAIN.RC:
+  Define resource for new icon <NARS.ico> used inside About box.
+
+RESOURCE.H:
+  Define ID for NARS icon.
+
+VER.C:
+  Set the window icon for the About box.
+
+
+Directory trunk\Images:
+
+ABOUT.ICO:
+  Change from Letter N to letter A.
+
+NARS.ICO:
+  Define new icon for letter N.

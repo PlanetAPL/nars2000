@@ -1,0 +1,11 @@
+Build #1209 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Monadic Tilde For VFP Numbers Just Outside [0,1]
+
+Directory trunk:
+
+PF_TILDE.C:
+  Update copyright year.
+  Fix bug in <PrimFnMonTildeVisV> for numbers just outside [0,1] such as
+    ~1.000000000000003v ¯1e¯15v.

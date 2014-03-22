@@ -1,0 +1,9 @@
+Build #811 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Remove Debug Statement Triggered By 1 50!200
+
+Directory trunk:
+
+PF_QDOT.C:
+  Fix Bug:  Remove debug statement as it may occur with 1 50!200.

@@ -1,0 +1,17 @@
+Build #720 -- Version 0.0.2.17
+------------------------------
+
+* Fix Bug:  After )RESET Sometimes A Double Indent Occurs
+
+Directory trunk:
+
+IMMEXEC.C:
+  Test for )RESET before displaying the six-space indent.
+    Depending upon the order of thread termination, the six-
+    space indent might occur twice.
+
+SESSMAN.C:
+  Remove debugging code as the problem is thread-related.
+
+SYSCMDS.C:
+  In <ExecSysCmd>, return the type of system command.

@@ -1,0 +1,96 @@
+Build #296 -- Version 0.0.0.18946
+---------------------------------
+
+Directory trunk:
+
+DISPLAY.C:
+  Rename <DisplayGlbArr> to <DisplayGlbArr_EM> to reflect the return value.
+  Move error message calls to common labels.
+
+EDITFCN.C:
+  Improve comments.
+
+EXCEPT.C:
+  In <CheckPTDVirtStr>, round down to page boundary the invalid address so as
+    to avoid overallocating in case the increment size is > a page.
+  Replace <RaiseException> with <MySetExceptionCode> and execute the handler as
+    the former pops up one level and the latter executes the current handler.
+  In CheckMemVirtStr>, check for guard page access.
+  In <DisplayException>, display the guard page address.
+
+EXECDFN.C:
+IMMEXEC.C:
+PARSE.Y:
+PF_UTACKJOT.C:
+SC_LOAD.C:
+SESSMAN.C:
+THREADS.H:
+  Pass <bActOnErrors> flag to <ParseLine> and <ImmExecStmt>.
+
+EXTERNS.H:
+  Increase the default sizes for numbers and strings.
+  Define _alphabet_ in symbol names.
+
+PERTAB.H:
+  Save error line # in case we need it when calling []FX from )IN.
+
+PF_DTACK.C:
+  Fix bug:  Dyadic down tack (Encode/Representation) fails with scalar left arg.
+
+PF_DTACKJOT.C:
+  In <PrimFnMonDownTackJot_EM_YY>, surround calls to <CompileArrXXXX> with __try/__except
+    so as to catch LIMIT ERRORs.
+
+PO_SLASH.C:
+  Fix bug:  Used the wrong index for result of dyadic reduction when the items of the
+    result are arrays.
+
+QF_FX.C:
+  Save error line # (origin-0) in PTD struc in case we need it when calling []FX from )IN.
+  Fix bug:  []FX on vector of character vectors crashes.
+
+QF_UCS.C:
+  Handle values between in [2*16, 2*31) with a replacement char (UTF-16).
+  Move error message calls to common labels.
+
+SAVEFCN.C:
+  Fix bug:  In <SF_ReadLineN>, don't copy extra WCHAR as the caller has already takne care
+    to allocate and zero it.  This fixes a bug in []FX on vector of character vectors.
+
+SC_COMMON.C:
+  Define common routine <ShortenWSID> to shorten WSIDs with default leading drive/dir.
+
+SC_IN.C:
+  Finish )IN.
+
+SC_SAVE.C:
+SC_WSID.C:
+  Display shortened WSID if default leading drive/dir.
+
+STARTADDR.H:
+  Include more addresses for debugging purposes.
+
+SYSVARS.C:
+  Define []AF as synonym for []UCS.
+  Simplify macro calls.
+  Fix bug:  In <ValidSetPR_EM>, when demoting a one-element vector to a scalar, the code
+    moves a pointer before it should.
+
+TOKENIZE.C:
+  Fix bug:  In <CheckResizeStr_EM>, the reallocate fails to take into consideration the
+    unit size (APLCHAR) of the allocation.  The same change is made to <CheckResizeNum_EM>,
+    but there the unit size is (char) so there's no problem.  This bug shows itself when
+    tokenizing a long string.
+  Implement {lamp} as a closing comment marker thus allowing within line comments such as
+    code {lamp} Any comment {lamp} more code.
+  Remove <NORMAL_EXIT> code and reference as it's no longer used.
+
+UNICODE.H:
+  Define replacement char for UTF-16 values outside UCS-2.
+  Improve comments.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Note that we use UCS-2, not UTF-16.

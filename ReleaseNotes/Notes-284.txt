@@ -1,0 +1,106 @@
+Build #284 -- Version 0.0.0.18357
+---------------------------------
+
+Directory trunk:
+
+DFNHDR.Y:
+DISPDBG.C:
+DISPLAY.C:
+PARSE.Y:
+  Remove <lpszTemp>, <lpszDebug> & <lpwszDebug> as global vars.
+
+
+EDITFCN.C:
+ERRMSG.C:
+EXECDFN.C:
+  Move <lpwszTemp> into PerTabData context.
+  Remove <lpszTemp>, <lpszDebug> & <lpwszDebug> as global vars.
+
+EXTERNS.H:
+  Remove DEF_CTEMP_xxx defines as they are no longer used.
+  Rename DEF_WTEMP_xxx defines to DEF_WPTDTEMP_xxx and DEF_WGLBTEMP_xxx.
+  Reorder includes to avoid referencing a struct before it's defined (problem for MinGW).
+  Remove <lpszTemp> as it's no longer used, replaced by judicious use of <szTemp>s.
+  Rename <lpwszTemp> to <lpwszGlbTemp> to catch all uses.
+  Remove <lpszDebug> and <lpwszDebug>, replaced by judicious use of <wszTemp>s.
+  Remove <lpNameTypeStr>, replaced by <lpwNameTypeStr>.
+  Remove MEMVIRT_xxx enums as they are no longer used.
+  Rename <MEMVIRT_WSZTEMP> to <MEMVIRT_WSZGLBTEMP> to catch all uses.
+
+INIFILE.C:
+TABCTRL.C:
+  Rename <lpwszTemp> to <lpwszGlbTemp> to catch all uses.
+
+MAIN.C:
+  Rename <lpwszTemp> to <lpwszGlbTemp> to catch all uses.
+  Remove <lpszTemp> as it's no longer used, replaced by judicious use of <szTemp>s.
+  Remove <lpszDebug> and <lpwszDebug>, replaced by judicious use of <wszTemp>s.
+
+PERTAB.H:
+  Fix typos.
+  Define <lpwszTemp> and matching <uTempMaxSize> for use in PerTabData contexts.
+
+PRIMFNS.H:
+  Replace <struct tagTOKEN *> with <LPTOKEN> as the reordering of #includes in
+    <externs.h> no longer requires use of such references, and MinGW is happier.
+
+PRIMSPEC.H:
+  Define incomplete definition of <tagPRIMSPEC> as it's referenced before it's defined.
+  Rename <tagPrimSpec> to <tagPRIMSPEC> to conform to all other struct tag names.
+
+QF_CR.C:
+QF_NL.C:
+SC_FNOV.C:
+SC_LIB.C:
+SC_SAVE.C:
+SC_SI.C:
+STRAND.C:
+  Move <lpwszTemp> into PerTabData context.
+
+SAVEFCN.C:
+  Use maximum size for buffer from <LW_Params> rather than from <memVirtStr>.
+
+SAVEFCN>H:
+  Define struct member to hold maximum size of buffer.
+  Move <lpwszTemp> into PerTabData context.
+  Pass ptr to temporary buffer and its maximum size down through various functions
+    to where it's needed.
+
+SC_LOAD.C:
+  Move <lpwszTemp> into PerTabData context.
+  Pass ptr to temporary buffer and its maximum size down through various functions
+    to where it's needed.
+
+SC_WSID.C:
+  Because []WSID always has a terminating zero, we no longer need to copy it
+    to temporary storage.
+
+SESSMAN.C:
+  Define new enum for <PTDMEVIRT_WSZFORMAT> (previously a global <lpwszTemp>).
+  Allocate virtual storage for the PerTabData <lpwszTemp>.
+
+SYMTAB.C:
+  Remove <lpszTemp>, <lpszDebug> & <lpwszDebug> as global vars.
+  Define <hashlittleConv> as a wrapper around <hashlittle>, converting any
+    _alphabet_ WCHARs to lowercase alphabet WCHARs.
+  Define <ToLowerUnd> macro to handle comparisond of _alphabet_ and alphabet WCHARs.
+  Compare the WCHARs in the two names modulo _alphabet_ and alphabet differences.
+
+SYSVARS.C:
+  Move <lpwszTemp> into PerTabData context.
+  Ensure []WSID always has a terminating zero.
+
+TOKENIZE.C:
+  Remove <lpszTemp>, <lpszDebug> & <lpwszDebug> as global vars.
+  Allow underbar alphabet in var names, but treat as equivalent to lowercase alphabet.
+
+WORKSPACE.H:
+  Define struc member for maximum size of buffer.
+
+
+DIRECTORY trunk\download:
+
+DOWNLOAD-BODY.PHP:
+  Move assignments of <$Notes> and <$CurRel> to inside IF/ELSE as they are not valid
+    for Special Files, and in fact, generate an entry in PHPERR.LOG because of the
+    call to <file_get_contents>.

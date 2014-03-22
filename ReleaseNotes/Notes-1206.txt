@@ -1,0 +1,10 @@
+Build #1206 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Data Demotion
+
+Directory trunk:
+
+TYPEMOTE.C:
+  Update copyright year.
+  Fix bug in <DemoteData> to handle scalar HGLOBALs as well as LPSYMENTRYs.

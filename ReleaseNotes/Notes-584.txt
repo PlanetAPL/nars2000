@@ -1,0 +1,42 @@
+Build #584 -- Version 0.0.2.4
+-----------------------------
+
+* Define Window Text Foreground Color Customize Attribute
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Omit test for window BG as we now show the FG.
+  Skip "Background Transparent" checkbox for Window Text as that
+    entry is forced and has no checkbox to disable it.
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+
+EDITFCN.C:
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+  Set the window foreground color, too, when coloring special lines.
+
+EXTERNS.H:
+  Rename <DEF_SC_WINBG> to <DEF_SC_WINTEXT>.
+  Rename <SC_WINBG> to <SC_WINTEXT>.
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+
+INIFILE.C:
+  Rename <KEYNAME_SC_WINBG> to <KEYNAME_SC_WINTEXT>.
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+
+MAIN.C:
+TOKENIZE.C:
+  Rename <gSyntaxColorBG> to <gSyntaxColorText> and use it in place
+    of <gSyntaxColor[SC_WINBG].syntClr>.
+
+MAIN.RC:
+  Display the Window Text foreground text and button.
+
+SYNTAXCOLORS>H:
+  Rename <DEF_SC_WINBG> to <DEF_SC_WINTEXT>.
+  Set default window text foreground color.
+  Rename <SC_WINBG> to <SC_WINTEXT>.

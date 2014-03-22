@@ -1,0 +1,127 @@
+Build #338 -- Version 0.0.0.22754
+---------------------------------
+
+Directory trunk:
+
+BISON.RULES:
+  Make command line sensitive to environment var
+    rather than hard-coded path and filename.
+
+CUSTOMIZE.C:
+  Use explicit size rather than erroneous <countof>
+    or <strlengthof>.
+
+DEFINES.H:
+  Use <strcountof> instead of <sizeof (...) / sizeof (...)>.
+  Increment the copyright year.
+  Define copyright strings for use in other constants.
+
+EDITFCN.C:
+MACROS.H:
+SC_ERASE.C:
+VER.C:
+  Rename <strlengthof> to <strcountof>.
+
+EXCEPT.C:
+  Revise copyright message to refer to Forum rather than
+    mailing list.
+  Use <WS_APPEND_DEBUG> instead of equivalent but more
+    verbose code.
+
+MAIN.C:
+  Rename <strlengthof> to <strcountof>.
+  Handle case where default APL font is not present in the
+    program directory.
+
+MAIN.RC:
+  Increment the copyright year.
+
+MAKEFILE.DEP:
+  White space changes only.
+
+MAKEFILE.INC:
+  Delete <INITIAL_C> target as it forces a link whether
+    it is needed or not.
+  When creating <dep.txt>, ensure the required directories
+    are present.
+
+MAKEFILE.PRO:
+  Defines <.SUFFIXES:> so the .y rules are acted upon.
+  Make command line sensitive to environment var
+    rather than hard-coded path and filename.
+
+MAKEFILE.W32:
+  The Resource Compiler si actually in the SDK rather
+    than the C Compiler.
+
+MAKEFILE.W64:
+  Define _WIN64 for 64-bit compiles.
+  The Resource Compiler si actually in the SDK rather
+    than the C Compiler.
+
+NARS2000.VCPROJ:
+  Delete <WineHQ.rules> and <WineHQ.bat> as they are
+    no longer needed.
+  Define local Additional Include Directories instead
+    of putting them in the global settings.
+  Define <_X86_> so as to pick up the <CONTEXT> struct.
+  Define a Post-Build Event to copy the default APL font
+    to the $(OutDir) as it is needed to run the program.
+  Define local Additional Include Directories for compiling
+    <editctrl.c> so as to pick up the right headers.
+  Ignore Standard Include Path for <editctrl.c> as it
+    has its own headers.
+
+SESSMAN.C:
+  Use previously defined copyright strings instead of
+    hard-coded constants.
+
+SYMTAB.C:
+  Define string length argument to <HshTabLookupNameHash>
+    because when used in <SymbolNameToChar> we need to
+    terminate the incoming string after a certain point
+    which we can't do when the inomciong string is a constant
+    and Data Protection is on in the CPU.
+
+SYMTAB.H:
+  White space changes only.
+
+TOKENIZE.C:
+  Use <countof> instead of incorrect <strlengthof>.
+
+VER.RC:
+  Comment out defines that are defined elsewhere (DEFINES.H).
+
+WINEHQ.RULES:
+  Delete file no longer needed.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Undefine <WM_CTLCOLOR> as it is defined (with the
+    same value) in both <windowsx.h> and <winuser.h> thus
+    avoiding an error because of the duplicate defines.
+
+WINEHQ.BAT:
+  Delete file no longer needed.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-BODY.AHTML:
+INDEX-LEFT.HTML:
+INDEX-MENU.HTML:                      LICENSE-MENU.HTML:
+  Change from mailing list to Forum.
+
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Include support for <misc.zip>.
+
+DOWNLOAD-MENU.HTML:
+  Minor text changes.
+  Change from mailing list to Forum.

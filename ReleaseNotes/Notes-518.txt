@@ -1,0 +1,9 @@
+Build #518-- Version 0.0.2.3
+----------------------------
+
+* Special case 1/R for non-scalar R
+
+Directory trunk:
+
+PF_SLASH.C:
+  Special case 1/R for non-scalar R.

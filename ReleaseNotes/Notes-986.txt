@@ -1,0 +1,10 @@
+Build #986 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Display Of Nested Arrays
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix bug in display of nested arrays where the fractional values are
+    mistakenly included in the integer width rather than kept separate.

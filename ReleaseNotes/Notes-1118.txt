@@ -1,0 +1,20 @@
+Build #1118 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Code Page Bug
+
+Directory trunk:
+
+CUSTOMIZE.C:
+EXTERNS.H:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_QUERY.C:
+PF_ROOT.C:
+PF_UCARET.C:
+PF_USTILE.C:
+QF_FMT.C:
+UNICODE.H:
+  Replace ASCII chars in the range [128, 255] with the appropriate UTF16_xxxx and WS_UTF16_xxxx defines.

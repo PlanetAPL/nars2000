@@ -1,0 +1,22 @@
+Build #735 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Name Class 5 And 6 Should Be System Vars And Fns
+
+Directory trunk:
+
+NAMECLASS.H:
+  Update the copyright year.
+  Renumber name classes to move 22 and 23 (sys vars & fns) to 5 and 6
+    as per the EAS.
+
+QF_FMT.C:
+  Remove dependency on <nameclass.h>.
+
+QF_NC.C:
+  Renumber name classes to move 22 and 23 (sys vars & fns) to 5 and 6
+    as per the EAS.
+
+QF_NL.C:
+  Define var of valid name classes and use it to validate a potential
+    name class integer.

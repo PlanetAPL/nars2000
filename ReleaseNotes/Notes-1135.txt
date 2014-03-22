@@ -1,0 +1,17 @@
+Build #1135 -- Version 0.4.0.xx
+-------------------------------
+
+* Fix Bugs In Lexical Analysis Of Slantoids
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitFcnSTEs>, handle the single token cases via a switch stmt instead of separate token type tests.
+
+PL_PARSE.Y:
+  In <pl_yylex>, after marking a name as Op1, Op2, or Op3, execute common code.
+  In <pl_yylex> in <TKT_OP3NAMED>, handle as in <TKT_OP3IMMED>.
+  In <pl_yylex> in <TKT_OP3IMMED>, handle Left Paren and Var as defining a primitive function.
+
+PL_PROC.C:
+  In <CheckNullOp3>, pass in the current token to use to test for a NullOp followed by an Op3.

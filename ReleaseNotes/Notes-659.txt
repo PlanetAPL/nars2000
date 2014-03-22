@@ -1,0 +1,20 @@
+Build #659 -- Version 0.0.2.13
+------------------------------
+
+* Redo Keyboard Mapping To Reflect The New Order Of Keystrokes
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+ABOUT.XUL:
+  Change version #.
+
+EDITOROVERLAY.JS:
+  Redo the keyboard mapping table to reflect the new order
+    of keystrokes.
+
+
+Directory trunk\Extensions\aplchars:
+
+INSTALL.RDF:
+UPDATE.RDF:
+  Change version #.

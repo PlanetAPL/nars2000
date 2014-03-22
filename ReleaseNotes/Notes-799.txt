@@ -1,0 +1,15 @@
+Build #799 -- Version 0.0.2.22
+------------------------------
+
+* Include New Keystrokes
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+EDITOROVERLAY.JS:
+  Include new keystrokes.
+
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Include new keystrokes.

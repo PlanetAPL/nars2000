@@ -1,0 +1,14 @@
+Build #708 -- Version 0.0.2.16
+------------------------------
+
+* Fix Bug:  Allow Drv3Func To Be Recursive
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <Drv3Func:>, allow the recursive production of
+    <RhtOpVal DydOp Drv3Func>.
+
+PO_DIJOT.C:
+  Include proper attribution for the code used to implement
+    the Rank operator.

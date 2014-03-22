@@ -1,0 +1,66 @@
+Build #608 -- Version 0.0.2.7
+-----------------------------
+
+* Obtain PTD Ptr Via Subroutine So We Can Handle Odd Cases
+
+Directory trunk:
+
+ASSIGN.C:
+DEBUG.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C
+ERRMSG.C:
+EXCEPT.C:
+EXECDFN.C:
+EXECFNS.C:
+EXECMFN.C:
+GETFNS.C:
+GOTO.C:
+IMMEXEC.C:
+PF_DSHOE.C:
+PF_DTACKJOT.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PO_DIJOT.C:
+PO_SLASH.C:
+PRIMFNS.C:
+QF_CR.C:
+QF_DL.C:
+QF_DM.C:
+QF_EM.C:
+QF_ERROR.C:
+QF_ES.C:
+QF_ET.C:
+QF_EX.C:
+QF_FMT.C:
+QF_FX.C:
+QF_LC.C:
+QF_MF.C:
+QF_NL.C:
+QF_TF.C:
+QF_VR.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_COPY.C:
+SC_FNOV.C:
+SC_IN.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_RESET.C:
+SC_SAVE.C:
+SC_SI.C:
+SC_WSID.C:
+SESSMAN.C:
+STRAND.C:
+SYMTAB.C:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+YYFNS.C:
+  Update copyright year.
+  Obtain PTD Ptr via subroutine so we can handle odd cases.

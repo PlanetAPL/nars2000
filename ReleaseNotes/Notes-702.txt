@@ -1,0 +1,12 @@
+Build #702 -- Version 0.0.2.15
+------------------------------
+
+* Fix Bug:  Certain Cases of Indexing Broken
+
+Directory trunk:
+
+PL_PARSE.Y:
+STRAND.C:
+  A previous bug fix broke certain cases of indexing.  Pass separate
+    argument for the caret placement instead of bundling it into a
+    single argument in both <InitList1_YY> and <PushList_YY>.

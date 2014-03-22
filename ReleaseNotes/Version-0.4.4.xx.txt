@@ -1,0 +1,375 @@
+Version 0.4.4.xx consists of the following Builds:
+
+
+Build #1176 -- Version 0.4.4.xx
+-------------------------------
+
+* Implement Convolution Operator
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype file.
+
+EXECFNS.C:
+  Define action for Convolution Operator symbol.
+
+EXECMFN.C:
+EXECMFN.H:
+  Define & Install new magic functions/operators.
+
+INITDATA.C:
+  Define initializations for Convolution Operator.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Define makefile actions for new files.
+
+MF_DIDTACK.H:
+  Define APL code for magic function/operator.
+
+NARS200.32.VCPROJ:
+NARS200.64.VCPROJ:
+  Define VS actions for new files.
+
+PO_DIDTACK.C:
+  Define code for Convolution Operator.
+
+REBAR.C:
+  Document Convolution Operator in Language Bar.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document Convolution Operator.
+
+
+Build #1175 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bugs In Find On Empty Arguments
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define & Install new magic function.
+
+MF_EPSUND.H:
+  Define APL code for magic function.
+
+PF_EPSUND.C:
+  Update copyright year.
+  Define var for result storage type.
+  Define Boolean var to distinguish result of all 0s vs one with some 1s.
+  Define Boolean var to determine if either arg is empty.
+  Isolate code for global vs. immediate right arg.
+  Handle empty cases.
+  Define APL code for magic function.
+  Fix typos.
+  Split out ordered vs. unordered simple cases in Match.
+
+PF_EQUALUND.C:
+  Split out ordered vs. unordered simple cases in Match.
+
+
+Build #1174 -- Version 0.4.4.xx
+-------------------------------
+
+* Handle Named AFO Tokens
+
+Directory trunk:
+
+EXECDFN.C:
+FREE.C:
+GETFNS.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+STARTADDR.H:
+TOKENIZE.C:
+TOKENS.H:
+YYFNS.C:
+  Rename <IsTknTypeXXX> to <IsTknXXX> passing in the entire token so we can look for named AFO tokens.
+
+
+Build #1173 -- Version 0.4.4.xx
+-------------------------------
+
+* Simplify The Magic Function For []VR
+
+Directory trunk:
+
+EXECMFN.C:
+  Remove the local HASHTABSTR for []VR and set []IO to zero in the magic function.
+
+MF_QUADVR.H:
+  Localize, and set []IO to zero.
+
+PERTAB.H:
+QF_VR.C:
+SESSMAN.C:
+  Remove the local HSHTABSTR for []VR.
+
+
+Build #1172 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug In Variant Operator With []PP And Left Operand Of Format Primitive
+
+Directory trunk:
+
+GETFNS.C:
+  Rename <SetQuadPP> to <SetQuadPPV> as it is used for VFPs.
+  In <SetQuadPPV> limit the value to <DEF_MAX_QUADPPVFP> as this function is used to restore []PP for VFPs.
+
+PO_VARIANT.C:
+  When reading/restoring []PP, use the VFP functions instead of the ones for 64-bit doubles.
+
+
+Build #1171 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug In DotDot
+
+Directory trunk:
+
+PF_DOTDOT.C:
+  Fix bug in which the result of 1..5x isn't RAT, but APA.
+
+
+Build #1170 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug When Parsing A HyperComplex Number In A Strand (1 0J1)
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Omit all HyperComplex numbers from parsing.
+
+TOKENIZE.C:
+  In <fnPointDone>, when encountering a SYNTAX ERROR, return TRUE so the function
+    definition with the error doesn't fail.
+
+
+Build #1169 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug When Double-Clicking On Name With More Than 65536 Chars In Buffer
+
+Directory trunk:
+
+COMMON.C:
+  Define common function to launder EM_CHARFROMPOS results.
+
+EDITFCN.C:
+  Use <CharFromPos> to launder EM_CHARFROMPOS results.
+  Imrpove comments.
+
+SESSMAN.C:
+  Use <CharFromPos> to launder EM_CHARFROMPOS results.
+
+
+Build #1168 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug In Determinant Operator On Immediate Scalars
+
+Directory trunk:
+
+PO_DOT.C:
+  Handle immediate scalars.
+
+
+Build #1167 -- Version 0.4.4.xx
+-------------------------------
+
+* Display Prompt After )RESET With No Suspension
+
+Directory trunk:
+
+SC_RESET.C:
+  Update copyright year.
+  As it turns out, when executing )RESET with no suspension, at no point
+    is the six-space indent displayed, so we explicitly display the prompt.
+
+
+Build #1166 -- Version 0.4.4.xx
+-------------------------------
+
+* Optimize Generalized Determinant For Assignment Problem
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype files.
+
+DISPDBG.C:
+  Document new stFlags.
+
+EXECDFN.C:
+  Improve comments.
+
+HEADERS.H:
+  Include header for Hungarian Algorithm code.
+
+HUNGARIAN.H:
+HUNGARIAN_DBL.C:
+HUNGARIAN_INT.C:
+HUNGARIAN_RAT.C:
+HUNGARIAN_VFP.C:
+HUNGARIAN_SRC.H:
+  Define new files for Hungarian Algorithm in its many flavors.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Include new files.
+
+MF_DOT.H:
+  In <MFON_MonDot>, convert incoming vector to a one-column matrix.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include new files.
+
+PO_DOT.C:
+  Optimize Min.Plus, Max.Plus, and certain AFOs using Kuhn's Hungarian Algorithm.
+
+SYMTAB.C:
+SYMTAB.H:
+  Define additional special SYMENTRY name (Omega) so we can easily tell if a
+    name is Alpha or Omega.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Acknowledge contributor for Kuhn's Hungarian Algorithm.
+
+INDEX-BODY.AHTML:
+  Document Determinant Operator.
+
+LICENSE-BODY.AHTML:
+  Acknowledge license for Kuhn's Hungarian Algorithm.
+
+
+Build #1165 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Memory Leaks
+
+Directory trunk:
+
+ASSIGN.C:
+  Improve comments.
+
+DISPDBG.C:
+  Fix typo in <astFlagNames>.
+  Improve comments.
+  In <DisplayFcnSub>, handle Del and DelDel.
+
+EXECMFN.C:
+  In <ExecNilMFO>, erase the function after executing it.
+
+FREE.C:
+  In <FreeResultGlobalDfn>, don't handle permanent (i.e. MFOs) specially
+    as we need to delete them and their resources from HSHTABSTRs.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle Del and DelDel.
+
+SC_LOAD.C:
+  In <CheckGlobals>, order []vars alphabetically, and include []FEATURE.
+
+SESSMAN.C:
+  Rename <InitSystemVars> to <InitSysVars> to parallel <CopySysVars> and <DeleSysVars>.
+  In <SMWndProc>/WM_DESTROY, delete sys vars from the HSHTABSTRs in <PerTabData>.
+
+STARTADDR.H:
+SYSVARS.C:
+  Rename <InitSystemVars> to <InitSysVars> to parallel <CopySysVars> and <DeleSysVars>.
+
+TABCTRL.C:
+  In <FreeGlobalStorage>, free the HshTabs & SymTabs for MFOs.
+  In <FreeGlobalStorage>, at the end free []EM.
+
+
+Build #1164 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug For Embedded Assignment Within An AFO
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <fnAlpDone> when tokenizing a name in an AFO, first lookup this name
+    through the chain of HTS.  If found, use that STE; if not, append the
+    name to the global HTS.
+  In <fnAsnDone>, if a name is assigned to, ensure that preceding instances
+    of that name in the same stmt use the same STE.
+
+
+Build #1163 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug When Loading An AFO From A Workspace
+
+Directory trunk:
+
+SAVEFCN.C:
+  Improve comments.
+  When loading an AFO from a workspace and tokenizing the line so as to
+    determine operator valence (if it's an operator), and whether or not
+    it's a niladic (derived) function, include the surrounding braces in
+    the line length.
+
+
+Build #1162 -- Version 0.4.4.xx
+-------------------------------
+
+* Make Generalized Determinant More General
+
+Directory trunk:
+
+AFOFNS.C:
+  Transfer bMFO flag from ParseLine local vars to SaveFunction local vars.
+
+ASSIGN.C:
+  Set MFO as objname if the name is that of an MFO.
+
+EXECMFN.C:
+  Set DFN_HEADER flag to indicate this is an MFO.
+  Initialize Determinant Operator subroutines and run that program
+    before initializing the Determinant Operator itself.
+
+EXECMFN.H:
+  Define enums and names for the Determinant Operator subroutines.
+
+FH_PARSE.H:
+  Define MFO flags for UDFO local vars.
+
+GETFNS.C:
+  In <GetGlbPtrs_LOCK>, handle named operators.
+
+MF_DOT.H:
+  Change algorithms from "expansion by minors" to permutation-based as per K.E. Iverson.
+
+PL_PARSE.H:
+  Define MFO flags for ParseLine local vars.
+
+PL_PARSE.Y:
+  Because we run MFON_MonDotInit without setting up an SIS, we need to handle NULL lpSISCur.
+  Transfer bMFO flag from UDFO local vars to ParseLine local vars.
+
+PO_DOT.C:
+  Allow non-square matrices using the generalized magic functions.
+
+SAVEFCN.C:
+  In <SaveFunctionLine>, pass bMFO flag to <Tokenize_EM> as needed.
+
+SAVEFCN.H:
+  Define MFO flags for SaveFunction local vars.
+
+VER.RC:
+  Increment version # to 0.4.4.xx.

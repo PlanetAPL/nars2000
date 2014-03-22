@@ -1,0 +1,428 @@
+Version 0.4.5.xx consists of the following Builds:
+
+
+Build #1201 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug During Shutdown On Linux Systems
+
+Directory trunk:
+
+SYSVARS.C:
+  In <DeleSysVars> when running under Wine, the ptr argument may be zero, so we check for that.
+
+
+Build #1200 -- Version 0.4.5.xx
+-------------------------------
+
+* Implement Another Alias For The Diamond Character
+
+Directory trunk:
+
+MACROS.H:
+SYMBOLNAMES.H:
+TOKENIZE.C:
+UNICODE.H:
+UNITRANSTAB.H:
+  Implement Diamond3 as another alias for Diamond.
+
+
+Build #1199 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle Copy APL Context Menu With New Unicode Chars
+* Include "Dyalog" In "Copy to..." & "Paste from ..." Keyboard Shortcut Actions
+
+Directory trunk:
+
+EDIT.RCH:
+EDITFCN.C:
+MAIN.C:
+RESOURCE.H:
+  Include "Dyalog" in "Copy to..." & "Paste from ..." keyboard shortcut actions.
+
+EXECFNS.:
+INITDATA.C:
+PO_VARIANT.C:
+TOKENIZE.C:
+  Define actions for alias functions/operators.
+
+MACROS.H:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_LCARETUND.C:
+PF_NDCARET.C:
+PF_NUCARET.C:
+PF_RCARETUND.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TILDE.C:
+PL_PARSE.Y:
+PL_PROC.C:
+PO_DOT.C:
+  Define & use macros for detecting a character and its aliases.
+
+SYMBOLNAMES:
+  Define names for alias symbols.
+
+UNICODE.H:
+  Define new symbols.
+
+UNITRANSTAB.H:
+  Define entries for Copy APL context menu choices so that the alias chars translate to
+    the old chars when pasting into APL+Win, APL2, and Dyalog.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Include Braces2APL options.
+  Use new pointers to SImPL and APL385 fonts.
+
+
+Directory trunk\htdocs\styles:
+
+COMMON.CSS:
+  Remove "font-family:" option as it is already in <common.css> from <sudleyplace.com>.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Include "Dyalog" in "Copy to..." & "Paste from ..." keyboard shortcut actions.
+
+
+Build #1198 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Partitioned Enclose With Singleton Left Argument
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Don't special case singleton left arg, instead check for it inside loop and re-use the previous value.
+
+
+Build #1197 -- Version 0.4.5.xx
+-------------------------------
+
+* Define Unicode Chars As Per "APL Character Repertoire" (ISO-IEC/JTC 1/SC 22 N3067)
+
+Directory trunk:
+
+DISPDBG.C:
+FMTSPEC.C:
+INITDATA.C:
+MACROS.H:
+PF_BAR.C:
+PF_STAR.C:
+PL_PARSE.Y:
+PO_DOT.C:
+PO_SLOPE.C:
+PO_VARIANT.C:
+SC_IN.C:
+SC_LOAD.C:
+SYMBOLNAMES.H:
+TOKENIZE.C:
+TOKENS.H:
+TRANSLATE.C:
+UNICODE.H:
+  Define Unicode chars as per "APL Character Repertoire", including new secondary chars such as BAR2, STAR2, and QUAD2.
+
+
+Build #1196 -- Version 0.4.5.xx
+-------------------------------
+
+* Split Out Heap Debugging From General Debugging
+
+Directory trunk:
+
+RESDEBUG.C:
+  Split out heap debugging from general debugging.
+
+
+Build #1195 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Restart Of Type Promotion Of Simple Scalar vs. Simple Scalar
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDydSiScSiScSub_EM>, unlock a ptr after restart.
+  In <PrimFnDydSiScSiScSub_EM>, ignore type promotion as there's nothing we need to do.
+
+
+Build #1194 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Limitation In Monadic Pi
+
+Directory trunk:
+
+PF_PI.C:
+  In <ResizeFactorStruc>, if reallocation fails, allocate new global memory space.
+
+
+Build #1193 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Limitation In Monadic Format
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  In <PrimFnMonDownTackJot_EM_YY>, handle <LIMIT ERROR> in <lpMemPTD->lpwszFormat> by allocating global memory space
+    and restarting, instead of failing.
+
+
+Build #1192 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Undo Accumulation
+
+Directory trunk:
+
+EDITFCN.C:
+  In <AppendUndo>, handle <LIMIT ERROR> by deleting the first Undo entry and restarting.
+
+
+Build #1191 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Rational Number Formating
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplRatFC>, calculate the entire size of the needed space and
+    touch it in sequential order so as to trigger a guard page fault instead of a crash.
+
+
+Build #1190 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle More Infinities
+
+Directory trunk:
+
+DEFINES.H:
+  Define floating point constants in a global file.
+
+ENUMS.H:
+  Move common enum to global file.
+
+INITDATA.C:
+  Move floating point constants to global file.
+
+MPFNS.C:
+  In <mpz_invalid>, <mpq_invalid>, and <mpfr_invalid>, handle various infinite cases.
+  In <mpz_QuadICValue>, <mpq_QuadICValue>. and <mpfr_QuadICValue>, convert the args and result to ptrs so as to change the calling value.
+
+MPIFNS.C:
+  Move floating point constants to global file.
+  Move common enum to global file.
+
+PF_BAR.C:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_ROOT.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TIMES.C:
+PF_UCARET.C:
+  In <mpz_QuadICValue>, <mpq_QuadICValue>. and <mpfr_QuadICValue>, convert the args and result to ptrs so as to change the calling value.
+
+PF_QDOT.C:
+  In <mpz_QuadICValue>, <mpq_QuadICValue>. and <mpfr_QuadICValue>, convert the args and result to ptrs so as to change the calling value.
+  In <PrimFnDydQuoteDotRisRvR>, optimize computation of (A!B) by computing smaller of A and B-A.
+
+
+Build #1189 -- Version 0.4.5.xx
+-------------------------------
+
+* Display Progress Of Execution Timer
+
+Directory trunk:
+
+DEFINES.H:
+  Define timer IDs.
+
+EDITFCN.C:
+EXTERNS.H:
+MAIN.C:
+UPDATES.C:
+  Move timer IDs to <defines.h>.
+  Rename <TIMER_UPDCHK> to <ID_TIMER_UPDCHK>.
+
+SESSMAN.C:
+  Handle <WM_TIMER> message for execution timer.
+
+STATUSBAR.C:
+  Define separate routine to update the status timer.
+  In <SetExecuting>, start a timer for the execution timer if starting execution,
+    and stop the timer if stopping execution.
+
+
+Build #1188 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Reduce With Type Promotion
+* Simplify Certain Type Promotions
+
+Directory trunk:
+
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PRIMSPEC.C:
+  Add extra argument to <PrimFnDydSiScSiScSub_EM> to return the result storage type
+    in case it changes, and simplify the following code that checks for that case.
+  In <PrimOpMonSlashCommon_EM_YY>, check for type promotion after calling
+    <PrimFnDydSiScSiScSub_EM>.
+
+
+Build #1187 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Encode With All2s on Left And Global Numerics On Right
+
+Directory trunk:
+
+PF_DTACK.C:
+  Fix bug in encode with all2s on left and global numerics on right.
+
+
+Build #1186 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle Infinity In More Functions
+
+Directory trunk:
+
+MPIFNS.C:
+MPIFNS.H:
+  In <mpfr_get_z> and <mpfr_pow_z>, check for and handle infinity.
+
+
+Build #1185 -- Version 0.4.5.xx
+-------------------------------
+
+* Use Signed Values When Defining MPZ and MPQ Infinities
+
+Directory trunk:
+
+EXTERNS.H:
+MPIFNS.C:
+  Use signed values when defining MPZ & MPQ infinities to fix a bug with INT64.
+  Fix <mpfr_neg> to <mpfr_neg0> missed in a previous build.
+
+
+Build #1184 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle Infinity When Checking For Rational Integer
+
+Directory trunk:
+
+MPFNS.C:
+  In <mpq_integer_p>, check for infinity.
+
+
+Build #1183 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug When Freeing Global Storage
+
+Directory trunk:
+
+TABCTRL.C:
+  Fix bug in <FreeGlobalStorage> by checking for zero global memory handle.
+
+
+Build #1182 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle Negative Zero VFP
+
+Directory trunk:
+
+HUNGARIAN_VFP.C:
+MACROS.H:
+MPFNS.C:
+MPIFNS.C:
+PF_BAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DOTDOT.C:
+PF_STAR.C:
+PF_UCARET.C:
+PF_USTILE.C:
+  Define and use <mpfr_neg0> instead of <mpfr_neg> to check for negative zero.
+
+
+Build #1181 -- Version 0.4.5.xx
+-------------------------------
+
+* Define New Indeterminate For []IC
+
+Directory trunk:
+
+CUSTOMIZE.C:
+EXTERNS.H:
+  Define new value for []IC to handle L*-{inf} for -1 <= L < 0.  The default
+    behavior is DOMAIN ERROR.
+
+PF_STAR.C:
+  In <PrimFnDydStarFisFvF/RisRvR/VisVvV>, check for the new indeterminate case.
+
+
+Build #1180 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Up/Down Stile On Global Numerics Near Zero
+
+Directory trunk:
+
+PF_DSTILE.C:
+  In <PrimFnMonDownStileFisF>, simplify  the code.
+  In <PrimFnMonDownStileRisR> and <PrimFnMonDownStileVisV>, correct missing minus sign.
+  Fix typo in comments.
+  Include commented out debugging code.
+
+
+Build #1179 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle VFP Infinity
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Somehow, I missed initializing the MPFR value before setting either plus or minus VFP infinity.
+
+
+Build #1178 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In Tokenize On Line Drawing Char
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <scUnkDone>, include the cross line drawing char, mistakenly omitted.
+
+
+Build #1177 -- Version 0.4.5.xx
+-------------------------------
+
+* Fix Bug In DotDot
+
+Directory trunk:
+
+PF_DOTDOT.C:
+  Fix bug where a variable is unset if we encounter an error early.
+
+VER.RC:
+  Increment version # to 0.4.5.xx.

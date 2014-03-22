@@ -1,0 +1,42 @@
+Build #1027 -- Version 0.3.8.xx
+-------------------------------
+
+* Catch Duplicate Line Labels In A Function
+
+Directory trunk:
+
+EXECDFN.C:
+  Update copyright year.
+  In <ExecDfnGlb_EM_YY>, check for no axis before changing it.
+  Save # line labels in SIS struc.
+  In <LocalizeLabels>, use linked list of line labels to localize them.
+
+EXECMFN.C:
+  Update copyright year.
+  Change name of <GetSpecialLabelNums> to <GetLabelNums> as we handle all
+    labels in this function.
+
+FH_PARSE.H:
+  Update copyright year.
+  Include entries for linked list of line labels in function line struc.
+  Include entries for linked list of line labels in function header struc.
+
+SAVEFCN.C:
+  Update copyright year.
+  Change name of <GetSpecialLabelNums> to <GetLabelNums> as we handle all
+    labels in this function.
+  In <GetLabelNums>, calculate linked list of line labels, excluding system labels.
+  Check for duplicate line labels when closing or fixing a function.
+
+SC_LOAD.C:
+  Update copyright year.
+  Save # line labels in SIS struc.
+
+SORT.C:
+  Update copyright year.
+  Define comparison routine for LBLENTRYs.
+
+STARTADDR.H:
+  Update copyright year.
+  Change name of <GetSpecialLabelNums> to <GetLabelNums> as we handle all
+    labels in this function.

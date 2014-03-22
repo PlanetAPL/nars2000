@@ -1,0 +1,10 @@
+Build #519-- Version 0.0.2.3
+----------------------------
+
+* Fix Bug:  The stmt foo{dydop}A{monop}B is not parsed (SYNTAX ERROR)
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Fix Bug:  The stmt foo{dydop}A{monop}B is not parsed and thus signals
+    a SYNTAX ERROR.  (foo{dydop}A{monop})B works, though.

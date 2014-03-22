@@ -1,0 +1,47 @@
+Build #805 -- Version 0.0.2.23
+------------------------------
+
+* Optimize Boolean Scalar Functions By Chunking
+
+Directory trunk:
+
+MACROS.H:
+  Define macro for detecting Boolean APAs.
+
+PF_COMMA.C:
+  Update copyright year.
+  Rename <IsBooleanAPA> to <IsTknBooleanAPA> to reflect
+    the token input.
+
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_EQUAL.C:
+PF_LCARET.C:
+PF_LCARETUND.C:
+PF_NDCARET.C:
+PF_NEQUAL.C:
+PF_NUCARET.C:
+PF_QDOT.C:
+PF_RCARET.C:
+PF_RCARETUND.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TILDE.C:
+PF_TIMES.C:
+PF_UCARET.C:
+PF_USTILE.C:
+  Update copyright year.
+  Define Boolean chunking routines.
+
+PRIMSPEC.C:
+  Call Boolean chunking routines.
+  Rename <IsBooleanAPA> to <IsTknBooleanAPA> to reflect
+    the token input.
+
+PRIMSPEC.H:
+  Update copyright year.
+  Define Boolean chunking routines in PRIMSPEC struc.
+
+TYPES.H:
+  Update copyright year.
+  Define Boolean 64-, 32-, 16-, and 8-bit types.

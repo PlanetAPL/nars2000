@@ -1,0 +1,9 @@
+Build #1117 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Bug In Folded Raw Output Display
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix bug in folded raw output display if a value is right-aligned at the width.

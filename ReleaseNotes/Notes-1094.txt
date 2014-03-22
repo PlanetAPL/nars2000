@@ -1,0 +1,11 @@
+Build #1094 -- Version 0.3.10.xx
+--------------------------------
+
+* Simplify []WA Algorithm
+
+Directory trunk:
+
+QF_WA.C:
+  Update copyright year.
+  Use <GlobalMemoryStatusEx> to get available memory instead of allocating
+    it as the latter might cause the page file to grow.

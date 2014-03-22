@@ -1,0 +1,8 @@
+Build #405 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+SYSVARS.C:
+  Fix bug:  When resetting a system var (assigning an empty vector to it)
+    copy the global (incrementing its reference count).

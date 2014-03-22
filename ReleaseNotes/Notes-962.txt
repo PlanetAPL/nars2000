@@ -1,0 +1,16 @@
+Build #962 -- Version 0.3.6.xx
+------------------------------
+
+* Change Version Numbering Scheme
+
+Directory trunk:
+
+MKN.BAT:
+  Increment build # each time the compiler is run.
+
+VER.RC:
+  Change the version numbering scheme to xx.yy.xx.cc where cc is the
+    number of times we ran the compiler.
+
+VERSION.RC:
+  Increment build #.

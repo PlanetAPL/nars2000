@@ -1,0 +1,55 @@
+Build #356 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+DEFINES.H:
+  Delete previous caret width equates as they are no longer needed.
+
+EDITCTRL.H:
+  Update copyright year.
+  Define two more extra dwords for VKSTATE and HBITMAP for the caret.
+  In <NMEDITCTRL>, change from ptr to caret width to caret bitmap.
+
+EDITFCN.C:
+  In <FEWndProc>, remove anything to with <VKSTATE> as it's now handled
+    entirely in <LclEditCtrlWndProc>.
+  In <FEWndProc>, change response to <WM_NOTIFY> to pass on to
+    <LclEditCtrlWndProc>.
+  Define new routine to return the current <VKSTATE> from the window
+    extra bytes.
+  In <LclEditCtrlWndProc/WM_NCCREATE>, initialize <VKSTATE> in the
+    window extra bytes.
+  In <LclEditCtrlWndProc/WM_KEYDOWN/VK_INSERT>, remove unnecessary code
+    and use <GetVkState> to get the current <VKSTATE>.
+  Shift the save area for the current <VKSTATE> from the parent window
+    to the Edit Ctrl window.
+  In <InsRepCharStr>, delete the <GWLSF_xxx> arg as it's now the constant
+    <GWLEC_VKSTATE>.
+  In <LclEditCtrlWndProc/WM_SETFONT>, define new replace caret bitmap and
+    delete the old one if any.
+  In <LclEditCtrlWndProc/MYWM_NOTIFY>, handle <WM_NOTIFY> from the Edit
+    Ctrl window.
+  In <LclEditCtrlWndProc/WM_DESTROY>, delete  replace caret bitmap
+    if defined.
+
+MAIN.H:
+  Update copyright year.
+  Delete <GWLSF_VKSTATE> as it's now in <editctrl.h> as <GWLEC_VKSTATE>.
+  Define <MYWM_NOTIFY> for use in handling caret shape issues.
+
+SESSMAN.C:
+  In <SMWndProc>, remove anything to with <VKSTATE> as it's now handled
+    entirely in <LclEditCtrlWndProc>.
+  In <SMWndProc>, change response to <WM_NOTIFY> to pass on to
+    <LclEditCtrlWndProc>.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  In <MyCreateCaret>, ask the superclass window to return a bitmap handle
+    or NULL depending upon which mode (REP vs. INS) were in.
+
+LOCAL.H:
+  Define message to use in notify code for caret shape communication.

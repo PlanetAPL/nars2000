@@ -1,0 +1,10 @@
+Build #842 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Allow Unknown System Names When Loading A Workspace
+
+Directory trunk:
+
+SC_LOAD.C:
+  In <LoadWorkspace_EM>, allow unknown system names in case
+    we load a new workspace from an old interpreter.

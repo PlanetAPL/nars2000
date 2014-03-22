@@ -1,0 +1,10 @@
+Build #861 -- Version 0.0.2.23
+------------------------------
+
+* Display Sign For {neg}0 So That 6413 []DR {neg}64{take}1 Shows It
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatFloatFC>, show negative sign if {neg}0 so that
+    6413 []DR {neg}64{take}1 shows it.

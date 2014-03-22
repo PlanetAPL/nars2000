@@ -1,0 +1,13 @@
+Build #473 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+DISPLAY.C:
+  Define and use enum for DTOA modes to make debugging easier.
+  In <FormatFloat>, pass on down to <FormatFloatFC> a zero value
+    of <nDigits> so that routine can set the proper DTOA mode.
+  Fix Bug:  In <FormatFloatFC>, check for <FLTDISPFMT_RAWFLT>
+    and <nDigits> of zero. in which case use []PP and <DTOAMODE_SIGDIGS>
+    instead of <DTOAMODE_SHORTRND>.  This fixes the bug where we display
+    too many significant digits on (say) {log}2.

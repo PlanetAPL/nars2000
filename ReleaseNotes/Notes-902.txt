@@ -1,0 +1,12 @@
+Build #902 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Wrong Var Used When Computing L!R On Rationals
+
+Directory trunk:
+
+PF_QDOT.C:
+  The wrong var was used when computing L!R on rationals.
+
+VERSION.RC:
+  Increment version to 0.0.3.4.

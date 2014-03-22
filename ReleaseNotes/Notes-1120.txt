@@ -1,0 +1,14 @@
+Build #1120 -- Version 0.3.12.xx
+--------------------------------
+
+* Fix Bug In Indexing Edge Cases
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY> and <ArrayIndexRefNamImmed_EM_YY>, handle empty index
+    value which causes the result to be corrupt because the prototype isn't filled in.
+  In <ArrayIndexValidZilde_EM>, handle a[{iota}{each}{rho}1/a] where a is a simple scalar.
+
+PF_SQUAD.C:
+  In <PrimFnDydSquad_EM_YY> when the right arg is a simple scalar, handle a{match}({iota}{each}{rho}a){squad}a.

@@ -1,0 +1,9 @@
+Build #1207 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug In Data Demotion, Part 2
+
+Directory trunk:
+
+TYPEMOTE.C:
+  Fix bug in <DemoteData> with mis-matched right braces.

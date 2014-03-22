@@ -1,0 +1,10 @@
+Build #1102 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Display Of Tabs
+
+Directory trunk:
+
+DISPLAY.C:
+  At the end of <DisplayGlbArr_EM> when displaying a result not displayed as raw output up to that point,
+    the amount of space reserved for the formatted area doesn't take into account tab stops.

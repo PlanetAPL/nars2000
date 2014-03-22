@@ -1,0 +1,23 @@
+Build #428 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+DISPLAY.H:
+  Define COLTYPE enum so we can tell when a column being displayed
+    is all character.
+  Define separate count of fractional digits which is propagated up.
+  Use up two bits in the ColStr to save info on the col type.
+
+PF_DTACKJOT.C:
+  In each FormatArrXXX routine, set the column type (COLTYPE_xxx).
+  In <PropagateRowColCount>, propagate the # fractional digits if
+    there's only one column so we can use the overall fractional digit
+    count to align decimal points.
+  In <PropagateRowColCount>, propagate the column type up one level so
+    we can tell if a column is all character (and thus left-justify it).
+  Improve comments.
+  In <FormatArrSimple>, align decimal points and exponent separators
+  In <FormatArrNestedCon>, align the decimal points.
+  In <FormatArrNestedGlb>, don't right-justify the item if the column
+    is all character.

@@ -1,0 +1,10 @@
+Build #1230 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug When Displaying An Exec/Quad Token With No Value
+
+Directory trunk:
+
+PL_PROC.C:
+  Update copyright year.
+  In <ArrExprCheckCaller>, when an Exec/Quad result token is present, ensure it has a value before trying to display it.

@@ -1,0 +1,10 @@
+Build #1032 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Certain Multi-Precision Functions
+
+Directory trunk:
+
+MPFNS.C:
+  Update copyright year.
+  Fix Bug:  In those functions designed to return a Boolean result in a passed var that may be NULL, check to see if it's NULL before assigning to it!

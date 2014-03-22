@@ -1,0 +1,13 @@
+Build #512-- Version 0.0.2.3
+----------------------------
+
+* Fix Bug:  When calculating a window size, the height of the
+  menu wasn't included
+
+Directory trunk:
+
+COMMON.C:
+  Fix Bug:  When calculating a window size, the height of the
+    menu wasn't included.  Thus, each time the .exe is closed
+    and opened, the height of the window decreases by the height
+    of the menu.

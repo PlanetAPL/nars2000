@@ -1,0 +1,23 @@
+Build #879 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Signal NONCE ERROR If We Can't Factor A Number
+* Fix Bug:  Nth Prime and # Primes Not Working
+
+Directory trunk:
+
+PF_PI.C:
+  Return TRUE/FALSE from <PrimFnPCommon>.
+  Return TRUE/FALSE from <PrimeFactor>.
+  Fix Bug:  In <PrimeFactor>, test indeterminate result for pseudo-primality
+    and signal a NONCE ERROR if not likely a prime.
+  Fix Bug:  In <PrimFnPiNthPrime> andf <PrimFnPiNumPrimes>, suffix <mpz_cmp>s
+    with "EQ 0" to test for equal.
+  Fix Bug:  In <PrimFnPiNthPrime>, initialize the temp before using.
+  Fix Bug:  In <PrimFnPiNumPrimes>, don't re-initialize already initialized temps.
+
+VER.C:
+  In <LclFileVersionStrW>, include debugging stmts to figure out why it fails in Wine.
+
+VERSION.RC:
+  Increment version to 0.0.3.2.

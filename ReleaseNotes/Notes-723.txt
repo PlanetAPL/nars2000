@@ -1,0 +1,21 @@
+Build #723 -- Version 0.0.2.17
+------------------------------
+
+* Implement Monadic IotaUnderbar (Indices)
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype file.
+
+INITDATA.C:
+  Indicate new function entry points are valid.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include references for new source code file.
+
+PF_IOTAUND.C:
+  Implement monadic IotaUnderbar (Indices).

@@ -1,0 +1,50 @@
+Build #1106 -- Version 0.3.10.xx
+--------------------------------
+
+* Miscellaneous Cleanup
+
+Directory trunk:
+
+DISPDBG.C:
+  Update the copyright year.
+  Fix bugs in DEBUG table of flag names.
+  Include additional DEBUG Assert stmt.
+  Fix bug in DEBUG display of a function header.
+  Delete trailing semicolons after <MBC> and <MBWC> macros.
+
+EDITFCN.C:
+  Fix bug in <SyntaxColor> where Lock should be Unlock.
+
+MACROS.H:
+  Surround <MBC> and <MBWC> macros with braces so they don't affect the outer syntax.
+
+MAKEFILE.INC:
+  Make build sensitive to the relative timestamps of all LICENSE* files.
+
+QF_EX.C:
+  Update the copyright year.
+  Clean up the code.
+
+QF_FMT.C:
+  Use common #define instead of separate ones.
+
+QF_NFNS.C:
+  Fix bug of missing trailing semicolon.
+
+RESDEBUG.C:
+  Update the copyright year.
+  Delete trailing semicolons after <MBC> and <MBWC> macros.
+
+RESDEBUG.H:
+  Update the copyright year.
+  Document the alternative macro expansions for Memory Management functions.
+
+SC_LOAD.C:
+  Delete trailing semicolons after <MBC> and <MBWC> macros.
+
+STARTADDR.H:
+  Include additional functions for debugging purposes.
+
+SYMTAB.C:
+  Update the copyright year.
+  Delete trailing semicolons after <MBC> and <MBWC> macros.

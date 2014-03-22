@@ -1,0 +1,14 @@
+Build #574 -- Version 0.0.2.4
+-----------------------------
+
+* Change RefCnt > 1 Line In DEBUG Window to RefCnt NE 1
+
+Directory trunk:
+
+DEBUG.C:
+DISPDBG.C:
+  Rename <xxx_REFCNT_GT1> to <xxx_REFCNT_NE1>.
+  Change the test from RefCnt > 1 to RefCnt NE 1.
+
+DEFINES.H:
+  Rename <xxx_REFCNT_GT1> to <xxx_REFCNT_NE1>.

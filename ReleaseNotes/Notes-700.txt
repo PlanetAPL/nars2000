@@ -1,0 +1,12 @@
+Build #700 -- Version 0.0.2.15
+------------------------------
+
+* Fix Bug:  Domino Doesn't Handle Empty Arguments
+
+Directory trunk:
+
+PF_DOMINO.C:
+  Both monadic and dyadic domino call <gsl_linalg_SV_decomp> which
+    doesn't handle empty arrays well (another good reason to use APL),
+    so we check for that case up front and handle it ourselves.
+  Remove duplicate GSL free code by simple reorganization.

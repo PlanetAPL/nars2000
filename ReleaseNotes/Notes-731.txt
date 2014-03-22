@@ -1,0 +1,12 @@
+Build #731 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Enlist of 'cat' (0 0{rho}0) 'dog' Crashes
+
+Directory trunk:
+
+PF_EPSILON.C:
+  In <PrimFnMonEpsilonGlbCopy_EM>, remove special treatment
+    for empty nested as they don't contribute to the result.
+  In <PrimFnMonEpsilonGlbCopy_EM>, skip processing empties as
+    as they don't contribute to the result.

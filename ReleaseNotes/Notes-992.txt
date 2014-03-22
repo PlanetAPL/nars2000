@@ -1,0 +1,10 @@
+Build #992 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Sign Of Infinity
+
+Directory trunk:
+
+MPIFNS.C:
+  The sign of infinity did not take into account the zero case
+    which resulted in 0r0 being negative infinity.

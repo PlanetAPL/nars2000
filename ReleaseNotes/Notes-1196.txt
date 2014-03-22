@@ -1,0 +1,9 @@
+Build #1196 -- Version 0.4.5.xx
+-------------------------------
+
+* Split Out Heap Debugging From General Debugging
+
+Directory trunk:
+
+RESDEBUG.C:
+  Split out heap debugging from general debugging.

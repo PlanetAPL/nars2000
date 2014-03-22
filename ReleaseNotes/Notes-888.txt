@@ -1,0 +1,54 @@
+Build #888 -- Version 0.0.3.2
+-----------------------------
+
+* Miscellaneous DEBUG Changes
+
+Directory trunk:
+
+PF_CSTAR.C:
+  Reorganize code to use <#ifdef OWN_EXPLOG>.
+
+PF_STAR.C:
+  Insert DEBUG stmts around debug stmt.
+
+
+
+
+
+
+
+
+
+
+CUSTOMIZE.C:
+SYSVARS.H:
+  Rename <DEF_MAX_QUADPP> to <DEF_MAX_QUADPPVFP> to make it clear.
+
+DISPLAY.C:
+  In <FormatExpFmt>, pass the maximum precision.
+  In <FormatAplVfpFC>, if we're not displaying in E-notation, format the
+    number at maximum precision so we can tell when not enough digits
+    have been displayed and []PP is too small.
+  Improve comments.
+  Calculate the # digits in the number's precision so as to calculate
+    the # trailing underflow digits correctly.
+  If we didn't display all the digits in the number, display it in E-notation.
+
+EXECDFN.C:
+SC_LOAD.C:
+SESSMAN.C:
+  Rename <InitVfpConstants> as <InitVfpPrecision> as that's all it does now.
+
+EXTERNS.H:
+  Remove <nDigitsFPC> as we now calculate it on the fly.
+
+INITDATA.C:
+  Rename <InitVfpConstants> as <InitVfpPrecision> as that's all it does now.
+  Round up to multiple of 32 the precision passed to <mpfr_set_default_prec>
+    as that matches the granularity of precision of <mpf_xxx> functions and
+    simplifies issues when converting between the two.
+  Remove <nDigitsFPC> as we now calculate it on the fly.
+
+SYSVARS.C:
+  Rename <InitVfpConstants> as <InitVfpPrecision> as that's all it does now.
+  Rename <DEF_MAX_QUADPP> to <DEF_MAX_QUADPPVFP> to make it clear.

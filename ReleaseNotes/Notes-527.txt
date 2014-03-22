@@ -1,0 +1,26 @@
+Build #527 -- Version 0.0.2.4
+-----------------------------
+
+* Minor Change to Text
+
+Directory trunk:
+
+EDIT.RCH:
+  Update copyright year.
+  Change case of text from "WIN" to "Win".
+
+UNITRANSHDR.H:
+UNITRANSTAB.H:
+  Change case of text from "WIN" to "Win".
+
+Directory trunk\MediaWiki\extensions:
+
+APL.CSS:
+  Combine .APL and code styles as they are identical.
+  Change the order of fonts to "SImPL medium" and "SImPL", etc
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Change case of text from "WIN" to "Win".

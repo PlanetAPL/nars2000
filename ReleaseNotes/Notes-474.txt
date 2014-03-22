@@ -1,0 +1,14 @@
+Build #474 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+APLERRORS.H:
+  Define error message for STACK OVERFLOW.
+
+EXCEPT.C:
+  Define entry for STACK OVERFLOW exception.
+  Define action for STACK OVERFLOW.
+
+PL_PARSE.Y:
+  Define action for STACK OVERFLOW exception.

@@ -1,0 +1,33 @@
+Build #794 -- Version 0.0.2.21
+------------------------------
+
+* Fix Bug:  Reference Count Is Off
+
+Directory trunk:
+
+FREE.C:
+  Update copyright year.
+  Ensure <FreeResNNU> tests for a named function/operator.
+  When freeing a fcn/opr/var, set the value to <PTR_REUSED> so we
+    can test for it later.
+
+PL_PARSE.Y:
+  Update copyright year.
+  Move the call to <YYFreeArray> out of <MakeFcnStrand_EM_YY> into
+    the actions in <pl_parse.y> as calling in <MakeFcnStrand_EM_YY>
+    is too soon.
+
+STRAND.C:
+  Update copyright year.
+  Move the call to <YYFreeArray> out of <MakeFcnStrand_EM_YY> into
+    the actions in <pl_parse.y> as calling in <MakeFcnStrand_EM_YY>
+    is too soon.
+
+YYFNS.C:
+  Update copyright year.
+  In <YYCopyFcn>, if we encounter a function array that's been
+    YYCopyArray'ed run it through <YYFreeArray>.
+  In <YYFreeArray>, if the global memory handle is <PTR_REUSED>,
+    ignore it.
+  In <YYFreeGlbFcn>, do not ignore the contents of Trains when
+    recursing.

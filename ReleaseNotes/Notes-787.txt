@@ -1,0 +1,35 @@
+Build #787 -- Version 0.0.2.20
+------------------------------
+
+* Fix Bug:  Calculate Printer Metrics Correctly
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Display Tooltip for Fonts Static Text and Buttons.
+  Comment out Theme functions we don't use.
+  Improve comments.
+  Use new routine <GetLogPixelsY> to return commonly used value.
+  As the Customize dialog is now modeless, use <DestroyWindow> to end the
+    dialog instead of <EndDialog>.
+  Rename <IDC_FONTx> to <IDC_FONTSx> to be consistent with other Fonts names.
+  Define new routine to handle subclassing of Fonts Static Text controls to
+    relay mouse events to the Tooltip control.
+  Define new routine to return a ptr to a string that describes the Font Weight.
+
+EDITFCN.C:
+  Fix Bug:  In <LclECPaintHook> when printing, convert the printer point size
+    from screen coords to printer coords.
+
+MAIN.C:
+  Use new routine <GetLogPixelsY> to return commonly used value.
+  Remove DC parameter from <CreateNewFontCom> as it's no longer used.
+  Remove <GetPrinterDC> as it's no longer used.
+
+MAIN.RC:
+  Rename <IDC_FONTx> to <IDC_FONTSx> to be consistent with other Fonts names.
+  Define equates for Fonts Static Text labels.
+
+RESOURCE.H:
+  Rename <IDC_FONTx> to <IDC_FONTSx> to be consistent with other Fonts names.
+  Define equates for Fonts Static Text labels.

@@ -1,0 +1,17 @@
+Build #384 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+SC_LOAD.C:
+  In <ParseSavedWsFcn_EM>, reorganize local vars to be local to their
+    specific part.
+  Fix Bug:  In <ParseSavedWsFcn_EM>, if there's a previous definition of the function,
+    increment its reference count so it won't be freed by <LoadWorkspaceGlobal_EM>.
+  In <ParseSavedWsFcn_EM>, move local to narrower scope so it's clear
+    that we don't need to clear it at the end.
+  Fix Bug:  In <ParseSavedWsFcn_EM>, if freeing the previous global, don't clear
+    the STE flags as the STE is still active.
+  In <LoadWorkspaceGlobal_EM> when loading a user-defined function/operator,
+    move the line which sets <SF_Fcns.LclParams> to be nearer other
+    similar lines.

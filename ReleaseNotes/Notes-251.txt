@@ -1,0 +1,146 @@
+Directory MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Include 'mismatch' as synonym for 'notmatch'.
+
+Directory trunk:
+
+APLERRORS.H:
+  Define "CORRUPT WS' error message.
+
+ASSIGN.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  Change .NameType to .fnNameType to distinguish from .stNameType/.plNameType.
+
+DATATYPE.H:
+  Change .NameType to .fnNameType to distinguish from .stNameType/.plNameType.
+
+DISPDBG.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  Change .NameType to .fnNameType to distinguish from .stNameType/.plNameType.
+
+EDITFCN.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  Use macro IsSysName to test for system names.
+
+EXECDFN.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+  Change .NameType to .fnNameType to distinguish from .stNameType/.plNameType.
+
+EXECFNS.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+
+EXECMFN.C:
+  Omit spurious reference to .ObjType.
+
+FREE.C:
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+
+MAIN.H:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  Define macro IsSysName to test for system names.
+
+NAMECLASS.H:
+  Define new header file to hold Name Class stuff.
+
+PARSE.H:
+  Change .plNameType to .fnNameType to distinguish from .stNameType/.fnNameType.
+
+PARSE.Y:
+  Change .plNameType to .fnNameType to distinguish from .stNameType/.fnNameType.
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+
+PERTAB.H:
+  Renumber PERTABDATA struct to correct mistake.
+
+PF_INDEX.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+
+PF_RSHOE.C:
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+
+PF_SLOPE.C:
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+
+PF_UARROW.C:
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+
+QF_AV.C:
+  Remove commented out lines for when []AV was custom-tailored.
+
+QF_EX.C:
+  Fix missing '$' at start of function name in comment section.
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  Use macro IsSysName to test for system names.
+
+QF_NC.C:
+  Include nameclass.h.
+  Use macro IsSysName to test for system names.
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+
+QF_NL.C:
+  Include nameclass.h.
+
+QF_SIZE.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+
+SAVEFCN.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+
+SC_FNOV.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+
+SC_LOAD.C:
+  More changes, not quite done.
+
+SC_SAVE.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+  Rename SavedWsFormGlb to SavedWsFormGlbVar as there'll be a corresponding one for functions.
+
+SC_WSID.C:
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+
+SESSMAN.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  Lock/Unlock hGlbPTD so we can view its contents on F11 break.
+
+STARTADDR.H:
+  Define entry for symtab.c.
+
+STRAND.C:
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+  Change .NameType to .fnNameType to distinguish from .stNameType/.plNameType.
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+
+SYMTAB.C:
+  Split out error message in HshTabFrisk.
+  Use macro IsSysName to test for system names.
+  Fix bug in SymTabAppendFloatCommon_EM where bPerm was ignored.
+  Fix bug in SymTabAppendCharCommon_EM where bPerm was ignored.
+  Simplify code when assigning to stFlags struct.
+
+SYMTAB.H:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  Move NAME_CLASS enum to nameclass.h.
+
+SYSVARS.C:
+  Change .ObjType to .stNameType to better reflect its source (NAME_TYPES).
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+
+TABCTRL.C:
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+
+TOKENIZE.C:
+  Use macro IsSysName to test for system names.
+  No longer require arg to FreeResultGlobalXXX to have the type bits cleared.
+
+UNICODE.H:
+  Rename 'non-match' to 'mismatch'.
+
+WORKSPACE.H:
+  Move NAME_CLASS enum to nameclass.h.
+

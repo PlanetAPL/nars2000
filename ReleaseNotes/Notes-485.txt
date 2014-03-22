@@ -1,0 +1,12 @@
+Build #485-- Version 0.0.1.18
+------------------------------
+
+* Changes to use new GSL code.
+
+Directory trunk:
+
+INITDATA.C:
+  Define <__infinity> for new GSL code.
+
+MAKEFILE.INC:
+  Define equates for new GSL code.

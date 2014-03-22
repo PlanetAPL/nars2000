@@ -1,0 +1,13 @@
+Build #1164 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bug For Embedded Assignment Within An AFO
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <fnAlpDone> when tokenizing a name in an AFO, first lookup this name
+    through the chain of HTS.  If found, use that STE; if not, append the
+    name to the global HTS.
+  In <fnAsnDone>, if a name is assigned to, ensure that preceding instances
+    of that name in the same stmt use the same STE.

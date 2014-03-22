@@ -1,0 +1,10 @@
+Build #532 -- Version 0.0.2.4
+-----------------------------
+
+* Append Time Of Last Modification To End Of []VR Display
+
+Directory trunk:
+
+QF_VR.C:
+  When displaying a function, append the time of the last modification
+    after the trailing del symbol.

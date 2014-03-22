@@ -1,0 +1,26 @@
+Build #798 -- Version 0.0.2.22
+------------------------------
+
+* Include Changes Section
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+INDEX-LEFT.HTML:
+  Include "Changes" section for those who want to be notified
+    of changes.
+
+FOOTER.HTML:
+  Update copyright year.
+
+FOOTER-MON.HTML:
+  New file including <footer.html> as well as adding a monitor
+    section.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP
+DOWNLOAD-LEFT.HTML
+  Include "Changes" section for those who want to be notified
+    of changes.

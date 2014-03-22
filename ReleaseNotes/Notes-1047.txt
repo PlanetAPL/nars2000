@@ -1,0 +1,10 @@
+Build #1047 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug When Passing Function Args To A User-Defined Operator
+
+Directory trunk:
+
+EXECDFN.C:
+  Fix Bug introduced in Build #1035 where an <if> stmt wasn't enclosed in braces
+    and incorrectly picked up a stray <else> clause.

@@ -1,0 +1,9 @@
+Build #499-- Version 0.0.2.2
+----------------------------
+
+* Implement )OFF as a synonym for )EXIT
+
+Directory trunk:
+
+SYSCMDS.C:
+  Implement )OFF as a synonym for )EXIT.

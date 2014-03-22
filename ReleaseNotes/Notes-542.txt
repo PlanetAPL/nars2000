@@ -1,0 +1,37 @@
+Build #542 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  The Identity Element For Inner Product Was Fixed At Zero
+
+Directory trunk:
+
+EXTERNS.H:
+  Define var for constant (all zero) <PRIMFLAGS> for use when
+    <GetPrimFlagsPtr> is NULL.
+  Define and use struct for primitive scalar dyadic function
+    identity elements.
+
+INITDATA.C:
+  Use struct for primitive scalar dyadic function identity
+    elements.
+
+PO_DOT.C:
+  Return identity element when reducing an empty intermediate result.
+  Limit inner product to cases where the inner dimensions are equal.
+  Handle UDFO reduction of empty intermediate result by calling the UDFO
+    at []IDENTITY.
+  Handle catenate reduction of empty intermediate result specially.
+
+PO_SLASH.C:
+  Reorganize the code in <PrimOpMonSlashCommon_EM_YY> to match that
+    of <PrimOpDydDotCommon_EM_YY>.
+  Pass additional parameters to <PrimOpMonSlashScalar_EM_YY> so they
+    don't need to be computed inside that function.
+  Use struct for primitive scalar dyadic function identity
+    elements.
+
+PO_SLOPE.C:
+  Reorganize the code in <PrimOpMonSlashCommon_EM_YY> to match that
+    of <PrimOpDydDotCommon_EM_YY>.
+  Pass additional parameters to <PrimOpMonSlashScalar_EM_YY> so they
+    don't need to be computed inside that function.

@@ -1,0 +1,17 @@
+Build #535 -- Version 0.0.2.4
+-----------------------------
+
+* Unlocalize []IO From The []VR Magic Function
+
+Directory trunk:
+
+EXECMFN.C:
+  After initializing the hash and symbol tables for []VR, set the
+    value of []IO to zero so we don't have to do it every time in
+    the magic function.
+
+QF_VR.C:
+  In the magic function for []VR, remove all references to []IO
+    as it is already localized as part of the hash and symbol tables
+    and initialized to zero when the hash and symbol tables are first
+    created.

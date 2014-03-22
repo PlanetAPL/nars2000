@@ -1,0 +1,11 @@
+Build #695 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  The RefCnt For (a) As A Right Operand Is Mishandled
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In the terminal <RhtOpVal>, the parenthesized var must be marked
+    to ignore the next RefCnt increment as we do for the expression
+    in parens in SingVar.

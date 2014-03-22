@@ -1,0 +1,13 @@
+Build #492-- Version 0.0.2.1
+----------------------------
+
+* Bring EDITCTRL.C up-to-date with the latest release from Wine.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Reorganize code and bring it up-to-date with Wine 1.1.25.
+
+LOCAL.H:
+  Define <WM_UNICHAR> and related #defines to be compatibile
+    with Wine 1.1.25.

@@ -1,0 +1,21 @@
+Build #478 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Include text for new []IC value (-1).
+  Convert []IC values to and from origin-0 (by subtracting/adding
+    <ICVAL_MINVAL>) so as to display the correct values in the
+    CLEAR WS dialog.
+
+EXTERNS.H:
+  Include new []IC value (-1).
+  Adjust the []IC lengths as there is a new minimum value.
+  Define minimum/maximum values for []IC.
+
+PRIMSPEC.C:
+  Include new []IC value (-1).
+
+SYSVARS.H:
+  Use <ICVAL_MINVAL> as new minimum allowable value in []IC.

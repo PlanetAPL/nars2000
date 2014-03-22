@@ -1,0 +1,23 @@
+Build #831 -- Version 0.0.2.23
+------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+MAIN.C:
+  Improve comments.
+
+PRIMFNS.C:
+  Miscellaneous DEBUG-specific changes.
+
+PRIMSPEC.C:
+  Include missing test for Ctrl-Break flag.
+
+SYMTAB.H:
+  Update copyright year.
+  Increase the maximum # hash table and symbol table entries for
+    64-bit systems.
+
+TABCTRL.C:
+  Comment out code instead of #if 0/#endif.

@@ -1,0 +1,13 @@
+Build #892 -- Version 0.0.3.2
+-----------------------------
+
+* Miscellaneous Web Page Changes
+
+Directory trunk\htdocs\Download:
+
+DOWNLOAD-BODY.PHP:
+  Move Changes section to second place so it won't be lost below
+    the table of downloadable files.
+
+DOWNLOAD-LEFT-HTML:
+  Account for the reordered sections in <Download-body.php>.

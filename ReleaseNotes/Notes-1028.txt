@@ -1,0 +1,17 @@
+Build #1028 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Indexing Bugs
+
+Directory trunk:
+
+PF_INDEX.C:
+  Update copyright year.
+  Fix bug:  In <ArrayIndexRef_EM_YY>, handle A[{enclose}{zilde}] to return the entire array.
+  Fix Bug:  In <ArrayIndexSetSingLst_EM>, handle A[{enclose}{zilde}]{is}{enclose}B to set the entire array.
+  Fix Bug:  In <ArrayIndexSetVector_EM>, handle A{is}(1 2)(3 4) {diamond} A[(1 2)(2 2)]{is}1 'a'.
+
+PF_RSHOE.C:
+  Update copyright year.
+  Fix Bug:  In <PrimFnDydRightShoeImmGlb_EM_YY>, handle (,1r1){pick}1 'a'.
+  Fix Bug:  In <PrimFnDydRightShoeGlbGlb_EM_YY>, handle {zilde}{pick}A.

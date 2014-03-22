@@ -1,0 +1,21 @@
+Build #1229 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug Displaying Wrong Error Message After Ctrl-Brk
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message for ellipsis.
+
+ERRMSG.C:
+  Update copyright year.
+  Re-format error message for Ctrl-Brk.
+  In <ErrorMessageIndirect>, simplify the code.
+
+EXECDFN.C:
+  Update copyright year.
+  In <ExecuteFunction_EM_YY>, upon encountering a STOP display ellipsis and function name[line #].
+
+TOKENIZE.C:
+  In <scUnkDone>, handle ellipsis as a Line Drawing Char just so it doesn't display as unknown with a dark background.

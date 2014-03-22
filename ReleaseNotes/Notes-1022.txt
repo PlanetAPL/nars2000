@@ -1,0 +1,23 @@
+Build #1022 -- Version 0.3.8.xx
+-------------------------------
+
+* Change Notation For VFP Constants
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Update copyright year.
+  Change notation for VFP numbers from infix/suffix to suffix only,
+    that is, 1v3 is changed to 1.3v.
+
+REBAR.C:
+  Update copyright year.
+  Change notation for VFP numbers from infix/suffix to suffix only,
+    that is, 1v3 is changed to 1.3v.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Change notation for VFP numbers from infix/suffix to suffix only,
+    that is, 1v3 is changed to 1.3v.

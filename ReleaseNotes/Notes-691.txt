@@ -1,0 +1,20 @@
+Build #691 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle File | Save As... Correctly
+
+Directory trunk:
+
+DEFINES.H:
+  Define new message to display the prompt.
+
+MAIN.C:
+  Fix Bug:  When selecting File | Save As... from the main
+    menu, do not require that the workspace name already exist.
+  Fix Bug:  Handle Save As in the SWITCH stmt which follows the
+    call to <GetOpenFileName>.
+  Fix Bug:  After calling one of the File | ... menu items, call
+    common code to display the prompt.
+  Move code to display the prompt from IDM_SAVE_WS to MYWM_PROMPT.
+  Fix Bug:  In <OFNHookProc>, save the message ID during <WM_INITDIALOG>
+    and wait until <WM_NOTIFY/CDN_INITDONE> to set the Open button text.

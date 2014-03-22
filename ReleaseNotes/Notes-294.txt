@@ -1,0 +1,65 @@
+Build #294 -- Version 0.0.0.18735
+---------------------------------
+
+Directory trunk:
+
+DEBUG.C:
+  Compile <FileNameOnly> in non-DEBUG versions.
+
+DISPDBG.C:
+  Define <FormatHTE> and <FormatSTE> (previously part of
+    <DisplayHshTab> and <DisplaySymTab> respectively) for
+    use in non-DEBUG versions.
+  In <FormatSTE>, display the <stPrvEntry> value, too.
+
+EXCEPT.C:
+  In <DisplayException>, display <VirtualAlloc> arrays, and SI Stack.
+
+EXECDFN.C:
+  Assert localized SYMENTRY count.
+  Define <CheckSymEntries> macro and <_CheckSymEntries> function to check
+    (what else) SYMENTRYs.
+  Re-organize code in <Unlocalize> to avoid pre-decrement in body of code.
+  Re-organize code in <LocalizeLabels> to avoid negative indexing.
+
+EXTERNS.H:
+  Allow <lpwObjNameStr> array to be used in non-DEBUG versions.
+
+MACROS.H:
+  Define <CheckSymEntries> macro and <_CheckSymEntries> function to check
+    (what else) SYMENTRYs.
+
+RESDEBUG.C:
+  Surround the whole module with <#if RESDEBUG> to allow the module to
+    be included in <RESDEBUG=0> builds so as to have the same module list
+    in both contexts.
+
+SC_ERASE.C:
+  Improve comments.
+
+SC_FNOV.C:
+  Fix bug:  In the common system commands routine for FNS/NMS/OPS/VARS
+    I used the wrong link to traverse the shadowed SYMENTRY chain
+    (<stSymLink> vs. <stPrvEntry>).  The effect was that the global
+    entry was not displayed, only the most local entry.
+
+SC_SAVE.C:
+  Reformat code.
+
+STARTADDR.H:
+  Include additional files and routines.
+
+SYMTAB.C:
+  Fix bug:  Buried deep in the bowels of <HshTabSplitNextEntry_EM>
+    when the Hash Table is split and some entries are moved, the
+    code to update the matching Symbol Table Entry's pointer to the
+    corresponding Hash Table Entry to its new location doesn't take
+    into account shadowed STEs on the SI stack which also need to
+    be updated.  The effect was that under certain very specialized
+    conditions when the Hash Table is split and a shadowed STE on
+    the stack points to that HTE, the shadowed STE is not updated
+    and bad things happen.  I duplicated the problem only by running
+    a program which crashed 6 minutes and 40 seconds from the start.
+  Omit double assignment of <lpHshEntryDest->htSymEntry>.
+  When allocating a SYMENTRY, clear elements in the struc not
+    otherwise assigned.

@@ -1,0 +1,15 @@
+Build #776 -- Version 0.0.2.19
+------------------------------
+
+* Fix Bug In Slicing Dyadic Transpose
+
+Directory trunk:
+
+AXISFNS.C:
+  Update copyright year.
+  Rename loop counter <u> to longer name <uCnt> so it can be searched
+    for more easily.
+  Declare <lpDup> as <APLBOOL> so it doesn't have to be cast when used.
+  Fix Bug:  If duplicate axes are allowed, do same test as for
+    contiguous axes, and then test for starting at 0 (after converting
+    to origin-0).

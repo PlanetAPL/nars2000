@@ -1,0 +1,16 @@
+Build #401 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+INIFILE.C:
+  When loading system vars from the .INI file, check for duplication
+    with the already allocated permanent vars.
+
+SC_LOAD.C:
+  Delete commented out debug code.
+  Reorganize code.
+  Delete FIXME comment as it no longer applies.
+  When loading workspace vars, check for duplication with the already
+    allocated permanent vars.
+  Define routines to check for duplication with permanent globals.

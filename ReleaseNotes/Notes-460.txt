@@ -1,0 +1,9 @@
+Build #460 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+STRAND.C:
+  Fix Bug:  In <MakeFcnStrand_EM_YY>, get the actual NAMETYPE_xxx
+    and use it if it's a Train.  Without this fix, Trains assigned
+    to a name don't work properly.

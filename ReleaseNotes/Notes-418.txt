@@ -1,0 +1,26 @@
+Build #418 -- Version 0.0.1.14
+------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new module.
+
+EXECMFN.C:
+  Initialize new Magic Function.
+
+EXECMFN.H:
+  Define internal name for new Magic Function.
+  Define internal name for del symbol.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.VSPROJ:
+  Include new module.
+
+PERTAB.H:
+  Define entry for new Magic Function.
+
+SYSVARS.C:
+  Include new Magic Function in System Names table.
+  Use previous entry for []WA instead of new one.

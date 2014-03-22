@@ -1,0 +1,10 @@
+Build #750 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Failed To []FEATURE Range Limit Box In Customize
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  When initializing the Range Limit property page, I forgot
+    to check the []FEATURE box if set.

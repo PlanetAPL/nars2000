@@ -1,0 +1,16 @@
+Build #459 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+PO_SLASH.C:
+  Pass ptr to ptr to in <PrimOpMonSlashScalar_EM_YY>.
+  Fix Bug:  If the passed ptr to ptr to is valid, relock
+    the handle after making a prototype.
+
+PO_SLOPE.C:
+  Pass ptr to ptr to in <PrimOpMonSlashScalar_EM_YY>.
+
+PRIMFNS.C:
+  In <MakeMonPrototype_EM>, initialize vars to NULL,
+    and name arrays better.

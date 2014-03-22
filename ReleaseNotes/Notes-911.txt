@@ -1,0 +1,28 @@
+Build #911 -- Version 0.0.3.4
+-----------------------------
+
+* Miscellaneous Build Files
+
+Directory trunk:
+
+COMPRO.H:
+  Qdebug directory is now in NARSROOT on include path.
+
+DICTIONARY.C:
+INIPARSER.C:
+  Define pseudo terms to handle unreferenced names.
+
+MAKEFILE.INC:
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Coalesce various common terms into single file.
+  Define MPIR_DIR/MPFR_DIR/FLINT_DIR as external directories.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Define MPIR_DIR/MPFR_DIR/FLINT_DIR as external directories.
+
+W32.BAT:
+W64.BAT:
+WCOM.BAT:
+  Add files needed for the build process.

@@ -1,0 +1,8 @@
+Build #400 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+FREE.C:
+  Fix bug:  In <FreeResultGlobalDfnStruc>, do not call <Untokenize>
+    on the function header (duh!) as there's nothing to unlocalize.

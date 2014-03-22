@@ -1,0 +1,10 @@
+Build #654 -- Version 0.0.2.12
+------------------------------
+
+* Fix Bug:  Wrong Test For Empty When Reducing Empty With UDFO
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix Bug:  A macro call was omitted when testing for empty
+    result when reducing an empty array with a UDFO.

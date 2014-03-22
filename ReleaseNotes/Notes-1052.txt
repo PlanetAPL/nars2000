@@ -1,0 +1,17 @@
+Build #1052 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug When Reading []RL From A Workspace File
+* Change the Primitive Root For []RL
+
+Directory trunk:
+
+INIFILE.C:
+  When reading the value of []RL, use the <StringW> version of
+    <GetPrivateProfileXXX> instead of the <IntW> version as the latter
+    doesn't support 64-bit integers.
+
+SYSVARS.H:
+  Change the value of []RL in a clear ws to a larger primitive root
+    (greater than (-1+2*61)*2r3) for better results.
+  Define the above value as a wide string, too, for use in <inifile.c>.

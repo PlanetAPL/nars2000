@@ -1,0 +1,38 @@
+Build #1190 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle More Infinities
+
+Directory trunk:
+
+DEFINES.H:
+  Define floating point constants in a global file.
+
+ENUMS.H:
+  Move common enum to global file.
+
+INITDATA.C:
+  Move floating point constants to global file.
+
+MPFNS.C:
+  In <mpz_invalid>, <mpq_invalid>, and <mpfr_invalid>, handle various infinite cases.
+  In <mpz_QuadICValue>, <mpq_QuadICValue>. and <mpfr_QuadICValue>, convert the args and result to ptrs so as to change the calling value.
+
+MPIFNS.C:
+  Move floating point constants to global file.
+  Move common enum to global file.
+
+PF_BAR.C:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_ROOT.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TIMES.C:
+PF_UCARET.C:
+  In <mpz_QuadICValue>, <mpq_QuadICValue>. and <mpfr_QuadICValue>, convert the args and result to ptrs so as to change the calling value.
+
+PF_QDOT.C:
+  In <mpz_QuadICValue>, <mpq_QuadICValue>. and <mpfr_QuadICValue>, convert the args and result to ptrs so as to change the calling value.
+  In <PrimFnDydQuoteDotRisRvR>, optimize computation of (A!B) by computing smaller of A and B-A.

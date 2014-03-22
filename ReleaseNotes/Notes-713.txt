@@ -1,0 +1,10 @@
+Build #713 -- Version 0.0.2.17
+------------------------------
+
+* Display Error Message If Status Window Fails Create
+
+Directory trunk:
+
+MAIN.C:
+  Display an error message and fail startup if creation of
+    the Status Window fails.

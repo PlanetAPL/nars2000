@@ -1,0 +1,14 @@
+Build #929 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  Tab Delete Fails To Select The Current Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  In <LclTabCtrlWndProc/TCM_DELETEITEM>, if the current tab and the
+    deleted tab are at the leftmost, <gOverTabIndex> is decremented
+    when it should be left alone.
+  In <LclTabCtrlWndProc/TCM_DELETEITEM>, the call to <TabCtrl_GetCurSel>
+    returns -1 because it is issued too soon after the call to delete a
+    tab.  Instead, we select the new tab explicitly.

@@ -1,0 +1,21 @@
+Build #837 -- Version 0.0.2.23
+------------------------------
+
+* Reorganize Make Functions, Part 2
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Include empty DEL target so as to avoid error message.
+  Check for existance of files first for DELPRO and DELDEP targets
+    so as to avoid error message.
+
+MAKEFILE.IND:
+  Omit DEL target as it's no longer needed.
+
+MK32.BAT:
+MKD32.BAT:
+MK64.BAT:
+MKD64.BAT:
+  Omit tests for switches as the whole command line is passed to
+    <makefile.ind>.

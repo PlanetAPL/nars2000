@@ -1,0 +1,65 @@
+Build #292 -- Version 0.0.0.18653
+---------------------------------
+
+Directory trunk:
+
+DEBUG.C:
+IMMEXEC.C:
+MAIN.C:
+PARSE.Y:
+PERTAB.H:
+SC_LOAD.C:
+SYMTAB.C:
+TABCTRL.C:
+  Widen string passed to <CheckException>, <MySetException>, and <lpMemPTD->ExceptionText>.
+
+INIFILE.C:
+  Fix typos in comment.
+  If reading in []IC from <nars2000.ini> and the incoming value is the previous default,
+    substitute the current default.
+
+EXCEPT.C:
+  Save context & exceptions records from a crash to be reported on later.
+  Widen string passed to <CheckException>, <MySetException>, and <lpMemPTD->ExceptionText>.
+  Display registers in Crash Control window.
+
+EXECDFN.C:
+  Fix bug:  Unlocalize SYMENTRYs in the reverse order in which they were localized
+    so that duplicate names in the header (Z{is}FOO Z) are handled correctly.
+
+EXTERNS.H:
+  Include one more Indeterminate case:  N * _  where N < -1.  The indeterminate is that,
+    although the result is _, we don't know the sign as _ is neither/both odd nor/and even.
+    The default behavior is DOMAIN ERROR.  Because this is early in the picture for []IC,
+    I inserted the new value into the middle of the integer vector to be near the other
+    indeterminate involving exponentiation.  After release, all new values must be appended
+    to the previous values.
+
+PF_STAR.C:
+  Implement integer exponentiation to return an integer if at all possible.  This involves
+    changing the storage algorithm for dyadic star to allow the result to be Boolean or
+    Integer if the args are both Boolean, or otherwise simple Integer.  This requires two
+    new routines for the BisBvB and IisIvI cases.  The former was previously handled
+    (incorrectly) by <PrimFnDydRightCaretUnderbarBisBvB>.  I say incorrectly, because it
+    didn't catch the 0*0 case as subject to []IC.  The new routines in this module handle
+    all those cases, as well as try to produce a Boolean or Integer result if possible.
+
+PF_UTACK.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Widen string passed to <CheckException>, <MySetException>, and <lpMemPTD->ExceptionText>.
+
+PRIMFNS.C:
+  In <PrimScalarFnDydAllocate_EM>, ensure that *lphGlbRes is set under all circumstances.
+  Improve comments.
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+
+PRIMSPEC.C:
+  Use TRUE/FALSE instead of 0/1 whenever Boolean.
+  Widen string passed to <CheckException>, <MySetException>, and <lpMemPTD->ExceptionText>.
+  In various routines where we can blow up from Boolean to Float, pass down enough
+    information to all the subroutines so as to allow a call to <PrimScalarFnDydAllocate_EM>.
+  Ensure all error returns go through ERROR_EXIT so we can unlock memory as necessary.
+
+SC_SAVE.C:
+  If the workspace is being saved into the default location "%APPDATA%\NARS2000\workspaces",
+    omit the leading portion of the workspace name in the " SAVED " message.

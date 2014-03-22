@@ -1,0 +1,9 @@
+Build #1002 -- Version 0.3.8.xx
+------------------------------
+
+* Bug Fix For Alignment of Values When Displaying Multirow Arrays
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Bug fix for alignment of values when displaying multirow arrays.

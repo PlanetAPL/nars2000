@@ -1,0 +1,39 @@
+Build #612 -- Version 0.0.2.7
+-----------------------------
+
+* Catch LIMIT ERROR on )SAVE
+
+Directory trunk:
+
+DEFINES.H:
+  Update copyright year.
+  Increase size of temp storage.
+
+DISPLAY.C:
+EDITFCN.C:
+EXECMFN.C:
+EXTERNS.H:
+SESSMAN.C:
+  Remove #ifdef DEBUG from around virtual memory allocation so it
+    appears in the crash window for non-DEBUG cases.
+
+EXCEPT.C:
+  Display text of source for each virtual memory allocation in the
+    crash window for non-=DEBUG cases.
+
+EXTERNS.H:
+  Update copyright year.
+  Remove #ifdef DEBUG from around virtual memory allocation so it
+    appears in the crash window for non-DEBUG cases.
+  Include Alt-f (Underbar) in list of duplicated symbols.
+  Define Alt-space as space so we don't need to release that key
+    in mid-typing.
+
+MAIN.C:
+  Update copyright year.
+  Improve comments.
+  Remove #ifdef DEBUG from around virtual memory allocation so it
+    appears in the crash window for non-DEBUG cases.
+
+SC_SAVE.C:
+  Catch LIMIT ERROR on )SAVE.

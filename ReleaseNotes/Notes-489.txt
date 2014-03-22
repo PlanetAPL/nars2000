@@ -1,0 +1,9 @@
+Build #489-- Version 0.0.2.0
+----------------------------
+
+* Changes to enable 64-bit compile.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Changes to enable 64-bit compile.

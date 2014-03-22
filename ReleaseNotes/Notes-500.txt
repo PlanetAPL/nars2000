@@ -1,0 +1,77 @@
+Build #500-- Version 0.0.2.2
+----------------------------
+
+* Convert from '\?' and L'\?' constants to #define
+
+Directory trunk:
+
+COMMON.C:
+CONVERT.C:
+CS_PARSE.Y:
+CUSTOMIZE.C:
+DEBUG.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C:
+ERRMSG.C:
+EXTERNS.H:
+FH_PARSE.Y:
+FMTSPEC.C:
+FMTSPEC.H:
+GETFNS.C:
+IMMEXEC.C:
+INIFILE.C:
+MAIN.C:
+PERFMON.C:
+PF_DTACKJOT.C:
+PF_UTACKJOT.C:
+PL_PARSE.Y:
+PN_PARSE.Y:
+QF_ERROR.C:
+QF_ES.C:
+QF_FMT.C:
+QF_TF.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_COPY.C:
+SC_DROP.C:
+SC_FNOV.C:
+SC_IN.C:
+SC_INASCII.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+SC_SI.C:
+SC_WSID.C:
+SESSMAN.C:
+SYMTAB.C:
+SYSCMDS.C:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+VER.C:
+VER.RC:
+WEBCOLORS.C:
+  Convert from '\?' and L'\?' constants to #define.
+
+DEFINES.H:
+  Move #defines from <main.h> and <transfer.h> to <defines.h>.
+  Define equates to convert from '\?' and L'\?' constants.
+
+MAIN.H:
+  Move #defines from <main.h> and <transfer.h> to <defines.h>.
+  Delete commented out lines in EXCEPTION_CODES.
+  Delete unused struct GLBHIST.
+  Delete commented out lines in VKSTATE.
+  Fix typo in comment in MAKE_PROTO.
+
+TRANSFER.H:
+  Update copyright year.
+  Move #defines from <main.h> and <transfer.h> to <defines.h>.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Include <defines.h> to pick up moved constants.

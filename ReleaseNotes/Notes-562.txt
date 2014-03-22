@@ -1,0 +1,99 @@
+Build #562 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Various RefCnt Problems
+
+Directory trunk:
+
+DATATYPE.H:
+  Define new flag in variable array header to tell the RefCnt
+    increment code to skip this one time.
+
+EXECDFN.C:
+  In <ExecDfnOprGlb_EM_YY>, don't decrement the RefCnt for the
+    operands as we no longer increment it on the way in.
+  In <InitVarSTEs>, handle numeric and character strand tokens.
+  Delete <UninitOprSTEs> as it's no longer called.
+
+FREE.C:
+  In <FreeResultGlobalFcn> for function arrays, handle numeric and
+    character strand tokens.
+
+PL_PARSE.H:
+  Define new flag to indicate whether or not this struct contains
+    an array that was created by <CopyArray_EM> in <MakeNameFcnOpr_YY>
+    as it needs to be freed at the end of <MakeFcnStrand_EM_YY>.
+
+PL_PARSE.Y:
+  Define new terminals for vars to the left of a monadic or dyadic
+    operator.
+  Delete all occurrences of <FreeResult> after <MakeNameFcnOpr_YY>
+    as that function always increments RefCnt once so we can count
+    on one copy made at that point.
+  Delete all occurrences of <FreeResult> after <PushFcnStrand_YY>
+    as that function never increments RefCnt so the only increment
+    is from <MakeNameFcnOpr_YY>, <MakeAxis_YY>, and related functions.
+  Replace all occurrences of <FreeYYFcn1> after <PushFcnStrand_YY>
+    with <YYFree> for the same reasons as above.
+  Define new rules for a single var to the left of a monadic or
+    dyadic operator.
+  Ensure that the terminal <SingVar:> has the RefCnt incremented
+    once and only once for the result (and in particular for
+    <CHRSTRAND> and <NUMSTRAND>).
+  In <SingVar:> for <(ArrExpr)>, set the <SkipRefCntIncr> flag so
+    the next increment of the RefCnt is ignored.
+  Delete all occurrences of <FreeResult> after <MakeVarStrand_YY>
+    as that function increments refCnt once so we can count on
+    one copy made at that point.
+  In <LookaheadDyadicOp>, split out right paren and right bracket
+    tokens as they need separate treatment.
+  Define new function <LookbehindOp> to detect if the preceding token
+    is a monadic or dyadic operator.
+  In <pl_yylex>, whenever encountering a temporary or named variable,
+    or a numeric or character strand, after checking for it being to
+    the right of a dyadic operator, check to see if it's to the left
+    of a monadic or dyadic operator in which case return a special
+    <OP1xxx> token.
+
+PRIMFNS.C:
+  In <MakeDydPrototype_EM>, handle 0 modulus separately as C signals
+    a Divide By Zero error.
+  In <CopyArray_EM> when copying function arrays, increment the
+    RefCnt for each item in the array.
+  Define new function <mod64> to handle modulus on 64-bit integers
+    checking for 0 modulus.
+  Improve comments.
+  Define new function <SetVarArraySkipRefCntFlag> to set the
+    <SkipRefCntIncr> flag in a variable array.
+
+REFCNT.C:
+  In <ChangeRefCntDir> for variable arrays, if it's an increment
+    and the SkipRefCntIncr flag is set in the array header,
+    reset the flag and skip the increment.
+
+STARTADDR.H:
+  Delete reference to <UninitOprSTEs> as it is no longer used.
+
+STRAND.C:
+  Comment on what functions do to RefCnts.
+  Change <PushFcnStrand_YY> so that it never increments RefCnt.
+  Change <MakeVarStrand_EM_YY> so that it always increments RefCnt.
+  Improve comments.
+  In <MakeVarStrand_EM_YY>, don't markan item as resued as we're
+    not freeing strands at the end.
+  In <MakeVarStrand_EM_YY> do not free the strands so that that
+    routine always increments RefCnt once.
+  In <MakeFcnStrand_YY>, free the strands on the stack only if
+    the arg was CopyArray'ed.
+  Change <MakeAxis_YY> so that it never increments RefCnt.
+  Change <MakePrimFcn_YY> so that it never increments RefCnt.
+  Change <MakeNameFcnOpr_YY> so that it never increments RefCnt.
+  In <MakeNameFcnOpr_YY>, do not increment RefCnt for function
+    arrays because the next line after the caller will decrement
+    RefCnt as we no longer decrement after <MakeNameFcnOpr_YY>.
+  In <MakeNameFcnOpr_YY>, if we call <CopyArray_EM>, mark the
+    struc so we can free it later on.
+  Change <MakePrimOp123_YY> so that it never increments RefCnt.
+  In <CopyToken_EM>, handle numeric and character strand tokens.
+  Define new routine <CopyPL_YYSTYPE_YY> that copies the PL_YYSTYPE
+    but doesn't increment RefCnt.

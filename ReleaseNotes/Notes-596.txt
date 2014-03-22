@@ -1,0 +1,22 @@
+Build #596 -- Version 0.0.2.5
+-----------------------------
+
+* Fix Bug:  Missing Cases For N-wise Reduction
+
+Directory trunk:
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, handle 0 foo/R via subroutine
+    so it may be reused elsewhere.
+  Define new function <UdfoRedIdentFcn_EM> to handle UDFO reduction
+    identity element function.
+  In <PrimOpDydSlashCommon_EM_YY>, handle N f/ R for N=0 or
+    N=1+({rho}R)[X] and f may be catenate, UDFO, or primitive scalar
+    dyadic function.
+  Fix Bug:  In <PrimOpDydSlashInsertDim_EM>, avoid system crash by
+    moving correct # bytes.
+
+PRIMFNS.C:
+  Remove unneeded comment.
+  Fix Bug:  In <MakeMonPrototype_+EM_PTB>, if return is NULL, don't
+    use <MakePtrTypeGlb> macro on it.

@@ -1,0 +1,43 @@
+Build #301 -- Version 0.0.0.19272
+---------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Improve comments.
+  Define initialization action for Range Limits.
+  Define template for all Apply actions.
+  Define Apply action for Range Limits.
+  Define response to clicking a ChooseFont button.
+
+EXTERNS.H:
+  Define <MyChooseFontXX> struc entries for use in <CUSTOMIZE.C>.
+
+MAIN.C:
+  Remove unnecessary braces.
+  Define and use <MyChooseFontXX> struc entries for use in <CUSTOMIZE.C>.
+
+MAIN.RC:
+  Enable <Customize...> menu item for DEBUG version only until it's ready.
+  Define Property Page for Range Limits.
+
+MAKEFILE.INC:
+  Pass DEBUG flag to .rc targets.
+
+PF_INDEX.C:
+  Fix bug:  When indexing a non-scalar array with a non-empty index list,
+    I forgot to copy the named array first.  This allows changes to leak
+    into all reference copies of the array.
+  Improve comments.
+  Fix bug:  In <ArrayIndexSetRect_EM>, a consequence of an <if> statement
+    is not enclosed in braces although it has two statements in the
+    clause.
+
+PF_SQUAD.C:
+  Factor out common statements.
+  Fix bug:  In <PrimFnDydSquadGlb_EM_YY>, copy the named arg if we're
+    assigning to it in case it is referenced multiple times.
+
+RESOURCE.H:
+  Define starting IDD_PROPPAGE_xxx value for use in <CUSTOMIZE.C>.
+  Define IDC_xxx values for Range Limits check boxes.

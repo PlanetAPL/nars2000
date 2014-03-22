@@ -1,0 +1,93 @@
+Version 0.0.1.8 consists of the following Builds:
+
+
+Build #350 -- Version 0.0.1.8
+-----------------------------
+
+Directory trunk:
+
+DISPDBG.C:
+  Use global var for function-related debug display
+    so it can be toggled easily.
+  Change from <DbgMsgW2> to <DbgMsgW> and use a global var
+    to control display of various debug displays.
+  Fix Bug:  In <DisplayFcnSub>, handle user-defined function/operators.
+
+EDITFCN.C:
+  Write out the function name in the Function Editor title bar.
+  Use #define to toggle use of clipping region in output.
+  Use <lstrcpyW> instead of <CopyMemory> as we're copying the
+    trailing zero, too.
+  In <WM_PAINT>, move code around to optimize it.
+
+EXECFNS.C:
+  In DEBUG mode, avoid <YYResIsEmpty> complaints by incrememting
+    the SI level around calls to <ExecFuncStr_EM_YY> and
+    <ExecTrain_EM_YY>.
+  Fix Bug:  In <ExecFuncStr_EM_YY>/<TKT_FCNNAMED>, handle
+    user-defined function/operators.
+
+EXTERNS.H:
+  Update copyright year.
+  Change Function Editor title string to be a format string.
+
+FREE.C:
+  Update copyright year.
+  Fix Bug:  In <FreeResultGlobalFcn>, handle freeing a user-defined
+    function/operator within a function array.
+
+PF_DTACK.C:
+  Update copyright year.
+  Format and comment call to <GetNextValueGlb>.
+
+PF_RSHOE.C:
+  Update copyright year.
+  Format and comment call to <GetNextValueGlb>.
+  Avoid setting ptr type bits for result of <GetNextValueGlb> as they
+    are already set.
+  Fix Bug:  In <PrimFnDydRightShoeGlbGlb_EM_YY>, clear the ptr type
+    bits from the result of <GetNextValueGlb>.
+
+PF_SQUAD.C:
+  Format and comment call to <GetNextValueGlb>.
+
+PF_UTACK.C:
+  Update copyright year.
+  Format and comment call to <GetNextValueGlb>.
+
+PL_PARSE.H:
+  Remove <bTrain> bit as it's no longer used.
+
+PL_PARSE.Y:
+  Remove <bTrain> bit as it's no longer used.
+  Fix Bug:  In <LeftOper:  (Train)> rule, force call to
+    <MakeFcnStrand_EM_YY> so as to have one function
+    per element -- this way, we can easily count the #
+    elements.
+  Fix Bug:  In <Train:  LeftOper LeftOper> and
+    <Train:  Train Leftoper>, set the strand base as
+    appropriate.
+  Fix typos in comments.
+
+PO_DOT.C:
+  Update copyright year.
+  Format and comment call to <GetNextValueGlb>.
+  Avoid setting ptr type bits for result of <GetNextValueGlb> as they
+    are already set.
+
+QF_NC.C:
+  Update copyright year.
+  Fix Bug:  In <CalcNameClass>, handle Trains.
+
+STRAND.C:
+  In <StripStrand>, include debug assertions.
+  Fix Bug:  In <FreeStrand>, avoid freeing Indirect entries -- they'll
+    be freed when they occur directly.
+  In <MakeFcnStrand_EM_YY>, reorganize code and use incoming
+    <NAMETYPE_xxx> to distinguish Trains.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  In <EDIT_WM_Paint>, include DEBUG statements.

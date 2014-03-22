@@ -1,0 +1,11 @@
+Build #546 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  As part of the change to the binding strength for arrays
+  and indexed lists an array was freed when it shouldn't have been.
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <IndexVarBR: IndexListBR SingVar> if an error occurs, do not
+    free <SingVar> as it gets freed later.

@@ -1,0 +1,24 @@
+Build #858 -- Version 0.0.2.23
+------------------------------
+
+* Load And Save FPC Property Of VFP Numbers
+
+Directory trunk:
+
+DISPLAY.C:
+  Improve comments.
+  Include additional parameter to <FormatAplVfpFC>.
+
+PF_DTACKJOT.C:
+QF_FMT.C:
+  Include additional parameter to <FormatAplVfpFC>.
+
+QF_DR.C:
+  In <SysFnDR_Show_EM_YY>, show the precision of a singleton VFP number.
+
+SC_LOAD.C:
+  In <LoadWorkspaceGlobal_EM>, parse FPC property and set as precision
+    when creating the VFP number.
+
+SC_SAVE.C:
+  Include additional parameter to <FormatAplVfpFC>.

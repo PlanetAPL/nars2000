@@ -1,0 +1,31 @@
+Build #604 -- Version 0.0.2.7
+-----------------------------
+
+* Fix Bug When Returning A Multiple Name Result From A UDFO
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <MakeMonPrototype_EM_PTB>, use direct reference to item instead
+    of through function.
+  In <MakeMonPrototype_EM_PTB>, use macro around a LPSYMENTRY before
+    saving in result.
+  Fix Bug:  In <CopySymGlbDir_PTB>, when given a named STE, convert
+    it to a value-specific unnamed STE.  That way, the named STE
+    may be changed without affecting the return value.
+  Change <CopyImmSymEntry_EM> to use a named equate instead of -1.
+  In <CopyArray_EM>, use macro around a LPSYMENTRY before saving in
+    result.
+
+STRAND.C:
+  Change <CopyImmSymEntry_EM> to use a named equate instead of -1.
+  In <MakeVarStrand_EM_YY>, use macro around a LPSYMENTRY before
+    saving in result.
+
+SYMTAB.C:
+  In <MakeSymEntry_EM>, allow NULL ptr to function token.
+  In <CopyImmSymEntry_EM>, use named equate instead of -1.
+  In <CopyImmSymEntry_EM>, allow NULL ptr to function token.
+
+SYMTAB.H:
+  Define named equate to use instead of -1.

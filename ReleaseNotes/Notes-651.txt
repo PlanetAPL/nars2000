@@ -1,0 +1,14 @@
+Build #651 -- Version 0.0.2.12
+------------------------------
+
+* Allow Variable Spacing Between Characters When Syntax Coloring
+
+Directory trunk:
+
+EDITFCN.C:
+  Change the way syntax coloring handles spacing to
+    allow variable spacing between characters as per
+    Unicode.
+
+VERSION.RC:
+  Increment version to 0.0.2.11.

@@ -1,0 +1,96 @@
+Build #302 -- Version 0.0.0.19364
+---------------------------------
+
+Directory trunk:
+
+COMMON.C:
+  Read and save file version string once.
+
+CUSTOMIZE.C:
+  More work on Customize Dialog.
+
+DEFINES.H:
+  Move #defines into common file so it may be
+    included in other files without side effects.
+
+EXCEPT.C:
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Display the file version # in the Crash Window.
+
+EXTERNS.H:
+  Move #defines into common file so it may be
+    included in other files without side effects.
+  Define <icIndexNames> and <icIndexValues> as arrays of
+    []IC index names and values for use in <CustomizeDlgProc>.
+  Define <wszFileVer> to hold the file version string.
+  Delete unused DEBUG_ODS code.
+  Move <OPTIONFLAGS> struc and definition to be adjacent to
+    <FONTENUM> struct and definition.
+  Change <SAMEFONTAS> to <FONTENUM> for use in <CustomizeDlgProc>.
+  Convert title in <CUSTOMIZE> typedef to Unicode.
+
+INIFILE.C:
+  Define KeyName for Initial Category to display in <CustomizeDlgProc>.
+  Change <SAMEFONTAS> to <FONTENUM>.
+  Read in and write out Initial Category.
+
+MAIN.C:
+  Fold calls to several <InitChooseFont>s into one call.
+  Use <FONTSTRUC> instead of separate strucs which brings
+    together several variables.
+  Define <MyChooseFontHook> to display the name of the font
+    we're choosing.
+  In each <MyChooseFontXX>, set thecf.hwndOwner to the window handle
+    of the Master Frame.
+  Call each dialog box with W suffix so as to allow Unicode behavior.
+  Read and save file version string once.
+
+MAIN.RC:
+  Display Options menu item only if not DEBUG version so I can test
+    it without affecting released versions until it's ready.
+  Many changes for <CustomizeDlgProc>.
+
+PRIMFNS.C:
+  Remove unnecessary (LPAPLDIM) to left of <VarArrayBaseToDim>.
+
+PRIMSPEC.C:
+  Move error message calls to common labels.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Factor out duplicate <lpYYRes> and rename to <lpYYRes2> so as
+    to avoid confusion.
+  Fix bug:  In <PrimFnDydNestNest_EM> when the result is a mixture
+    of nested arrays and simple scalars, I forgot to check for the
+    scalars.  Instead, I save the scalar value into the result rather
+    than a pointer to a SYMENTRY.
+
+QF_SYSVER.C:
+  Move error message calls to common labels.
+  Use (__int3264) instead of (UINT) to handle 32- vs. 64-bits.
+  Read and save file version string once.
+
+RESOURCE.H:
+  Many changes for <CustomizeDlgProc>.
+
+SC_COMMON.C:
+  Fix typo.
+
+SESSMAN.C:
+  Remove unneeded ES_NOHIDESEL flag.
+
+STARTADDR.H:
+  Include more addresses for debugging purposes.
+
+UNICODE.H:
+  Define WS_ form of Horizontal Ellipsis and Replacement Char.
+
+UNITRANSHDR.H:
+  Include comment to remind the reader to make co-requisite changes.
+
+VER.C:
+  Read and save file version string once.
+
+
+Directory htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Insert space between HTML elements to avoid error from HTML Tidy.

@@ -1,0 +1,53 @@
+Build #1006 -- Version 0.3.8.xx
+------------------------------
+
+* Miscellaneous DEBUG Changes
+
+Directory trunk:
+
+DATATYPE.H:
+  Split apart uses of PTR_REUSED to help find bugs more easily.
+
+DEBUG.C:
+  Miscellaneous DEBUG changes.
+
+EDITFCN.C:
+EXECDFN.C:
+EXECMFN.C:
+FREE.C:
+IMMEXEC.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+QF_MF.C:
+SAVEFCN.C:
+STRAND.C:
+TABCTRL.C:
+YYFNS.C:
+  Define APPEND_NAME as it's used in <Dbg...> functions.
+
+HEADERS.H:
+  Reorder #includes as per dependencies.
+
+MACROS.H:
+  Miscellaneous DEBUG changes.
+  Defonie new macro to test for ptr (nested/hetero) arrays.
+  In various ptr macros, test for bad input.
+  Define new macros to test for NULL ptrs.
+  Move xINTxx typedefs from <macros.h> to <types.h>.
+
+PF_RHO.C:
+PO_SLASH.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+SC_SAVE.C:
+  Use new macro instead of direct comparison.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, test for PTR_REUSED and NULL elements in ptr arrays.
+  Define new debugging functions for checking reference counts.
+
+STARTADDR.H:
+  Include more function names.
+
+TYPES.H:
+  Move xINTxx typedefs from <macros.h> to <types.h>.

@@ -1,0 +1,24 @@
+Build #1151 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bugs When Reallocating Symbol Table
+* Fix Bug  When Reallocating A Token Stream
+
+Directory trunk:
+
+SAVEFCN.C:
+  Avoid clobbering an existing error message having detected an error during Tokenize.
+  Warn instead of failing function fix because of duplicate labels.
+
+SC_IN.C:
+  Avoid extra displays during )IN because of NoDisplay execute results.
+  Correct origin of function line # in error message.
+
+SYMTAB.C:
+  Rename variable from *Size to *Nelm as it actually measures the latter rather than the former.
+  Change VirtualAllocs from MEM_COMMIT | MEM_RESERVE to MEM_COMMIT only.
+  In <SymTabResize>, handle global table resize.
+  Include commented out debugging code for future use.
+
+TOKENIZE.C:
+  In <AppendNewToken_EM>, if the reallocate fails on a token stream, try with a new allocate and copy old memory values to the new location.

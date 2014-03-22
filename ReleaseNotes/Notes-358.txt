@@ -1,0 +1,10 @@
+Build #358 -- Version 0.0.1.12
+------------------------------
+
+Directory trunk:
+
+COMMON.C:
+  Define new routine as callback to <EnumDisplayMonitors> so we can
+    get the current monitor's dimensions.
+  Modify <CenterWindow> to center within the window which contains
+    the center point of the Master Frame.

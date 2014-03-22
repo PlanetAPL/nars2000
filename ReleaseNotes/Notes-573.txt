@@ -1,0 +1,11 @@
+Build #573 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Clear SkipRefCntIncr Flag On Assignment
+
+Directory trunk:
+
+ASSIGN.C:
+  Fix Bug:  When assigning an array to a name, clear the
+    <SkipRefCntIncr> flag so it isn't tested for anymore.
+  Define separate recursive function to clear the flag.

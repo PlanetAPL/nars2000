@@ -1,0 +1,9 @@
+Build #455 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+MAIN.C:
+  In <SetStatusParts>, change type of variable to that of its enum
+    so as to make debugging easier.
+  In <SetStatusParts>, reorganize code.

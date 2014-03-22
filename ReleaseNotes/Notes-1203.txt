@@ -1,0 +1,14 @@
+Build #1203 -- Version 0.4.6.xx
+-------------------------------
+
+* Don't Untokenize <#MonDotInit> After Calling It
+
+Directory trunk:
+
+EXECMFN.C:
+  In <ExecNilMFO>, split out <FreeResultGlobalDfn> into its parts so we may tell
+    <FreeResultGlobalDfnStruc> not to call <Untokenize>.
+
+FREE.C:
+TABCTRL.C:
+  In <FreeResultGlobalDfnStruc>, define and use parameter to control call to <Untokenize>.

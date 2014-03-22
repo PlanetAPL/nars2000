@@ -1,0 +1,8 @@
+Build #442 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Split out display of scalars/vectors from higher rank arrays.
+  Simplify the code by using negative indices.

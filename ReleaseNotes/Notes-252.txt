@@ -1,0 +1,33 @@
+Directory trunk:
+
+COMPRO.H:
+  Include <getreent> in the list of modules to compile.
+
+DEBUG.C:
+  Redefine <Assert> so it stops at the level of the assertion failure, rather than one level down.
+
+EXCEPT.C:
+  Call <exit> only if non-debug version.
+
+MAIN.H:
+  Redefine <Assert> so it stops at the level of the assertion failure, rather than one level down.
+
+MAKEFILE:
+  Include <getreent> in the list of modules to compile.
+  Include <pf_circle> in dependency generation (how was this missed?)
+
+PF_CIRCLE.C:
+  No changes, but svn diagrees.
+
+PF_QDOT.C:
+  Define missing FisI routine (used for !toolarge)
+  Use computed value for constant 20.
+  Check for !toolarge and signal explicit error -- GSL calls fprintf???
+  Check for toolarge in A!B and signal explicit error; otherwise it's PosInfinity.
+
+PRIMSPEC.C:
+  Delete call to <DisplayException> if error can be handled.
+
+STARTADDR.H:
+  Delete <Assert> as it no longer exists.
+  Include <__getreent> as we now manage <getreent.c>.

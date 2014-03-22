@@ -1,0 +1,15 @@
+Build #890 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bugs In Formatting VFP Numbers
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  In <FormatExpFmt>, handle negative numbers.
+  Fix Bug:  In <FormatAplVfpFC>, handle format of zero.
+  Fix Bug:  In <FormatAplVfpFC>, fill in trailing zeros when displaying fractional digits.
+  Improve comments.
+
+PF_DTACKJOT.C:
+  Improve comments.

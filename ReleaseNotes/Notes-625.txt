@@ -1,0 +1,10 @@
+Build #625 -- Version 0.0.2.7
+-----------------------------
+
+* Include SolutionDir Message
+
+Directory trunk:
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <SolutionDir> message.

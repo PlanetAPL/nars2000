@@ -1,0 +1,25 @@
+Build #943 -- Version 0.0.3.4
+-----------------------------
+
+* Remove Surrounding #ifdef/#endif For Certain DEBUG Statements
+
+Directory trunk:
+
+EXCEPT.C:
+EXECDFN.C:
+FH_PARSE.Y:
+IMMEXEC.C:
+MACROS.H:
+PF_IOTAUND.C:
+PF_PI.C:
+PF_UTACK.C:
+PF_UTACKJOT.C:
+PO_SLASH.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+RESDEBUG.C:
+SC_LOAD.C:
+SESSMAN.C:
+SYMTAB.C:
+TABCTRL.C:
+  Remove surrounding #ifdef/#endif on certain DEBUG statements.

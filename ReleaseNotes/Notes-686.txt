@@ -1,0 +1,27 @@
+Build #686 -- Version 0.0.2.14
+------------------------------
+
+* Display Axis Operator When Used With A UDFO
+
+Directory trunk:
+
+DISPDBG.C:
+  Improve comments.
+  Use common routine to display a variable within a function strand,
+    and use it for numeric and character strands.
+  In <DisplayFcnSub>, display the axis operator when used with a UDFO.
+
+PF_DTACKJOT.C:
+  Improve comments.
+
+STARTADDR.H:
+  Include additional files and routines.
+
+STRAND.C:
+  Improve comments.
+
+YYFNS.C:
+  In <YYCopyFcn>, switch to using <lpToken> instead of <hGlbFcn>.
+  In <YYCopyGlbFcn_PTB>, pass in a ptr to a token instead of the
+    corresponding global memory handle so we can distinguish an
+    axis array from a variable array.

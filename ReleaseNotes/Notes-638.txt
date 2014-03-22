@@ -1,0 +1,15 @@
+Build #638 -- Version 0.0.2.9
+-----------------------------
+
+* Fix Bug Which Returns The Wrong Error Message When Executing A
+  Function Via Each Or Outer Product Fails
+
+Directory trunk:
+
+PO_DIERESIS.C:
+  Fix Bug:  In <ExecFuncOnToken_EM>, if the execute of the function
+    fails (with its own error message), the code mistakenly falls
+    through to a VALUE ERROR, thus signalling the wrong error message.
+
+PRIMFNS.C:
+  In <IsTknTypeVar>, handle constant var cases.

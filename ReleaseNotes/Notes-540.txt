@@ -1,0 +1,26 @@
+Build #540 -- Version 0.0.2.4
+-----------------------------
+
+* Renumber Strucs Symbolically To Reduce Changes
+
+Directory trunk:
+
+EXECMFN.C:
+  Use hGlbMFO[MFOE_xxx] instead of individual entries.
+
+EXECMFN.H:
+  Define enum to name all magic function/operators.
+
+PERTAB.H:
+  Renumber entries symbolically to reduce the # changes.
+
+PF_DSHOE.C:
+PF_IOTA.C:
+PF_TILDE.C:
+PO_DIJOT.C:
+QF_FMT.C:
+QF_VR.C:
+  Use hGlbMFO[MFOE_xxx] instead of individual entries.
+
+PF_UTACKJOT.C:
+  Miscellaneous text change.

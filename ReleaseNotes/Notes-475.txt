@@ -1,0 +1,15 @@
+Build #475 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Include text for two new []IC values.
+  Omit enabling the Apply button when selecting a []IC index
+    to display.
+
+EXTERNS.H:
+  Define entries and default values for two new []IC values.
+
+INIFILE.C:
+  Handle short default values for []IC.

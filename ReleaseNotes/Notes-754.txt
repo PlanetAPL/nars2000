@@ -1,0 +1,12 @@
+Build #754 -- Version 0.0.2.18
+------------------------------
+
+* Avoid Reshaping Singleton Integer To An APA Unless Multi-element result
+
+Directory trunk:
+
+PF_RHO.C:
+  When reshaping a singleton integer, don't create an APA unless
+    the result has > 1 elements.  That way, we don't promote from
+    Boolean in singleton result case which can mess up Reduction
+    of a Singleton.

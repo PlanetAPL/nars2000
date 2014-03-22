@@ -1,0 +1,23 @@
+Build #477 -- Version 0.0.1.17
+------------------------------
+
+Directory trunk:
+
+EXTERNS.H:
+  Rename []IC index from RED to MOD to reflect modulus rather than reduce.
+
+MACROS.H:
+  Define macro for getting the sign of a floating point number.
+
+PF_BAR.C:
+  Handle subtraction of same signed infinities as per []IC.
+
+PF_COLONBAR.C:
+  Use floating point sign macro.
+
+PF_PLUS.C:
+  Handle addition of opposite signed infinities as per []IC.
+
+PF_STILE.C:
+  Handle modulus of infinity right arg as per []IC.
+  Use floating point sign macro.

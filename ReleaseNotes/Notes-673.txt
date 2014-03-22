@@ -1,0 +1,12 @@
+Build #673 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Catch The {jot} In +op2{jot}23 As FILLJOT
+
+Directory trunk:
+
+PL_PARSE.Y:
+  In <pl_yylex> for dyadic ops (TKT_OP2IMMED or TKT_OP2NAMED), if the
+    dyadic operator is a Jot, lookahead for the next token to see if
+    it's also a dyadic operator so as to catch the {jot} in
+    +op2{jot}23 as FILLJOT.

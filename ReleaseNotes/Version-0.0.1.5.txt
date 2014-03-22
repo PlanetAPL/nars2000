@@ -1,0 +1,29 @@
+Version 0.0.1.5 consists of the following Builds:
+
+
+Build #347 -- Version 0.0.1.5
+-----------------------------
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Update copyright year.
+  Return correct name type for <Op3Spec EOL>.
+  Define action for <Drv3Func EOL> so it may be parsed by <LookAheadxxx>
+    functions.
+  Define error rule for <error AmbOp NAMEOP3ASSIGN>.
+  Define new rules (including errors) for usage of <Drv3Func>.
+  Define new recursive target <Drv3Func> to handle <AmbOp MonOp [MonOp ...]>.
+
+PO_SLASH.C:
+  Move previous bug fix earler in the processing.
+
+PO_SLOPE.C:
+  Implement similar change for slope as for slash.
+  Improve comments.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Improve wording.

@@ -1,0 +1,87 @@
+Build #329 -- Version 0.0.0.22194
+---------------------------------
+
+Directory trunk:
+
+COMPRO.H:
+  Include <pn_parse.pro>.
+
+CS_PARSE.H:
+  Fix errors in comments.
+
+CS_PARSE.Y:
+  Disable debugging on exit.
+
+EXECDFN.C:
+  Improve comments.
+  Omit unused argument to >UninitOprSTEs>.
+  In <UninitOprSTEs>, free the global (if any) in the STE,
+    but do not free the STE because it might not have a RefCnt of 0.
+
+EXECMFN.C:
+  Include additional #define for Magic Function vars.
+
+EXTERNS.H:
+  Define externs for float of pi and e.
+
+FH_PARSE.Y:
+  Change return of <ParseHeader> from <BOOL> to <UBOOL>.
+  In <ParseHeader>, turn off debugging on exit.
+
+MAIN.C:
+  Calculate the value of e for later use.
+
+MAKEFILE.INC:
+  Reference new files <pn_parse.*>.
+
+PL_PARSE.Y:
+  Fix memory leaks by freeing various results after they are used.
+  In <ParseLine>, turn off debugging on exit.
+
+PN_PARSE.H:
+PN_PARSE.Y:
+  New modules for processing Point Notation.
+
+PO_DIJOT.C:
+  In <PrimOpDieresisJotCommon_EM_YY>, remove constant argument.
+  In <PrimOpDieresisJotCommon_EM_YY>, allow axis argument
+    to be passed to the final disclose.
+
+PRIMFNS.C:
+  Whitespace changes only.
+
+TOKENIZE.C:
+  Reduce the number of columns in the FSA by merging all
+    alphabetic chars into one and handling various Point
+    Notations in a single place.
+  Reduce the number of rows in the FSA by merging all Point
+    Notation handling into one place.
+  In <CharTrans>, merge all alphabetic chars into <COL_ALPHA>
+    as we now handle Point Notations in one place.
+
+YYFNS.C:
+  In <IncrFcnMem>, include the immediate function cases.
+
+
+Directory trunk\Extensions\aplchars\chrome\content\aplchars:
+
+EDITOROVERLAY.JS:
+  In <KeyboardNARS2000>, add comments as to the various character names.
+  Copy the NARS2000 keyboard layout to create a DyalogUS keyboard layout.
+  Expand <CodeToAPL> to incorporate the DyalogUS keyboard layout.
+  Move <myDump> to separate file (<mydump.js>).
+
+EDITOROVERLAY.XUL:
+  Include <mydump.js> in the overlay.
+
+MYDUMP.JS:
+  Debugging javascript.
+
+OPTIONS.JS:
+  Move javascript code from <options.xul> to <options.js> to
+    simplify debugging.
+
+OPTIONS.XUL:
+  Move javascript code from <options.xul> to <options.js> to
+    simplify debugging.
+  Include radio button for DyalogUS keyboard layout.

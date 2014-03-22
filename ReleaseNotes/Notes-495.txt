@@ -1,0 +1,11 @@
+Build #495-- Version 0.0.2.2
+----------------------------
+
+* Fix Bug when centering a window.
+
+
+Directory trunk:
+
+COMMON.C:
+  Fix Bug:  Centering a window can position it such
+    that the title bar is off screen.

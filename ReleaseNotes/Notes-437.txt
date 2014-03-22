@@ -1,0 +1,33 @@
+Build #437 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+DISPDBG.C:
+  Define and use debug level vars to help debugging.
+  Improve comments.
+  Define new strand array classes <STRAND_LST> and <STRAND_NAM>
+    so they have their own save area.
+  Rename <lpYYStrandXXXX[]> to <lpYYStrArrXXXX[]>
+    for XXXX=Start, Base, and Next
+
+PL_PARSE.H:
+  Define new strand array classes <STRAND_LST> and <STRAND_NAM>
+    so they have their own save area.
+
+PL_PARSE.Y:
+  Rename <lpYYStrandXXXX[]> to <lpYYStrArrXXXX[]>
+    for XXXX=Start, Base, and Next
+  Define new strand array classes <STRAND_LST> and <STRAND_NAM>
+    so they have their own save area.
+  Fix Bug:  Set the strand base for the <lpYYStrArrStart[]> ptrs.
+
+STRAND.C:
+  Rename <lpYYStrandXXXX[]> to <lpYYStrArrXXXX[]>
+    for XXXX=Start, Base, and Next
+  Pass <lpplLocalVars> to <StripStrand> so we don't have to look it up.
+  Fix Bug:  In <StripStrand> after stripping the most recent strand
+    from the stack, the address from which the next strand base
+    is taken is incorrectly calculated such that, say,
+      ((,1) 'ab') 1
+    is computed as a three-element vector instead of two-elements.

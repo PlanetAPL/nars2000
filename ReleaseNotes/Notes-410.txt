@@ -1,0 +1,8 @@
+Build #410 -- Version 0.0.1.13
+------------------------------
+
+Directory trunk:
+
+EDITFCN.C:
+  Omit wipe to end of line when Syntax Coloring as it
+    interferes with mouse selection of text in reverse video.

@@ -1,0 +1,8 @@
+Build #426 -- Version 0.0.1.15
+------------------------------
+
+Directory trunk:
+
+QF_CR.C:
+  Omit negative left args to []CR as Magic Functions are well identified
+    by the leading # in the name.

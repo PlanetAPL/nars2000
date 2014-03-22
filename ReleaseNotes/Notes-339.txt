@@ -1,0 +1,44 @@
+Build #339 -- Version 0.0.0.22777
+---------------------------------
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Surround debug statement with #ifdef DEBUG/#endif.
+
+MAIN.C:
+  Use switch statement instead of separate if statements.
+
+MAKEFILE.INC:
+  Use <nmake> directly instead of <$(NMAKE)> as some makes
+    don't support the latter.
+
+NARS2000.VCPROJ:
+  Include support for retail version.
+
+PL_PARSE.Y:
+  Include <Train EOL> in <StmtSing> for lookahead purposes.
+  Signal NONCE ERROR for Trains.
+  Remove unnecessary ***DEBUG*** comments.
+  Handle Train result from <LookaheadAdjacent> and <LookaheadSurround>.
+
+PN_PARSE.Y:
+  Fix Bug:  In <PN_MakeBasePoint>, ignore spurious overflow
+    on last digit.
+
+REFCNT.C:
+SAVEFCN.C:
+STRAND.C:
+SYMTAB.C:
+TOKENIZE.C:
+YYFNS.C:
+  Remove unnecessary ***DEBUG*** comments.
+
+SYMTAB.H:
+  Define <NAMETYPE_TRAIN> and associated defines for Trains.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Include support for <misc.zip>.

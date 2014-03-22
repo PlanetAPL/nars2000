@@ -1,0 +1,380 @@
+Build #353 -- Version 0.0.1.11
+------------------------------
+
+Directory trunk:
+
+ASSIGN.C:
+  As part of linking HshTab and SymTabs, pass a ptr to various functions
+    (<HshTabFrisk>, <DisplayHshTab>, etc.) instead of a Boolean flag which
+    simplifies the logic of each such function.
+  Pass new Boolean argument to <DisplayFcnStrand> to indicate whether
+    or not to display the header so we can use this function in a non-
+    DEBUG context.
+
+COMPRO.H:
+  Update copyright year.
+  Include prototype file for new file <qf_fmt.c>.
+
+CUSTOMIZE.C:
+  Fix Bug:  I defined the <glbSameFontAs> array and allowed the user
+    to modify it, however I didn't get around to hooking it into the
+    rest of the system.  This change fixes that as well as adds more
+    code to separate defining the changed fonts and applying them.
+  Fix Bug:  When changing from BG not transparent to transparent, the
+    old non-transparent color is left in place thus obviating the change.
+
+DEFINES.H:
+  Update copyright year.
+  Delete <DEF_TEXT_xG_COLOR> in favor of <gSyntaxColorBG>.
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+  Also, double the WFORMAT size as some character arrays with embedded
+    CR,LFs won't display (LIMIT ERROR).
+
+DISPDBG.C:
+  As part of linking HshTab and SymTabs, pass a ptr to various functions
+    (<HshTabFrisk>, <DisplayHshTab>, etc.) instead of a Boolean flag which
+    simplifies the logic of each such function.
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+  Modify <DisplayFcnStrand> so it can be called in a non-DEBUG context.
+  Move <DisplayFcnLine> from <execdfn.c> to <dispdbg.c> where it properly
+    belongs.
+
+DISPLAY.C:
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+
+EDITFCN.C:
+  Allow Function Lines to be syntax colored.
+  As part of getting <glbSameFontAs> to work, use <GetFSIndFonthandle>
+    and <GetFSIndAveCharSize> to get the appropriate font handle and
+    average char size.
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+  Define global brush for painting a window background and return its
+    handle to <WM_CTLCOLOREDIT>.
+  Fix Bug:  In <SyntaxColor> a ptr was saved after it was incremented thus
+    pointing to unprotected memory.
+  Rename <gSyntaxColorWhite> to <gSyntaxColorBG> to better reflect its
+    purpose.
+  Fix Bug:  The mouse cursor should change from arrow to hourglass when
+    the program is executing and back to an arrow when idle.  My first
+    attempt at that didn't work until I figured out the importance of
+    using <WM_SETCURSOR> properly.
+  Delete FIXME comment as it was fixed some time ago.
+  Define common routines <LclSetCursor> and <SendCursorMsg> to handle
+    mouse cursor transitions.
+  Pass an additional Boolean flag to <Tokenize_EM> to indicate
+    whether or not we're tokenizing a Magic Function so as to know
+    how to handle a leading # in a name.
+
+EXCEPT.C:
+  Update copyright year.
+  Include <dbghelp.h> to pick up <StackWalk64> equates and strucs.
+  Move exception info from the <PerTabData> structure to globals as
+    there can't be more than one exception so there's no need to
+    store it per tab.
+  Delete various routines which set and read the previous PerTabData
+    exception info in favor of referencing the global themselves.
+  Include debug message when exceeding a memory lmit so we know which
+    memory element was too short.
+  Use <StackWalk64> instead of my home grown version.
+
+EXECDFN.C:
+  Fix Bug:  The mouse cursor should change from arrow to hourglass when
+    the program is executing and back to an arrow when idle.  My first
+    attempt at that didn't work until I figured out the importance of
+    using <WM_SETCURSOR> properly.
+  Pass an additional Boolean flag to <Tokenize_EM> to indicate
+    whether or not we're tokenizing a Magic Function so as to know
+    how to handle a leading # in a name.
+  Move <DisplayFcnLine> from <execdfn.c> to <dispdbg.c> where it properly
+    belongs.
+
+EXECMFN.C:
+  Update copyright year.
+  Correct the Magic Function name from <MonUpShoe> to <MonDnShoe>.
+  Include code to handle new Magic Functions <MonFMT> and <Box>.
+  Pass new (but so far unused) parameter to <Init1MagicFunction> to
+    handle linked Hshtab/SymTabs.
+  In <Init1MagicFunction> handle linked Hshtab/SymTabs.
+  Pass an additional Boolean flag to <Tokenize_EM> to indicate
+    whether or not we're tokenizing a Magic Function so as to know
+    how to handle a leading # in a name.
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+  Use actual Magic Function name (#xxxxxx) now that we handle calling MFs
+    directly.
+  Pass additional info to <InitMagicFunctions> to allow them to allocate
+    HshTab and SymTabs.
+
+EXECMFN.H:
+  Update copyright year.
+  Define equates for Magic Function Names so we can use them in multiple
+    places.
+  Define additional equates for symbols used in MFs.
+
+EXTERNS.H:
+  Move fonts to common area.
+  Merge SymTab into HSHTABSTR so they are changed together.
+  Comment each line of <gSyntaxColors> so we can more easily tell
+    if an entry is missing or out of line.
+  Define equates for Line Drawing Chars syntax coloring.
+  Define equates for Function Lines syntax coloring.
+
+FH_PARSE.H:
+FH_PARSE.Y:
+  For parsed function/operator headers, define and fill in the NAMETYPE_xxx.
+
+HEADERS.H:
+  Update copyright year.
+  Move <execmfn.h> up so its contents are usable by other headers.
+
+IMMEXEC.C:
+  Pass an additional Boolean flag to <Tokenize_EM> to indicate
+    whether or not we're tokenizing a Magic Function so as to know
+    how to handle a leading # in a name.
+
+INIFILE.C:
+  Update copyright year.
+  Define Line Drawing Chars syntax coloring strings.
+  Define Function Lines syntax coloring strings.
+  comment each line of <acolorkeynames> so we can more easily tell
+    if an entry is missing or out of line.
+
+MACROS.H:
+  Define macro for identiying Magic Function names.
+  Add another condition to cause <GetPtrTypeInd> to catch erroneous arg.
+
+MAIN.C:
+  Update copyright year.
+  As part of getting <glbSameFontAs> to work, use <GetFSIndFonthandle>
+    and <GetFSIndAveCharSize> to get the appropriate font handle and
+    average char size.
+  As part of getting <glbSameFontAs> to work, pass a Boolean value to
+    each <CreateNewFontXX> to indicate whether the chanegd font should
+    be applied as creation and application are now in separate routines.
+  As part of getting <glbSameFontAs> to work, define new function to
+    apply a font to the font category controlling that font.
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+  In <InitInstance>, Initialize <ghBrushBG>.
+  In <UninitInstance>, delete <ghBrushBG>.
+
+MAIN.RC:
+  Allow Line Drawing Chars to be syntax colored.
+  Allow Function Lines to be syntax colored.
+  Increase the size of each property page to accommodate the new size
+    for Syntax Coloring.
+
+MAKEFILE.INC:
+  Include <dbghelp.lib> to use wth <StackWalk64>.
+  Include new file <qf_fmt.c>.
+
+MAKEFILE.SRC:
+  Include new file <qf_fmt.c>.
+
+MAKEPRO.PHP:
+  Strip out <#pragma> lines.
+
+NARS2000.VCPROJ:
+  Include <dbghelp.lib> to use wth <StackWalk64>.
+  Include new file <qf_fmt.c>.
+
+PERTAB.H:
+  Move SymTab stuff in with HshTab.
+  Move exception info from the <PerTabData> structure to globals as
+    there can't be more than one exception so there's no need to
+    store it per tab.
+  Make room for two new Magic Functions.
+
+PF_DSHOE.C:
+  Update copyright year.
+  Correct the Magic Function name from <MonUpShoe> to <MonDnShoe>.
+  Replace $ letters ($Z, $L, $R, etc.) with their L"..." equivalents
+    as there's no need to use that artifice anymore now that we can
+    convert an APL function to its Magic Function form by an APL
+    function.
+  Use the proper Magic Function Name instead of $F.
+
+PF_INDEX.C:
+  In <ArrayIndexSetSingLst_EM>, handle empty lists sooner than later.
+
+PF_IOTA.C:
+  Replace $ letters ($Z, $L, $R, etc.) with their L"..." equivalents
+    as there's no need to use that artifice anymore now that we can
+    convert an APL function to its Magic Function form by an APL
+    function.
+  Use the proper Magic Function Name instead of $F.
+
+PF_TILDE.C:
+  Update copyright year.
+  Replace $ letters ($Z, $L, $R, etc.) with their L"..." equivalents
+    as there's no need to use that artifice anymore now that we can
+    convert an APL function to its Magic Function form by an APL
+    function.
+  Use the proper Magic Function Name instead of $F.
+
+PF_UTACKJOT.C:
+  Save result of <PrimFnUpTackJotCSPLParse> in a var so we can see
+    it when debugging.
+  Pass an additional Boolean flag to <Tokenize_EM> to indicate
+    whether or not we're tokenizing a Magic Function so as to know
+    how to handle a leading # in a name.
+  Remove ***TESTME*** breakpoint as we've now tested it.
+
+PL_PARSE.Y:
+  Fix Bug:  The mouse cursor should change from arrow to hourglass when
+    the program is executing and back to an arrow when idle.  My first
+    attempt at that didn't work until I figured out the importance of
+    using <WM_SETCURSOR> properly.
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+  Reformat and simplify some code.
+  After executing []ELX, display the prompt if the error occurred in
+    immediate execution mode or if the caller is not quad of a user fcn/opr.
+
+PO_DIJOT.C:
+  Update copyright year.
+  Replace $ letters ($Z, $L, $R, etc.) with their L"..." equivalents
+    as there's no need to use that artifice anymore now that we can
+    convert an APL function to its Magic Function form by an APL
+    function.
+  Use the proper Magic Function Name instead of $F.
+
+QF_FMT.C:
+  Define new file to implement monadic []FMT; dyadic to follow.
+
+QF_NL.C:
+  Update copyright year.
+  Merge SymTab into HSHTABSTR so they are changed together.
+
+RESDEBUG.C:
+  Update copyright year.
+  After call to <FormatMessage>, display the message in a Message Box.
+
+RESOURCE.H:
+  Define new equates for Line Drawing Chars syntax coloring.
+
+SAVEFCN.C:
+  Update copyright year.
+  Pass an additional Boolean flag to <Tokenize_EM> to indicate
+    whether or not we're tokenizing a Magic Function so as to know
+    how to handle a leading # in a name.
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+
+SC_COMMON.C:
+  Update copyright year.
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+
+SC_COPY.C:
+  Update copyright year.
+  Fix typo in comment.
+
+SC_FNOV.C:
+  Update copyright year.
+  Merge SymTab into HSHTABSTR so they are changed together.
+
+SC_LOAD.C:
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+
+SC_OUT.C:
+SC_SAVE.C:
+  Merge SymTab into HSHTABSTR so they are changed together.
+
+SESSMAN.C:
+  Remove unneeded commented out lines.
+  Define DEBUG var to control whether or not we display info about
+    display of the prompt.
+  Make room for two additional Virtual memory slots for Magic Functions.
+  As part of getting <glbSameFontAs> to work, use <GetFSIndFonthandle>
+    and <GetFSIndAveCharSize> to get the appropriate font handle and
+    average char size.
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+  Use common routines to allocate HshTab and SymTab.
+  Remove <WM_SETCURSOR> code from <SMWndProc> as we now do it in
+    <lclEditCtrlWndProc>.
+  Merge SymTab into HSHTABSTR so they are changed together.
+  Pass additional info to <InitMagicFunctions> to allow them to allocate
+    HshTab and SymTabs.
+  Define global brush for painting a window background and return its
+    handle to <WM_CTLCOLOREDIT>.
+
+STARTADDR.H:
+  Delete references to removed routines.
+
+SYMTAB.C:
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+  As part of linking HshTab and SymTabs, pass a ptr to various functions
+    (<HshTabFrisk>, <DisplayHshTab>, etc.) instead of a Boolean flag which
+    simplifies the logic of each such function.
+  When searching for a HshTab entry, look up in any previous HshTabs.
+  When looking up a SymTab entry, be sure to mask both sides of the flags
+    before comparing them.
+  When looking up a SymTab entry, check for Magic Function name.
+  When appending a name to the SymTab, save the caller's flags in the STE.
+  Define new routines to allocate space for a HshTab and SymTab.
+
+SYMTAB.H:
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+
+SYNTAXCOLORS.H:
+  Update copyright year.
+  Redefine transparent to white so we don't have to fiddle with background
+    colors if transparent.
+  Define equates for Line Drawing Chars syntax coloring.
+  Define equates for Function Lines syntax coloring.
+  Note additional collateral changes if <SCTYPE> is changed.
+
+SYSVARS.C:
+  Update copyright year.
+  Define entries for []FMT.
+  As part of linking HshTab and SymTabs, pass a ptr to various functions
+    (<HshTabFrisk>, <DisplayHshTab>, etc.) instead of a Boolean flag which
+    simplifies the logic of each such function.
+
+TABCTRL.C:
+  Update copyright year.
+  Merge SymTab into HSHTABSTR so they are changed together.
+  As part of getting <glbSameFontAs> to work, use <GetFSIndFonthandle>
+    and <GetFSIndAveCharSize> to get the appropriate font handle and
+    average char size.
+
+TOKENIZE.C:
+  Rename xxxSIZE equates/vars to xxxNELM to reflect their units properly.
+  Fix Bug:  In <IsLocalName>, when localizing/unlocalizing a var in the
+    function editor, remove the trailing lamp (added at the start) so the
+    insert position is calculated correctly when the name is not found.
+  Fix Bug:  In <IsLocalName>, when localizing/unlocalizing a var in the
+    function editor, back up over trailing blanks so as to put the name
+    up against the others.
+  Rename <gSyntaxColorWhite> to <gSyntaxColorBG> to better reflect its
+    purpose.
+  In <fnUnkDone> when syntax coloring, check for Line Drawing Chars so
+    we may syntax color them differently.
+  Pass an additional Boolean flag to <Tokenize_EM> to indicate
+    whether or not we're tokenizing a Magic Function so as to know
+    how to handle a leading # in a name.
+  In <CharTrans> when encountering a pound sign, if we're tokenizing a
+    Magic Function, call it COL_ALPHA; otherwise call it COL_UNK.
+
+TOKENIZE.H:
+  Delete <COL_FIRST> as it's zero (like almost all the other enums).
+  Define bit field to indicate whether or not we're tokenizing a
+    Magic Function.
+
+TYPEMOTE.C:
+  Update copyright year.
+  Fix Bug:  In <TypePromoteGlb_EM> when promoting an empty simple
+    array to a nested array, remember to save the prototype.
+
+UNICODE.H:
+  Update copyright year.
+  Define code points for Line Drawing Chars.
+
+
+Directory MediaWiki\extensions:
+
+APL.CSS:
+  Define new class <APLL>.
+
+
+Directory WineHQ:
+
+EDITCTRL.C:
+  Use <EDIT_NotifyCtlColor> instead of <GetClassLongPtrW> so we can
+    let the caller choose the window background color.

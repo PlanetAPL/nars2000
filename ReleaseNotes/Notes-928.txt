@@ -1,0 +1,11 @@
+Build #928 -- Version 0.0.3.4
+-----------------------------
+
+* Fix Bug:  DotDot In Char Str '..'
+
+Directory trunk:
+
+TOKENIZE.C:
+  Fix bug where a .. inside a char string is converted to a single dot as
+    it is outside a char string because .. is a digraph for a primitive
+    function.

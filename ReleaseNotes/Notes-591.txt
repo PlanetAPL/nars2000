@@ -1,0 +1,15 @@
+Build #591 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Free <YYCopyArray>ed Storage When Copying It
+
+Directory trunk:
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY>, now that we handle <YYCopyArray> in
+    <YYCopyFcn>, we need to limit freeing the arg to the singleton
+    case.
+
+YYFNS.C:
+  In <YYCopyFcn> on a function array, test for the <YYCopyArray>
+    flag and handle it there.

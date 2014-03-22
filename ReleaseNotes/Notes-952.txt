@@ -1,0 +1,96 @@
+Build #952 -- Version 0.0.3.5
+-----------------------------
+
+* Change The Representation Of VFP Numbers From MPF To MPFR
+
+Directory trunk:
+
+AXISFNS.C:
+DICTIONARY.C:
+DISPDBG.C:
+DISPLAY.C:
+GETFNS.C:
+GOTO.C:
+HEADERS.H:
+INIPARSER.C:
+INITDATA.C:
+MACROS.H:
+MPFNS.C:
+MPIFNS.C:
+MPIFNS.H:
+PERTAB.H:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTAR.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DCARET.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DOTDOT.C:
+PF_DSHOE.C:
+PF_DSTILE.C:
+PF_DTACK.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_EPSUND.C:
+PF_EQUAL.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_LCARET.C:
+PF_LCARETUND.C:
+PF_LSHOE.C:
+PF_NEQUAL.C:
+PF_PI.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_QUERY.C:
+PF_RCARET.C:
+PF_RCARETUND.C:
+PF_RHO.C:
+PF_ROOT.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TILDE.C:
+PF_TIMES.C:
+PF_UARROW.C:
+PF_UCARET.C:
+PF_USTILE.C:
+PF_UTACK.C:
+PN_PARSE.Y:
+PO_DOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_DL.C:
+QF_DR.C:
+QF_ES.C:
+QF_FMT.C:
+QF_MF.C:
+QF_UCS.C:
+SC_LOAD.C:
+SC_SAVE.C:
+STARTADDR.H:
+STRAND.C:
+SYSVARS.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+TYPES.H:
+  Change the representation of VFP numbers from mpf_* to mpfr_*
+    as mpf_* is now deprecated.
+
+
+Directory trunk\WineHQ:
+
+LOCAL.H:
+  Change the representation of VFP numbers from mpf_* to mpfr_*
+    as mpf_* is now deprecated.

@@ -1,0 +1,38 @@
+Build #922 -- Version 0.0.3.4
+-----------------------------
+
+* MPIR 64-bit Build Fixes
+
+Directory trunk:
+
+EXTERNS.H:
+MPFNS.C:
+  Update copyright year.
+  Use new MPIR 64-bit integer function in place of local versions.
+
+HEADERS.H:
+  Update copyright year.
+  Include <stdint.h> to enable new MPIR 64-bit integer functions.
+
+MAKEFILE.INC:
+  Set old-style debugging format flag when debugging.
+  Use debug suffix of 'd' for debug version of certain libraries.
+
+MPIFNS.C:
+  Update copyright year.
+  Omit <mpir.h> as it's already in <headers.h>.
+
+NARS2000.64.vcproj:
+  Call batch files <w64> before and <w32> after the build to set and
+    reset 64-bit parameters.
+  Omit non-existant <qdebug64> library.
+  Use debug suffix of 'd' for debug version of certain libraries.
+
+PF_PI.C:
+  Update copyright year.
+  Omit <mpir.h> as it's already in <headers.h>.
+  Use new MPIR 64-bit integer function in place of local versions.
+
+STARTADDR.H:
+  Update copyright year.
+  Use new MPIR 64-bit integer function in place of local versions.

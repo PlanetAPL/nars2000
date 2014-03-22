@@ -1,0 +1,37 @@
+Build #483 -- Version 0.0.1.18
+------------------------------
+
+* Move to more wide char code.
+
+Directory trunk:
+
+COMMON.C:
+  Fix calculation of window size for windows without a menu.
+  Change more code from ASCII to Wide chars.
+
+COMPRO.H:
+DBGBRK.PRO:
+  Move DbgBrk prototypes into separate file.
+
+CRASH.C:
+CUSTOMIZE.C:
+DEBUG.C:
+EDITFCN.C:
+EXECDFN.C:
+EXTERNS.H:
+MAIN.C:
+PL_PARSE.Y:
+QF_DL.C:
+SC_IN.C:
+SC_INASCII.C:
+SESSMAN.C:
+TABCTRL.C:
+VER.C:
+WEBCOLORS.C:
+  Change more code from ASCII to Wide chars.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Change more code from ASCII to Wide chars.

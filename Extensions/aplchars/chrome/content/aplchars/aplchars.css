@@ -1,0 +1,15 @@
+#APLCharsNormal {
+  list-style-image: url("chrome://aplchars/content/aplcharsON24-unsel.png");
+}
+
+toolbar[iconsize="small"] #APLCharsNormal {
+  list-style-image: url("chrome://aplchars/content/aplcharsON16-unsel.png");
+}
+
+#APLCharsLarge {
+  list-style-image: url("chrome://aplchars/content/aplcharsON30-unsel.png");
+}
+
+toolbar[iconsize="small"] #APLCharsLarge {
+  list-style-image: url("chrome://aplchars/content/aplcharsON24-unsel.png");
+}

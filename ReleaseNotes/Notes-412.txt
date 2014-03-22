@@ -1,0 +1,9 @@
+Build #412 -- Version 0.0.1.13
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Fix Bug:  Wrong <GetPtrTypeXXX> macro used so it'll fail on (say)
+    'I8' []FMT 1 (2 3)
+    because of the STE constant.

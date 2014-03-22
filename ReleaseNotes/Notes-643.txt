@@ -1,0 +1,12 @@
+Build #643 -- Version 0.0.2.10
+------------------------------
+
+* Fix Bug:  Missing Control Structure Case
+
+Directory trunk:
+
+CS_PROC.C:
+  Include WHILE/ENDWHILE case.
+
+VERSION.RC:
+  Increment version to 0.0.2.10.

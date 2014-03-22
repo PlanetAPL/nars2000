@@ -1,0 +1,11 @@
+Build #833 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Wrong Error Message From Tilde Reduction Identity Function
+
+Directory trunk:
+
+PF_TILDE.C:
+  Fix Bug:  The wrong error message (DOMAIN instead of RANK) is signalled
+    for a tilde reduction of an empty vector of matrices (or higher rank
+    arrays).

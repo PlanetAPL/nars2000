@@ -1,0 +1,16 @@
+Build #697 -- Version 0.0.2.15
+------------------------------
+
+* Fix Bug:  Error Caret Missing From Certain RANK ERRORs
+
+Directory trunk:
+
+PL_PARSE.Y:
+STRAND.C:
+  Pass an arg to <InitList0_YY> and <InitList1_YY> so as to
+    provide a character index for error display.  Without this,
+    (say) a three-dimensional array indexed by [;] will display
+    a RANK ERROR but no error caret.
+
+VERSION.RC:
+  Increment version to 0.0.2.15.

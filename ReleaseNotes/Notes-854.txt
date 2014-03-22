@@ -1,0 +1,19 @@
+Build #854 -- Version 0.0.2.23
+------------------------------
+
+* Check For Interrupts During Long Call to Prime Factoring
+
+Directory msieve:
+
+COMMON.H:
+MP.C:
+MP.H:
+SQUFOF.C:
+TINYQS.C:
+  Include call to Ctrl-Break check routine to handle interrupts.
+
+PRIME_DELTA.C
+  Not sure why this file is marked for change.
+
+SMALLFACT.C:
+  Add new file to pick up Pollard's rho routine.

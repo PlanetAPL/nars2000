@@ -1,0 +1,13 @@
+Build #989 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bugs In Display Of Long Lines
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix bug in display of long lines where Windows fails to handle
+    appending of a long line to an edit control at about 16KB so
+    we must terminate it ourselves at an earlier point.
+  Fix bug in display of long lines where we might break a number
+    in the middle when we don't need to.

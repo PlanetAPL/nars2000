@@ -1,0 +1,9 @@
+Build #984 -- Version 0.3.8.xx
+------------------------------
+
+* Change Tab Stops On Entry From 8 To 4 To Match The Value Used On Display
+
+Directory trunk:
+
+EDITFCN.C:
+  Change tab stops on entry from 8 to 4 to match the value used on display.

@@ -1,0 +1,25 @@
+Build #1197 -- Version 0.4.5.xx
+-------------------------------
+
+* Define Unicode Chars As Per "APL Character Repertoire" (ISO-IEC/JTC 1/SC 22 N3067)
+
+Directory trunk:
+
+DISPDBG.C:
+FMTSPEC.C:
+INITDATA.C:
+MACROS.H:
+PF_BAR.C:
+PF_STAR.C:
+PL_PARSE.Y:
+PO_DOT.C:
+PO_SLOPE.C:
+PO_VARIANT.C:
+SC_IN.C:
+SC_LOAD.C:
+SYMBOLNAMES.H:
+TOKENIZE.C:
+TOKENS.H:
+TRANSLATE.C:
+UNICODE.H:
+  Define Unicode chars as per "APL Character Repertoire", including new secondary chars such as BAR2, STAR2, and QUAD2.

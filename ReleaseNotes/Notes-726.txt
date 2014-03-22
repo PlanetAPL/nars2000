@@ -1,0 +1,9 @@
+Build #726 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Handle Indexed Assignment When Converting A Hetero Array to Nested
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyGlbAsType_EM>, handle missing Hetero and Nested cases.

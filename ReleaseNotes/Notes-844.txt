@@ -1,0 +1,10 @@
+Build #844 -- Version 0.0.2.23
+------------------------------
+
+* Fix Bug:  Handle Display Of Raw Float Output Better
+
+Directory trunk:
+
+DISPLAY.C:
+  Handle display of raw flt output using either SHORT_RND or SIGDIGS
+    depending upon which is shorter.

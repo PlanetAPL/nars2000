@@ -1,0 +1,13 @@
+Build #681 -- Version 0.0.2.14
+------------------------------
+
+* Fix Bug:  Handle More Cases When Copying A Function Array
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <CopyArray_EM>, use <VFOHDRPTRS> when debugging to be able
+    to see the constituents of different headers.
+  Fix Bug:  In <CopyArray_EM> when copying a function array,
+    handle more cases of vars in the strand.
+  Fix Bug:  In <IsTknImmed>, handle case of FILLJOT.

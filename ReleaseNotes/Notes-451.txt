@@ -1,0 +1,8 @@
+Build #451 -- Version 0.0.1.16
+------------------------------
+
+Directory trunk:
+
+SC_LOAD.C:
+  Disallow loading a workspace with a later version
+    than this version of the interpreter can handle.

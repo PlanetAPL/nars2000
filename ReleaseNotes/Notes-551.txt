@@ -1,0 +1,11 @@
+Build #551 -- Version 0.0.2.4
+-----------------------------
+
+* Fix Bug:  Array Overwrite With Dyadic Format of Certain E-notation
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix Bug:  When formatting in certain E-notation (e.g., 5 {neg}1{format}1)
+    I missed zapping a trailing blank, so subsequent code overwrite the
+    end of the array.

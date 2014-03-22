@@ -1,0 +1,10 @@
+Build #1159 -- Version 0.4.3.xx
+-------------------------------
+
+* Fix Bug In Misplaced EnterCriticalSection Call
+
+Directory trunk:
+
+SYMTAB.C:
+  Define debugging code to catch depth errors with CriticalSection calls.
+  In <_SymTabAppendChar_EM>, fix bug with misplaced <EnterCriticalSection> call.

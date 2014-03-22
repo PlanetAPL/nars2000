@@ -1,0 +1,14 @@
+Build #505-- Version 0.0.2.3
+----------------------------
+
+* Avoid Deadlock of Sending Message to Suspended Thread
+
+Directory trunk:
+
+IMMEXEC.C:
+  In <ImmExecStmtInThread>, don't call <ForceSendCursorMsg> if we're
+    not waiting until finished as the message might be sent to another
+    thread.
+
+VERSION.RC:
+  Increment version #.

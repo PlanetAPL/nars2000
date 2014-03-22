@@ -1,0 +1,28 @@
+Build #481 -- Version 0.0.1.18
+------------------------------
+
+* Reduce Status Msg flicker.
+* Reduce # calls to <SendCursorMsg>.
+
+Directory trunk:
+
+DEFINES.H:
+  Define Status Msg property string.
+
+EDITFCN.C:
+  Reorganize the code.
+  Skip setting the Status Msg and mouse cursor if already the same state.
+  Change <SendCursorMsg> to <ForceSendCursorMsg> to force a value for
+    <lpMemPTD->bExecuting> as that value might not be correctly set
+    when this routine is called.
+
+EXECDFN.C:
+IMMEXEC.C:
+PL_PARSE.Y:
+SESSMAN.C:
+  Remove calls to <SendCursorMsg> in favor of around immediate execution mode
+    and when the siz-space indent prompt is displayed.
+
+MAIN.C:
+  Set the Status Msg property when setting the Status Msg so we can
+    determine the previous state.

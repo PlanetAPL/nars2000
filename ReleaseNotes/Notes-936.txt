@@ -1,0 +1,12 @@
+Build #936 -- Version 0.0.3.4
+-----------------------------
+
+* Miscellaneous Cases
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <MakeMonPrototype_EM_PTB>, widen the Assert to allow Hetero cases.
+
+TYPEMOTE.C:
+  In <TypeDemote>, handle more datatype cases.

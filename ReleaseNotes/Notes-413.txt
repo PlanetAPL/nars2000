@@ -1,0 +1,7 @@
+Build #413 -- Version 0.0.1.13
+------------------------------
+
+Directory trunk:
+
+QF_FMT.C:
+  Allow scalar left arg so 'T' []FMT 0 0{rho}0 works.

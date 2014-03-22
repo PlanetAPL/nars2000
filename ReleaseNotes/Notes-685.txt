@@ -1,0 +1,16 @@
+Build #685 -- Version 0.0.2.14
+------------------------------
+
+* Allow A Var In Parens As A Left Or Right Operand To An Operator
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Generalize the left and right operand values as variables from strands
+    to variables surrounded by parens.
+  In <LookbehindOp>, return FALSE for ambiguous operators so as to allow
+    1 2 3/4 5 6.
+  In <pl_yylex> upon encountering a right paren surrounding a variable,
+    check for a monadic or dyadic operator as the previous token as well
+    as for a dyadic operator as the next token after the closing left
+    paren.

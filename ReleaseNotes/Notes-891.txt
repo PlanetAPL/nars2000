@@ -1,0 +1,11 @@
+Build #891 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug In Table of RAT/VFP Numbers
+
+Directory trunk:
+
+PF_COMMA.C:
+  Fix Bug:  In <PrimFnMonCommaGlb_EM_YY>, table of RAT/VFP isn't handled
+    because immediate scalars are handled earlier.  This is also fixes a bug in
+    table of a nested scalar.

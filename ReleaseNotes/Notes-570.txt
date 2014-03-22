@@ -1,0 +1,9 @@
+Build #570 -- Version 0.0.2.4
+-----------------------------
+
+* Handle DEBUG Window Fill Of Unpainted Areas
+
+Directory trunk:
+
+DEBUG.C:
+  Handle DEBUG window fill of unpainted areas.

@@ -1,0 +1,42 @@
+Build #839 -- Version 0.0.2.23
+------------------------------
+
+* Define New []MF Timer Source
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Define text for new timer source.
+
+ENUMS.H:
+  Define enum for <TIMERSOURCE_xxx> values.
+
+FH_PARSE.H:
+  Define structs for both integer and float results from []MF.
+
+MAIN.RC:
+  Widen []MF timer source text field to accomodate new timer source.
+
+MAKEFILE.INC:
+  Move definition of MS to the caller.
+  Define GSL_INC and GSL_LIB in terms of GSL_DIR as defined by the caller.
+
+QF_MF.C:
+  Update copyright year.
+  Define union for integer and floating point results.
+  Define result storage type.
+  Define result union.
+  Define ticks per second value.
+  Define scaling factor.
+  Update comments to reflect new timer source.
+  Set result type depending upon empty vs. integer vs. float result.
+  Use union to handle integer vs. float result.
+  Set scale factor if float result.
+  Scale float result.
+  Use <TIMERSOURCE_xxx> enum instead of constants.
+  In <SysFnDydMF_EM_YY>, test the left arg for range (Boolean-valued).
+  In <SysFnDydMF_EM_YY>, mark the result as shy.
+
+SYSVARS.H:
+  Update copyright year.
+  Change default value for []MF to <TIMERSOURCE_PC2MS>.

@@ -1,0 +1,11 @@
+Build #913 -- Version 0.0.3.4
+-----------------------------
+
+* Allow Language Bar To Split Into Multiple Bands
+
+Directory trunk:
+
+REBAR.C:
+  Handle resize of Language Bar into multiple bands.
+  Handle painting of Language Bar into multiple bands.
+  Indicate that the Language Bar may break into multiple bands.

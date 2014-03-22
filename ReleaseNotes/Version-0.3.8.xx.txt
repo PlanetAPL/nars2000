@@ -1,0 +1,1508 @@
+Version 0.3.8.xx consists of the following Builds:
+
+
+Build #1060 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Enclose With Axis Fails To Demote The Items In The Result
+
+Directory trunk:
+
+PF_LSHOE.C:
+  Update copyright year.
+  In <PrimFnMonLeftShoeGlb_EM_YY>, after processing Hetero and Nested arrays,
+    attempt to demote the items of the result.
+
+TYPEMOTE.C:
+  Update copyright year.
+  Define a new function to type demote the data in a global memory handle.
+
+
+Build #1059 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Monadic Format Of Matrices And Higher Rank Arrays Are Missing A Leading Digit
+
+Directory trunk:
+
+QF_FMT.C:
+  Update copyright year.
+  In the Magic Function for Monadic Format (actually the Box function) a leading column of
+    the format of all but the last dimension is missing due to a change in how
+    numbers are formatted.
+
+
+Build #1058 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Language Bar Entries For Left/Right Tack Keystrokes Are Incorrect
+
+Directory trunk:
+
+REBAR.C::
+  The Language Bar entries for Left/Right Tack keystrokes are incorrect.
+
+
+Build #1057 -- Version 0.3.8.xx
+-------------------------------
+
+* Change Path In A Build Batch File
+
+Directory trunk:
+
+WCOM.BAT:
+  Now that 7-Zip is available in a 64-bit version, always use %ProgramFiles% as its path.
+
+
+Build #1056 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In DEBUG Version:  Untokenize Should Not Test Named Vars/Fcns/Ops
+
+Directory trunk:
+
+SC_LOAD.C:
+  Use four-byte sscanf format string for four-byte var.
+
+TOKENIZE.C:
+  In <Untokenize>, don't test named vars/fcns/ops in DEBUG version as they need not be defined.
+
+
+Build #1055 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  IotaUnderbar On Multirank APAs Crashes
+
+Directory trunk:
+
+PF_IOTAUND.C:
+  Update copyright year.
+  For monadic IotaUnderbar, if the arg is a multirank APA, calculate
+    the next repetition value appropriately.
+
+
+Build #1054 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Change WSID In Tab When Changing []WSID
+
+Directory trunk:
+
+ASSIGN.C:
+  Update copyright year.
+  Execute post-validation function after assigning to a sysvar.
+
+EXTERNS.H:
+  Define prototype for sysvar post-validation function.
+
+PF_INDEX.C:
+  Rename <SysVarValid> to <SysVarValidNdx> to avoid conflict with the name of
+    the post-validation function ptr.
+  Execute post-validation function after assigning to a sysvar.
+
+SC_COMMON.C:
+SC_WSID.C:
+  Update copyright year.
+  Pass arg of NULL to <NewTabName> if using the name from the current tab.
+
+SYSVARS.C:
+  Define new function to do post-validation for []WSID.
+  Fill in post-validation functions for all sysvars.
+
+TABCTRL.C:
+  Pass arg of NULL to <NewTabName> if using the name from the current tab.
+
+
+Build #1053 -- Version 0.3.8.xx
+-------------------------------
+
+* Restore The "What's new?" Link To The Forum
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Restore the "What's new?" link to the forum.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-MENU.HTML:
+  Restore the "What's new?" link to the forum.
+
+
+Build #1052 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug When Reading []RL From A Workspace File
+* Change the Primitive Root For []RL
+
+Directory trunk:
+
+INIFILE.C:
+  When reading the value of []RL, use the <StringW> version of
+    <GetPrivateProfileXXX> instead of the <IntW> version as the latter
+    doesn't support 64-bit integers.
+
+SYSVARS.H:
+  Change the value of []RL in a clear ws to a larger primitive root
+    (greater than (-1+2*61)*2r3) for better results.
+  Define the above value as a wide string, too, for use in <inifile.c>.
+
+
+Build #1051 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In # Primes <= N
+
+Directory trunk:
+
+PF_PI.C:
+  In <NumPrimes>, factor out the check for argument not a prime.
+  In <NumPrimes>, when searching forwards, break on test for equality.
+  In <NumPrimes>, at end add one to the result to account for the fact that the
+    <NthPrimeTab> is in origin-0.
+  In <PrimFnPiNumPrimes>, use <signum> on the result of <mpz_cmp> as it doesn't
+    always return one of -1, 0, 1.
+
+PRIMES.H:
+  Revert back to the correct origin-0 values of the primes.  Duh!
+
+
+Build #1050 -- Version 0.3.8.xx
+-------------------------------
+
+* Implement Variant Operator
+
+Directory trunk:
+
+COMPRO.H:
+  Update copyright year.
+  Include prototype file for Variant Operator.
+
+CUSTOMIZE.C:
+  Make room for Variant Operator symbol in APL keyboard table.
+  Define entries for []DT.
+  Improve text description for how Fonts property page works.
+
+DEFINES.H:
+  Update copyright year.
+  Define entries for []DT.
+
+EXECFNS.C:
+  Update copyright year.
+  In <ExecFunc_EM_YY>, allow not YYInUse if the incoming function is immediate.
+  In <ExecOp2_EM_YY, handle Variant Operator case.
+
+EXTERNS.H:
+  Define entries for []DT.
+  Define entries for Variant Operator enums and strucs.
+
+GETFNS.C:
+  Update copyright year.
+  Define routines needed for Variant Operator.
+  In <GetNextValueToken>, handle numeric scalar and char/num strand tokens.
+
+INIFILE.C:
+  Define entries for []DT.
+  In <SaveIniFile>, factor out <uLen> to be local to the top level function.
+
+INITDATA.C:
+  Remove QuoteDot from Alt-'_' and replace with Variant Operator.
+  Define table entries for Variant Operator.
+  In <InitPrimFlags>, include all primitive operators.
+
+KEYBOARDS.H:
+  Update copyright year.
+  Define keystroke for Variant Operator symbol.
+
+MAIN.RC:
+  In CLEAR WS property page, include entry for []DT.
+  In Fonts property page, widen the text box for the description.
+  In Reset Vars property page, include entry for []DT.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Update copyright year.
+  Include entry for Variant Operator entry.
+
+MPIFNS.C:
+  Define missing <mpifr_cmp_d>.
+  Fix Bug:  In <mpifr_reldiff>, handle special case of either or both args zero.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include entry for Variant Operator.
+
+PERTAB.H:
+  Update copyright year.
+  Include entry for GSL random # generator ptr.
+
+PF_QUERY.C:
+  Include GSL includes for random # generators.
+  Use GSL random # generators if []DT != 'r'.
+
+PO_VARIANT.C:
+  New file to implement Variant Operator.
+
+REBAR.C:
+  Include Variant Operator in the Language Bar.
+  Miscellaneous fixes to the Language Bar text.
+
+RESOURCE.H:
+  Include defines for various []DT entries.
+
+SYMBOLNAMES.H:
+  Update copyright year.
+  Include entry for Variant Operator.
+
+SYSVARS.C:
+  Update copyright year.
+  Include entries for []DT.
+  Include entries for Variant Operator.
+  Define new routine to validate the various variant Operator names/value pairs.
+
+SYSVARS.H:
+  Include entries for []DT.
+
+TABCTRL.C:
+  Include GSL includes for delete of PerTabData.
+
+TOKENIZE.C:
+  Include entries for Variant Operator.
+
+UNICODE.H:
+  Update copyright year.
+  Include entries for Variant Operator.
+
+UNITRANSTAB.H:
+  Update copyright year.
+  Improve comments.
+  Include entries for Variant Operator.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Include reference to ±infinity in list of Consistent Extensions to
+    ISO/IEC 13751 Extended APL Standard.
+  Include Variant Operator in the above list of extensions.
+  Remove []TCDEL from the list of quad functions as we don't implement it anymore.
+  Include []DT in list of new system vars.
+  Include []DT in list of system vars that allow an empty vector assignment to reset them.
+
+
+Directory trunk\MediaWiki\extensions:
+
+B2A.INC.PHP:
+  Include entries for <dagger>, <doubledagger>, and <variant>.
+
+BRACESTOUNICODE.PHP:
+  Parameterize the <b2a.inc.php> file name.
+
+
+Build #1049 -- Version 0.3.8.xx
+-------------------------------
+
+* Implement Asynchronous I/O For Native File Functions
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message INCOMPLETE I/O.
+
+QF_NFNS.C:
+  Implement asynchronous I/O for the read/write native file functions to match that used for locking.
+
+
+Build #1048 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug Erasing []DM And []EM Twice When Closing A Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  Fix Bug introduced in Build #1044 where in <FreeGlobalStorage> we mistakenly erase
+    []DM and []EM outside of the loop through the symbol table where they are erased again.
+
+
+Build #1047 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug When Passing Function Args To A User-Defined Operator
+
+Directory trunk:
+
+EXECDFN.C:
+  Fix Bug introduced in Build #1035 where an <if> stmt wasn't enclosed in braces
+    and incorrectly picked up a stray <else> clause.
+
+
+Build #1046 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug When Displaying Numbers Between -1 and 1 In Integer Format
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatFloatFC>, when displaying a number in integer format, round it to
+    the nearest integer even if it's not a power of two.  This corrects the
+    result of 3 0{format}-0.5
+
+
+Build #1045 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug When Parsing Certain Control Structures Constructions
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Update copyright year.
+  In various rules, before entering a FOR stmt using <lptk1st>, ensure
+    that that ptr is non-NULL before using it.
+  Improve comments.
+
+
+Build #1044 -- Version 0.3.8.xx
+-------------------------------
+
+* Implement []NLOCK
+
+Directory trunk:
+
+APLERRORS.H:
+  Define new error message for FILE NOT LOCKED.
+
+PERTAB.H:
+  Define handle for a wait event.
+
+QF_NFNS.C:
+  Update copyright year.
+  Open files with file overlapped flag so as to enable file locking timeouts.
+  Enable previously commented-out code to Lock/Unlock a file.
+  Fix Bug:  test against Rht instead of Lft.
+  Include new code to handle timeouts.
+  Improve comments.
+
+SESSMAN.C:
+  Update copyright year.
+  Signal waiting event on Ctrl-Break.
+
+SYSVARS.C:
+  Update copyright year.
+  Enable []NLOCK as a system function.
+
+TABCTRL.C:
+  Update copyright year.
+  In <FreeGlobalStorage>, signal a pending wait event.
+  In <FreeGlobalStorage>, free []DM and []EM storage.
+
+
+Build #1043 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Test For Non-NULL Before Using
+
+Directory trunk:
+
+PL_PARSE.Y:
+  Fix Bug introduced in the last build where in <ArrExprCheckCaller> I forgot
+    to test a variable for non-NULL before using it.
+
+
+Build #1042 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug:  Check For "Sink" Stmt-By-Stmt, Not Just Line Start
+
+Directory trunk:
+
+PL_PARSE.H:
+  Update copyright year.
+  Define new struc element of ptr to last EOS stmt
+
+PL_PARSE.Y:
+  In <pl_yylex>, save the ptr to the last EOS stmt.
+  In <ArrExprCheckCaller>, check for TKT_ASSIGN in the token after the last EOS stmt.
+
+
+Build #1041 -- Version 0.3.8.xx
+-------------------------------
+
+* Use Longer Period For Random Number Generation Of Integers
+
+Directory trunk:
+
+PF_QUERY.C:
+  Update copyright year.
+  Now that we use a much larger period for Roll and Deal, we need extended
+    precision code to calculate the values.
+
+SYSVARS.H:
+  Update copyright year.
+  Change the modulus for []RL to -1+2*61.
+  Change the seed (primitive root) for []RL to 216928637.
+
+
+Build #1040 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Floor Function On Global Numerics
+
+Directory trunk:
+
+PF_DSTILE.C:
+  Update copyright year.
+  Occasionally, <mpq_cmp> and possibly <mpfr_cmp> can return a value other than -1,0,1,
+    so we need to filter it through <signum> when using it in a switch stmt.
+
+
+Build #1039 -- Version 0.3.8.xx
+-------------------------------
+
+* Handle STACK FULL Exception
+
+Directory trunk:
+
+APLERRORS.H:
+  Update copyright year.
+  Define error message for STACK FULL.
+
+CS_PROC.C:
+  Update copyright year.
+  Pass parameter to <PrimFnMonUpTackJotPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+ENUMS.H:
+  Update copyright year.
+  Define STACK FULL as an exception code.
+  Define STACK FULL as an exit type.
+  Define ERRORCODE_DM in enum.
+
+EXCEPT.C:
+  Update copyright year.
+  Include STACK FULL in the table of named exceptions.
+  In <MyGetExceptionStr>, include entry for STACK FULL.
+  In <CheckException>, include entry for STACK FULL.
+
+EXECDFN.C:
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+IMMEXEC.C:
+  Update copyright year.
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+MACROS.H:
+  Update copyright year.
+  Define macro to test for IMMTYPE_ERROR.
+
+PERTAB.H:
+  Update copyright year.
+  Define execution depth counter.
+
+PF_UTACKJOT.C:
+  Update copyright year.
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+  Pass parameter to <PrimFnMonUpTackJotPLParse> to tell whether or not to skip
+    the depth check.
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+
+PL_PARSE.PROTO:
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+
+PL_PARSE.Y:
+  Update copyright year.
+  Define maximum execution depth.
+  Handle exit type STACK FULL.
+  Pass parameter to <ParseLine> to tell whether or not to skip
+    the depth check.
+  In <ParseLine>, check for STACK FULL.
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+
+SC_IN.C:
+  Update copyright year.
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+SC_LOAD.C:
+  Pass parameter to <PrimFnMonUpTackJotCSPLParse> to tell whether or not to skip
+    the depth check.
+  Handle exit type STACK FULL.
+
+TRANSLATE.C:
+  Update copyright year.
+  Handle exit type STACK FULL.
+
+
+Build #1038 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In DownShoe (Unique)
+
+Directory trunk:
+
+PF_DSHOE.C:
+  Update copyright year.
+  Fix Bug:  The unique function fails on global numeric scalars.
+
+
+Build #1037 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Multiset DownShoe (Multiplicities)
+
+Directory trunk:
+
+PO_MULTISET.C:
+  Update copyright year.
+  Fix Bug:  The magic function for Multiset DownShoe (Multiplicities) fails on scalars.
+
+
+Build #1036 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug Displaying Hetero Array With Global Numeric
+
+Directory trunk:
+
+DISPLAY.C:
+PF_DTACKJOT.C:
+  Fix Bug:  Display of a hetero array with a global numeric isn't handled.
+
+
+Build #1035 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug Passing Global Numeric Array to UDFO Argument List
+
+Directory trunk:
+
+EXECDFN.C:
+  Fix Bug:  In a UDFO, passing a global numeric array to a argument list isn't handled.
+
+
+Build #1034 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug Calculating Average Char Width
+
+Directory trunk:
+
+MAIN.C:
+  Update copyright year.
+  Fix Bug:  In <CreateNewFontSM>, calculate the correct average char width for the SM font on
+    an actual line of text so that "Adjust []PW on window resize" works.
+
+
+Build #1033 -- Version 0.3.8.xx
+-------------------------------
+
+* Check For Ctrl-Break In Monadic Iota
+
+Directory trunk:
+
+PF_IOTA.C:
+  Update copyright year.
+  In <PrimFnMonIota_EM_YY>, check for Ctrl-Break within loops.
+
+
+Build #1032 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Certain Multi-Precision Functions
+
+Directory trunk:
+
+MPFNS.C:
+  Update copyright year.
+  Fix Bug:  In those functions designed to return a Boolean result in a passed var that may be NULL, check to see if it's NULL before assigning to it!
+
+
+Build #1031 -- Version 0.3.8.xx
+-------------------------------
+
+* Remove Spurious Debug Stmt
+
+Directory trunk:
+
+PRIMFNS.C:
+  Update copyright year.
+  Fix Bug:  In <CopySymGlbNumDir_PTBM>, remove spurious debug stmt.
+
+
+Build #1030 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Goto If Target Line # Is Too Large
+
+Directory trunk:
+
+GOTO.C:
+  Update copyright year.
+  Fix Bug:  In <GotoLine_EM>, we don't check to see if the target line # is beyond the last line of the function.
+
+
+Build #1029 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Assertion When Freeing A Function Array
+
+Directory trunk:
+
+YYFNS.C:
+  Update copyright year.
+  Fix Bug:  In <UUFreeArray>, if ab item of a function array has already been freed,
+    the Assert fails, so we rearrange the code to avoid that.
+
+
+Build #1028 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Indexing Bugs
+
+Directory trunk:
+
+PF_INDEX.C:
+  Update copyright year.
+  Fix bug:  In <ArrayIndexRef_EM_YY>, handle A[{enclose}{zilde}] to return the entire array.
+  Fix Bug:  In <ArrayIndexSetSingLst_EM>, handle A[{enclose}{zilde}]{is}{enclose}B to set the entire array.
+  Fix Bug:  In <ArrayIndexSetVector_EM>, handle A{is}(1 2)(3 4) {diamond} A[(1 2)(2 2)]{is}1 'a'.
+
+PF_RSHOE.C:
+  Update copyright year.
+  Fix Bug:  In <PrimFnDydRightShoeImmGlb_EM_YY>, handle (,1r1){pick}1 'a'.
+  Fix Bug:  In <PrimFnDydRightShoeGlbGlb_EM_YY>, handle {zilde}{pick}A.
+
+
+Build #1027 -- Version 0.3.8.xx
+-------------------------------
+
+* Catch Duplicate Line Labels In A Function
+
+Directory trunk:
+
+EXECDFN.C:
+  Update copyright year.
+  In <ExecDfnGlb_EM_YY>, check for no axis before changing it.
+  Save # line labels in SIS struc.
+  In <LocalizeLabels>, use linked list of line labels to localize them.
+
+EXECMFN.C:
+  Update copyright year.
+  Change name of <GetSpecialLabelNums> to <GetLabelNums> as we handle all
+    labels in this function.
+
+FH_PARSE.H:
+  Update copyright year.
+  Include entries for linked list of line labels in function line struc.
+  Include entries for linked list of line labels in function header struc.
+
+SAVEFCN.C:
+  Update copyright year.
+  Change name of <GetSpecialLabelNums> to <GetLabelNums> as we handle all
+    labels in this function.
+  In <GetLabelNums>, calculate linked list of line labels, excluding system labels.
+  Check for duplicate line labels when closing or fixing a function.
+
+SC_LOAD.C:
+  Update copyright year.
+  Save # line labels in SIS struc.
+
+SORT.C:
+  Update copyright year.
+  Define comparison routine for LBLENTRYs.
+
+STARTADDR.H:
+  Update copyright year.
+  Change name of <GetSpecialLabelNums> to <GetLabelNums> as we handle all
+    labels in this function.
+
+
+Build #1026 -- Version 0.3.8.xx
+-------------------------------
+
+* Optimize Table Function On Matrices
+
+Directory trunk:
+
+PF_COMMA.C:
+  Optimize table function on matrices by passing through the right arg.
+
+
+Build #1025 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Display Of Certain Nested Arrays
+
+Directory trunk:
+
+DISPLAY.C:
+  When displaying a nested vector of multirow nested arrays, only the first
+    row is displayed because the loop limit is the # top level rows instead
+    of the # formatted rows.  This necessitates defining a new temp struc
+    to hold the Nxt and End char values.
+
+
+Build #1024 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In )LIB
+
+Directory trunk:
+
+SC_LIB.C:
+  In <CmdLibCom_EM>, the global variable <lpwszTemp> may be overwritten during
+    processing which causes some entries to be omitted.
+
+
+Build #1023 -- Version 0.3.8.xx
+-------------------------------
+
+* Signal NONCE ERROR For Complex Results
+
+Directory trunk:
+
+PF_CIRCLE.C:
+PF_CSTAR.C:
+PF_ROOT.C:
+PF_STAR.C:
+  Update copyright year.
+  Signal NONCE ERROR for complex results instead of DOMAIN ERROR.
+
+
+Build #1022 -- Version 0.3.8.xx
+-------------------------------
+
+* Change Notation For VFP Constants
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Update copyright year.
+  Change notation for VFP numbers from infix/suffix to suffix only,
+    that is, 1v3 is changed to 1.3v.
+
+REBAR.C:
+  Update copyright year.
+  Change notation for VFP numbers from infix/suffix to suffix only,
+    that is, 1v3 is changed to 1.3v.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Change notation for VFP numbers from infix/suffix to suffix only,
+    that is, 1v3 is changed to 1.3v.
+
+
+Build #1021 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Display Of Raw Output
+
+Directory trunk:
+
+DISPLAY.C:
+  Fix Bug:  In <DisplayGlbArr_EM>, the code to protect usage of
+    <lpwszTemp> in the display of raw output is off by one as I
+    forgot to protect the terminating zero of a string.
+
+
+Build #1020 -- Version 0.3.8.xx
+-------------------------------
+
+* Fix Bug In Customize
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  In the Syntax Coloring tab, changing the background color
+    to transparent doesn't take effect.
+
+
+Build #1019 -- Version 0.3.8.xx
+-------------------------------
+
+* Enhance ECM Factoring By Using Additional Methods.
+
+Directory trunk:
+
+MPIFNS.C:
+  Use MPIR-specific typedefs for return values to avoid data loss on x64 systems.
+
+PF_PI.C:
+  Update copyright year.
+  Improve comments.
+  Fix Bug:  If ECM finds a factor, it might not be prime so try to factor it.
+  Enhance ECM factoring by using P-1 and P+1 methods.
+  Use MPIR-specific typedefs for return values to avoid data loss on x64 systems.
+  Fix bug in <NumPrimes>.
+
+PF_QDOT.C:
+PF_STAR.C:
+  Update copyright year.
+  Use MPIR-specific typedefs for return values to avoid data loss on x64 systems.
+
+PRIMES.H:
+  Convert table of primes to origin-0.
+
+VER.C:
+  Update copyright year.
+  Display ECM version # in the About box.
+
+
+Build #1018 -- Version 0.3.8.xx
+-------------------------------
+
+* Define New Syntax Class For Point Notation Separators (beEprvx)
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Fix Bug:  Include Reset Vars for []FPC.
+  Fix Bug:  Define action for click on []FEATURE radio button in Reset Vars.
+
+EXTERNS.H:
+  Define new syntax class for point notation separators (beEprvx).
+  Fix Bug:  Include additional entries for features omitted in <gSyntClrBGTrans>.
+
+INIFILE.C:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).
+
+MAIN.RC:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).
+  Length groupboxes in Syntax Coloring tab to accommodate new syntax class.
+
+RESOURCE.H:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).
+
+SYNTAXCOLORS.H:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).
+
+TOKENIZE.C:
+  Update copyright year.
+  Define new syntax class for point notation separators (beEprvx).
+
+
+Build #1017 -- Version 0.3.8.xx
+-------------------------------
+
+* Document Move Of Source Code To Google Code
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Document move of source code to Google Code.
+
+FOOTER-MON.HTML:
+FOOTER.HTML:
+LICENSE-BODY.HTML:
+  Update copyright year.
+
+INDEX-BODY.AHTML:
+  Document move of source code to Google Code.
+  Use link to appropriate page for Release and Feature pages.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Use link to appropriate page for Release and Feature pages.
+
+DOWNLOAD-MENU.HTML:
+  Document move of source code to Google Code.
+
+
+Build #1016 -- Version 0.3.8.xx
+-------------------------------
+
+* Define Symbol Needed For MPIR Long Longs
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Update copyright year.
+  Define symbol for MPIR long longs.
+
+
+Build #1015 -- Version 0.3.8.xx
+-------------------------------
+
+* Implement APL2 Array Spacing Rules
+
+Directory trunk:
+
+DISPLAY.C:
+  Update copyright year.
+  Include datatype with each item in a compiled heterogeneous array so
+    we can properly display things like 2 1{rho}123.45 '.'
+
+DISPLAY.H:
+  Update copyright year.
+  Define new struct entry in compiled arrays of Interior Width.
+
+PF_DTACKJOT.C:
+  Update copyright year.
+  Include datatype with each item in a compiled heterogeneous array so
+    we can properly display things like 2 1{rho}123.45 '.'
+  Define new struct entry in compiled arrays of Interior Width.
+  Implement the same horizontal and vertical spacing rules for display as APL2.
+
+
+Build #1014 -- Version 0.3.8.xx
+-------------------------------
+
+* Define New []IC Indeterminate Case 0 {log} N ( != 0 or 1)
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Update copyright year.
+  Include text for new []IC entry.
+
+EXTERNS.H:
+  Update copyright year.
+  Include index and default value for new []IC entry.
+  Define MPFR pos/neg infinity via function call rather than as a constant entry.
+
+INITDATA.C:
+  Update copyright year.
+  Define MPFR pos/neg infinity via function call rather than as a constant entry.
+
+MPFNS.C:
+  Update copyright year.
+  Improve comments.
+
+MPIFNS.C:
+  Update copyright year.
+  Improve comments.
+  Omit initializing MPFR Pos/Neg infinity as it's not necessary.
+
+PF_CSTAR.C:
+  Update copyright year.
+  Improve comments.
+  In dyadic logarithm, check for indeterminate 0{log}N for N != 0 or 1.
+  In dyadic logarithm, check for complex result and signal a NONCE ERROR.
+
+
+Build #1013 -- Version 0.3.8.xx
+-------------------------------
+
+* Display Wrapped Lines As A Group Of Rows
+
+Directory trunk:
+
+DISPLAY.C:
+  Delete 1st and last col flags from <CompileArrNested> as they are no
+    longer used.
+  Use raw output for all non-nested arrays as chars are displayed natively.
+  Improve comments.
+  Wrap lines at []PW in groups of rows instead of line by line.
+
+DISPLAY.H:
+  Update copyright year.
+  Split out bit fields into separate UINTs.
+  Define new row struc fields to handle wrapped lines for long numbers.
+
+PF_DTACKJOT.C:
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+  Delete 1st and last col flags from <CompileArrNested> as they are no
+    longer used.
+  Improve comments.
+  Implement display spacing as per APL2 description.
+  When compiling arrays, save the first and last ptrs to the formatted data
+    so we can repeat by rows cols that wrap.
+  At the end of compiling an array, propagate the row and col counts up the line.
+  Zero all of row strucs, rather than item by item.
+  In <CompileArrNested>, keep track of current and previous NOTCHAR+ as per APL2 rules.
+  Pass 1st and last col flags to <CompileARrNestedCon> for proper spacing.
+  In <CompileArrNested>, do leading and trailing blanks in the subroutines
+    so we use the same col struc used for intermediate blanks.
+  In <FormatArrSimple>, wrap groups of rows at []PW instead of individual lines.
+
+STARTADDR.H:
+  Include additional entry points to aid in debugging.
+
+
+Build #1012 -- Version 0.3.8.xx
+-------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+EXCEPT.C:
+  In <DisplayException>, remove debug stmt at end as it is no longer needed.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, remove debug stmts as they signal too many false positives.
+
+
+Directory trunk\htdocs:
+
+LICENSE-BODY.HTML:
+  Include license info for GMP-ECM, MPFR, and MPIR.
+
+
+Build #1011 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Monadic []FMT
+
+Directory trunk:
+
+QF_FMT.C:
+  Fix bug in monadic []FMT by localizing []FEATURE and enabling
+    negative indexing on which this magic function depends.
+
+
+Build #1010 -- Version 0.3.8.xx
+------------------------------
+
+* Extend The Indices Function (IotaUnderbar) To Multirank Arrays
+
+Directory trunk:
+
+PF_IOTAUND.C:
+  Extend the Indices function (IotaUnderbar) to multirank arrays.
+
+
+Build #1009 -- Version 0.3.8.xx
+------------------------------
+
+* Document Sequence Function In Language Bar
+
+Directory trunk:
+
+REBAR.C:
+  Document sequence function in language bar.
+
+
+Build #1008 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In <xxx_get_ctsa> Functions
+
+Directory trunk:
+
+MPFNS.C:
+  Fix bug in <xxx_get_ctsa> functions not returning TRUE/FALSE result.
+
+
+Build #1007 -- Version 0.3.8.xx
+------------------------------
+
+* Define New Keyboard Layouts
+
+Directory trunk:
+
+INIFILE.C:
+  In <ReadIniFileGlb>, set default keyboard layout depending upon the current Windows default layout.
+
+KEYBOARDS.H:
+  Define new French keyboard layout.
+
+
+Build #1006 -- Version 0.3.8.xx
+------------------------------
+
+* Miscellaneous DEBUG Changes
+
+Directory trunk:
+
+DATATYPE.H:
+  Split apart uses of PTR_REUSED to help find bugs more easily.
+
+DEBUG.C:
+  Miscellaneous DEBUG changes.
+
+EDITFCN.C:
+EXECDFN.C:
+EXECMFN.C:
+FREE.C:
+IMMEXEC.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+QF_MF.C:
+SAVEFCN.C:
+STRAND.C:
+TABCTRL.C:
+YYFNS.C:
+  Define APPEND_NAME as it's used in <Dbg...> functions.
+
+HEADERS.H:
+  Reorder #includes as per dependencies.
+
+MACROS.H:
+  Miscellaneous DEBUG changes.
+  Defonie new macro to test for ptr (nested/hetero) arrays.
+  In various ptr macros, test for bad input.
+  Define new macros to test for NULL ptrs.
+  Move xINTxx typedefs from <macros.h> to <types.h>.
+
+PF_RHO.C:
+PO_SLASH.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+SC_SAVE.C:
+  Use new macro instead of direct comparison.
+
+REFCNT.C:
+  In <ChangeRefCntDir_PTB>, test for PTR_REUSED and NULL elements in ptr arrays.
+  Define new debugging functions for checking reference counts.
+
+STARTADDR.H:
+  Include more function names.
+
+TYPES.H:
+  Move xINTxx typedefs from <macros.h> to <types.h>.
+
+
+Build #1005 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Inner Product With Empty Global Numerics
+
+Directory trunk:
+
+PO_DOT.C:
+  Fix bug in inner product when the result is an empty global numeric.
+
+PRIMFNS.C:
+  In <MakeDydPrototype_EM_PTB>, allow the result to be an empty global numeric.
+
+
+Build #1004 -- Version 0.3.8.xx
+------------------------------
+
+* Allow Double Quotes Around )IN Filename
+
+Directory trunk:
+
+SC_IN.C:
+  Allow double quotes around )IN filename.
+
+
+Build #1003 -- Version 0.3.8.xx
+------------------------------
+
+* Remove Unneeded []TCDEL
+
+Directory trunk:
+
+DISPLAY.C:
+PF_DTACKJOT.C:
+QF_TC.C:
+SYSVARS.C:
+TERMCODE.h:
+  Remove unneeded []TCDEL.
+
+
+Build #1002 -- Version 0.3.8.xx
+------------------------------
+
+* Bug Fix For Alignment of Values When Displaying Multirow Arrays
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Bug fix for alignment of values when displaying multirow arrays.
+
+
+Build #1001 -- Version 0.3.8.xx
+------------------------------
+
+* Bug Fix For When Calling Replicate From Reduction
+
+Directory trunk:
+
+PO_SLASH.C:
+  Bug fix for when calling replicate from reduction.
+
+
+Build #1000 -- Version 0.3.8.xx
+------------------------------
+
+* Bug Fixes For When Indexing Global Numerics
+
+Directory trunk:
+
+GETFNS.C:
+  Assertions for <xxx_get_ctsa> functions.
+
+PF_INDEX.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+  Bug fixes for when indexing global numerics.
+
+
+Build #999 -- Version 0.3.8.xx
+------------------------------
+
+* To Aid In Debugging, Output The Text Immediately
+
+Directory trunk:
+
+SESSMAN.C:
+  To aid in debugging, output the text immediately.
+
+
+Build #998 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Execute On Multi-Stmt Line With Last Stmt Sink
+
+Directory trunk:
+
+PL_PARSE.PROTO:
+PL_PARSE.Y:
+  In <ArrExprCheckCaller> pass down NoDisplay flag.
+
+
+Build #997 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Primitive Functions On Simple Scalar And Empty Nested Arrays
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnDydNestSiSc_EM> and <PrimFnDydSiScNest_EM> the NELM of the
+    result is the NELM of the non-scalar arg, not the larger of the two NELMs.
+
+
+Build #996 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug With {uparrow} On Empty RAT or VFP
+
+Directory trunk:
+
+GETFNS.C:
+  In <GetFirstValueGlb>, if the array is an empty RAT or VFP, return a
+    Boolean type and a NULL ptr so the caller doesn't try to use it.
+
+
+Build #995 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug On Empty Hetero/RAT/VFP Compression
+
+Directory trunk:
+
+PF_SLASH.C:
+  When compressing to empty a Hetero, RAT, or VFP array, the result
+    isn't computed correctly which yields an error much later, e.g.
+    0/0 ' ' or 0/1r1 or 0/1v.
+
+
+Build #994 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug When Copying A Special STE (0 1 ' ')
+
+Directory trunk:
+
+PF_RSHOE.C:
+QF_UCS.C:
+SC_LOAD.C:
+STRAND.C:
+SYMTAB.C:
+TYPEMOTE.C:
+  Pass new arg to <SymTabAppendInteger/Char> to indicate whether we
+    can return one of the common cases (0 1 ' '), otherwise we might
+    change the value of the special STE.
+
+
+Build #993 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In []FMT Thousands Separator Insertion
+
+Directory trunk:
+
+QF_FMT.C:
+  In <QFMT_ThousandsSep>, the move up of the fractional part is
+    incorrectly merged into all the moves whereas it should be done
+    once initially, outside the loop.
+
+
+Build #992 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Sign Of Infinity
+
+Directory trunk:
+
+MPIFNS.C:
+  The sign of infinity did not take into account the zero case
+    which resulted in 0r0 being negative infinity.
+
+
+Build #991 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Type Demotion From Nested/Hetero To RAT/VFP
+
+Directory trunk:
+
+TYPEMOTE.C:
+  In <DemoteData> when demoting from Nested/Hetero to either RAT or VFP,
+    the LPSYMENTRY case was missed.
+
+
+Build #990 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Decode Of Bool v. Bool
+
+Directory trunk:
+
+PF_UTACK.C:
+  Fix bug in decode of Bool v. Bool where the result is calculated as Bool
+    rather than integer.
+
+
+Build #989 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bugs In Display Of Long Lines
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix bug in display of long lines where Windows fails to handle
+    appending of a long line to an edit control at about 16KB so
+    we must terminate it ourselves at an earlier point.
+  Fix bug in display of long lines where we might break a number
+    in the middle when we don't need to.
+
+
+Build #988 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Scan With Alternating Functions On Multi-dimensional Arrays
+
+Directory trunk:
+
+PO_SLOPE.C:
+  Fix bug in scan using alternating functions on multi-dimensional arrays
+    where the original function isn't restored at the beginning of each new vector.
+
+
+Build #987 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Scan With Alternating Functions On Nested ARrays
+
+Directory trunk:
+
+PO_SLOPE.C:
+  Fix bug in scan using alternating functions where if the first element
+    of the right arg is a nested array, we fail to increment its
+    reference count.
+
+
+Build #986 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Display Of Nested Arrays
+
+Directory trunk:
+
+PF_DTACKJOT.C:
+  Fix bug in display of nested arrays where the fractional values are
+    mistakenly included in the integer width rather than kept separate.
+
+
+Build #985 -- Version 0.3.8.xx
+------------------------------
+
+* Allow Empty Vector For Default Conversion In Native File Functions
+
+Directory trunk:
+
+QF_NFNS.C:
+  Allow an empty vector to be used to indicate the default conversion
+    code(s) for various native file functions.
+
+
+Build #984 -- Version 0.3.8.xx
+------------------------------
+
+* Change Tab Stops On Entry From 8 To 4 To Match The Value Used On Display
+
+Directory trunk:
+
+EDITFCN.C:
+  Change tab stops on entry from 8 to 4 to match the value used on display.
+
+
+Build #983 -- Version 0.3.8.xx
+------------------------------
+
+* Use Equate For Rational And VFP Display And Entry Separators
+
+Directory trunk:
+
+DEFINES.H:
+DISPLAY.C:
+FMTSPEC.C:
+PF_DTACKJOT.C:
+PN_PARSE.Y:
+QF_FMT.C:
+REBAR.C:
+  Use equate for Rational and VFP display and entry separators.
+
+
+Build #982 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Update Dialog
+
+Directory trunk:
+
+UPDATES.C:
+  Fix bug when displaying the Update Dialog and immediately exiting.
+
+
+Build #981 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug Handling Continuation Lines
+
+Directory trunk:
+
+CONVERT.C:
+  In <ConvertWideToNameLength>, display {slope} instead of actual char so as
+    to allow a backslash to be used as a continuation marker in a plain text
+    workspace file.
+
+INIPARSER.C:
+  Fix bug in handling of continuation lines.
+
+VER.RC:
+  Increment version # to 0.3.8.xx.

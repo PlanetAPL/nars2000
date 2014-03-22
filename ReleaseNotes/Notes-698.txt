@@ -1,0 +1,26 @@
+Build #698 -- Version 0.0.2.15
+------------------------------
+
+* Distinguish Between Various Error Returns From Control Structure Parsing
+
+Directory trunk:
+
+CS_PARSE.H:
+  Reserve an entry for an error message ptr when there is an error
+    from <cs_yyparse>.
+
+CS_PARSE.Y:
+  Handle the return values from <cs_yyparse> via a SWITCH stmt.
+  Set the error message which corresponds to return code.
+  Handle Stack Overflow as exception from <cs_yyparse>.
+
+EXECMFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+SAVEFCN.C:
+  If a call to <ParseCtrlStruc_EM> fails, display the appropriate
+    error message.
+
+MAIN32.DEF:
+MAIN64.DEF:
+  Increase the heap and stack sizes.

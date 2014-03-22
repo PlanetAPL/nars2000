@@ -1,0 +1,102 @@
+Build #295 -- Version 0.0.0.18810
+---------------------------------
+
+Directory trunk:
+
+DEBUG.C:
+  Temporarily avoid displaying debug messages.
+
+DFNHDR.Y:
+  Rename <DbgMsgW2> to <DbgMsgWP> and redefine the default behavior.
+
+DISPDBG.C:
+  Widen debug messages to use <DbgMsgW> in a move towards Unicode everywhere.
+
+DISPLAY.C:
+EDITFCN.C:
+IMMEXEC.C:
+MAIN.C:
+YYFNS.C:
+  Widen debug messages to use <DbgMsgW> in a move towards Unicode everywhere.
+
+EXCEPT.C:
+  Re-word leading text in Crash Control Window.
+  Display the instruction stream.
+
+EXCEDFN.C:
+  Omit <DisplayFcnLine> in non-DEBUG versions.
+  Use <DbgMsgW2> instead of <DbgMsgW> to avoid display of debug messages.
+
+EXECMFN.C:
+PF_COMMA.C:
+PO_DOT.C:
+QF_UCS.C:
+SC_COPY.C:
+SC_LOAD.C:
+  Fix bug:  Check return value from functions that create a Symbol Table Entry.
+
+MACROS.H:
+  Define <DbgMsgW2> as controlled by the value of <gDbgLvl> to reduce debug messages.
+  Use <nop> in <Assert> to allow easier continuation after error.
+  Change <GetPtrTypeXXX> macro in DEBUG version to check for NULL ptr.
+  Define <IsImmBool> macro to round out the set.
+
+MAKEPRO.C:
+  Handle empty output file.
+
+PARSE.Y:
+  Rename <DbgMsgW2> to <DbgMsgWP> and redefine the default behavior.
+  Widen debug messages to use <DbgMsgW> in a move towards Unicode everywhere.
+
+PF_EPSILON.C:
+PO_DIERESIS.C:
+  Fix bug:  Check return value from functions that create a Symbol Table Entry.
+  Define <ERROR_EXIT> label and free result if allocated.
+
+PF_INDEX.C:
+PF_RSHOE.C:
+PF_SQUAD.C:
+  Fix bug:  Check return value from functions that create a Symbol Table Entry.
+  Rename <ArrayIndexReplace> to <ArrayIndexReplace_EM> to reflect that
+    it may return after signalling an error message.
+
+PO_SLASH.C:
+  Speed up monadic and dyadic reduction by determining the result storage type
+    up front and blowing up only if necessary.  This avoids stressing the symbol
+    table too much thus risking a SYMBOL TABLE FULL error message.
+  Fix bug:  Dyadic reduction saves its values into the result in the wrong order
+    if the reduction is not along the last coordinate.
+  Fix bug:  Check return value from functions that create a Symbol Table Entry.
+
+PO_SLOPE.C:
+  Speed up monadic scan by determining the result storage type
+    up front and blowing up only if necessary.  This avoids stressing the symbol
+    table too much thus risking a SYMBOL TABLE FULL error message.
+  Fix bug:  Check return value from functions that create a Symbol Table Entry.
+
+PRIMSPEC.C:
+  Improve comments.
+
+SC_SAVE.C:
+  Use macro for type testing.
+
+SESSMAN.C:
+  Widen debug messages to use <DbgMsgW> in a move towards Unicode everywhere.
+  Fix bug:  Check return value from functions that create a Symbol Table Entry.
+
+STARTADDR.H:
+  Include more addresses for debugging purposes.
+
+STRAND.C:
+  In <MakeList_EM_YY>, move call to <YYAlloc> to after all errors are detected.
+  In <MakeList_EM_YY>, fill the result with <PTR_REUSED> in case we fail part way through.
+
+SYMTAB.C:
+  Comment out <MakePermSymEntry_EM> as it not used.
+
+TOKENIZE.C:
+  Widen debug messages to use <DbgMsgW> in a move towards Unicode everywhere.
+
+TYPEMOTE.C:
+  Improve comments.
+  Fix bug:  Check return value from functions that create a Symbol Table Entry.

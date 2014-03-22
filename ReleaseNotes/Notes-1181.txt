@@ -1,0 +1,14 @@
+Build #1181 -- Version 0.4.5.xx
+-------------------------------
+
+* Define New Indeterminate For []IC
+
+Directory trunk:
+
+CUSTOMIZE.C:
+EXTERNS.H:
+  Define new value for []IC to handle L*-{inf} for -1 <= L < 0.  The default
+    behavior is DOMAIN ERROR.
+
+PF_STAR.C:
+  In <PrimFnDydStarFisFvF/RisRvR/VisVvV>, check for the new indeterminate case.

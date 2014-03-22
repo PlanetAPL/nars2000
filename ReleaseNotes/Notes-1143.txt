@@ -1,0 +1,20 @@
+Build #1143 -- Version 0.4.1.xx
+-------------------------------
+
+* Fix Bug In Number-Theoretic Functions With FLOAT/RAT/VFP Right Args
+
+Directory trunk:
+
+ENUMS.H:
+  Move <tagNUMTHEORY> enum to <enums.h> so it can be used in args.
+
+MPFNS.C:
+  Fix bug in <mpq_get_ctsx> where the arg of <fQuadCT> was ignored.
+  Improve comments.
+
+PF_PI.C:
+  Move <tagNUMTHEORY> enum to <enums.h> so it can be used in args.
+  Rename integer left arg as <NUMTHEORY> enum.
+  Move initialization of temps to before <RESTART_RAT> so we don't initialize them twice.
+  When looping through FLOAT/RAT/VFP right args, call common code to test for integer tolerance.
+  Define new function to test for integer tolerance.

@@ -1,0 +1,9 @@
+Build #1225 -- Version 0.4.6.xx
+-------------------------------
+
+* Fix Bug Introduced In Recent Build When Demoting Certain Data
+
+Directory trunk:
+
+TYPEMOTE.C:
+  Fix bug in <DemoteData> when demoting nested float scalars to simple float scalars where I factored out a value and missed the substitutions.

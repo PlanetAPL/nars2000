@@ -1,0 +1,9 @@
+Build #955 -- Version 0.0.3.5
+-----------------------------
+
+* Use Overbar Instead Of Hyphen In Language Bar
+
+Directory trunk:
+
+REBAR.C:
+  Use overbar instead of hyphen in language bar.

@@ -1,0 +1,10 @@
+Build #883 -- Version 0.0.3.2
+-----------------------------
+
+* Fix Bug:  Use Correct Units For Argument When Reallocating
+
+Directory trunk:
+
+MPFNS.C:
+  Fix Bug:  Use corect arg to <mpz_realloc2> as I mistakenly thought
+    that it was in units of limbs (it's in bits).

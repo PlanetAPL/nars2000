@@ -1,0 +1,9 @@
+Build #878 -- Version 0.0.3.1
+-----------------------------
+
+* Ensure Minimum OS Version Is WinXP
+
+Directory trunk:
+
+MAIN.C:
+  Ensure that the OS is at least WinXP.

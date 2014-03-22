@@ -1,0 +1,30 @@
+Build #900 -- Version 0.0.3.3
+-----------------------------
+
+* Optimize Some Number-Theoretic Functions
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplRatFC>, don't canonicalize unless trhe denominator is NE 1.
+
+MPFNS.C:
+  In <mpz_set_sa>/<mpq_set_sa>, handle set to zero specially so we don't
+    overallocate the number.
+
+PF_BAR.C:
+PF_COLONBAR.C:
+PF_STAR.C:
+  Delete call to <mpz_canonicalize> as this functions can't create
+    un-canonicalized numbers.
+
+PF_PI.C:
+  In <PrimFnDydPiRisRvR>/<PrimFnDydPiVisVvV>, catch raised exceptions from
+    below so we can clear the local global numerics we create along the way.
+  In <PrimFnPiNthPrime>, call common routine <NthPrime> that uses previous
+    information to optimize its performance.
+  In <PrimFnPiNumPrime>, call common routine <NumPrimes> that uses previous
+    information to optimize its performance.
+
+PRIMSPEC.C:
+  Clear the exception code for WS FULL.

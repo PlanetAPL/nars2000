@@ -1,0 +1,9 @@
+Build #982 -- Version 0.3.8.xx
+------------------------------
+
+* Fix Bug In Update Dialog
+
+Directory trunk:
+
+UPDATES.C:
+  Fix bug when displaying the Update Dialog and immediately exiting.

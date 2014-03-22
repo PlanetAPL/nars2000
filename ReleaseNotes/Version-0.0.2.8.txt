@@ -1,0 +1,87 @@
+Version 0.0.2.8 consists of the following Builds:
+
+
+Build #632 -- Version 0.0.2.8
+-----------------------------
+
+* Fix Bug:  Avoid Crash When The ParseLine Local Var Is Undefined
+
+Directory trunk:
+
+PF_UTACKJOT.C:
+  Fix Bug:  Not all calls to <PrimFnMonUpTackJotPLParse> are done
+    in a context in which <lpplLocalVars> is active, so we test
+    for that case and don't crash if it is undefined.
+
+
+Build #631 -- Version 0.0.2.8
+-----------------------------
+
+* Fix Bug:  Omit Unneeded LFs in []DM
+
+Directory trunk:
+
+ERRMSG.C:
+  Fix Bug:  In conjunction with no longer needing a Linefeed to
+    accompany a CR on output, we need to omit LFs in []DM.
+
+TOKENIZE.C:
+  Fix error in comment.
+
+
+Build #630 -- Version 0.0.2.8
+-----------------------------
+
+* Use Environment Variable to Locate Certain Executables
+
+Directory trunk:
+
+BISON.RULES:
+MASM64.RULES:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Use an environment variable to locate nmake.exe and ml64.exe.
+
+
+Build #629 -- Version 0.0.2.8
+-----------------------------
+
+* Fix Bug:  Handle Short Workspace Names
+
+Directory trunk:
+
+SC_COMMON.C:
+  In <MakeWorkspaceNameCanonical>, check to see if the workspace
+    name is too short before checking for the default extension.
+
+
+Build #628 -- Version 0.0.2.8
+-----------------------------
+
+* Fix Bug:  Typo in Rebar Ctrl Language Window Procedure
+
+Directory trunk:
+
+DEFINES.H:
+  Define local windows message for setting the current PTD
+    ptr in the main window thread.
+
+EDITFCN.C:
+  Debugging assertions.
+  Define debug routine to check for EC window handles.
+
+MAIN.C:
+  In the main window message loop, handle local window message
+    to set the current PTD ptr.
+
+REBAR.C:
+  Fix Bug:  Typo in Rebar Ctrl Language Window procedure.
+
+TABCTRL.C
+  In <CreateNewTabInThread> when starting a new Tab or when
+    activating a new tab, tell the Master Frame about the new PTD
+    ptr so it may set that value in its TLS in case a routine
+    outside the Tab thread needs it.
+
+VERSION.RC:
+  Increment version to 0.0.2.8.

@@ -1,0 +1,9 @@
+Build #1109 -- Version 0.3.10.xx
+--------------------------------
+
+* Fix Bug In Multiset Iota, Epsilon, Match With Numeric vs. Char
+
+Directory trunk:
+
+PO_MULTISET.C:
+  Fix bug in Multiset Iota, Epsilon, and Match where one arg is numeric, the other char.

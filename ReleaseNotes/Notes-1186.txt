@@ -1,0 +1,10 @@
+Build #1186 -- Version 0.4.5.xx
+-------------------------------
+
+* Handle Infinity In More Functions
+
+Directory trunk:
+
+MPIFNS.C:
+MPIFNS.H:
+  In <mpfr_get_z> and <mpfr_pow_z>, check for and handle infinity.

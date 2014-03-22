@@ -1,0 +1,20 @@
+Build #813 -- Version 0.0.2.23
+------------------------------
+
+* Remove Debug Statements As They May Now Occur
+
+Directory trunk:
+
+PRIMSPEC.C:
+  In <PrimFnMon_EM_YY> and <PrimFnDyd_EM_YY>, copy the incoming
+    <lpPrimSpec> to the stack so it may be written to (say, for
+    atomic []RL).
+  In <PrimFnMonGlb_EM>, <PrimFnDydSingMult_EM>, <PrimFnDydMultSing_EM>,
+    <PrimFnDydSiScSiScSub_EM>, and <PrimFnDydSimpSimp_EM>, remove debug
+    statements as they may occur due to <PrimFnPi_EM_YY>.
+
+
+Directory trunk\htdocs:
+
+LICENSE-BODY.HTML:
+  Update copyright year.

@@ -1,0 +1,21 @@
+Build #746 -- Version 0.0.2.18
+------------------------------
+
+* Fix Bug:  Windows API FUnction Doesn't Signal Visible Page Fault
+
+Directory trunk:
+
+SAVEFCN.C:
+SC_COPY.C:
+  Replace <lstrcpyW> with own function as W's doesn't signal a
+    Visible Page Fault so the <VirtualAlloc> code doesn't get called
+    to back up a page with RAM.
+
+SC_LOAD.C:
+  Replace <lstrcpyW> with own function as W's doesn't signal a
+    Visible Page Fault so the <VirtualAlloc> code doesn't get called
+    to back up a page with RAM.
+  Improve comments.
+  Fix Bug:  In <LoadWorkspaceGlobal_EM>, mark :nnn entry as having a
+    value so it can be tested in <LoadWorkspace_EM> and not reloaded
+    unnecessarily.

@@ -1,0 +1,27 @@
+Build #1175 -- Version 0.4.4.xx
+-------------------------------
+
+* Fix Bugs In Find On Empty Arguments
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define & Install new magic function.
+
+MF_EPSUND.H:
+  Define APL code for magic function.
+
+PF_EPSUND.C:
+  Update copyright year.
+  Define var for result storage type.
+  Define Boolean var to distinguish result of all 0s vs one with some 1s.
+  Define Boolean var to determine if either arg is empty.
+  Isolate code for global vs. immediate right arg.
+  Handle empty cases.
+  Define APL code for magic function.
+  Fix typos.
+  Split out ordered vs. unordered simple cases in Match.
+
+PF_EQUALUND.C:
+  Split out ordered vs. unordered simple cases in Match.

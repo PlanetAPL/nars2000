@@ -1,0 +1,26 @@
+Build #1084 -- Version 0.3.10.xx
+--------------------------------
+
+* Licensing and Build Issues
+
+Directory trunk:
+
+LICENSE:
+LICENSE-GPL:
+LICENSE-LGPL:
+  Include the LGPL license text and explain how to build the (L)GPL libraries
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  In DEBUG mode, turn on buffer security checks.
+  Include additional library dependencies as a linker option so the program
+    re-links if any of the dependent libraries are newer.
+
+VER.RC:
+  Increment version # to 0.3.10.xx.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Include new download needed to satisfy (L)GPL licenses.
