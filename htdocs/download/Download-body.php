@@ -52,11 +52,13 @@ Downloads</h1>
 
   <p>There are several types of files available for downloading:
     <b>NARS2000-<i>version</i>.exe</b> (or the earlier format files
-    <b>NARS2000-<i>version</i>.zip</b>), <b>NARS2000-<i>version</i>.map</b>,
+    <b>NARS2000-<i>version</i>.zip</b>),
+    <b>NARS2000-<i>version</i>.map</b>,
+    <b>NARS2000-<i>version</i>.pdb</b>,
     <b>Release Notes</b>, and <b>Special Files</b>.  The <b>.exe</b> (or earlier
     format <b>.zip</b>) files contain everything you
     need to run the program and are the recommended downloads for end
-    users.  The <b>.map</b> files contain debugging information and are used
+    users.  The <b>.map</b> and <b>.pdb</b> files contain debugging information and are used
     by developers.  The <b>Release Notes</b> contain information about the
     corresponding release and are, generally, of most use to developers.  The
     <b>Special Files</b> such as
@@ -173,6 +175,30 @@ Downloads</h1>
 </div>
 
 <div class="section">
+  <h2 id="Beta_Versions">Beta Versions</h2>
+
+  <p>For the latest (<b>untested</b>) versions, goto the <a class="linkleft" href="binaries/beta">beta</a>
+    directory and download either the 32- or 64-bit file.  This is a .zip file (as opposed to the released
+    version which is an executable Setup file) which you might want to unzip into a directory separate from
+    the released installation so as to leave the latter unaffected.  As with the released version, please
+    report any bugs to the Bug Report section of the NARS2000
+    <a class="linkleft" href="http://nars2000.forumatic.com/viewforum.php?f=12">Forum</a>.</p>
+</div>
+
+<div class="section">
+  <h2 id="Alpha_Versions">Alpha Versions</h2>
+
+  <p>For the latest (<b>untested</b>) version that implements
+    <a class="pdfLeft" href="http://www.sudleyplace.com/APL/HyperComplex%20Numbers%20in%20APL.pdf">Hypercomplex
+    Numbers</a>, goto the <a class="linkleft" href="binaries/alpha">alpha</a>
+    directory and download either the 32- or 64-bit file.  This is a .zip file (as opposed to the released
+    version which is an executable Setup file) which you might want to unzip into a directory separate from
+    the released installation so as to leave the latter unaffected.  As with the released version, please
+    report any bugs to the Bug Report section of the NARS2000
+    <a class="linkleft" href="http://nars2000.forumatic.com/viewforum.php?f=12">Forum</a>.</p>
+</div>
+
+<div class="section">
   <h2 id="Download_Files">Download Files</h2>
 
   <form id="DisplayForm" action="">&nbsp;
@@ -219,9 +245,18 @@ Downloads</h1>
                      || file_exists ($DirName . "w64/" . $FileName . "exe"))
                         $Files[] = $FileName . "exe";
                     else
-////////////////////if (file_exists ($DirName . "w32/" . $FileName . "zip"))
+                    if (file_exists ($DirName . "w32/" . $FileName . "zip"))
                         $Files[] = $FileName . "zip";
-                    $Files[] = $FileName . "map";
+
+                    // Append the appropriate file (.map) to the list, if it exists
+                    if (file_exists ($DirName . "w32/" . $FileName . "map")
+                     || file_exists ($DirName . "w64/" . $FileName . "map"))
+                        $Files[] = $FileName . "map";
+
+                    // Append the appropriate file (.pdb) to the list, if it exists
+                    if (file_exists ($DirName . "w32/" . $FileName . "pdb")
+                     || file_exists ($DirName . "w64/" . $FileName . "pdb"))
+                        $Files[] = $FileName . "pdb";
                 } else
                     $Files[] = $File;
             } // End IF
@@ -311,7 +346,8 @@ Downloads</h1>
         var tr = rows[i];
 ////////var attr = tr.getAttribute ('class');   // Doesn't work in IE
         var attr = tr.attributes['class'];
-            if (attr && attr.value == 'map')
+            if (attr && (attr.value == 'map'
+                      || attr.value == 'pdb'))
                 tr.style.display = gAllFiles ? gTableRow : 'none';
         } // End FOR
 

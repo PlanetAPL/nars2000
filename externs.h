@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,7 +44,10 @@ typedef struct tagSM_CREATESTRUCTW
 //    are used to set the variables in a CLEAR WS.
 //***************************************************************************
 
+//***************************************************************************
 // Indeterminate Control Values
+//***************************************************************************
+
 typedef enum tagIC_VALUES
 {
     ICVAL_NEG1 = -1    ,    // -1:  Result is -1
@@ -71,7 +74,7 @@ typedef enum tagIC_VALUES
 // Indeterminate Control Indices
 typedef enum tagIC_INDICES
 {
-    ICNDX_DIV0      ,       // 00:    {div} 0
+    ICNDX_DIV0      ,       // 00:    {div} 0 and L {div} 0 for L != 0
     ICNDX_LOG0      ,       // 01:    {log} 0
     ICNDX_QDOTn     ,       // 02:      !N for integer N < 0
     ICNDX_0MULPi    ,       // 03:  0 {times} _
@@ -111,41 +114,44 @@ typedef enum tagIC_INDICES
 EXTERN
 APLINT   aplDefaultIC[ICNDX_LENGTH]     // []IC
 #ifdef DEFINE_VALUES
- = {ICVAL_POS_INFINITY ,    // 00:    {div} 0
-    ICVAL_NEG_INFINITY ,    // 01:    {log} 0
-    ICVAL_POS_INFINITY ,    // 02:      !N for integer N < 0
-    ICVAL_DOMAIN_ERROR ,    // 03:  0 {times} _
-    ICVAL_DOMAIN_ERROR ,    // 04:  0 {times} {neg}_
-    ICVAL_ONE          ,    // 05:  0 {div} 0
-    ICVAL_DOMAIN_ERROR ,    // 06:  _ {div} _   (same sign)
-    ICVAL_DOMAIN_ERROR ,    // 07:  _ {div} _   (different sign)
-    ICVAL_DOMAIN_ERROR ,    // 08:  _ - _ or _ + -_ or ...
-    ICVAL_DOMAIN_ERROR ,    // 09:  L   |    _  for L > 0
-    ICVAL_DOMAIN_ERROR ,    // 0A:  L   |   -_  for L > 0
-    ICVAL_DOMAIN_ERROR ,    // 0B:  L   |    _  for L < 0
-    ICVAL_DOMAIN_ERROR ,    // 0C:  L   |   -_  for L < 0
-    ICVAL_NEG_INFINITY ,    // 0D:  -_  |   R   for R > 0
-    ICVAL_POS_INFINITY ,    // 0E:   _  |   R   for R < 0
-    ICVAL_ONE          ,    // 0F:  0   *   0
-    ICVAL_DOMAIN_ERROR ,    // 10:  L   *   _   for L <= -1
-    ICVAL_ZERO         ,    // 11:  0   *   +_
-    ICVAL_POS_INFINITY ,    // 12:  0   *   -_
-    ICVAL_DOMAIN_ERROR ,    // 13:  PoM_  *   0
-    ICVAL_DOMAIN_ERROR ,    // 14:  L   *   R   for L < 0 and R != floor (R)
-    ICVAL_ONE          ,    // 15:  0 {log} 0
-    ICVAL_DOMAIN_ERROR ,    // 16:  0 {log} 1
-    ICVAL_DOMAIN_ERROR ,    // 17:  1 {log} 0
-    ICVAL_ONE          ,    // 18:  1 {log} 1
-    ICVAL_LEFT         ,    // 19:  0 {gcd} PoM_  or  PoM_ {gcd} 0
-    ICVAL_DOMAIN_ERROR ,    // 1A:  0 {lcm} PoM_  or  PoM_ {lcm} 0
-    ICVAL_DOMAIN_ERROR ,    // 1B:  0 {log} N  (N NE 0 or 1)
-    ICVAL_DOMAIN_ERROR ,    // 1C:  L   *  -_   for -1 <= L < 0
+ = {ICVAL_POS_INFINITY ,    // 00:  DIV0          {div} 0 and L {div} 0 for L != 0
+    ICVAL_NEG_INFINITY ,    // 01:  LOG0          {log} 0
+    ICVAL_POS_INFINITY ,    // 02:  QDOTn           !N for integer N < 0
+    ICVAL_DOMAIN_ERROR ,    // 03:  0MULPi      0 {times} _
+    ICVAL_DOMAIN_ERROR ,    // 04:  0MULNi      0 {times} {neg}_
+    ICVAL_ONE          ,    // 05:  0DIV0       0 {div} 0
+    ICVAL_DOMAIN_ERROR ,    // 06:  PiDIVPi     _ {div} _   (same sign)
+    ICVAL_DOMAIN_ERROR ,    // 07:  NiDIVPi     _ {div} _   (different sign)
+    ICVAL_DOMAIN_ERROR ,    // 08:  InfSUBInf   _ - _ or _ + -_ or ...
+    ICVAL_DOMAIN_ERROR ,    // 09:  PosMODPi    L   |    _  for L > 0
+    ICVAL_DOMAIN_ERROR ,    // 0A:  PosMODNi    L   |   -_  for L > 0
+    ICVAL_DOMAIN_ERROR ,    // 0B:  NegMODPi    L   |    _  for L < 0
+    ICVAL_DOMAIN_ERROR ,    // 0C:  NegMODNi    L   |   -_  for L < 0
+    ICVAL_NEG_INFINITY ,    // 0D:  NiMODPos    -_  |   R   for R > 0
+    ICVAL_POS_INFINITY ,    // 0E:  PiMODNeg     _  |   R   for R < 0
+    ICVAL_ONE          ,    // 0F:  0EXP0       0   *   0
+    ICVAL_DOMAIN_ERROR ,    // 10:  NEXPPi      L   *   _   for L <= -1
+    ICVAL_ZERO         ,    // 11:  0EXPPi      0   *   +_
+    ICVAL_POS_INFINITY ,    // 12:  0EXPNi      0   *   -_
+    ICVAL_DOMAIN_ERROR ,    // 13:  InfEXP0     PoM_  *   0
+    ICVAL_DOMAIN_ERROR ,    // 14:  NegEXPFrc   L   *   R   for L < 0 and R != floor (R)
+    ICVAL_ONE          ,    // 15:  0LOG0       0 {log} 0
+    ICVAL_DOMAIN_ERROR ,    // 16:  0LOG1       0 {log} 1
+    ICVAL_DOMAIN_ERROR ,    // 17:  1LOG0       1 {log} 0
+    ICVAL_ONE          ,    // 18:  1LOG1       1 {log} 1
+    ICVAL_LEFT         ,    // 19:  0GCDInf     0 {gcd} PoM_  or  PoM_ {gcd} 0
+    ICVAL_DOMAIN_ERROR ,    // 1A:  0LCMInf     0 {lcm} PoM_  or  PoM_ {lcm} 0
+    ICVAL_DOMAIN_ERROR ,    // 1B:  0LOGN       0 {log} N  (N NE 0 or 1)
+    ICVAL_DOMAIN_ERROR ,    // 1C:  N1to0EXPNi  L   *  -_   for -1 <= L < 0
    }
 #endif
 ;
 
 
+//***************************************************************************
 // Feature Control Values
+//***************************************************************************
+
 typedef enum tagFEATURE_VALUES
 {
     FEATUREVAL_FALSE,                   // 00:  FALSE
@@ -156,7 +162,8 @@ typedef enum tagFEATURE_VALUES
 typedef enum tagFEATURE_INDICES
 {
     FEATURENDX_NEGINDICES ,             // 00:  Allow negative indices
-    FEATURENDX_LENGTH                   // 01:  # entries in this enum
+    FEATURENDX_NEG0       ,             // 01:  Allow -0
+    FEATURENDX_LENGTH                   // 02:  # entries in this enum
 } FEATURE_INDICES, *LPFEATURE_INDICES;
 
 // Define the minimum/maximum allowable values for []FEATURE
@@ -164,6 +171,7 @@ typedef enum tagFEATURE_INDICES
 #define FEATUREVAL_MAXVAL       TRUE
 
 #define DEF_FEATURE_NEGINDICES  FALSE
+#define DEF_FEATURE_NEG0        FALSE
 
 typedef struct tagFEATURE_NAMES
 {
@@ -175,6 +183,7 @@ EXTERN
 APLINT aplDefaultFEATURE[FEATURENDX_LENGTH]  // []FEATURE default values
 #ifdef DEFINE_VALUES
  = {DEF_FEATURE_NEGINDICES,             // 00:  Allow negative indices
+    DEF_FEATURE_NEG0      ,             // 01:  Allow -0
    }
 #endif
 ;
@@ -182,8 +191,9 @@ APLINT aplDefaultFEATURE[FEATURENDX_LENGTH]  // []FEATURE default values
 EXTERN
 FEATURE_NAMES featNames[FEATURENDX_LENGTH]
 #ifdef DEFINE_VALUES
-= {{FEATURENDX_NEGINDICES, L"Allow Negative Indices"},
-  }
+ = {{FEATURENDX_NEGINDICES, L"Allow Negative Indices"},
+    {FEATURENDX_NEG0      , L"Allow " WS_UTF16_OVERBAR L"0"},
+   }
 #endif
 ;
 
@@ -239,14 +249,14 @@ typedef struct tagRANGELIMIT
 EXTERN
 RANGELIMIT bRangeLimit
 #ifdef DEFINE_VALUES
-= {DEF_RANGELIMIT_CT,       // []CT
-   DEF_RANGELIMIT_FEATURE,  // []FEATURE
-   DEF_RANGELIMIT_FPC,      // []FPC
-   DEF_RANGELIMIT_IC,       // []IC
-   DEF_RANGELIMIT_IO,       // []IO
-   DEF_RANGELIMIT_PP,       // []PP
-   DEF_RANGELIMIT_PW,       // []PW
-   DEF_RANGELIMIT_RL,       // []RL
+ = {DEF_RANGELIMIT_CT,      // []CT
+    DEF_RANGELIMIT_FEATURE, // []FEATURE
+    DEF_RANGELIMIT_FPC,     // []FPC
+    DEF_RANGELIMIT_IC,      // []IC
+    DEF_RANGELIMIT_IO,      // []IO
+    DEF_RANGELIMIT_PP,      // []PP
+    DEF_RANGELIMIT_PW,      // []PW
+    DEF_RANGELIMIT_RL,      // []RL
   }
 #endif
 ;
@@ -272,16 +282,16 @@ typedef struct tagRESET_VARS
 EXTERN
 RESET_VARS bResetVars
 #ifdef DEFINE_VALUES
-= {DEF_RESETVARS_CT,        // []CT
-   DEF_RESETVARS_DT,        // []DT
-   DEF_RESETVARS_FC,        // []FC
-   DEF_RESETVARS_FEATURE,   // []FEATURE
-   DEF_RESETVARS_FPC,       // []FPC
-   DEF_RESETVARS_IC,        // []IC
-   DEF_RESETVARS_IO,        // []IO
-   DEF_RESETVARS_PP,        // []PP
-   DEF_RESETVARS_PW,        // []PW
-   DEF_RESETVARS_RL,        // []RL
+ = {DEF_RESETVARS_CT,       // []CT
+    DEF_RESETVARS_DT,       // []DT
+    DEF_RESETVARS_FC,       // []FC
+    DEF_RESETVARS_FEATURE,  // []FEATURE
+    DEF_RESETVARS_FPC,      // []FPC
+    DEF_RESETVARS_IC,       // []IC
+    DEF_RESETVARS_IO,       // []IO
+    DEF_RESETVARS_PP,       // []PP
+    DEF_RESETVARS_PW,       // []PW
+    DEF_RESETVARS_RL,       // []RL
   }
 #endif
 ;
@@ -555,22 +565,22 @@ FASTBOOLFCN FastBoolScanQual;
 FASTBOOLFNS FastBoolFns[]
 #ifdef DEFINE_VALUES
  = {                                                // In the same order as FBFN_INDS
-    { NULL           ,  NULL            ,    NA},   // 00 = No entry so we can catch this as an error
-    {&FastBoolRed    , &FastBoolScan    , 0,0,0},   // 01 = Less
-    {&FastBoolRed    , &FastBoolScan    , 0,0,1},   // 02 = Or
-    {&FastBoolRed    , &FastBoolScan    , 0,1,0},   // 03 = Nor
-    {&FastBoolRed    , &FastBoolScan    , 0,1,1},   // 04 = More or equal
-    {&FastBoolRed    , &FastBoolScan    , 1,0,0},   // 05 = Nand
-    {&FastBoolRed    , &FastBoolScan    , 1,0,1},   // 06 = More
-    {&FastBoolRed    , &FastBoolScan    , 1,1,0},   // 07 = Less or equal
-    {&FastBoolRed    , &FastBoolScan    , 1,1,1},   // 08 = And
-    {&FastBoolRedQual, &FastBoolScanQual,    NA},   // 09 = Equal
-    {&FastBoolRedQual, &FastBoolScanQual,    NA},   // 0A = Not equal
-    {&FastBoolRed    , &FastBoolScan    , 0,0,1},   // 0B = Max
-    {&FastBoolRed    , &FastBoolScan    , 1,1,1},   // 0C = Min
-    {&FastBoolRedPlus,  NULL            ,    NA},   // 0D = Plus
-    { NULL           ,  NULL            ,    NA},   // 0E = Minus
-    { NULL           ,  NULL            ,    NA},   // 0F = Divide
+    { NULL            ,  NULL            ,    NA},  // 00 = No entry so we can catch this as an error
+     {&FastBoolRed    , &FastBoolScan    , 0,0,0},  // 01 = Less
+     {&FastBoolRed    , &FastBoolScan    , 0,0,1},  // 02 = Or
+     {&FastBoolRed    , &FastBoolScan    , 0,1,0},  // 03 = Nor
+     {&FastBoolRed    , &FastBoolScan    , 0,1,1},  // 04 = More or equal
+     {&FastBoolRed    , &FastBoolScan    , 1,0,0},  // 05 = Nand
+     {&FastBoolRed    , &FastBoolScan    , 1,0,1},  // 06 = More
+     {&FastBoolRed    , &FastBoolScan    , 1,1,0},  // 07 = Less or equal
+     {&FastBoolRed    , &FastBoolScan    , 1,1,1},  // 08 = And
+     {&FastBoolRedQual, &FastBoolScanQual,    NA},  // 09 = Equal
+     {&FastBoolRedQual, &FastBoolScanQual,    NA},  // 0A = Not equal
+     {&FastBoolRed    , &FastBoolScan    , 0,0,1},  // 0B = Max
+     {&FastBoolRed    , &FastBoolScan    , 1,1,1},  // 0C = Min
+     {&FastBoolRedPlus,  NULL            ,    NA},  // 0D = Plus
+     { NULL           ,  NULL            ,    NA},  // 0E = Minus
+     { NULL           ,  NULL            ,    NA},  // 0F = Divide
    }
 #endif
 ;
@@ -591,7 +601,7 @@ typedef enum tagFASTBOOLTRANS   // Enum for last column of FastBoolTrans
 //   the first two items
 FASTBOOLTRANS fbtFirst[2]
 #ifdef DEFINE_VALUES
-= {FBT_FIRST0, FBT_FIRST1};
+ = {FBT_FIRST0, FBT_FIRST1}
 #endif
 ;
 
@@ -607,14 +617,18 @@ typedef union tagGLBSYM
 EXTERN
 const TOKEN tkZero
 #ifdef DEFINE_VALUES
-= {{TKT_VARIMMED, FALSE, IMMTYPE_BOOL}}
+ = {{TKT_VARIMMED, FALSE, IMMTYPE_BOOL},    // tkFlags
+    soA,                                    // tkSynObj
+    0}                                      // tkData
 #endif
 ;
 
 EXTERN
 const TOKEN tkBlank
 #ifdef DEFINE_VALUES
-= {{TKT_VARIMMED, FALSE, IMMTYPE_CHAR}, (LPSYMENTRY) L' '}
+ = {{TKT_VARIMMED, FALSE, IMMTYPE_CHAR},    // tkFlags
+    soA,                                    // tkSynObj
+    (LPSYMENTRY) L' '}                      // tkData
 #endif
 ;
 
@@ -630,294 +644,294 @@ EXTERN
 UCHAR FastBoolTrans[256][FBT_LENGTH]
 #ifdef DEFINE_VALUES
   // Generated by an APL function
-   = {
-  {0,8,  0,  0,170,  0},    // 00000000
-  {1,0,  1,255, 85,128},    // 00000001
-  {0,1,  1,254, 84, 64},    // 00000010
-  {2,0,  2,  1,171,192},    // 00000011
-  {0,2,  1,252, 86, 32},    // 00000100
-  {1,0,  2,  3,169,160},    // 00000101
-  {0,1,  2,  2,168, 96},    // 00000110
-  {3,0,  3,253, 87,224},    // 00000111
+ = {
+    {0,8,  0,  0,170,  0},  // 00000000
+    {1,0,  1,255, 85,128},  // 00000001
+    {0,1,  1,254, 84, 64},  // 00000010
+    {2,0,  2,  1,171,192},  // 00000011
+    {0,2,  1,252, 86, 32},  // 00000100
+    {1,0,  2,  3,169,160},  // 00000101
+    {0,1,  2,  2,168, 96},  // 00000110
+    {3,0,  3,253, 87,224},  // 00000111
 
-  {0,3,  1,248, 82, 16},    // 00001000
-  {1,0,  2,  7,173,144},    // 00001001
-  {0,1,  2,  6,172, 80},    // 00001010
-  {2,0,  3,249, 83,208},    // 00001011
-  {0,2,  2,  4,174, 48},    // 00001100
-  {1,0,  3,251, 81,176},    // 00001101
-  {0,1,  3,250, 80,112},    // 00001110
-  {4,0,  4,  5,175,240},    // 00001111
+    {0,3,  1,248, 82, 16},  // 00001000
+    {1,0,  2,  7,173,144},  // 00001001
+    {0,1,  2,  6,172, 80},  // 00001010
+    {2,0,  3,249, 83,208},  // 00001011
+    {0,2,  2,  4,174, 48},  // 00001100
+    {1,0,  3,251, 81,176},  // 00001101
+    {0,1,  3,250, 80,112},  // 00001110
+    {4,0,  4,  5,175,240},  // 00001111
 
-  {0,4,  1,240, 90,  8},    // 00010000
-  {1,0,  2, 15,165,136},    // 00010001
-  {0,1,  2, 14,164, 72},    // 00010010
-  {2,0,  3,241, 91,200},    // 00010011
-  {0,2,  2, 12,166, 40},    // 00010100
-  {1,0,  3,243, 89,168},    // 00010101
-  {0,1,  3,242, 88,104},    // 00010110
-  {3,0,  4, 13,167,232},    // 00010111
+    {0,4,  1,240, 90,  8},  // 00010000
+    {1,0,  2, 15,165,136},  // 00010001
+    {0,1,  2, 14,164, 72},  // 00010010
+    {2,0,  3,241, 91,200},  // 00010011
+    {0,2,  2, 12,166, 40},  // 00010100
+    {1,0,  3,243, 89,168},  // 00010101
+    {0,1,  3,242, 88,104},  // 00010110
+    {3,0,  4, 13,167,232},  // 00010111
 
-  {0,3,  2,  8,162, 24},    // 00011000
-  {1,0,  3,247, 93,152},    // 00011001
-  {0,1,  3,246, 92, 88},    // 00011010
-  {2,0,  4,  9,163,216},    // 00011011
-  {0,2,  3,244, 94, 56},    // 00011100
-  {1,0,  4, 11,161,184},    // 00011101
-  {0,1,  4, 10,160,120},    // 00011110
-  {5,0,  5,245, 95,248},    // 00011111
+    {0,3,  2,  8,162, 24},  // 00011000
+    {1,0,  3,247, 93,152},  // 00011001
+    {0,1,  3,246, 92, 88},  // 00011010
+    {2,0,  4,  9,163,216},  // 00011011
+    {0,2,  3,244, 94, 56},  // 00011100
+    {1,0,  4, 11,161,184},  // 00011101
+    {0,1,  4, 10,160,120},  // 00011110
+    {5,0,  5,245, 95,248},  // 00011111
 
-  {0,5,  1,224, 74,  4},    // 00100000
-  {1,0,  2, 31,181,132},    // 00100001
-  {0,1,  2, 30,180, 68},    // 00100010
-  {2,0,  3,225, 75,196},    // 00100011
-  {0,2,  2, 28,182, 36},    // 00100100
-  {1,0,  3,227, 73,164},    // 00100101
-  {0,1,  3,226, 72,100},    // 00100110
-  {3,0,  4, 29,183,228},    // 00100111
+    {0,5,  1,224, 74,  4},  // 00100000
+    {1,0,  2, 31,181,132},  // 00100001
+    {0,1,  2, 30,180, 68},  // 00100010
+    {2,0,  3,225, 75,196},  // 00100011
+    {0,2,  2, 28,182, 36},  // 00100100
+    {1,0,  3,227, 73,164},  // 00100101
+    {0,1,  3,226, 72,100},  // 00100110
+    {3,0,  4, 29,183,228},  // 00100111
 
-  {0,3,  2, 24,178, 20},    // 00101000
-  {1,0,  3,231, 77,148},    // 00101001
-  {0,1,  3,230, 76, 84},    // 00101010
-  {2,0,  4, 25,179,212},    // 00101011
-  {0,2,  3,228, 78, 52},    // 00101100
-  {1,0,  4, 27,177,180},    // 00101101
-  {0,1,  4, 26,176,116},    // 00101110
-  {4,0,  5,229, 79,244},    // 00101111
+    {0,3,  2, 24,178, 20},  // 00101000
+    {1,0,  3,231, 77,148},  // 00101001
+    {0,1,  3,230, 76, 84},  // 00101010
+    {2,0,  4, 25,179,212},  // 00101011
+    {0,2,  3,228, 78, 52},  // 00101100
+    {1,0,  4, 27,177,180},  // 00101101
+    {0,1,  4, 26,176,116},  // 00101110
+    {4,0,  5,229, 79,244},  // 00101111
 
-  {0,4,  2, 16,186, 12},    // 00110000
-  {1,0,  3,239, 69,140},    // 00110001
-  {0,1,  3,238, 68, 76},    // 00110010
-  {2,0,  4, 17,187,204},    // 00110011
-  {0,2,  3,236, 70, 44},    // 00110100
-  {1,0,  4, 19,185,172},    // 00110101
-  {0,1,  4, 18,184,108},    // 00110110
-  {3,0,  5,237, 71,236},    // 00110111
+    {0,4,  2, 16,186, 12},  // 00110000
+    {1,0,  3,239, 69,140},  // 00110001
+    {0,1,  3,238, 68, 76},  // 00110010
+    {2,0,  4, 17,187,204},  // 00110011
+    {0,2,  3,236, 70, 44},  // 00110100
+    {1,0,  4, 19,185,172},  // 00110101
+    {0,1,  4, 18,184,108},  // 00110110
+    {3,0,  5,237, 71,236},  // 00110111
 
-  {0,3,  3,232, 66, 28},    // 00111000
-  {1,0,  4, 23,189,156},    // 00111001
-  {0,1,  4, 22,188, 92},    // 00111010
-  {2,0,  5,233, 67,220},    // 00111011
-  {0,2,  4, 20,190, 60},    // 00111100
-  {1,0,  5,235, 65,188},    // 00111101
-  {0,1,  5,234, 64,124},    // 00111110
-  {6,0,  6, 21,191,252},    // 00111111
+    {0,3,  3,232, 66, 28},  // 00111000
+    {1,0,  4, 23,189,156},  // 00111001
+    {0,1,  4, 22,188, 92},  // 00111010
+    {2,0,  5,233, 67,220},  // 00111011
+    {0,2,  4, 20,190, 60},  // 00111100
+    {1,0,  5,235, 65,188},  // 00111101
+    {0,1,  5,234, 64,124},  // 00111110
+    {6,0,  6, 21,191,252},  // 00111111
 
-  {0,6,  1,192,106,  2},    // 01000000
-  {1,0,  2, 63,149,130},    // 01000001
-  {0,1,  2, 62,148, 66},    // 01000010
-  {2,0,  3,193,107,194},    // 01000011
-  {0,2,  2, 60,150, 34},    // 01000100
-  {1,0,  3,195,105,162},    // 01000101
-  {0,1,  3,194,104, 98},    // 01000110
-  {3,0,  4, 61,151,226},    // 01000111
+    {0,6,  1,192,106,  2},  // 01000000
+    {1,0,  2, 63,149,130},  // 01000001
+    {0,1,  2, 62,148, 66},  // 01000010
+    {2,0,  3,193,107,194},  // 01000011
+    {0,2,  2, 60,150, 34},  // 01000100
+    {1,0,  3,195,105,162},  // 01000101
+    {0,1,  3,194,104, 98},  // 01000110
+    {3,0,  4, 61,151,226},  // 01000111
 
-  {0,3,  2, 56,146, 18},    // 01001000
-  {1,0,  3,199,109,146},    // 01001001
-  {0,1,  3,198,108, 82},    // 01001010
-  {2,0,  4, 57,147,210},    // 01001011
-  {0,2,  3,196,110, 50},    // 01001100
-  {1,0,  4, 59,145,178},    // 01001101
-  {0,1,  4, 58,144,114},    // 01001110
-  {4,0,  5,197,111,242},    // 01001111
+    {0,3,  2, 56,146, 18},  // 01001000
+    {1,0,  3,199,109,146},  // 01001001
+    {0,1,  3,198,108, 82},  // 01001010
+    {2,0,  4, 57,147,210},  // 01001011
+    {0,2,  3,196,110, 50},  // 01001100
+    {1,0,  4, 59,145,178},  // 01001101
+    {0,1,  4, 58,144,114},  // 01001110
+    {4,0,  5,197,111,242},  // 01001111
 
-  {0,4,  2, 48,154, 10},    // 01010000
-  {1,0,  3,207,101,138},    // 01010001
-  {0,1,  3,206,100, 74},    // 01010010
-  {2,0,  4, 49,155,202},    // 01010011
-  {0,2,  3,204,102, 42},    // 01010100
-  {1,0,  4, 51,153,170},    // 01010101
-  {0,1,  4, 50,152,106},    // 01010110
-  {3,0,  5,205,103,234},    // 01010111
+    {0,4,  2, 48,154, 10},  // 01010000
+    {1,0,  3,207,101,138},  // 01010001
+    {0,1,  3,206,100, 74},  // 01010010
+    {2,0,  4, 49,155,202},  // 01010011
+    {0,2,  3,204,102, 42},  // 01010100
+    {1,0,  4, 51,153,170},  // 01010101
+    {0,1,  4, 50,152,106},  // 01010110
+    {3,0,  5,205,103,234},  // 01010111
 
-  {0,3,  3,200, 98, 26},    // 01011000
-  {1,0,  4, 55,157,154},    // 01011001
-  {0,1,  4, 54,156, 90},    // 01011010
-  {2,0,  5,201, 99,218},    // 01011011
-  {0,2,  4, 52,158, 58},    // 01011100
-  {1,0,  5,203, 97,186},    // 01011101
-  {0,1,  5,202, 96,122},    // 01011110
-  {5,0,  6, 53,159,250},    // 01011111
+    {0,3,  3,200, 98, 26},  // 01011000
+    {1,0,  4, 55,157,154},  // 01011001
+    {0,1,  4, 54,156, 90},  // 01011010
+    {2,0,  5,201, 99,218},  // 01011011
+    {0,2,  4, 52,158, 58},  // 01011100
+    {1,0,  5,203, 97,186},  // 01011101
+    {0,1,  5,202, 96,122},  // 01011110
+    {5,0,  6, 53,159,250},  // 01011111
 
-  {0,5,  2, 32,138,  6},    // 01100000
-  {1,0,  3,223,117,134},    // 01100001
-  {0,1,  3,222,116, 70},    // 01100010
-  {2,0,  4, 33,139,198},    // 01100011
-  {0,2,  3,220,118, 38},    // 01100100
-  {1,0,  4, 35,137,166},    // 01100101
-  {0,1,  4, 34,136,102},    // 01100110
-  {3,0,  5,221,119,230},    // 01100111
+    {0,5,  2, 32,138,  6},  // 01100000
+    {1,0,  3,223,117,134},  // 01100001
+    {0,1,  3,222,116, 70},  // 01100010
+    {2,0,  4, 33,139,198},  // 01100011
+    {0,2,  3,220,118, 38},  // 01100100
+    {1,0,  4, 35,137,166},  // 01100101
+    {0,1,  4, 34,136,102},  // 01100110
+    {3,0,  5,221,119,230},  // 01100111
 
-  {0,3,  3,216,114, 22},    // 01101000
-  {1,0,  4, 39,141,150},    // 01101001
-  {0,1,  4, 38,140, 86},    // 01101010
-  {2,0,  5,217,115,214},    // 01101011
-  {0,2,  4, 36,142, 54},    // 01101100
-  {1,0,  5,219,113,182},    // 01101101
-  {0,1,  5,218,112,118},    // 01101110
-  {4,0,  6, 37,143,246},    // 01101111
+    {0,3,  3,216,114, 22},  // 01101000
+    {1,0,  4, 39,141,150},  // 01101001
+    {0,1,  4, 38,140, 86},  // 01101010
+    {2,0,  5,217,115,214},  // 01101011
+    {0,2,  4, 36,142, 54},  // 01101100
+    {1,0,  5,219,113,182},  // 01101101
+    {0,1,  5,218,112,118},  // 01101110
+    {4,0,  6, 37,143,246},  // 01101111
 
-  {0,4,  3,208,122, 14},    // 01110000
-  {1,0,  4, 47,133,142},    // 01110001
-  {0,1,  4, 46,132, 78},    // 01110010
-  {2,0,  5,209,123,206},    // 01110011
-  {0,2,  4, 44,134, 46},    // 01110100
-  {1,0,  5,211,121,174},    // 01110101
-  {0,1,  5,210,120,110},    // 01110110
-  {3,0,  6, 45,135,238},    // 01110111
+    {0,4,  3,208,122, 14},  // 01110000
+    {1,0,  4, 47,133,142},  // 01110001
+    {0,1,  4, 46,132, 78},  // 01110010
+    {2,0,  5,209,123,206},  // 01110011
+    {0,2,  4, 44,134, 46},  // 01110100
+    {1,0,  5,211,121,174},  // 01110101
+    {0,1,  5,210,120,110},  // 01110110
+    {3,0,  6, 45,135,238},  // 01110111
 
-  {0,3,  4, 40,130, 30},    // 01111000
-  {1,0,  5,215,125,158},    // 01111001
-  {0,1,  5,214,124, 94},    // 01111010
-  {2,0,  6, 41,131,222},    // 01111011
-  {0,2,  5,212,126, 62},    // 01111100
-  {1,0,  6, 43,129,190},    // 01111101
-  {0,1,  6, 42,128,126},    // 01111110
-  {7,0,  7,213,127,254},    // 01111111
+    {0,3,  4, 40,130, 30},  // 01111000
+    {1,0,  5,215,125,158},  // 01111001
+    {0,1,  5,214,124, 94},  // 01111010
+    {2,0,  6, 41,131,222},  // 01111011
+    {0,2,  5,212,126, 62},  // 01111100
+    {1,0,  6, 43,129,190},  // 01111101
+    {0,1,  6, 42,128,126},  // 01111110
+    {7,0,  7,213,127,254},  // 01111111
 
-  {0,7,  1,128, 42,  1},    // 10000000
-  {1,0,  2,127,213,129},    // 10000001
-  {0,1,  2,126,212, 65},    // 10000010
-  {2,0,  3,129, 43,193},    // 10000011
-  {0,2,  2,124,214, 33},    // 10000100
-  {1,0,  3,131, 41,161},    // 10000101
-  {0,1,  3,130, 40, 97},    // 10000110
-  {3,0,  4,125,215,225},    // 10000111
+    {0,7,  1,128, 42,  1},  // 10000000
+    {1,0,  2,127,213,129},  // 10000001
+    {0,1,  2,126,212, 65},  // 10000010
+    {2,0,  3,129, 43,193},  // 10000011
+    {0,2,  2,124,214, 33},  // 10000100
+    {1,0,  3,131, 41,161},  // 10000101
+    {0,1,  3,130, 40, 97},  // 10000110
+    {3,0,  4,125,215,225},  // 10000111
 
-  {0,3,  2,120,210, 17},    // 10001000
-  {1,0,  3,135, 45,145},    // 10001001
-  {0,1,  3,134, 44, 81},    // 10001010
-  {2,0,  4,121,211,209},    // 10001011
-  {0,2,  3,132, 46, 49},    // 10001100
-  {1,0,  4,123,209,177},    // 10001101
-  {0,1,  4,122,208,113},    // 10001110
-  {4,0,  5,133, 47,241},    // 10001111
+    {0,3,  2,120,210, 17},  // 10001000
+    {1,0,  3,135, 45,145},  // 10001001
+    {0,1,  3,134, 44, 81},  // 10001010
+    {2,0,  4,121,211,209},  // 10001011
+    {0,2,  3,132, 46, 49},  // 10001100
+    {1,0,  4,123,209,177},  // 10001101
+    {0,1,  4,122,208,113},  // 10001110
+    {4,0,  5,133, 47,241},  // 10001111
 
-  {0,4,  2,112,218,  9},    // 10010000
-  {1,0,  3,143, 37,137},    // 10010001
-  {0,1,  3,142, 36, 73},    // 10010010
-  {2,0,  4,113,219,201},    // 10010011
-  {0,2,  3,140, 38, 41},    // 10010100
-  {1,0,  4,115,217,169},    // 10010101
-  {0,1,  4,114,216,105},    // 10010110
-  {3,0,  5,141, 39,233},    // 10010111
+    {0,4,  2,112,218,  9},  // 10010000
+    {1,0,  3,143, 37,137},  // 10010001
+    {0,1,  3,142, 36, 73},  // 10010010
+    {2,0,  4,113,219,201},  // 10010011
+    {0,2,  3,140, 38, 41},  // 10010100
+    {1,0,  4,115,217,169},  // 10010101
+    {0,1,  4,114,216,105},  // 10010110
+    {3,0,  5,141, 39,233},  // 10010111
 
-  {0,3,  3,136, 34, 25},    // 10011000
-  {1,0,  4,119,221,153},    // 10011001
-  {0,1,  4,118,220, 89},    // 10011010
-  {2,0,  5,137, 35,217},    // 10011011
-  {0,2,  4,116,222, 57},    // 10011100
-  {1,0,  5,139, 33,185},    // 10011101
-  {0,1,  5,138, 32,121},    // 10011110
-  {5,0,  6,117,223,249},    // 10011111
+    {0,3,  3,136, 34, 25},  // 10011000
+    {1,0,  4,119,221,153},  // 10011001
+    {0,1,  4,118,220, 89},  // 10011010
+    {2,0,  5,137, 35,217},  // 10011011
+    {0,2,  4,116,222, 57},  // 10011100
+    {1,0,  5,139, 33,185},  // 10011101
+    {0,1,  5,138, 32,121},  // 10011110
+    {5,0,  6,117,223,249},  // 10011111
 
-  {0,5,  2, 96,202,  5},    // 10100000
-  {1,0,  3,159, 53,133},    // 10100001
-  {0,1,  3,158, 52, 69},    // 10100010
-  {2,0,  4, 97,203,197},    // 10100011
-  {0,2,  3,156, 54, 37},    // 10100100
-  {1,0,  4, 99,201,165},    // 10100101
-  {0,1,  4, 98,200,101},    // 10100110
-  {3,0,  5,157, 55,229},    // 10100111
+    {0,5,  2, 96,202,  5},  // 10100000
+    {1,0,  3,159, 53,133},  // 10100001
+    {0,1,  3,158, 52, 69},  // 10100010
+    {2,0,  4, 97,203,197},  // 10100011
+    {0,2,  3,156, 54, 37},  // 10100100
+    {1,0,  4, 99,201,165},  // 10100101
+    {0,1,  4, 98,200,101},  // 10100110
+    {3,0,  5,157, 55,229},  // 10100111
 
-  {0,3,  3,152, 50, 21},    // 10101000
-  {1,0,  4,103,205,149},    // 10101001
-  {0,1,  4,102,204, 85},    // 10101010
-  {2,0,  5,153, 51,213},    // 10101011
-  {0,2,  4,100,206, 53},    // 10101100
-  {1,0,  5,155, 49,181},    // 10101101
-  {0,1,  5,154, 48,117},    // 10101110
-  {4,0,  6,101,207,245},    // 10101111
+    {0,3,  3,152, 50, 21},  // 10101000
+    {1,0,  4,103,205,149},  // 10101001
+    {0,1,  4,102,204, 85},  // 10101010
+    {2,0,  5,153, 51,213},  // 10101011
+    {0,2,  4,100,206, 53},  // 10101100
+    {1,0,  5,155, 49,181},  // 10101101
+    {0,1,  5,154, 48,117},  // 10101110
+    {4,0,  6,101,207,245},  // 10101111
 
-  {0,4,  3,144, 58, 13},    // 10110000
-  {1,0,  4,111,197,141},    // 10110001
-  {0,1,  4,110,196, 77},    // 10110010
-  {2,0,  5,145, 59,205},    // 10110011
-  {0,2,  4,108,198, 45},    // 10110100
-  {1,0,  5,147, 57,173},    // 10110101
-  {0,1,  5,146, 56,109},    // 10110110
-  {3,0,  6,109,199,237},    // 10110111
+    {0,4,  3,144, 58, 13},  // 10110000
+    {1,0,  4,111,197,141},  // 10110001
+    {0,1,  4,110,196, 77},  // 10110010
+    {2,0,  5,145, 59,205},  // 10110011
+    {0,2,  4,108,198, 45},  // 10110100
+    {1,0,  5,147, 57,173},  // 10110101
+    {0,1,  5,146, 56,109},  // 10110110
+    {3,0,  6,109,199,237},  // 10110111
 
-  {0,3,  4,104,194, 29},    // 10111000
-  {1,0,  5,151, 61,157},    // 10111001
-  {0,1,  5,150, 60, 93},    // 10111010
-  {2,0,  6,105,195,221},    // 10111011
-  {0,2,  5,148, 62, 61},    // 10111100
-  {1,0,  6,107,193,189},    // 10111101
-  {0,1,  6,106,192,125},    // 10111110
-  {6,0,  7,149, 63,253},    // 10111111
+    {0,3,  4,104,194, 29},  // 10111000
+    {1,0,  5,151, 61,157},  // 10111001
+    {0,1,  5,150, 60, 93},  // 10111010
+    {2,0,  6,105,195,221},  // 10111011
+    {0,2,  5,148, 62, 61},  // 10111100
+    {1,0,  6,107,193,189},  // 10111101
+    {0,1,  6,106,192,125},  // 10111110
+    {6,0,  7,149, 63,253},  // 10111111
 
-  {0,6,  2, 64,234,  3},    // 11000000
-  {1,0,  3,191, 21,131},    // 11000001
-  {0,1,  3,190, 20, 67},    // 11000010
-  {2,0,  4, 65,235,195},    // 11000011
-  {0,2,  3,188, 22, 35},    // 11000100
-  {1,0,  4, 67,233,163},    // 11000101
-  {0,1,  4, 66,232, 99},    // 11000110
-  {3,0,  5,189, 23,227},    // 11000111
+    {0,6,  2, 64,234,  3},  // 11000000
+    {1,0,  3,191, 21,131},  // 11000001
+    {0,1,  3,190, 20, 67},  // 11000010
+    {2,0,  4, 65,235,195},  // 11000011
+    {0,2,  3,188, 22, 35},  // 11000100
+    {1,0,  4, 67,233,163},  // 11000101
+    {0,1,  4, 66,232, 99},  // 11000110
+    {3,0,  5,189, 23,227},  // 11000111
 
-  {0,3,  3,184, 18, 19},    // 11001000
-  {1,0,  4, 71,237,147},    // 11001001
-  {0,1,  4, 70,236, 83},    // 11001010
-  {2,0,  5,185, 19,211},    // 11001011
-  {0,2,  4, 68,238, 51},    // 11001100
-  {1,0,  5,187, 17,179},    // 11001101
-  {0,1,  5,186, 16,115},    // 11001110
-  {4,0,  6, 69,239,243},    // 11001111
+    {0,3,  3,184, 18, 19},  // 11001000
+    {1,0,  4, 71,237,147},  // 11001001
+    {0,1,  4, 70,236, 83},  // 11001010
+    {2,0,  5,185, 19,211},  // 11001011
+    {0,2,  4, 68,238, 51},  // 11001100
+    {1,0,  5,187, 17,179},  // 11001101
+    {0,1,  5,186, 16,115},  // 11001110
+    {4,0,  6, 69,239,243},  // 11001111
 
-  {0,4,  3,176, 26, 11},    // 11010000
-  {1,0,  4, 79,229,139},    // 11010001
-  {0,1,  4, 78,228, 75},    // 11010010
-  {2,0,  5,177, 27,203},    // 11010011
-  {0,2,  4, 76,230, 43},    // 11010100
-  {1,0,  5,179, 25,171},    // 11010101
-  {0,1,  5,178, 24,107},    // 11010110
-  {3,0,  6, 77,231,235},    // 11010111
+    {0,4,  3,176, 26, 11},  // 11010000
+    {1,0,  4, 79,229,139},  // 11010001
+    {0,1,  4, 78,228, 75},  // 11010010
+    {2,0,  5,177, 27,203},  // 11010011
+    {0,2,  4, 76,230, 43},  // 11010100
+    {1,0,  5,179, 25,171},  // 11010101
+    {0,1,  5,178, 24,107},  // 11010110
+    {3,0,  6, 77,231,235},  // 11010111
 
-  {0,3,  4, 72,226, 27},    // 11011000
-  {1,0,  5,183, 29,155},    // 11011001
-  {0,1,  5,182, 28, 91},    // 11011010
-  {2,0,  6, 73,227,219},    // 11011011
-  {0,2,  5,180, 30, 59},    // 11011100
-  {1,0,  6, 75,225,187},    // 11011101
-  {0,1,  6, 74,224,123},    // 11011110
-  {5,0,  7,181, 31,251},    // 11011111
+    {0,3,  4, 72,226, 27},  // 11011000
+    {1,0,  5,183, 29,155},  // 11011001
+    {0,1,  5,182, 28, 91},  // 11011010
+    {2,0,  6, 73,227,219},  // 11011011
+    {0,2,  5,180, 30, 59},  // 11011100
+    {1,0,  6, 75,225,187},  // 11011101
+    {0,1,  6, 74,224,123},  // 11011110
+    {5,0,  7,181, 31,251},  // 11011111
 
-  {0,5,  3,160, 10,  7},    // 11100000
-  {1,0,  4, 95,245,135},    // 11100001
-  {0,1,  4, 94,244, 71},    // 11100010
-  {2,0,  5,161, 11,199},    // 11100011
-  {0,2,  4, 92,246, 39},    // 11100100
-  {1,0,  5,163,  9,167},    // 11100101
-  {0,1,  5,162,  8,103},    // 11100110
-  {3,0,  6, 93,247,231},    // 11100111
+    {0,5,  3,160, 10,  7},  // 11100000
+    {1,0,  4, 95,245,135},  // 11100001
+    {0,1,  4, 94,244, 71},  // 11100010
+    {2,0,  5,161, 11,199},  // 11100011
+    {0,2,  4, 92,246, 39},  // 11100100
+    {1,0,  5,163,  9,167},  // 11100101
+    {0,1,  5,162,  8,103},  // 11100110
+    {3,0,  6, 93,247,231},  // 11100111
 
-  {0,3,  4, 88,242, 23},    // 11101000
-  {1,0,  5,167, 13,151},    // 11101001
-  {0,1,  5,166, 12, 87},    // 11101010
-  {2,0,  6, 89,243,215},    // 11101011
-  {0,2,  5,164, 14, 55},    // 11101100
-  {1,0,  6, 91,241,183},    // 11101101
-  {0,1,  6, 90,240,119},    // 11101110
-  {4,0,  7,165, 15,247},    // 11101111
+    {0,3,  4, 88,242, 23},  // 11101000
+    {1,0,  5,167, 13,151},  // 11101001
+    {0,1,  5,166, 12, 87},  // 11101010
+    {2,0,  6, 89,243,215},  // 11101011
+    {0,2,  5,164, 14, 55},  // 11101100
+    {1,0,  6, 91,241,183},  // 11101101
+    {0,1,  6, 90,240,119},  // 11101110
+    {4,0,  7,165, 15,247},  // 11101111
 
-  {0,4,  4, 80,250, 15},    // 11110000
-  {1,0,  5,175,  5,143},    // 11110001
-  {0,1,  5,174,  4, 79},    // 11110010
-  {2,0,  6, 81,251,207},    // 11110011
-  {0,2,  5,172,  6, 47},    // 11110100
-  {1,0,  6, 83,249,175},    // 11110101
-  {0,1,  6, 82,248,111},    // 11110110
-  {3,0,  7,173,  7,239},    // 11110111
+    {0,4,  4, 80,250, 15},  // 11110000
+    {1,0,  5,175,  5,143},  // 11110001
+    {0,1,  5,174,  4, 79},  // 11110010
+    {2,0,  6, 81,251,207},  // 11110011
+    {0,2,  5,172,  6, 47},  // 11110100
+    {1,0,  6, 83,249,175},  // 11110101
+    {0,1,  6, 82,248,111},  // 11110110
+    {3,0,  7,173,  7,239},  // 11110111
 
-  {0,3,  5,168,  2, 31},    // 11111000
-  {1,0,  6, 87,253,159},    // 11111001
-  {0,1,  6, 86,252, 95},    // 11111010
-  {2,0,  7,169,  3,223},    // 11111011
-  {0,2,  6, 84,254, 63},    // 11111100
-  {1,0,  7,171,  1,191},    // 11111101
-  {0,1,  7,170,  0,127},    // 11111110
-  {8,0,  8, 85,255,255},    // 11111111
+    {0,3,  5,168,  2, 31},  // 11111000
+    {1,0,  6, 87,253,159},  // 11111001
+    {0,1,  6, 86,252, 95},  // 11111010
+    {2,0,  7,169,  3,223},  // 11111011
+    {0,2,  6, 84,254, 63},  // 11111100
+    {1,0,  7,171,  1,191},  // 11111101
+    {0,1,  7,170,  0,127},  // 11111110
+    {8,0,  8, 85,255,255},  // 11111111
   }
 #endif
 ;
@@ -993,8 +1007,8 @@ REBARBANDS aRebarBands[1 + IDM_TB_LAST - IDM_TB_FIRST]
 //   Show?  SM?    FE?  WindowID
  = {{TRUE, TRUE , TRUE, IDWC_WS_RB},   // Workspace
     {TRUE, TRUE , TRUE, IDWC_ED_RB},   // Edit
-    {TRUE, FALSE, TRUE, IDWC_OW_RB},   // Objects
     {TRUE, TRUE , TRUE, IDWC_FW_RB},   // SM Font
+    {TRUE, FALSE, TRUE, IDWC_OW_RB},   // Objects
     {TRUE, TRUE , TRUE, IDWC_LW_RB},   // Language
    }
 #endif
@@ -1061,6 +1075,7 @@ HWND hWndTC,                            // Global Tab Control window handle
 EXTERN
 HGLOBAL hGlbQuadA,                      // []A
         hGlbQuadAV,                     // []AV
+        hGlbQuadD,                      // []D
         hGlbQuadxLX,                    // []xLX default
         hGlb0by0,                       // 0 0 {rho} 0 -- []EC[2] default
         hGlb3by0,                       // 3 0 {rho}'' -- []EM default
@@ -1079,9 +1094,10 @@ HGLOBAL hGlbQuadA,                      // []A
 #define hGlbQuadEM_DEF      hGlb3by0
 
 EXTERN
-APLFLOAT PosInfinity,                   // Positive infinity
-         NegInfinity,                   // Negative ...
+APLFLOAT fltPosInfinity,                // Positive infinity
+         fltNegInfinity,                // Negative ...
          FloatPi,                       // Pi
+         FloatGamma,                    // Gamma
          FloatE,                        // e
          Float2Pow53;                   // 2*53 in floating point
 
@@ -1118,15 +1134,10 @@ EXTERN
 SIZE  MFSize;                           // Size of Master Frame Window window rectangle
 
 EXTERN
-HBITMAP hBitMapLineCont,                // Bitmap for the line continuation char
-        hBitMapCheck;                   // Bitmap for the marker used in Customize
+HBITMAP hBitmapCheck;                   // Bitmap for the marker used in Customize
 
 EXTERN
-int     iLCWidth;                       // Width of the line continuation column
-
-EXTERN
-BITMAP  bmLineCont,                     // Bitmap metrics for the line continuation char
-        bmCheck;                        // Bitmap metrics for the marker
+BITMAP  bmCheck;                        // Bitmap metrics for the marker
 
 EXTERN
 HCURSOR hCursorWait,                    // Hourglass cursor
@@ -1189,16 +1200,6 @@ char pszNoInsertTCTab[]
 #ifdef DEFINE_VALUES
  = "Unable to create Function Editor window"
 #endif
-,
-     pszNoCreateMEWnd[]
-#ifdef DEFINE_VALUES
- = "Unable to create Matrix Editor window"
-#endif
-,
-     pszNoCreateVEWnd[]
-#ifdef DEFINE_VALUES
- = "Unable to create Vector Editor window"
-#endif
 ;
 
 EXTERN
@@ -1231,14 +1232,9 @@ WCHAR wszMCTitle[]                      // MDI Client ... (for debugging purpose
  = WS_APPNAME L" [%s]%c"
 #endif
 ,
-      wszMETitle[]                      // Matrix Editor ...
+      wszFETitle2[]                     // Function Editor for AFOs ...
 #ifdef DEFINE_VALUES
- = WS_APPNAME L" Matrix Editor" WS_APPEND_DEBUG
-#endif
-,
-      wszVETitle[]                      // Vector Editor ...
-#ifdef DEFINE_VALUES
- = WS_APPNAME L" Vector Editor" WS_APPEND_DEBUG
+ = WS_APPNAME L" [%s" WS_UTF16_LEFTARROW L"{...}]%c"
 #endif
 ;
 
@@ -1284,7 +1280,7 @@ HIMAGELIST hImageListTC,                // Handle to the common image list for T
 // Same order as in ARRAY_TYPES
 // so that BOOL < INT < FLOAT < APA < CHAR < HETERO < NESTED < LIST < RAT < VFP
 EXTERN
-UINT uTypeMap[]
+UINT uTypeMap[ARRAY_LENGTH]
 #ifdef DEFINE_VALUES
 //  BOOL, INT, FLOAT, CHAR, HETERO, NESTED, LIST, APA, RAT, VFP
  = {   0,   1,     2,    4,      5,      6,    7,   3,   8,   9}
@@ -1308,19 +1304,24 @@ UBOOL gbResDebug
 
 typedef enum tagVARIANT_KEYS
 {
-    VARIANT_KEY_CT = 0,     // 00:  []CT
-    VARIANT_KEY_DT    ,     // 01:  []DT
-    VARIANT_KEY_IO    ,     // 02:  []IO
-    VARIANT_KEY_PP    ,     // 03:  []PP
-    VARIANT_KEY_LENGTH,     // 04:  # entries
+    VARIANT_KEY_ALX = 0 ,   // 00:  []ALX
+    VARIANT_KEY_CT      ,   // 01:  []CT
+    VARIANT_KEY_DT      ,   // 02:  []DT
+    VARIANT_KEY_ELX     ,   // 03:  []ALX
+    VARIANT_KEY_FC      ,   // 04:  []FC
+    VARIANT_KEY_FEATURE ,   // 05:  []FEATURE
+    VARIANT_KEY_FPC     ,   // 06:  []FPC
+    VARIANT_KEY_IO      ,   // 07:  []IO
+    VARIANT_KEY_PP      ,   // 08:  []PP
+    VARIANT_KEY_RL      ,   // 09:  []PP
+    VARIANT_KEY_LENGTH  ,   // 0A:  # entries
 } VARIANTKEYS, *LPVARIANTKEYS;
 
 #define VARIANT_KEY_ERROR   VARIANT_KEY_LENGTH
 
 // N.B.:  Whenever changing the above enum (VARIANT_KEYS)
 //   be sure to make a corresponding change to
-//   <aVariantKeyStr> below, and
-//   <InitSystemVars> in <sysvars.c>.
+//   <aVariantKeyStr> below.
 
 typedef struct tagVARIANT_KEY_STR
 {
@@ -1329,13 +1330,30 @@ typedef struct tagVARIANT_KEY_STR
     ASYSVARVALIDSET   aSysVarValidSet;  // 08:  Ptr to validation function
 } VARIANTKEYSTR, LPVARIANTKEYSTR;
 
+UBOOL ValidSetALX_EM     (LPTOKEN, LPTOKEN);
+UBOOL ValidSetCT_EM      (LPTOKEN, LPTOKEN);
+UBOOL ValidSetDT_EM      (LPTOKEN, LPTOKEN);
+UBOOL ValidSetELX_EM     (LPTOKEN, LPTOKEN);
+UBOOL ValidSetFC_EM      (LPTOKEN, LPTOKEN);
+UBOOL ValidSetFEATURE_EM (LPTOKEN, LPTOKEN);
+UBOOL ValidSetFPC_EM     (LPTOKEN, LPTOKEN);
+UBOOL ValidSetIO_EM      (LPTOKEN, LPTOKEN);
+UBOOL ValidSetPP_EM      (LPTOKEN, LPTOKEN);
+UBOOL ValidSetRL_EM      (LPTOKEN, LPTOKEN);
+
 EXTERN
 VARIANTKEYSTR aVariantKeyStr[VARIANT_KEY_LENGTH]
 #ifdef DEFINE_VALUES
-= {{L"CT"   , SYSVAR_CT, NULL},
-   {L"DT"   , SYSVAR_DT, NULL},
-   {L"IO"   , SYSVAR_IO, NULL},
-   {L"PP"   , SYSVAR_PP, NULL},
+ = {{L"ALX"     , SYSVAR_ALX     , ValidSetALX_EM     },
+    {L"CT"      , SYSVAR_CT      , ValidSetCT_EM      },
+    {L"DT"      , SYSVAR_DT      , ValidSetDT_EM      },
+    {L"ELX"     , SYSVAR_ELX     , ValidSetELX_EM     },
+    {L"FC"      , SYSVAR_FC      , ValidSetFC_EM      },
+    {L"FEATURE" , SYSVAR_FEATURE , ValidSetFEATURE_EM },
+    {L"FPC"     , SYSVAR_FPC     , ValidSetFPC_EM     },
+    {L"IO"      , SYSVAR_IO      , ValidSetIO_EM      },
+    {L"PP"      , SYSVAR_PP      , ValidSetPP_EM      },
+    {L"RL"      , SYSVAR_RL      , ValidSetRL_EM      },
   }
 #endif
 ;
@@ -1365,35 +1383,37 @@ typedef struct tagSYNTAXCOLORNAME
 EXTERN
 SYNTAXCOLORNAME gSyntaxColorName[SC_LENGTH]
 #ifdef DEFINE_VALUES
-= {{{DEF_SC_GLBNAME    }, L"Global Name"                  },  // 00:  Global Name
-   {{DEF_SC_LCLNAME    }, L"Local Name"                   },  // 01:  Local  ...
-   {{DEF_SC_LABEL      }, L"Label"                        },  // 02:  Label
-   {{DEF_SC_PRIMFCN    }, L"Primitive Function"           },  // 03:  Primitive Function
-   {{DEF_SC_PRIMOP1    }, L"Primitive Monadic Operator"   },  // 04:  Primitive Monadic Operator
-   {{DEF_SC_PRIMOP2    }, L"Primitive Dyadic Operator"    },  // 05:  Primitive Dyadic Operator
-   {{DEF_SC_SYSFCN     }, L"System Function"              },  // 06:  System Function
-   {{DEF_SC_GLBSYSVAR  }, L"Global System Variable"       },  // 07:  Global System Variable
-   {{DEF_SC_LCLSYSVAR  }, L"Local System Variable"        },  // 08:  Local  ...
-   {{DEF_SC_CTRLSTRUC  }, L"Control Structure"            },  // 09:  Control Structure
-   {{DEF_SC_NUMCONST   }, L"Numeric Constant"             },  // 0A:  Numeric constant
-   {{DEF_SC_CHRCONST   }, L"Character Constant"           },  // 0B:  Character constant
-   {{DEF_SC_PNSEP      }, L"Point Notation Separator"     },  // 0C:  Point notation separator
-   {{DEF_SC_COMMENT    }, L"Comment"                      },  // 0D:  Comment
-   {{DEF_SC_LINEDRAWING}, L"Line Drawing Chars"           },  // 0E:  Line drawing chars
-   {{DEF_SC_FCNLINENUMS}, L"Function Line Numbers"        },  // 0F:  Function line numbers
-   {{DEF_SC_MATCHGRP1  }, L"Matched Group Level 1"        },  // 10:  Matched Grouping Symbols [] () {}
-   {{DEF_SC_MATCHGRP2  }, L"Matched Group Level 2"        },  // 11:  Matched Grouping Symbols [] () {}
-   {{DEF_SC_MATCHGRP3  }, L"Matched Group Level 3"        },  // 12:  Matched Grouping Symbols [] () {}
-   {{DEF_SC_MATCHGRP4  }, L"Matched Group Level 4"        },  // 13:  Matched Grouping Symbols [] () {}
-   {{DEF_SC_UNMATCHGRP }, L"Unmatched Group"              },  // 14:  Unmatched Grouping Symbols [] () {} ' "
-   {{DEF_SC_UNNESTED   }, L"Improper Nesting"             },  // 15:  Improperly Nested Grouping Symbols [] () {}
-   {{DEF_SC_UNK        }, L"Unknown Symbols"              },  // 16:  Unknown symbol
-   {{DEF_SC_WINTEXT    }, L"Window Text"                  },  // 17:  Window text
+ = {{{DEF_SC_GLBNAME    }, L"Global Name"                 },  // 00:  Global Name
+    {{DEF_SC_LCLNAME    }, L"Local Name"                  },  // 01:  Local  ...
+    {{DEF_SC_LABEL      }, L"Label"                       },  // 02:  Label
+    {{DEF_SC_PRIMFCN    }, L"Primitive Function"          },  // 03:  Primitive Function
+    {{DEF_SC_PRIMOP1    }, L"Primitive Monadic Operator"  },  // 04:  Primitive Monadic Operator
+    {{DEF_SC_PRIMOP2    }, L"Primitive Dyadic Operator"   },  // 05:  Primitive Dyadic Operator
+    {{DEF_SC_SYSFCN     }, L"System Function"             },  // 06:  System Function
+    {{DEF_SC_GLBSYSVAR  }, L"Global System Variable"      },  // 07:  Global System Variable
+    {{DEF_SC_LCLSYSVAR  }, L"Local System Variable"       },  // 08:  Local  ...
+    {{DEF_SC_CTRLSTRUC  }, L"Control Structure"           },  // 09:  Control Structure
+    {{DEF_SC_NUMCONST   }, L"Numeric Constant"            },  // 0A:  Numeric constant
+    {{DEF_SC_CHRCONST   }, L"Character Constant"          },  // 0B:  Character constant
+    {{DEF_SC_PNSEP      }, L"Point Notation Separator"    },  // 0C:  Point notation separator
+    {{DEF_SC_COMMENT    }, L"Comment"                     },  // 0D:  Comment
+    {{DEF_SC_LINEDRAWING}, L"Line Drawing Chars"          },  // 0E:  Line drawing chars
+    {{DEF_SC_FCNLINENUMS}, L"Function Line Numbers"       },  // 0F:  Function line numbers
+    {{DEF_SC_MATCHGRP1  }, L"Matched Group Level 1"       },  // 10:  Matched Grouping Symbols [] () {}
+    {{DEF_SC_MATCHGRP2  }, L"Matched Group Level 2"       },  // 11:  Matched Grouping Symbols [] () {}
+    {{DEF_SC_MATCHGRP3  }, L"Matched Group Level 3"       },  // 12:  Matched Grouping Symbols [] () {}
+    {{DEF_SC_MATCHGRP4  }, L"Matched Group Level 4"       },  // 13:  Matched Grouping Symbols [] () {}
+    {{DEF_SC_UNMATCHGRP }, L"Unmatched Group"             },  // 14:  Unmatched Grouping Symbols [] () {} ' "
+    {{DEF_SC_UNNESTED   }, L"Improper Nesting"            },  // 15:  Improperly Nested Grouping Symbols [] () {}
+    {{DEF_SC_UNK        }, L"Unknown Symbols"             },  // 16:  Unknown symbol
+    {{DEF_SC_LINECONT   }, L"Line Continuation"           },  // 17:  Line Continuation
+    {{DEF_SC_WINTEXT    }, L"Window Text"                 },  // 18:  Window text
   }
 #endif
 ;
 
-#define gSyntaxColorText    gSyntaxColorName[SC_WINTEXT].syntClr
+#define gSyntaxColorText    gSyntaxColorName[SC_WINTEXT ].syntClr
+#define gSyntaxColorLC      gSyntaxColorName[SC_LINECONT].syntClr
 
 EXTERN
 HBRUSH ghBrushBG;           // Window background brush
@@ -1406,30 +1426,31 @@ UBOOL defSyntClrBGTrans[SC_LENGTH];
 EXTERN
 UBOOL gSyntClrBGTrans[SC_LENGTH]
 #ifdef DEFINE_VALUES
-= {TRUE,                    // 00:  Global Name
-   TRUE,                    // 01:  Local  ...
-   TRUE,                    // 02:  Label
-   TRUE,                    // 03:  Primitive Function
-   TRUE,                    // 04:  Primitive Monadic Operator
-   TRUE,                    // 05:  Primitive Dyadic Operator
-   TRUE,                    // 06:  System Function
-   TRUE,                    // 07:  Global System Variable
-   TRUE,                    // 08:  Local  ...
-   TRUE,                    // 09:  Control Structure
-   TRUE,                    // 0A:  Numeric constant
-   TRUE,                    // 0B:  Character constant
-   TRUE,                    // 0C:  Point notation separator
-   TRUE,                    // 0D:  Comment
-   TRUE,                    // 0E:  Line drawing chars
-   TRUE,                    // 0F:  Function line numbers
-   TRUE,                    // 10:  Matched Grouping Symbols Level 1
-   TRUE,                    // 11:  ...                            2
-   TRUE,                    // 12:  ...                            3
-   TRUE,                    // 13:  ...                            4
-   FALSE,                   // 14:  Unmatched Grouping Symbols
-   FALSE,                   // 15:  Improperly Nested Grouping Symbols
-   FALSE,                   // 16:  Unknown symbol
-   FALSE,                   // 17:  Window background
+ = {TRUE,                   // 00:  Global Name
+    TRUE,                   // 01:  Local  ...
+    TRUE,                   // 02:  Label
+    TRUE,                   // 03:  Primitive Function
+    TRUE,                   // 04:  Primitive Monadic Operator
+    TRUE,                   // 05:  Primitive Dyadic Operator
+    TRUE,                   // 06:  System Function
+    TRUE,                   // 07:  Global System Variable
+    TRUE,                   // 08:  Local  ...
+    TRUE,                   // 09:  Control Structure
+    TRUE,                   // 0A:  Numeric constant
+    TRUE,                   // 0B:  Character constant
+    TRUE,                   // 0C:  Point notation separator
+    TRUE,                   // 0D:  Comment
+    TRUE,                   // 0E:  Line drawing chars
+    TRUE,                   // 0F:  Function line numbers
+    TRUE,                   // 10:  Matched Grouping Symbols Level 1
+    TRUE,                   // 11:  ...                            2
+    TRUE,                   // 12:  ...                            3
+    TRUE,                   // 13:  ...                            4
+    FALSE,                  // 14:  Unmatched Grouping Symbols
+    FALSE,                  // 15:  Improperly Nested Grouping Symbols
+    FALSE,                  // 16:  Unknown symbol
+    TRUE,                   // 17:  Line Continuation
+    FALSE,                  // 18:  Window background
   }
 #endif
 ;
@@ -1437,22 +1458,22 @@ UBOOL gSyntClrBGTrans[SC_LENGTH]
 EXTERN
 COLORREF   aCustomColors[16]        // Custom colors for ChooseColor
 #ifdef DEFINE_VALUES
-= {CLR_INVALID,             // 00:  No particular name, just 16 of them
-   CLR_INVALID,             // 01:  ...
-   CLR_INVALID,             // 02:  ...
-   CLR_INVALID,             // 03:  ...
-   CLR_INVALID,             // 04:  ...
-   CLR_INVALID,             // 05:  ...
-   CLR_INVALID,             // 06:  ...
-   CLR_INVALID,             // 07:  ...
-   CLR_INVALID,             // 08:  ...
-   CLR_INVALID,             // 09:  ...
-   CLR_INVALID,             // 0A:  ...
-   CLR_INVALID,             // 0B:  ...
-   CLR_INVALID,             // 0C:  ...
-   CLR_INVALID,             // 0D:  ...
-   CLR_INVALID,             // 0E:  ...
-   CLR_INVALID}             // 0F:  ...
+ = {CLR_INVALID,            // 00:  No particular name, just 16 of them
+    CLR_INVALID,            // 01:  ...
+    CLR_INVALID,            // 02:  ...
+    CLR_INVALID,            // 03:  ...
+    CLR_INVALID,            // 04:  ...
+    CLR_INVALID,            // 05:  ...
+    CLR_INVALID,            // 06:  ...
+    CLR_INVALID,            // 07:  ...
+    CLR_INVALID,            // 08:  ...
+    CLR_INVALID,            // 09:  ...
+    CLR_INVALID,            // 0A:  ...
+    CLR_INVALID,            // 0B:  ...
+    CLR_INVALID,            // 0C:  ...
+    CLR_INVALID,            // 0D:  ...
+    CLR_INVALID,            // 0E:  ...
+    CLR_INVALID}            // 0F:  ...
 #endif
 ;
 
@@ -1465,147 +1486,147 @@ typedef struct tagCOLORNAMES
 EXTERN
 COLORNAMES aColorNames[]
 #ifdef DEFINE_VALUES
-= {
-   {DEF_SCN_BLACK               , L"Black"               },     //   1
-   {DEF_SCN_DIMGRAY             , L"Dimgray"             },     //   2
-   {DEF_SCN_GRAY                , L"Gray"                },     //   3
-   {DEF_SCN_DARKGRAY            , L"Darkgray"            },     //   4
-   {DEF_SCN_SILVER              , L"Silver"              },     //   5
-   {DEF_SCN_LIGHTGRAY           , L"Lightgray"           },     //   6
-   {DEF_SCN_GAINSBORO           , L"Gainsboro"           },     //   7
-   {DEF_SCN_WHITESMOKE          , L"Whitesmoke"          },     //   8
-   {DEF_SCN_WHITE               , L"White"               },     //   9
-   {DEF_SCN_SNOW                , L"Snow"                },     //  10
-   {DEF_SCN_ROSYBROWN           , L"Rosybrown"           },     //  11
-   {DEF_SCN_LIGHTCORAL          , L"Lightcoral"          },     //  12
-   {DEF_SCN_INDIANRED           , L"Indianred"           },     //  13
-   {DEF_SCN_BROWN               , L"Brown"               },     //  14
-   {DEF_SCN_FIREBRICK           , L"Firebrick"           },     //  15
-   {DEF_SCN_MAROON              , L"Maroon"              },     //  16
-   {DEF_SCN_DARKRED             , L"Darkred"             },     //  17
-   {DEF_SCN_RED                 , L"Red"                 },     //  18
-   {DEF_SCN_MISTYROSE           , L"Mistyrose"           },     //  19
-   {DEF_SCN_SALMON              , L"Salmon"              },     //  20
-   {DEF_SCN_TOMATO              , L"Tomato"              },     //  21
-   {DEF_SCN_DARKSALMON          , L"Darksalmon"          },     //  22
-   {DEF_SCN_CORAL               , L"Coral"               },     //  23
-   {DEF_SCN_LIGHTSALMON         , L"Lightsalmon"         },     //  24
-   {DEF_SCN_ORANGERED           , L"Orangered"           },     //  25
-   {DEF_SCN_SIENNA              , L"Sienna"              },     //  26
-   {DEF_SCN_SEASHELL            , L"Seashell"            },     //  27
-   {DEF_SCN_CHOCOLATE           , L"Chocolate"           },     //  28
-   {DEF_SCN_SADDLEBROWN         , L"Saddlebrown"         },     //  29
-   {DEF_SCN_PEACHPUFF           , L"Peachpuff"           },     //  30
-   {DEF_SCN_SANDYBROWN          , L"Sandybrown"          },     //  31
-   {DEF_SCN_LINEN               , L"Linen"               },     //  32
-   {DEF_SCN_PERU                , L"Peru"                },     //  33
-   {DEF_SCN_BISQUE              , L"Bisque"              },     //  34
-   {DEF_SCN_DARKORANGE          , L"Darkorange"          },     //  35
-   {DEF_SCN_ANTIQUEWHITE        , L"Antiquewhite"        },     //  36
-   {DEF_SCN_TAN                 , L"Tan"                 },     //  37
-   {DEF_SCN_BURLYWOOD           , L"Burlywood"           },     //  38
-   {DEF_SCN_NAVAJOWHITE         , L"Navajowhite"         },     //  39
-   {DEF_SCN_PAPAYAWHIP          , L"Papayawhip"          },     //  40
-   {DEF_SCN_BLANCHEDALMOND      , L"Blanchedalmond"      },     //  41
-   {DEF_SCN_MOCCASIN            , L"Moccasin"            },     //  42
-   {DEF_SCN_FLORALWHITE         , L"Floralwhite"         },     //  43
-   {DEF_SCN_OLDLACE             , L"Oldlace"             },     //  44
-   {DEF_SCN_WHEAT               , L"Wheat"               },     //  45
-   {DEF_SCN_ORANGE              , L"Orange"              },     //  46
-   {DEF_SCN_GOLDENROD           , L"Goldenrod"           },     //  47
-   {DEF_SCN_DARKGOLDENROD       , L"Darkgoldenrod"       },     //  48
-   {DEF_SCN_CORNSILK            , L"Cornsilk"            },     //  49
-   {DEF_SCN_GOLD                , L"Gold"                },     //  50
-   {DEF_SCN_LEMONCHIFFON        , L"Lemonchiffon"        },     //  51
-   {DEF_SCN_KHAKI               , L"Khaki"               },     //  52
-   {DEF_SCN_PALEGOLDENROD       , L"Palegoldenrod"       },     //  53
-   {DEF_SCN_DARKKHAKI           , L"Darkkhaki"           },     //  54
-   {DEF_SCN_IVORY               , L"Ivory"               },     //  55
-   {DEF_SCN_BEIGE               , L"Beige"               },     //  56
-   {DEF_SCN_LIGHTYELLOW         , L"Lightyellow"         },     //  57
-   {DEF_SCN_LIGHTGOLDENRODYELLOW, L"Lightgoldenrodyellow"},     //  58
-   {DEF_SCN_OLIVE               , L"Olive"               },     //  59
-   {DEF_SCN_YELLOW              , L"Yellow"              },     //  60
-   {DEF_SCN_OLIVEDRAB           , L"Olivedrab"           },     //  61
-   {DEF_SCN_YELLOWGREEN         , L"Yellowgreen"         },     //  62
-   {DEF_SCN_DARKOLIVEGREEN      , L"Darkolivegreen"      },     //  63
-   {DEF_SCN_GREENYELLOW         , L"Greenyellow"         },     //  64
-   {DEF_SCN_LAWNGREEN           , L"Lawngreen"           },     //  65
-   {DEF_SCN_CHARTREUSE          , L"Chartreuse"          },     //  66
-   {DEF_SCN_HONEYDEW            , L"Honeydew"            },     //  67
-   {DEF_SCN_DARKSEAGREEN        , L"Darkseagreen"        },     //  68
-   {DEF_SCN_LIGHTGREEN          , L"Lightgreen"          },     //  69
-   {DEF_SCN_PALEGREEN           , L"Palegreen"           },     //  70
-   {DEF_SCN_FORESTGREEN         , L"Forestgreen"         },     //  71
-   {DEF_SCN_LIMEGREEN           , L"Limegreen"           },     //  72
-   {DEF_SCN_DARKGREEN           , L"Darkgreen"           },     //  73
-   {DEF_SCN_GREEN               , L"Green"               },     //  74
-   {DEF_SCN_LIME                , L"Lime"                },     //  75
-   {DEF_SCN_MEDIUMSEAGREEN      , L"Mediumseagreen"      },     //  76
-   {DEF_SCN_SEAGREEN            , L"Seagreen"            },     //  77
-   {DEF_SCN_MINTCREAM           , L"Mintcream"           },     //  78
-   {DEF_SCN_SPRINGGREEN         , L"Springgreen"         },     //  79
-   {DEF_SCN_MEDIUMSPRINGGREEN   , L"Mediumspringgreen"   },     //  80
-   {DEF_SCN_MEDIUMAQUAMARINE    , L"Mediumaquamarine"    },     //  81
-   {DEF_SCN_AQUAMARINE          , L"Aquamarine"          },     //  82
-   {DEF_SCN_TURQUOISE           , L"Turquoise"           },     //  83
-   {DEF_SCN_LIGHTSEAGREEN       , L"Lightseagreen"       },     //  84
-   {DEF_SCN_MEDIUMTURQUOISE     , L"Mediumturquoise"     },     //  85
-   {DEF_SCN_AZURE               , L"Azure"               },     //  86
-   {DEF_SCN_LIGHTCYAN           , L"Lightcyan"           },     //  87
-   {DEF_SCN_PALETURQUOISE       , L"Paleturquoise"       },     //  88
-   {DEF_SCN_DARKSLATEGRAY       , L"Darkslategray"       },     //  89
-   {DEF_SCN_TEAL                , L"Teal"                },     //  90
-   {DEF_SCN_DARKCYAN            , L"Darkcyan"            },     //  91
-   {DEF_SCN_DARKTURQUOISE       , L"Darkturquoise"       },     //  92
-   {DEF_SCN_CYAN                , L"Cyan"                },     //  93
-   {DEF_SCN_AQUA                , L"Aqua"                },     //  94
-   {DEF_SCN_CADETBLUE           , L"Cadetblue"           },     //  95
-   {DEF_SCN_POWDERBLUE          , L"Powderblue"          },     //  96
-   {DEF_SCN_LIGHTBLUE           , L"Lightblue"           },     //  97
-   {DEF_SCN_DEEPSKYBLUE         , L"Deepskyblue"         },     //  98
-   {DEF_SCN_SKYBLUE             , L"Skyblue"             },     //  99
-   {DEF_SCN_LIGHTSKYBLUE        , L"Lightskyblue"        },     // 100
-   {DEF_SCN_ALICEBLUE           , L"Aliceblue"           },     // 101
-   {DEF_SCN_STEELBLUE           , L"Steelblue"           },     // 102
-   {DEF_SCN_DODGERBLUE          , L"Dodgerblue"          },     // 103
-   {DEF_SCN_SLATEGRAY           , L"Slategray"           },     // 104
-   {DEF_SCN_LIGHTSLATEGRAY      , L"Lightslategray"      },     // 105
-   {DEF_SCN_LIGHTSTEELBLUE      , L"Lightsteelblue"      },     // 106
-   {DEF_SCN_CORNFLOWERBLUE      , L"Cornflowerblue"      },     // 107
-   {DEF_SCN_ROYALBLUE           , L"Royalblue"           },     // 108
-   {DEF_SCN_GHOSTWHITE          , L"Ghostwhite"          },     // 109
-   {DEF_SCN_LAVENDER            , L"Lavender"            },     // 110
-   {DEF_SCN_MIDNIGHTBLUE        , L"Midnightblue"        },     // 111
-   {DEF_SCN_NAVY                , L"Navy"                },     // 112
-   {DEF_SCN_DARKBLUE            , L"Darkblue"            },     // 113
-   {DEF_SCN_MEDIUMBLUE          , L"Mediumblue"          },     // 114
-   {DEF_SCN_BLUE                , L"Blue"                },     // 115
-   {DEF_SCN_DARKSLATEBLUE       , L"Darkslateblue"       },     // 116
-   {DEF_SCN_SLATEBLUE           , L"Slateblue"           },     // 117
-   {DEF_SCN_MEDIUMSLATEBLUE     , L"Mediumslateblue"     },     // 118
-   {DEF_SCN_MEDIUMPURPLE        , L"Mediumpurple"        },     // 119
-   {DEF_SCN_BLUEVIOLET          , L"Blueviolet"          },     // 120
-   {DEF_SCN_INDIGO              , L"Indigo"              },     // 121
-   {DEF_SCN_DARKORCHID          , L"Darkorchid"          },     // 122
-   {DEF_SCN_DARKVIOLET          , L"Darkviolet"          },     // 123
-   {DEF_SCN_MEDIUMORCHID        , L"Mediumorchid"        },     // 124
-   {DEF_SCN_THISTLE             , L"Thistle"             },     // 125
-   {DEF_SCN_PLUM                , L"Plum"                },     // 126
-   {DEF_SCN_VIOLET              , L"Violet"              },     // 127
-   {DEF_SCN_PURPLE              , L"Purple"              },     // 128
-   {DEF_SCN_DARKMAGENTA         , L"Darkmagenta"         },     // 129
-   {DEF_SCN_FUCHSIA             , L"Fuchsia"             },     // 130
-   {DEF_SCN_MAGENTA             , L"Magenta"             },     // 131
-   {DEF_SCN_ORCHID              , L"Orchid"              },     // 132
-   {DEF_SCN_MEDIUMVIOLETRED     , L"Mediumvioletred"     },     // 133
-   {DEF_SCN_DEEPPINK            , L"Deeppink"            },     // 134
-   {DEF_SCN_HOTPINK             , L"Hotpink"             },     // 135
-   {DEF_SCN_LAVENDERBLUSH       , L"Lavenderblush"       },     // 136
-   {DEF_SCN_PALEVIOLETRED       , L"Palevioletred"       },     // 137
-   {DEF_SCN_CRIMSON             , L"Crimson"             },     // 138
-   {DEF_SCN_PINK                , L"Pink"                },     // 139
-   {DEF_SCN_LIGHTPINK           , L"Lightpink"           },     // 140
+ = {
+    {DEF_SCN_BLACK                  , L"Black"                  },      //   1
+    {DEF_SCN_DIMGRAY                , L"Dimgray"                },      //   2
+    {DEF_SCN_GRAY                   , L"Gray"                   },      //   3
+    {DEF_SCN_DARKGRAY               , L"Darkgray"               },      //   4
+    {DEF_SCN_SILVER                 , L"Silver"                 },      //   5
+    {DEF_SCN_LIGHTGRAY              , L"Lightgray"              },      //   6
+    {DEF_SCN_GAINSBORO              , L"Gainsboro"              },      //   7
+    {DEF_SCN_WHITESMOKE             , L"Whitesmoke"             },      //   8
+    {DEF_SCN_WHITE                  , L"White"                  },      //   9
+    {DEF_SCN_SNOW                   , L"Snow"                   },      //  10
+    {DEF_SCN_ROSYBROWN              , L"Rosybrown"              },      //  11
+    {DEF_SCN_LIGHTCORAL             , L"Lightcoral"             },      //  12
+    {DEF_SCN_INDIANRED              , L"Indianred"              },      //  13
+    {DEF_SCN_BROWN                  , L"Brown"                  },      //  14
+    {DEF_SCN_FIREBRICK              , L"Firebrick"              },      //  15
+    {DEF_SCN_MAROON                 , L"Maroon"                 },      //  16
+    {DEF_SCN_DARKRED                , L"Darkred"                },      //  17
+    {DEF_SCN_RED                    , L"Red"                    },      //  18
+    {DEF_SCN_MISTYROSE              , L"Mistyrose"              },      //  19
+    {DEF_SCN_SALMON                 , L"Salmon"                 },      //  20
+    {DEF_SCN_TOMATO                 , L"Tomato"                 },      //  21
+    {DEF_SCN_DARKSALMON             , L"Darksalmon"             },      //  22
+    {DEF_SCN_CORAL                  , L"Coral"                  },      //  23
+    {DEF_SCN_LIGHTSALMON            , L"Lightsalmon"            },      //  24
+    {DEF_SCN_ORANGERED              , L"Orangered"              },      //  25
+    {DEF_SCN_SIENNA                 , L"Sienna"                 },      //  26
+    {DEF_SCN_SEASHELL               , L"Seashell"               },      //  27
+    {DEF_SCN_CHOCOLATE              , L"Chocolate"              },      //  28
+    {DEF_SCN_SADDLEBROWN            , L"Saddlebrown"            },      //  29
+    {DEF_SCN_PEACHPUFF              , L"Peachpuff"              },      //  30
+    {DEF_SCN_SANDYBROWN             , L"Sandybrown"             },      //  31
+    {DEF_SCN_LINEN                  , L"Linen"                  },      //  32
+    {DEF_SCN_PERU                   , L"Peru"                   },      //  33
+    {DEF_SCN_BISQUE                 , L"Bisque"                 },      //  34
+    {DEF_SCN_DARKORANGE             , L"Darkorange"             },      //  35
+    {DEF_SCN_ANTIQUEWHITE           , L"Antiquewhite"           },      //  36
+    {DEF_SCN_TAN                    , L"Tan"                    },      //  37
+    {DEF_SCN_BURLYWOOD              , L"Burlywood"              },      //  38
+    {DEF_SCN_NAVAJOWHITE            , L"Navajowhite"            },      //  39
+    {DEF_SCN_PAPAYAWHIP             , L"Papayawhip"             },      //  40
+    {DEF_SCN_BLANCHEDALMOND         , L"Blanchedalmond"         },      //  41
+    {DEF_SCN_MOCCASIN               , L"Moccasin"               },      //  42
+    {DEF_SCN_FLORALWHITE            , L"Floralwhite"            },      //  43
+    {DEF_SCN_OLDLACE                , L"Oldlace"                },      //  44
+    {DEF_SCN_WHEAT                  , L"Wheat"                  },      //  45
+    {DEF_SCN_ORANGE                 , L"Orange"                 },      //  46
+    {DEF_SCN_GOLDENROD              , L"Goldenrod"              },      //  47
+    {DEF_SCN_DARKGOLDENROD          , L"Darkgoldenrod"          },      //  48
+    {DEF_SCN_CORNSILK               , L"Cornsilk"               },      //  49
+    {DEF_SCN_GOLD                   , L"Gold"                   },      //  50
+    {DEF_SCN_LEMONCHIFFON           , L"Lemonchiffon"           },      //  51
+    {DEF_SCN_KHAKI                  , L"Khaki"                  },      //  52
+    {DEF_SCN_PALEGOLDENROD          , L"Palegoldenrod"          },      //  53
+    {DEF_SCN_DARKKHAKI              , L"Darkkhaki"              },      //  54
+    {DEF_SCN_IVORY                  , L"Ivory"                  },      //  55
+    {DEF_SCN_BEIGE                  , L"Beige"                  },      //  56
+    {DEF_SCN_LIGHTYELLOW            , L"Lightyellow"            },      //  57
+    {DEF_SCN_LIGHTGOLDENRODYELLOW   , L"Lightgoldenrodyellow"   },      //  58
+    {DEF_SCN_OLIVE                  , L"Olive"                  },      //  59
+    {DEF_SCN_YELLOW                 , L"Yellow"                 },      //  60
+    {DEF_SCN_OLIVEDRAB              , L"Olivedrab"              },      //  61
+    {DEF_SCN_YELLOWGREEN            , L"Yellowgreen"            },      //  62
+    {DEF_SCN_DARKOLIVEGREEN         , L"Darkolivegreen"         },      //  63
+    {DEF_SCN_GREENYELLOW            , L"Greenyellow"            },      //  64
+    {DEF_SCN_LAWNGREEN              , L"Lawngreen"              },      //  65
+    {DEF_SCN_CHARTREUSE             , L"Chartreuse"             },      //  66
+    {DEF_SCN_HONEYDEW               , L"Honeydew"               },      //  67
+    {DEF_SCN_DARKSEAGREEN           , L"Darkseagreen"           },      //  68
+    {DEF_SCN_LIGHTGREEN             , L"Lightgreen"             },      //  69
+    {DEF_SCN_PALEGREEN              , L"Palegreen"              },      //  70
+    {DEF_SCN_FORESTGREEN            , L"Forestgreen"            },      //  71
+    {DEF_SCN_LIMEGREEN              , L"Limegreen"              },      //  72
+    {DEF_SCN_DARKGREEN              , L"Darkgreen"              },      //  73
+    {DEF_SCN_GREEN                  , L"Green"                  },      //  74
+    {DEF_SCN_LIME                   , L"Lime"                   },      //  75
+    {DEF_SCN_MEDIUMSEAGREEN         , L"Mediumseagreen"         },      //  76
+    {DEF_SCN_SEAGREEN               , L"Seagreen"               },      //  77
+    {DEF_SCN_MINTCREAM              , L"Mintcream"              },      //  78
+    {DEF_SCN_SPRINGGREEN            , L"Springgreen"            },      //  79
+    {DEF_SCN_MEDIUMSPRINGGREEN      , L"Mediumspringgreen"      },      //  80
+    {DEF_SCN_MEDIUMAQUAMARINE       , L"Mediumaquamarine"       },      //  81
+    {DEF_SCN_AQUAMARINE             , L"Aquamarine"             },      //  82
+    {DEF_SCN_TURQUOISE              , L"Turquoise"              },      //  83
+    {DEF_SCN_LIGHTSEAGREEN          , L"Lightseagreen"          },      //  84
+    {DEF_SCN_MEDIUMTURQUOISE        , L"Mediumturquoise"        },      //  85
+    {DEF_SCN_AZURE                  , L"Azure"                  },      //  86
+    {DEF_SCN_LIGHTCYAN              , L"Lightcyan"              },      //  87
+    {DEF_SCN_PALETURQUOISE          , L"Paleturquoise"          },      //  88
+    {DEF_SCN_DARKSLATEGRAY          , L"Darkslategray"          },      //  89
+    {DEF_SCN_TEAL                   , L"Teal"                   },      //  90
+    {DEF_SCN_DARKCYAN               , L"Darkcyan"               },      //  91
+    {DEF_SCN_DARKTURQUOISE          , L"Darkturquoise"          },      //  92
+    {DEF_SCN_CYAN                   , L"Cyan"                   },      //  93
+    {DEF_SCN_AQUA                   , L"Aqua"                   },      //  94
+    {DEF_SCN_CADETBLUE              , L"Cadetblue"              },      //  95
+    {DEF_SCN_POWDERBLUE             , L"Powderblue"             },      //  96
+    {DEF_SCN_LIGHTBLUE              , L"Lightblue"              },      //  97
+    {DEF_SCN_DEEPSKYBLUE            , L"Deepskyblue"            },      //  98
+    {DEF_SCN_SKYBLUE                , L"Skyblue"                },      //  99
+    {DEF_SCN_LIGHTSKYBLUE           , L"Lightskyblue"           },      // 100
+    {DEF_SCN_ALICEBLUE              , L"Aliceblue"              },      // 101
+    {DEF_SCN_STEELBLUE              , L"Steelblue"              },      // 102
+    {DEF_SCN_DODGERBLUE             , L"Dodgerblue"             },      // 103
+    {DEF_SCN_SLATEGRAY              , L"Slategray"              },      // 104
+    {DEF_SCN_LIGHTSLATEGRAY         , L"Lightslategray"         },      // 105
+    {DEF_SCN_LIGHTSTEELBLUE         , L"Lightsteelblue"         },      // 106
+    {DEF_SCN_CORNFLOWERBLUE         , L"Cornflowerblue"         },      // 107
+    {DEF_SCN_ROYALBLUE              , L"Royalblue"              },      // 108
+    {DEF_SCN_GHOSTWHITE             , L"Ghostwhite"             },      // 109
+    {DEF_SCN_LAVENDER               , L"Lavender"               },      // 110
+    {DEF_SCN_MIDNIGHTBLUE           , L"Midnightblue"           },      // 111
+    {DEF_SCN_NAVY                   , L"Navy"                   },      // 112
+    {DEF_SCN_DARKBLUE               , L"Darkblue"               },      // 113
+    {DEF_SCN_MEDIUMBLUE             , L"Mediumblue"             },      // 114
+    {DEF_SCN_BLUE                   , L"Blue"                   },      // 115
+    {DEF_SCN_DARKSLATEBLUE          , L"Darkslateblue"          },      // 116
+    {DEF_SCN_SLATEBLUE              , L"Slateblue"              },      // 117
+    {DEF_SCN_MEDIUMSLATEBLUE        , L"Mediumslateblue"        },      // 118
+    {DEF_SCN_MEDIUMPURPLE           , L"Mediumpurple"           },      // 119
+    {DEF_SCN_BLUEVIOLET             , L"Blueviolet"             },      // 120
+    {DEF_SCN_INDIGO                 , L"Indigo"                 },      // 121
+    {DEF_SCN_DARKORCHID             , L"Darkorchid"             },      // 122
+    {DEF_SCN_DARKVIOLET             , L"Darkviolet"             },      // 123
+    {DEF_SCN_MEDIUMORCHID           , L"Mediumorchid"           },      // 124
+    {DEF_SCN_THISTLE                , L"Thistle"                },      // 125
+    {DEF_SCN_PLUM                   , L"Plum"                   },      // 126
+    {DEF_SCN_VIOLET                 , L"Violet"                 },      // 127
+    {DEF_SCN_PURPLE                 , L"Purple"                 },      // 128
+    {DEF_SCN_DARKMAGENTA            , L"Darkmagenta"            },      // 129
+    {DEF_SCN_FUCHSIA                , L"Fuchsia"                },      // 130
+    {DEF_SCN_MAGENTA                , L"Magenta"                },      // 131
+    {DEF_SCN_ORCHID                 , L"Orchid"                 },      // 132
+    {DEF_SCN_MEDIUMVIOLETRED        , L"Mediumvioletred"        },      // 133
+    {DEF_SCN_DEEPPINK               , L"Deeppink"               },      // 134
+    {DEF_SCN_HOTPINK                , L"Hotpink"                },      // 135
+    {DEF_SCN_LAVENDERBLUSH          , L"Lavenderblush"          },      // 136
+    {DEF_SCN_PALEVIOLETRED          , L"Palevioletred"          },      // 137
+    {DEF_SCN_CRIMSON                , L"Crimson"                },      // 138
+    {DEF_SCN_PINK                   , L"Pink"                   },      // 139
+    {DEF_SCN_LIGHTPINK              , L"Lightpink"              },      // 140
 }
 #endif
 ;
@@ -1681,9 +1702,9 @@ typedef struct tagOPTIONFLAGS
          bNewTabOnClear      :1,    // 00000004:  ...      )CLEAR creates a new tab
          bNewTabOnLoad       :1,    // 00000008:  ...      )LOAD  ...
          bUseLocalTime       :1,    // 00000010:  ...      LocalTime is used instead of SystemTime (GMT)
-         bBackupOnLoad       :1,    // 00000020:  ...      make a backup copy on all )LOADs
-         bBackupOnSave       :1,    // 00000040:  ...      make a backup copy on all )SAVEs
-         bNoCopyrightMsg     :1,    // 00000080:  ...      suppress the copright msg at startup
+         bBackupOnLoad       :1,    // 00000020:  ...      Make a backup copy on all )LOADs
+         bBackupOnSave       :1,    // 00000040:  ...      Make a backup copy on all )SAVEs
+         bNoCopyrightMsg     :1,    // 00000080:  ...      Suppress the copright msg at startup
          uDefaultPaste       :4,    // 00000F00:  Index of default Paste translation (see UNI_TRANS)
          uDefaultCopy        :4,    // 0000F000:  Index of default Paste translation (see UNI_TRANS)
          bSyntClrFcns        :1,    // 00010000:  TRUE iff Syntax Coloring of functions is enabled (managed in IDD_PROPPAGE_SYNTAX_COLORING)
@@ -1693,8 +1714,10 @@ typedef struct tagOPTIONFLAGS
          bInsState           :1,    // 00100000:  ...      Initial state of Ins key in each WS is ON
          bRevDblClk:1,       :1,    // 00200000:  ...      Reverse double-click:  left=edit, right=select
          bViewStatusBar      :1,    // 00400000:  ...      Status Bar is displayed
-         bDefDispFcnLineNums :1,    // 00800000:  ...      Default is to display function line #s
-                             :8;    // FF000000:  Available bits
+         bDefDispFcnLineNums :1,    // 00800000:  ...      Display function line #s
+         bDispMPSuf:1,       :1,    // 01000000:  ...      Display multi-precision numbers with suffix 'x' or 'v'
+         bOutputDebug:1,     :1,    // 02000000:  ...      Output Debugging is enabled
+                             :6;    // FC000000:  Available bits
 } OPTIONFLAGS, *LPOPTIONFLAGS;
 
 // N.B.:  Whenever changing the above struct (OPTIONFLAGS),
@@ -1704,27 +1727,30 @@ typedef struct tagOPTIONFLAGS
 EXTERN
 OPTIONFLAGS OptionFlags
 #ifdef DEFINE_VALUES
-= {DEF_ADJUSTPW,
-   DEF_UNDERBARTOLOWERCASE,
-   DEF_NEWTABONCLEAR,
-   DEF_NEWTABONLOAD,
-   DEF_USELOCALTIME,
-   DEF_BACKUPONLOAD,
-   DEF_BACKUPONSAVE,
-   DEF_NOCOPYRIGHTMSG,
-   DEF_DEFAULTPASTE,
-   DEF_DEFAULTCOPY,
-   DEF_SYNTCLRFCNS,
-   DEF_SYNTCLRSESS,
-   DEF_SYNTCLRPRNT,
-   DEF_CHECKGROUP,
-   DEF_INSSTATE,
-   DEF_REVDBLCLK,
-   DEF_VIEWSTATUSBAR,
-   DEF_DISPFCNLINENUMS,
+ = {DEF_ADJUSTPW,
+    DEF_UNDERBARTOLOWERCASE,
+    DEF_NEWTABONCLEAR,
+    DEF_NEWTABONLOAD,
+    DEF_USELOCALTIME,
+    DEF_BACKUPONLOAD,
+    DEF_BACKUPONSAVE,
+    DEF_NOCOPYRIGHTMSG,
+    DEF_DEFAULTPASTE,
+    DEF_DEFAULTCOPY,
+    DEF_SYNTCLRFCNS,
+    DEF_SYNTCLRSESS,
+    DEF_SYNTCLRPRNT,
+    DEF_CHECKGROUP,
+    DEF_INSSTATE,
+    DEF_REVDBLCLK,
+    DEF_VIEWSTATUSBAR,
+    DEF_DISPFCNLINENUMS,
+    DEF_DISPMPSUF,
+    DEF_OUTPUTDEBUG,
    }
 #endif
 ;
+
 
 //***************************************************************************
 //  Fonts
@@ -1736,7 +1762,22 @@ LOGFONTW lfSM                           // LOGFONTW for the SM
  = {DEF_SMLOGFONT}
 #endif
 ,
-         lfFB                           // LOGFONTW for the FB
+         lfFB_SM                        // LOGFONTW for the FB for SM
+#ifdef DEFINE_VALUES
+ = {DEF_FBLOGFONT}
+#endif
+,
+         lfFB_FE                        // LOGFONTW for the FB for FE
+#ifdef DEFINE_VALUES
+ = {DEF_FBLOGFONT}
+#endif
+,
+         lfFB_PR_SM                     // LOGFONTW for the FB for PR for SM
+#ifdef DEFINE_VALUES
+ = {DEF_FBLOGFONT}
+#endif
+,
+         lfFB_PR_FE                     // LOGFONTW for the FB for PR for FE
 #ifdef DEFINE_VALUES
  = {DEF_FBLOGFONT}
 #endif
@@ -1765,16 +1806,6 @@ LOGFONTW lfSM                           // LOGFONTW for the SM
 #ifdef DEFINE_VALUES
  = {DEF_FELOGFONT}
 #endif
-,
-         lfME                           // LOGFONTW for the ME
-#ifdef DEFINE_VALUES
- = {DEF_MELOGFONT}
-#endif
-,
-         lfVE                           // LOGFONTW for the VE
-#ifdef DEFINE_VALUES
- = {DEF_VELOGFONT}
-#endif
 ;
 
 EXTERN
@@ -1783,32 +1814,38 @@ HFONT hFontTC,                          // Handle to font for the TC
       hFontAlt,                         // ...                    Alternate SM
 #endif
       hFontSM,                          // ...                    SM
+      hFontFB_SM,                       // ...                    FB for SM
+      hFontFB_FE,                       // ...                    FB for FE
+      hFontFB_PR_SM,                    // ...                    FB for PR for SM
+      hFontFB_PR_FE,                    // ...                    FB for PR for FE
       hFontLW,                          // ...                    LW
       hFontPR,                          // ...                    Printer
       hFontCC,                          // ...                    CC
-      hFontFE,                          // ...                    FE
-      hFontME,                          // ...                    ME
-      hFontVE;                          // ...                    VE
+      hFontFE;                          // ...                    FE
 
 EXTERN
 CHOOSEFONTW cfTC,                       // Global for ChooseFont for the TC
             cfSM,                       // ...                           SM
+            cfFB_SM,                    // ...                           FB for SM
+            cfFB_FE,                    // ...                           FB for FE
+            cfFB_PR_SM,                 // ...                           FB for PR for SM
+            cfFB_PR_FE,                 // ...                           FB for PR for FE
             cfLW,                       // ...                           LW
             cfPR,                       // ...                           Printer
             cfCC,                       // ...                           CC
-            cfFE,                       // ...                           FE
-            cfME,                       // ...                           ME
-            cfVE;                       // ...                           VE
+            cfFE;                       // ...                           FE
 
 EXTERN
 TEXTMETRICW tmTC,                       // Global for TEXTMETRICW for the TC
             tmSM,                       // ...                           SM
+            tmFB_SM,                    // ...                           FB for SM
+            tmFB_FE,                    // ...                           FB for FE
+            tmFB_PR_SM,                 // ...                           FB for PR for SM
+            tmFB_PR_FE,                 // ...                           FB for PR for FE
             tmLW,                       // ...                           LW
             tmPR,                       // ...                           Printer
             tmCC,                       // ...                           CC
-            tmFE,                       // ...                           FE
-            tmME,                       // ...                           ME
-            tmVE;                       // ...                           VE
+            tmFE;                       // ...                           FE
 
 typedef enum tagFONTENUM
 {
@@ -1818,13 +1855,20 @@ typedef enum tagFONTENUM
     FONTENUM_CC,                        // 03:  Crash Control window
     FONTENUM_TC,                        // 04:  Tab Control
     FONTENUM_LW,                        // 05:  Language Bar
-    FONTENUM_VE,                        // 06:  Vector Editor
-    FONTENUM_ME,                        // 07:  Matrix Editor
-    FONTENUM_LENGTH,                    // 08:  # entries in this enum
+    FONTENUM_LENGTH,                    // 06:  # entries in this enum
 } FONTENUM, *LPFONTENUM;
+
+#define FONTENUM_FB_SM      FONTENUM_LENGTH
+#define FONTENUM_FB_FE      FONTENUM_LENGTH + 1
+#define FONTENUM_FB_PR_SM   FONTENUM_LENGTH + 2
+#define FONTENUM_FB_PR_FE   FONTENUM_LENGTH + 3
+#define FONTENUMX_LENGTH    FONTENUM_LENGTH + 4
 
 EXTERN
 FONTENUM glbSameFontAs[FONTENUM_LENGTH];
+
+EXTERN
+UINT uWidthLC[FONTENUM_LENGTH];
 
 void CreateNewFontSM (UBOOL);
 void CreateNewFontLW (UBOOL);
@@ -1832,8 +1876,6 @@ void CreateNewFontFE (UBOOL);
 void CreateNewFontPR (UBOOL);
 void CreateNewFontCC (UBOOL);
 void CreateNewFontTC (UBOOL);
-void CreateNewFontME (UBOOL);
-void CreateNewFontVE (UBOOL);
 
 void ApplyNewFontSM (HFONT);
 void ApplyNewFontLW (HFONT);
@@ -1841,8 +1883,6 @@ void ApplyNewFontFE (HFONT);
 void ApplyNewFontPR (HFONT);
 void ApplyNewFontCC (HFONT);
 void ApplyNewFontTC (HFONT);
-void ApplyNewFontME (HFONT);
-void ApplyNewFontVE (HFONT);
 
 typedef struct tagFONTSTRUC
 {
@@ -1862,17 +1902,21 @@ typedef struct tagFONTSTRUC
     CHOOSEFONTW   cfLcl;                        // 28:  Local CHOOSEFONTW while Customize Dialog is running
 } FONTSTRUC, *LPFONTSTRUC;
 
+// So we can access and treat the Fallback font similar to other fonts,
+//    it is defined as an "extension" of the other fonts in the <fontStruc> array
 EXTERN
-FONTSTRUC fontStruc[FONTENUM_LENGTH]
+FONTSTRUC fontStruc[FONTENUMX_LENGTH]
 #ifdef DEFINE_VALUES
-= {{&lfSM, &cfSM, &tmSM, DEF_SMPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontSM, &CreateNewFontSM, &ApplyNewFontSM, L"Session Manager Font"   },  // Session Manager
-   {&lfFE, &cfFE, &tmFE, DEF_FEPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontFE, &CreateNewFontFE, &ApplyNewFontFE, L"Function Editor Font"   },  // Function Editor
-   {&lfPR, &cfPR, &tmPR, DEF_PRPTSIZE, {0, 0}, TRUE , FALSE, FALSE, &hFontPR, &CreateNewFontPR, &ApplyNewFontPR, L"Printer Font"           },  // Printer
-   {&lfCC, &cfCC, &tmCC, DEF_CCPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontCC, &CreateNewFontCC, &ApplyNewFontCC, L"Crash Window Font"      },  // Crash window
-   {&lfTC, &cfTC, &tmTC, DEF_TCPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontTC, &CreateNewFontTC, &ApplyNewFontTC, L"Tab Control Font"       },  // Tab Control
-   {&lfLW, &cfLW, &tmLW, DEF_LWPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontLW, &CreateNewFontLW, &ApplyNewFontLW, L"Language Bar Font"      },  // Language Bar
-   {&lfVE, &cfVE, &tmVE, DEF_VEPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontME, &CreateNewFontME, &ApplyNewFontME, L"Vector Editor Font"     },  // Vector Editor
-   {&lfME, &cfME, &tmME, DEF_MEPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontVE, &CreateNewFontVE, &ApplyNewFontVE, L"Matrix Editor Font"     },  // Matrix Editor
+= {{&lfSM       , &cfSM       , &tmSM       , DEF_SMPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontSM       , &CreateNewFontSM, &ApplyNewFontSM, L"Session Manager Font"    },  // Session Manager
+   {&lfFE       , &cfFE       , &tmFE       , DEF_FEPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontFE       , &CreateNewFontFE, &ApplyNewFontFE, L"Function Editor Font"    },  // Function Editor
+   {&lfPR       , &cfPR       , &tmPR       , DEF_PRPTSIZE, {0, 0}, TRUE , FALSE, FALSE, &hFontPR       , &CreateNewFontPR, &ApplyNewFontPR, L"Printer Font"            },  // Printer
+   {&lfCC       , &cfCC       , &tmCC       , DEF_CCPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontCC       , &CreateNewFontCC, &ApplyNewFontCC, L"Crash Window Font"       },  // Crash window
+   {&lfTC       , &cfTC       , &tmTC       , DEF_TCPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontTC       , &CreateNewFontTC, &ApplyNewFontTC, L"Tab Control Font"        },  // Tab Control
+   {&lfLW       , &cfLW       , &tmLW       , DEF_LWPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontLW       , &CreateNewFontLW, &ApplyNewFontLW, L"Language Bar Font"       },  // Language Bar
+   {&lfFB_SM    , &cfFB_SM    , &tmFB_SM    , DEF_FBPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontFB_SM    ,  NULL           ,  NULL          , L"Fallback Font for SM/FE" },  // Fallback Font for SM/FE
+   {&lfFB_FE    , &cfFB_FE    , &tmFB_FE    , DEF_FBPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontFB_FE    ,  NULL           ,  NULL          , L"Fallback Font for SM/FE" },  // Fallback Font for SM/FE
+   {&lfFB_PR_SM , &cfFB_PR_SM , &tmFB_PR_SM , DEF_FBPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontFB_PR_SM ,  NULL           ,  NULL          , L"Fallback Font for PR/SM" },  // Fallback Font for PR for SM
+   {&lfFB_PR_FE , &cfFB_PR_FE , &tmFB_PR_FE , DEF_FBPTSIZE, {0, 0}, FALSE, FALSE, FALSE, &hFontFB_PR_FE ,  NULL           ,  NULL          , L"Fallback Font for PR/FE" },  // Fallback Font for PR for FE
   }
 #endif
 ;
@@ -1903,8 +1947,21 @@ typedef struct tagCUSTOMIZE
     UBOOL   bInitialized;
 } CUSTOMIZE, *LPCUSTOMIZE;
 
+typedef enum tagALLCATS
+{
+    CAT_CLEARWS_VALUES = 0 ,        // 00:  CLEAR WS Values
+    CAT_DIRS               ,        // 01:  Directories
+    CAT_FONTS              ,        // 02:  Fonts
+    CAT_KEYBS              ,        // 03:  Keyboards
+    CAT_RANGE_LIMITS       ,        // 04:  Range Limits
+    CAT_SYNTAX_COLORING    ,        // 05:  Syntax Coloring
+    CAT_SYSTEM_VAR_RESET   ,        // 06:  System Var Reset
+    CAT_USER_PREFS         ,        // 07:  User Preferences
+    CAT_LENGTH             ,        // 08:  # entries in this enum
+} ALLCATS, *LPALLCATS;
+
 EXTERN
-CUSTOMIZE custStruc[]
+CUSTOMIZE custStruc[CAT_LENGTH] // **MUST** be in the same order as ALLCATS enum
 #ifdef DEFINE_VALUES
  =
 {   {L"CLEAR WS Values"         , IDD_PROPPAGE_CLEARWS_VALUES   ,  FALSE},  // 00
@@ -1930,11 +1987,15 @@ UINT custStrucLen
 #define DEF_INIT_CATEGORY   (IDD_PROPPAGE_FONTS - IDD_PROPPAGE_START)   // Fonts
 
 EXTERN
-int gInitCustomizeCategory
+ALLCATS gInitCustomizeCategory
 #ifdef DEFINE_VALUES
 = DEF_INIT_CATEGORY
 #endif
 ;
+
+EXTERN
+UINT uUserChar,             // Line Continuation marker
+     uUserUnibase;          // User Preferences Unicode base:  10 or 16
 
 typedef enum tagUNDO_ACTS
 {
@@ -1982,10 +2043,6 @@ typedef union tagMEMTXT_UNION
 typedef void (*LPERRHANDFN) (LPWCHAR lpwszMsg,
                              LPWCHAR lpwszLine,
                              UINT uCaret);
-
-// N.B.:  Whenever changing the above enum (FLT_DISP_FMT),
-//   be sure to make a corresponding change to
-//   <gDTOA_Mode> in <display.c>.
 
 
 //***************************************************************************
@@ -2098,6 +2155,9 @@ SYSTEMTIME gstUpdChk
 #endif
 ;
 
+EXTERN
+LARGE_INTEGER liTicksPerSec;        // Conversion factor for QueryPerformanceCounter into seconds
+
 
 //***************************************************************************
 //  Native File Function data structs
@@ -2116,14 +2176,17 @@ typedef struct tagNFNSDATA
                                     // 24:  Length
 } NFNSDATA, *LPNFNSDATA;
 
+#define NFNS_HEADER_SIGNATURE   'SNFN'
+
 typedef struct tagNFNSHDR
 {
-    UINT     nTieNums,              // 00:  # active tie numbers
-             nMax,                  // 04:  Maximum # NFNSDATA structs
-             offFirstFree,          // 08:  Offset from aNfnsData[0] of the first free entry
-             offFirstInuse;         // 0C:  ...                                   in use ...
-    NFNSDATA aNfnsData[];           // 10:  Array of NFNSDATA structs
-                                    // 14:  Length
+    HEADER_SIGNATURE Sig;           // 00:  NFNSHDR signature
+    UINT             nTieNums,      // 04:  # active tie numbers
+                     nMax,          // 08:  Maximum # NFNSDATA structs
+                     offFirstFree,  // 0C:  Offset from aNfnsData[0] of the first free entry
+                     offFirstInuse; // 10:  ...                                   in use ...
+    NFNSDATA         aNfnsData[];   // 14:  Array of NFNSDATA structs
+                                    // 18:  Length
 } NFNSHDR, *LPNFNSHDR;
 
 #define DEF_NFNS_INIT       100     // Inital allocation of aNfnsData
@@ -2183,6 +2246,10 @@ APLRAT mpqMinInt                // Minimum signed integer -2*63
 #ifdef DEFINE_VALUES
 = {0}
 #endif
+,      mpqZero                  // ...          0   ...
+#ifdef DEFINE_VALUES
+= {0}
+#endif
 ,      mpqPosInfinity           // Positive infniity
 #ifdef DEFINE_VALUES
 = {{0, INT_MAX, NULL},
@@ -2221,6 +2288,10 @@ APLVFP mpfMinInt                // Minimum signed integer -2*63
 #ifdef DEFINE_VALUES
 = {0}
 #endif
+,      mpfZero                  // 0
+#ifdef DEFINE_VALUES
+= {0}
+#endif
 ;
 
 //***************************************************************************
@@ -2230,17 +2301,66 @@ APLVFP mpfMinInt                // Minimum signed integer -2*63
 EXTERN
 PNNUMTYPE aNumTypePromote[PN_NUMTYPE_LENGTH][PN_NUMTYPE_LENGTH];
 
-typedef void (*PN_ACTION)(LPPN_YYSTYPE);
+typedef void (*PN_ACTION)    (LPPN_YYSTYPE, LPPNLOCALVARS);
+typedef void (*TPT_ACTION)   (LPTOKEN);
+typedef void (*TP_ACTION)    (LPVOID, APLINT, LPALLTYPES);
+typedef void (*TC_ACTION)    (LPVOID, APLINT, LPALLTYPES);
+typedef void (*TPF_ACTION)   (LPVOID, APLNELM);
 
 EXTERN
 PN_ACTION aNumTypeAction [PN_NUMTYPE_LENGTH][PN_NUMTYPE_LENGTH];
 
 
-#include "typemote.h"
+//***************************************************************************
+//  Type Promotion Prototoypes
+//***************************************************************************
+
+// ARRAY_xxx Type Promotion result matrix
+EXTERN
+APLSTYPE aTypePromote[ARRAY_LENGTH + 1][ARRAY_LENGTH + 1];
+
+// Type Promotion Token matrix
+EXTERN
+TPT_ACTION aTypeTknPromote[ARRAY_LENGTH + 1][ARRAY_LENGTH + 1];
+
+// Type Promotion Action matrix
+EXTERN
+TP_ACTION aTypeActPromote[ARRAY_LENGTH + 1][ARRAY_LENGTH + 1];
+
+// Type Conversion Action matrix allowing for type demotion
+EXTERN
+TC_ACTION aTypeActConvert[ARRAY_LENGTH][ARRAY_LENGTH];
+
+// Free action routine
+EXTERN
+TPF_ACTION aTypeFree[ARRAY_LENGTH + 1];
+
+
+//***************************************************************************
+//  Prime number
+//***************************************************************************
+
 #include "primes.h"
 
 EXTERN
 NTHPRIMESTR NthPrimeStr;        // Initialized in InitPrimeTabs
+
+
+//***************************************************************************
+//  Command line keyword values
+//***************************************************************************
+
+EXTERN
+size_t gSymTabSize
+#ifdef DEFINE_VALUES
+= {DEF_SYMTAB_MAXNELM}
+#endif
+,
+       gHshTabSize
+#ifdef DEFINE_VALUES
+= {DEF_HSHTAB_MAXNELM}
+#endif
+;
 
 
 #define ENUMS_DEFINED

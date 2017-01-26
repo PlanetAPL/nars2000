@@ -1,0 +1,51 @@
+Build #1278 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Reduction Of Singletons
+
+Directory trunk:
+
+ENUMS.H:
+  Remove references to []SGL as we no longer need it.
+  Include comment from <externs.h> omitted when <FLT_DISP_FMT> enum moved over.
+
+EXECDFN.C:
+SYSVARS.C:
+SYSVARS.H:
+  Remove references to []SGL as we no longer need it.
+
+EXECMFN.C:
+FH_PARSE.H:
+  Define entries for RoS magic functions.
+
+EXECMFN.H:
+  Define entries for RoS magic functions.
+  Remove references to []SGL as we no longer need it.
+
+EXTERNS.H:
+  Include comment from <externs.h> omitted when <FLT_DISP_FMT> enums moved over.
+
+MACROS.H:
+  Refine macro for <IsSymNoValue> to handle NULL argument.
+
+MF_ROS.H:
+  Define RoS magic functions.
+
+PO_DOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+  Implement Reduction Of Singletons.
+
+RESDEBUG.C:
+  Fix typo.
+
+SAVEFCN.C:
+  Clear type bits before comparing global memory handles.
+  Remove references to []SGL as we no longer need it.
+
+SESSMAN.C:
+  Improve comment.
+
+STARTADDR.H:
+  Implement Reduction Of Singletons.
+  Include references to new function names.

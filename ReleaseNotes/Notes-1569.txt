@@ -1,0 +1,68 @@
+Build #1569 -- Version 0.4.18.xx
+--------------------------------
+
+* Prepare For Move To VS2015
+* Implement Output Debugging
+* Remove Vector and Matrix Editing Code
+* Allow Line Continuation Markers To Be Printed
+
+Directory trunk:
+
+COMMON.C:
+  Define function needed by VS2015.
+
+CUSTOMIZE.C:
+  Implement output debugging.
+  Prepare for move to VS2015.
+
+DISPLAY.H:
+  Delete unused struc element.
+
+DEFINES.H:
+DISPLAY.C:
+EDITCTRL.H:
+EDITFCN.C:
+MAKEFILE.INC:
+PF_DTACKJOT.C:
+QF_TC.C:
+RESOURCE.H:
+UNICODE.H:
+UNITRANSTAB.H:
+  Implement output debugging.
+
+EXTERNS.H:
+INIFILE.C:
+MAIN.C:
+MAIN.RC:
+  Implement output debugging.
+  Remove vector and matrix editing code.
+
+HEADERS.H:
+  Delete <termcode.h> as it is no longer used.
+
+PF_PI.C:
+SC_COMMON.C:
+SC_LOAD.C:
+  Prepare for move to VS2015.
+
+SESSMAN.C:
+  Allow Line Continuation markers to be printed.
+
+TERMCODE.H:
+  Delete this file as it defines numeric codes for ASCII equivalents and we use Unicode only.
+
+WORKSPACE.H:
+  Delete unused key name.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+LOCAL.H:
+  Implement output debugging.
+
+
+Directory trunk\WineHQ\include:
+
+BASETSD.H:
+  Comment out inline statements as they conflict with VS2015.

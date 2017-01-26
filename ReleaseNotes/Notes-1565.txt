@@ -1,0 +1,34 @@
+Build #1565 -- Version 0.4.18.xx
+--------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+EDITFCN.C:
+MAIN.C:
+PERFMON.H:
+  New definition of PERFMONINIT and PERFMONSHOW has an argument.
+
+EXECDFN.C:
+SAVEFCN.C:
+  Fix typo in comment.
+
+QF_CR.C:
+  In IF stmts always compare ptr against NULL.
+
+SESSMAN.C:
+  In IF stmts always compare ptr against NULL.
+  For errors that occur during initialization, use <MBW> instead of <DbgMsg> as the latter won't display unless the Debug window is active, which it isn't during initialization.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Change upper limit of Bitcoin donation.
+  Reword Bitcoin donation text.
+
+LICENSE-BODY.HTML:
+  Update Copyright year.
+  Update source code repository from GoogleCode to SourceForge.
+  Include license agreement terms from MPC.

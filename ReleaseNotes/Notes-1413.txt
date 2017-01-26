@@ -1,0 +1,13 @@
+Build #1413 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Another Bug In []STOP & []TRACE
+
+Directory trunk:
+
+QF_STRACE.C:
+  In <SysFnDydSTRACE_EM_YY>, be sure to clear all []STOP or []TRACE flags first (duh!).
+  In <TraceLine>, if the current object is invalid or the display of the trace result fails for any reason,
+    prepend a blank before the function name/line # so as to align with other trace displays
+    and end the line with a CR.
+  In <TraceLine>, if we are to free the trace arg, do that first before clearing it (duh!).

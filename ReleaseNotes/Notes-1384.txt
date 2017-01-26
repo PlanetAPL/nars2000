@@ -1,0 +1,10 @@
+Build #1384 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In )COPY With No Arguments
+
+Directory trunk:
+
+SC_COPY.C:
+  In <CopyWsVars>, a recent change to convert to lowercase system variable names
+    introduced a bug when there are no arguments to the )COPY command.

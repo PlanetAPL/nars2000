@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,8 +33,6 @@ typedef mpir_ui (*MPFR_INVALID) (enum MP_ENUM, mpfr_t, mpfr_t, mpfr_t, mpfr_t, m
 MPZ_INVALID  gmpz_invalid  = &mpz_exit;
 MPQ_INVALID  gmpq_invalid  = &mpq_exit;
 MPFR_INVALID gmpfr_invalid = &mpfr_exit;
-
-#define IsInfinity(a)       (!_finite (a) && !_isnan (a))
 
 #define mpfr_clr_inf(a)     (a)
 
@@ -83,40 +81,6 @@ void mp_set_invalid_functions
     if (mpfr_invalid)
         gmpfr_invalid = mpfr_invalid;
 } // End mp_set_invalid_functions
-
-
-//***************************************************************************
-//  $signumint
-//
-//  Return -1, 0, +1 depending upon the sign of a give integer
-//***************************************************************************
-
-int signumint
-    (mp_size_t val)             // Source
-
-{
-    if (val < 0)
-        return -1;
-    else
-       return (val > 0);
-} // End signumint
-
-
-//***************************************************************************
-//  $signumflt
-//
-//  Return -1, 0, +1 depending upon the sign of a give float
-//***************************************************************************
-
-int signumflt
-    (double val)
-
-{
-    if (val < 0)
-        return -1;
-    else
-       return (val > 0);
-} // End signumflt
 
 
 //***************************************************************************
@@ -229,6 +193,7 @@ void mpiz_set
 
 {
     if (mpz_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpz_set_inf (rop, mpz_sgn (op));
     else
         mpz_set (mpz_clr_inf (rop), op);
@@ -276,8 +241,9 @@ void mpiz_set_d
      double op)                 // Source
 
 {
-    if (IsInfinity (op))
-        mpz_set_inf (rop, (op EQ fabs (op)) ? 1 : -1);
+    if (IsFltInfinity (op))
+        // The result is infinity whose sign is that of op
+        mpz_set_inf (rop, signumflt (op));
     else
         mpz_set_d (mpz_clr_inf (rop), op);
 } // End mpiz_set_d
@@ -295,6 +261,7 @@ void mpiz_set_q
 
 {
     if (mpq_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpz_set_inf (rop, mpq_sgn (op));
     else
         mpz_set_q (mpz_clr_inf (rop), op);
@@ -314,6 +281,7 @@ void mpiz_set_fr
 
 {
     if (mpfr_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpz_set_inf (rop, mpfr_sgn (op));
     else
         mpz_set_fr (mpz_clr_inf (rop), op, rnd);
@@ -352,6 +320,40 @@ int mpiz_set_str
 
 
 //***************************************************************************
+//  $mpiz_init_set_str
+//
+//  Set rop from a string in a given base
+//***************************************************************************
+
+int mpiz_init_set_str
+    (mpz_t rop,                 // Destination
+     char *str,                 // Source
+     int   base)                // Base
+
+{
+    char *p;
+
+    // Skip over white space
+    p = str;
+    while (isspace (*p))
+        p++;
+    // If the input consists of "!" or "-!", ...
+    if (strcmp (p, DEF_POSINFINITY_STR) EQ 0
+     || strcmp (p, DEF_NEGINFINITY_STR) EQ 0)
+    {
+        // Initialize the result
+        mpz_init (rop);
+
+        // Set to the appropriate signed infinity
+        mpz_set_inf (rop, p[0] EQ '-');
+
+        return 0;
+    } else
+        return mpz_init_set_str (mpz_clr_inf (rop), str, base);
+} // End mpiz_init_set_str
+
+
+//***************************************************************************
 //  $mpiz_init_set
 //
 //  Set the integer value from an integer
@@ -365,9 +367,11 @@ void mpiz_init_set
     if (mpz_inf_p (op))
     {
         mpz_init (rop);
+
+        // The result is infinity whose sign is that of op
         mpz_set_inf (rop, mpz_sgn (op));
     } else
-        mpz_init_set (rop, op);
+        mpz_init_set (mpz_clr_inf (rop), op);
 } // End mpiz_init_set
 
 
@@ -382,10 +386,12 @@ void mpiz_init_set_d
      double op)                 // Source
 
 {
-    if (IsInfinity (op))
+    if (IsFltInfinity (op))
     {
         mpz_init (rop);
-        mpz_set_inf (rop, (op EQ fabs (op)) ? 1 : -1);
+
+        // The result is infinity whose sign is that of op
+        mpz_set_inf (rop, signumflt (op));
     } else
         mpz_init_set_d (rop, op);
 } // End mpiz_init_set_d
@@ -530,13 +536,13 @@ void mpiz_add
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is the infinite argument (op2)
+            // The result is infinity whose sign is that of op2
             mpz_set_inf (rop, mpz_sgn (op2));
 
             break;
 
         case 2 * 1 + 0:     // Op1 only is an infinity
-            // The result is the infinite argument (op1)
+            // The result is infinity whose sign is that of op1
             mpz_set_inf (rop, mpz_sgn (op1));
 
             break;
@@ -544,6 +550,7 @@ void mpiz_add
         case 2 * 1 + 1:     // Op1 and Op2 are infinities
             // If they are the same sign, ...
             if (mpz_sgn (op1) EQ mpz_sgn (op2))
+                // The result is infinity whose sign is that of op1
                 mpz_set_inf (rop, mpz_sgn (op1));
             else
                 (*gmpz_invalid) (MP_ADD, rop, op1, op2, NULL, 0, 0);
@@ -565,6 +572,7 @@ void mpiz_add_ui
 
 {
     if (mpz_inf_p (op1))
+        // The result is infinity whose sign is that of op1
         mpz_set_inf (rop, mpz_sgn (op1));
     else
         mpz_add_ui (mpz_clr_inf (rop), op1, op2);
@@ -593,13 +601,13 @@ void mpiz_sub
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is theinfinite argument (op2)
+            // The result is infinity whose sign is that of op2
             mpz_set_inf (rop, mpz_sgn (op2));
 
             break;
 
         case 2 * 1 + 0:     // Op1 only is an infinity
-            // The result is theinfinite argument (op1)
+            // The result is infinity whose sign is that of op1
             mpz_set_inf (rop, mpz_sgn (op1));
 
             break;
@@ -607,6 +615,7 @@ void mpiz_sub
         case 2 * 1 + 1:     // Op1 and Op2 are infinities
             // If they are the opposite sign, ...
             if (mpz_sgn (op1) NE mpz_sgn (op2))
+                // The result is infinity whose sign is that of op1
                 mpz_set_inf (rop, mpz_sgn (op1));
             else
                 (*gmpz_invalid) (MP_SUB, rop, op1, op2, NULL, 0, 0);
@@ -628,6 +637,7 @@ void mpiz_sub_ui
 
 {
     if (mpz_inf_p (op1))
+        // The result is infinity whose sign is that of op1
         mpz_set_inf (rop, mpz_sgn (op1));
     else
         mpz_sub_ui (mpz_clr_inf (rop), op1, op2);
@@ -647,6 +657,7 @@ void mpiz_ui_sub
 
 {
     if (mpz_inf_p (op2))
+        // The result is infinity whose sign is that of op2
         mpz_set_inf (rop, -mpz_sgn (op2));
     else
         mpz_ui_sub (mpz_clr_inf (rop), op1, op2);
@@ -675,19 +686,22 @@ void mpiz_mul
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is the infinite argument (op2)
-            mpz_set_inf (rop, mpz_sgn (op2));
+            // The result is infinity whose sign is the product of the signs
+            // Note that the case where the other op is zero has been handled by the caller
+            mpz_set_inf (rop, mpz_sgn (op1) * mpz_sgn (op2));
 
             break;
 
         case 2 * 1 + 0:     // Op1 only is an infinity
-            // The result is the infinite argument (op1)
-            mpz_set_inf (rop, mpz_sgn (op1));
+            // The result is infinity whose sign is the product of the signs
+            // Note that the case where the other op is zero has been handled by the caller
+            mpz_set_inf (rop, mpz_sgn (op1) * mpz_sgn (op2));
 
             break;
 
         case 2 * 1 + 1:     // Op1 and Op2 are infinities
-            mpz_set_inf (rop, (mpz_sgn (op1) EQ mpz_sgn (op2)) ? 1 : -1);
+            // The result is infinity whose sign is the product of the signs
+            mpz_set_inf (rop, mpz_sgn (op1) * mpz_sgn (op2));
 
             break;
     } // End SWITCH
@@ -707,7 +721,9 @@ void mpiz_mul_si
 
 {
     if (mpz_inf_p (op1))
-        mpz_set_inf (rop, signumint (mpz_sgn (op1)) EQ signumint (op2) ? 1 : -1);
+        // The result is infinity whose sign is the product of the signs
+        // Note that the case where the other op is zero has been handled by the caller
+        mpz_set_inf (rop, mpz_sgn (op1) * signumint (op2));
     else
         mpz_mul_si (mpz_clr_inf (rop), op1, op2);
 } // End mpiz_mul_si
@@ -726,6 +742,8 @@ void mpiz_mul_ui
 
 {
     if (mpz_inf_p (op1))
+        // The result is infinity whose sign that of op1
+        // Note that the case where the other op is zero has been handled by the caller
         mpz_set_inf (rop, mpz_sgn (op1));
     else
         mpz_mul_ui (mpz_clr_inf (rop), op1, op2);
@@ -851,6 +869,7 @@ void mpiz_mul_2exp
 
 {
     if (mpz_inf_p (op1))
+        // The result is infinity whose sign is that of op1
         mpz_set_inf (rop, mpz_sgn (op1));
     else
         mpz_mul_2exp (mpz_clr_inf (rop), op1, op2);
@@ -870,7 +889,7 @@ void mpiz_neg
 {
     // If the op is infinite, ...
     if (mpz_inf_p (op))
-        // Set the result to the infinity with the opposite sign as op
+        // The result is infinity whose sign is that of -op
         mpz_set_inf (rop, -mpz_sgn (op));
     else
         // Otherwise, call the original function
@@ -890,6 +909,7 @@ void mpiz_abs
 
 {
     if (mpz_inf_p (op))
+        // The result is infinity whose sign is positive
         mpz_set_inf (rop, 1);
     else
         mpz_abs (mpz_clr_inf (rop), op);
@@ -910,12 +930,12 @@ void mpiz_cdiv_q
 {
     // Check for special cases
     if (mpz_cmp_ui (d, 0) EQ 0)
-        // Divide by zero returns infinity with N's sign
+        // The result is infinity whose sign is that of N
         mpz_set_inf (q, mpz_sgn (n));
     else
     if (mpz_inf_p (n)
      && !mpz_inf_p (d))
-        // Divide into infinity returns infinity with NxD's sign
+        // The result is infinity whose sign is the product of the signs
         mpz_set_inf (q, mpz_sgn (n) * mpz_sgn (d));
     else
     if (mpz_inf_p (n)
@@ -989,14 +1009,14 @@ mpir_ui mpiz_cdiv_q_ui
     // Check for special cases
     if (d EQ 0)
     {
-        // Divide by zero returns infinity with N's sign
+        // The result is infinity whose sign is that of N
         mpz_set_inf (q, mpz_sgn (n));
 
         return 0;
     } else
     if (mpz_inf_p (n))
     {
-        // Divide into infinity returns infinity with NxD's sign
+        // The result is infinity whose sign is the product of the signs
         mpz_set_inf (q, mpz_sgn (n) * signumint (d));
 
         return 0;
@@ -1085,7 +1105,7 @@ void mpiz_cdiv_q_2exp
 {
     // Check for special cases
     if (mpz_inf_p (n))
-        // Result is infinity with N's sign
+        // The result is infinity whose sign is that of N
         mpz_set_inf (q, mpz_sgn (n));
     else
         mpz_cdiv_q_2exp (mpz_clr_inf (q), n, b);
@@ -1127,12 +1147,12 @@ void mpiz_fdiv_q
 {
     // Check for special cases
     if (mpz_cmp_ui (d, 0) EQ 0)
-        // Divide by zero returns infinity with N's sign
+        // The result is infinity whose sign is that of N
         mpz_set_inf (q, mpz_sgn (n));
     else
     if (mpz_inf_p (n)
      && !mpz_inf_p (d))
-        // Divide into infinity returns infinity with NxD's sign
+        // The result is infinity whose sign is the product of the signs
         mpz_set_inf (q, mpz_sgn (n) * mpz_sgn (d));
     else
     if (mpz_inf_p (n)
@@ -1206,14 +1226,14 @@ mpir_ui mpiz_fdiv_q_ui
     // Check for special cases
     if (d EQ 0)
     {
-        // Divide by zero returns infinity with N's sign
+        // The result is infinity whose sign is that of N
         mpz_set_inf (q, mpz_sgn (n));
 
         return 0;
     } else
     if (mpz_inf_p (n))
     {
-        // Divide into infinity returns infinity with NxD's sign
+        // The result is infinity whose sign is the product of the signs
         mpz_set_inf (q, mpz_sgn (n) * signumint (d));
 
         return 0;
@@ -1302,7 +1322,7 @@ void mpiz_fdiv_q_2exp
 {
     // Check for special cases
     if (mpz_inf_p (n))
-        // Result is infinity with N's sign
+        // The result is infinity whose sign is that of N
         mpz_set_inf (q, mpz_sgn (n));
     else
         mpz_fdiv_q_2exp (mpz_clr_inf (q), n, b);
@@ -1344,12 +1364,12 @@ void mpiz_tdiv_q
 {
     // Check for special cases
     if (mpz_cmp_ui (d, 0) EQ 0)
-        // Divide by zero returns infinity with N's sign
+        // The result is infinity whose sign is that of N
         mpz_set_inf (q, mpz_sgn (n));
     else
     if (mpz_inf_p (n)
      && !mpz_inf_p (d))
-        // Divide into infinity returns infinity with NxD's sign
+        // The result is infinity whose sign is the product of the signs
         mpz_set_inf (q, mpz_sgn (n) * mpz_sgn (d));
     else
     if (mpz_inf_p (n)
@@ -1423,14 +1443,14 @@ mpir_ui mpiz_tdiv_q_ui
     // Check for special cases
     if (d EQ 0)
     {
-        // Divide by zero returns infinity with N's sign
+        // The result is infinity whose sign is that of N
         mpz_set_inf (q, mpz_sgn (n));
 
         return 0;
     } else
     if (mpz_inf_p (n))
     {
-        // Divide into infinity returns infinity with NxD's sign
+        // The result is infinity whose sign is the product of the signs
         mpz_set_inf (q, mpz_sgn (n) * signumint (d));
 
         return 0;
@@ -1519,7 +1539,7 @@ void mpiz_tdiv_q_2exp
 {
     // Check for special cases
     if (mpz_inf_p (n))
-        // Result is infinity with N's sign
+        // The result is infinity whose sign is that of N
         mpz_set_inf (q, mpz_sgn (n));
     else
         mpz_tdiv_q_2exp (mpz_clr_inf (q), n, b);
@@ -1562,7 +1582,7 @@ void mpiz_mod
     // Handle zero modulus or argument
     if (mpz_sgn (n) EQ 0
      || mpz_sgn (d) EQ 0)
-        // Initialize the result to zero
+        // Initialize the result to 0
         mpz_init (r);
     else
     // Check for indeterminate cases
@@ -1630,7 +1650,7 @@ mpir_ui mpiz_mod_ui
     if (mpz_sgn (n) EQ 0
      ||          d  EQ 0)
     {
-        // Initialize the result to zero
+        // Initialize the result to 0
         mpz_init (r);
 
         return 0;       // ***FIXME***
@@ -1755,6 +1775,7 @@ void mpiz_pow_ui
         (*gmpz_invalid) (MP_POW_UI, rop, base, NULL, NULL, exp, 0);
     else
     if (mpz_inf_p (base))
+        // The result is infinity whose sign is negative if the base is negative and the exponent is odd
         mpz_set_inf (rop, ((exp & 1) && mpz_sgn (base) < 0) ? -1 : 1);
     else
         mpz_pow_ui (mpz_clr_inf (rop), base, exp);
@@ -1797,6 +1818,7 @@ void mpiz_sqrt
         if (mpz_sgn (op) < 0)
             (*gmpz_invalid) (MP_SQRT, rop, op, NULL, NULL, 0, 0);
         else
+            // The result is infinity whose sign is positive
             mpz_set_inf (rop, 1);
     } else
         mpz_sqrt (rop, op);
@@ -1992,7 +2014,7 @@ int mpiz_cmp_d
 
 {
     // Split cases based upon which (if any) arg is an infinity
-    switch (2 * mpz_inf_p (op1) + IsInfinity (op2))
+    switch (2 * mpz_inf_p (op1) + IsFltInfinity (op2))
     {
         case 2 * 0 + 0:     // Neither arg is an infinity
             // Call the original function
@@ -2110,7 +2132,7 @@ int mpiz_cmpabs_d
 
 {
     // Split cases based upon which (if any) arg is an infinity
-    switch (2 * mpz_inf_p (op1) + IsInfinity (op2))
+    switch (2 * mpz_inf_p (op1) + IsFltInfinity (op2))
     {
         case 2 * 0 + 0:     // Neither arg is an infinity
             // Call the original function
@@ -2412,7 +2434,7 @@ size_t mpiz_sizeinbase
 
 
 //***************************************************************************
-//  $_mpiz_realloc
+//  $mpiz_realloc
 //
 //  Change the space for op
 //***************************************************************************
@@ -2624,6 +2646,31 @@ void mpiq_canonicalize
 
 
 //***************************************************************************
+//  $mpiq_clear
+//
+//  Clear a rational value
+//***************************************************************************
+
+void mpiq_clear
+    (mpq_t op)
+
+{
+    if (!mpq_inf_p (op))
+        mpq_clear (op);
+    else
+    {
+        // Set the numerator & denominator to all 0s
+        op->_mp_num._mp_size  =
+        op->_mp_den._mp_size  = 0;
+        op->_mp_num._mp_alloc =
+        op->_mp_den._mp_alloc = 0;
+        op->_mp_num._mp_d     =
+        op->_mp_den._mp_d     = NULL;
+    } // End IF/ELSE
+} // End mpiq_clear
+
+
+//***************************************************************************
 //  $mpiq_set
 //
 //  Save a rational in another rational
@@ -2635,6 +2682,7 @@ void mpiq_set
 
 {
     if (mpq_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpq_set_inf (rop, mpq_sgn (op));
     else
         mpq_set (mpq_clr_inf (rop), op);
@@ -2653,6 +2701,7 @@ void mpiq_set_z
 
 {
     if (mpz_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpq_set_inf (rop, mpz_sgn (op));
     else
         mpq_set_z (mpq_clr_inf (rop), op);
@@ -2672,6 +2721,7 @@ void mpiq_set_ui
 
 {
     if (op2 EQ 0)
+        // The result is infinity whose sign is positive
         mpq_set_inf (rop, 1);
     else
         mpq_set_ui (mpq_clr_inf (rop), op1, op2);
@@ -2691,6 +2741,7 @@ void mpiq_set_si
 
 {
     if (op2 EQ 0)
+        // The result is infinity whose sign is that of op1
         mpq_set_inf (rop, signumint (op1));
     else
         mpq_set_si (mpq_clr_inf (rop), op1, op2);
@@ -2709,7 +2760,7 @@ int mpiq_set_str
      int   base)                // Base
 
 {
-    char *p, *q;
+    char *p, *q, *dpt;
 
     // Skip over white space
     p = str;
@@ -2717,6 +2768,7 @@ int mpiq_set_str
         p++;
     // Find the numerator/denominator separator (if any)
     q = strchr (p, '/');
+    dpt = strchr (p, '.');
     if (q
      && mpz_set_str (mpq_denref (rop), &q[1], base) EQ 0
      && mpz_cmp_ui  (mpq_denref (rop), 0) EQ 0)
@@ -2772,8 +2824,9 @@ void mpiq_set_d
      double op)                 // Source
 
 {
-    if (IsInfinity (op))
-        mpq_set_inf (rop, (op EQ fabs (op)) ? 1 : -1);
+    if (IsFltInfinity (op))
+        // The result is infinity whose sign is that of op
+        mpq_set_inf (rop, signumflt (op));
     else
         mpq_set_d (mpq_clr_inf (rop), op);
 } // End mpiq_set_d
@@ -2791,6 +2844,7 @@ void mpiq_set_fr
 
 {
     if (mpfr_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpq_set_inf (rop, mpfr_sgn (op));
     else
     {
@@ -2869,13 +2923,13 @@ void mpiq_add
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is the infinite argument (op2)
+            // The result is infinity whose sign is that of op2
             mpq_set_inf (rop, mpq_sgn (op2));
 
             break;
 
         case 2 * 1 + 0:     // Op1 only is an infinity
-            // The result is the infinite argument (op1)
+            // The result is infinity whose sign is that of op1
             mpq_set_inf (rop, mpq_sgn (op1));
 
             break;
@@ -2883,7 +2937,7 @@ void mpiq_add
         case 2 * 1 + 1:     // Op1 and Op2 are infinities
             // If they are the same sign, ...
             if (mpq_sgn (op1) EQ mpq_sgn (op2))
-                // The result is the infinite argument (op1 or op2)
+                // The result is infinity whose sign is that of op1
                 mpq_set_inf (rop, mpq_sgn (op1));
             else
                 (*gmpq_invalid) (MP_ADD, rop, op1, op2, NULL, 0);
@@ -2914,13 +2968,13 @@ void mpiq_sub
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is the infinite argument (op2)
+            // The result is infinity whose sign is that of op2
             mpq_set_inf (rop, mpq_sgn (op2));
 
             break;
 
         case 2 * 1 + 0:     // Op1 only is an infinity
-            // The result is the infinite argument (op1)
+            // The result is infinity whose sign is that of op1
             mpq_set_inf (rop, mpq_sgn (op1));
 
             break;
@@ -2928,7 +2982,7 @@ void mpiq_sub
         case 2 * 1 + 1:     // Op1 and Op2 are infinities
             // If they are the opposite sign, ...
             if (mpq_sgn (op1) NE mpq_sgn (op2))
-                // The result is the infinite argument (op1 or op2)
+                // The result is infinity whose sign is that of op1
                 mpq_set_inf (rop, mpq_sgn (op1));
             else
                 (*gmpq_invalid) (MP_SUB, rop, op1, op2, NULL, 0);
@@ -2953,25 +3007,25 @@ void mpiq_mul
     switch (2 * mpq_inf_p (op1) + mpq_inf_p (op2))
     {
         case 2 * 0 + 0:     // Neither arg is an infinity
-            // call the original function
+            // Call the original function
             mpq_mul (mpq_clr_inf (rop), op1, op2);
 
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is the infinite argument (op2)
-            mpq_set_inf (rop, mpq_sgn (op2));
+            // The result is infinity whose sign is the product of the signs
+            mpq_set_inf (rop, mpq_sgn (op1) * mpq_sgn (op2));
 
             break;
 
         case 2 * 1 + 0:     // Op1 only is an infinity
-            // The result is the infinite argument (op1)
-            mpq_set_inf (rop, mpq_sgn (op1));
+            // The result is infinity whose sign is the product of the signs
+            mpq_set_inf (rop, mpq_sgn (op1) * mpq_sgn (op2));
 
             break;
 
         case 2 * 1 + 1:     // Op1 and Op2 are infinities
-            // The result is the infinite argument with the product of the signs
+            // The result is infinity whose sign is the product of the signs
             mpq_set_inf (rop, mpq_sgn (op1) * mpq_sgn (op2));
 
             break;
@@ -2992,6 +3046,7 @@ void mpiq_mul_2exp
 
 {
     if (mpq_inf_p (op1))
+        // The result is infinity whose sign is that of op1
         mpq_set_inf (rop, mpq_sgn (op1));
     else
         mpq_mul_2exp (mpq_clr_inf (rop), op1, op2);
@@ -3013,19 +3068,25 @@ void mpiq_div
     // Check for special cases
     if (!mpq_inf_p (op1)
      && mpq_cmp_ui (op2, 0, 1) EQ 0)
-        // Divide by zero returns infinity with op1's sign
+        // The result is infinity whose sign is that of op1
         mpq_set_inf (rop, mpq_sgn (op1));
     else
     if (mpq_inf_p (op1)
      && !mpq_inf_p (op2))
-        // Divide into infinity returns infinity with op1xop2's sign
+        // The result is infinity whose sign is the product of the signs
         mpq_set_inf (rop, mpq_sgn (op1) * mpq_sgn (op2));
     else
     if (!mpq_inf_p (op1)
      && mpq_inf_p (op2))
-        // N / _ is 0
-        mpq_set_ui (rop, 0, 1);
-    else
+    {
+        // If the sign of infinity (op2) is negative and we're allowing -0, ...
+        if (signumrat (op2) < 0
+         && gAllowNeg0)
+            RaiseException (EXCEPTION_RESULT_VFP, 0, 0, NULL);
+        else
+            // N / _ is 0
+            mpq_set_ui (rop, 0, 1);
+    } else
     if (mpq_inf_p (op1)
      && mpq_inf_p (op2))
         // Infinity / infinity is undefined
@@ -3048,6 +3109,7 @@ void mpiq_div_2exp
 
 {
     if (mpq_inf_p (op1))
+        // The result is infinity whose sign is that of op1
         mpq_set_inf (rop, mpq_sgn (op1));
     else
         mpq_div_2exp (mpq_clr_inf (rop), op1, op2);
@@ -3066,6 +3128,7 @@ void mpiq_neg
 
 {
     if (mpq_inf_p (op))
+        // The result is infinity whose sign is that of -op
         mpq_set_inf (rop, -mpq_sgn (op));
     else
         mpq_neg (mpq_clr_inf (rop), op);
@@ -3084,6 +3147,7 @@ void mpiq_abs
 
 {
     if (mpq_inf_p (op))
+        // The result is infinity whose sign is positive
         mpq_set_inf (rop, 1);
     else
         mpq_abs (mpq_clr_inf (rop), op);
@@ -3311,10 +3375,27 @@ void mpifr_copy
 
 {
     if (mpfr_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpfr_set_inf (rop, mpfr_sgn (op));
     else
         mpfr_copy (mpfr_clr_inf (rop), op);
 } // End mpifr_copy
+
+
+//***************************************************************************
+//  $mpifr_set
+//
+//  Set a MPFR from a MPFR
+//***************************************************************************
+
+void mpifr_set
+    (mpfr_t     rop,            // Destination
+     mpfr_t     op,             // Source
+     mpfr_rnd_t rnd)            // Rounding mode
+
+{
+    mpfr_set (mpfr_clr_inf (rop), op, rnd);
+} // End mpifr_set
 
 
 //***************************************************************************
@@ -3329,8 +3410,9 @@ void mpifr_set_d
      mpfr_rnd_t rnd)            // Rounding mode
 
 {
-    if (IsInfinity (op))
-        mpfr_set_inf (rop, (op EQ fabs (op)) ? 1 : -1);
+    if (IsFltInfinity (op))
+        // The result is infinity whose sign is that of op
+        mpfr_set_inf (rop, signumflt (op));
     else
         mpfr_set_d (mpfr_clr_inf (rop), op, rnd);
 } // End mpifr_set_d
@@ -3349,10 +3431,11 @@ void mpifr_set_z
 
 {
     if (mpz_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpfr_set_inf (rop, mpz_sgn (op));
     else
         mpfr_set_z (mpfr_clr_inf (rop), op, rnd);
-} // End mpifr_set_qz
+} // End mpifr_set_z
 
 
 //***************************************************************************
@@ -3368,6 +3451,7 @@ void mpifr_set_q
 
 {
     if (mpq_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpfr_set_inf (rop, mpq_sgn (op));
     else
         mpfr_set_q (mpfr_clr_inf (rop), op, rnd);
@@ -3407,6 +3491,39 @@ int mpifr_set_str
 
 
 //***************************************************************************
+//  $mpifr_strtofr
+//
+//  Set rop from a string in a given base
+//***************************************************************************
+
+int mpifr_strtofr
+    (mpfr_t     rop,            // Destination
+     char      *str,            // Source
+     char     **endptr,         // Output ptr to ending char (may be NULL)
+     int        base,           // Base
+     mpfr_rnd_t rnd)            // Rounding mode
+
+{
+    char *p;
+
+    // Skip over white space
+    p = str;
+    while (isspace (*p))
+        p++;
+    // If the input consists of "!" or "-!", ...
+    if (strcmp (p, DEF_POSINFINITY_STR) EQ 0
+     || strcmp (p, DEF_NEGINFINITY_STR) EQ 0)
+    {
+        // Set to the appropriate signed infinity
+        mpfr_set_inf (rop, p[0] EQ '-');
+
+        return 0;
+    } else
+        return mpfr_strtofr (mpfr_clr_inf (rop), str, endptr, base, rnd);
+} // End mpifr_strtofr
+
+
+//***************************************************************************
 //  $mpifr_init_copy
 //
 //  Set a MPFR from a MPFR
@@ -3418,6 +3535,7 @@ void mpifr_init_copy
 
 {
     if (mpfr_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpfr_set_inf (rop, mpfr_sgn (op));
     else
         mpfr_init_copy (rop, op);
@@ -3436,8 +3554,9 @@ void mpifr_init_set_d
      mpfr_rnd_t rnd)            // Rounding mode
 
 {
-    if (IsInfinity (op))
-        mpfr_set_inf (rop, (op EQ fabs (op)) ? 1 : -1);
+    if (IsFltInfinity (op))
+        // The result is infinity whose sign is that of op
+        mpfr_set_inf (rop, signumflt (op));
     else
         mpfr_init_set_d (rop, op, rnd);
 } // End mpifr_init_set_d
@@ -3473,7 +3592,7 @@ double mpifr_get_d
 
 {
     if (mpfr_inf_p (op))
-        return ((mpfr_sgn (op) > 0) ? PosInfinity : NegInfinity);
+        return ((mpfr_sgn (op) > 0) ? fltPosInfinity : fltNegInfinity);
     else
         return mpfr_get_d (op, rnd);
 } // End mpifr_get_d
@@ -3494,7 +3613,7 @@ double mpifr_get_d_2exp
     if (mpfr_inf_p (op))
     {
         *exp = 0;
-        return ((mpfr_sgn (op) > 0) ? PosInfinity : NegInfinity);
+        return ((mpfr_sgn (op) > 0) ? fltPosInfinity : fltNegInfinity);
     } else
         return mpfr_get_d_2exp (exp, op, rnd);
 } // End mpifr_get_d_2exp
@@ -3589,6 +3708,7 @@ int mpifr_get_z
 {
     if (mpfr_inf_p (op))
     {
+        // The result is infinity whose sign is that of op
         mpz_set_inf (rop, mpfr_sgn (op));
 
         return 0;
@@ -3620,13 +3740,13 @@ void mpifr_add
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is the infinite argument (op2)
+            // The result is infinity whose sign is that of op2
             mpfr_set_inf (rop, mpfr_sgn (op2));
 
             break;
 
         case 2 * 1 + 0:     // Op1 only is an infinity
-            // The result is the infinite argument (op1)
+            // The result is infinity whose sign is that of op1
             mpfr_set_inf (rop, mpfr_sgn (op1));
 
             break;
@@ -3634,7 +3754,7 @@ void mpifr_add
         case 2 * 1 + 1:     // Op1 and Op2 are infinities
             // If they are the same sign, ...
             if (mpfr_sgn (op1) EQ mpfr_sgn (op2))
-                // The result is the infinite argument (op1 or op2)
+                // The result is infinity whose sign is that of op1
                 mpfr_set_inf (rop, mpfr_sgn (op1));
             else
                 (*gmpfr_invalid) (MP_ADD, rop, op1, op2, NULL, 0);
@@ -3657,6 +3777,7 @@ void mpifr_add_ui
 
 {
     if (mpfr_inf_p (op1))
+        // The result is infinity whose sign is that of op1
         mpfr_set_inf (rop, mpfr_sgn (op1));
     else
         mpfr_add_ui (mpfr_clr_inf (rop), op1, op2, rnd);
@@ -3686,13 +3807,13 @@ void mpifr_sub
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is the infinite argument (op2)
+            // The result is infinity whose sign is that of op2
             mpfr_set_inf (rop, mpfr_sgn (op2));
 
             break;
 
         case 2 * 1 + 0:     // Op1 only is an infinity
-            // The result is the infinite argument (op1)
+            // The result is infinity whose sign is that of op1
             mpfr_set_inf (rop, mpfr_sgn (op1));
 
             break;
@@ -3700,7 +3821,7 @@ void mpifr_sub
         case 2 * 1 + 1:     // Op1 and Op2 are infinities
             // If they are the opposite sign, ...
             if (mpfr_sgn (op1) NE mpfr_sgn (op2))
-                // The result is the infinite argument (op1 or op2)
+                // The result is infinity whose sign is that of op1
                 mpfr_set_inf (rop, mpfr_sgn (op1));
             else
                 (*gmpfr_invalid) (MP_SUB, rop, op1, op2, NULL, 0);
@@ -3723,6 +3844,7 @@ void mpifr_ui_sub
 
 {
     if (mpfr_inf_p (op2))
+        // The result is infinity whose sign is that of -op2
         mpfr_set_inf (rop, -mpfr_sgn (op2));
     else
         mpfr_ui_sub (mpfr_clr_inf (rop), op1, op2, rnd);
@@ -3743,6 +3865,7 @@ void mpifr_sub_ui
 
 {
     if (mpfr_inf_p (op1))
+        // The result is infinity whose sign is that of op1
         mpfr_set_inf (rop, mpfr_sgn (op1));
     else
         mpfr_sub_ui (mpfr_clr_inf (rop), op1, op2, rnd);
@@ -3772,19 +3895,19 @@ void mpifr_mul
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is the infinite argument (op2)
-            mpfr_set_inf (rop, mpfr_sgn (op2));
+            // The result is infinity whose sign is the product of the signs
+            mpfr_set_inf (rop, mpfr_sgn (op1) * mpfr_sgn (op2));
 
             break;
 
         case 2 * 1 + 0:     // Op1 only is an infinity
-            // The result is the infinite argument (op1)
-            mpfr_set_inf (rop, mpfr_sgn (op1));
+            // The result is infinity whose sign is the product of the signs
+            mpfr_set_inf (rop, mpfr_sgn (op1) * mpfr_sgn (op2));
 
             break;
 
         case 2 * 1 + 1:     // Op1 and Op2 are infinities
-            // The result is the infinite argument with the product of the signs
+            // The result is infinity whose sign is the product of the signs
             mpfr_set_inf (rop, mpfr_sgn (op1) * mpfr_sgn (op2));
 
             break;
@@ -3806,6 +3929,7 @@ void mpifr_mul_ui
 
 {
     if (mpfr_inf_p (op1))
+        // The result is infinity whose sign is that of op1
         mpfr_set_inf (rop, mpfr_sgn (op1));
     else
         // Call the original function
@@ -3829,18 +3953,20 @@ void mpifr_div
     // Check for special cases
     if (!mpfr_inf_p (op2)
      && mpfr_cmp_ui (op2, 0) EQ 0)
-        // Divide by zero returns infinity with op1's sign
-        mpfr_set_inf (rop, mpfr_sgn (op1));
+        // The result is infinity whose sign is that of op1
+        mpfr_set_inf (rop, signumvfp (op1));
     else
     if (mpfr_inf_p (op1)
      && !mpfr_inf_p (op2))
-        // Divide into infinity returns infinity with op1xop2's sign
-        mpfr_set_inf (rop, mpfr_sgn (op1) * mpfr_sgn (op2));
+        // _ / N is _
+        // The result is infinity whose sign is the product of the signs
+        mpfr_set_inf (rop, signumvfp (op1) * signumvfp (op2));
     else
     if (!mpfr_inf_p (op1)
      && mpfr_inf_p (op2))
         // N / _ is 0
-        mpfr_set_ui (rop, 0, rnd);
+        // Divide N by infinity returns 0 with op1xop2's sign
+        mpfr_set_d (rop, (gAllowNeg0 && (SIGN_APLVFP (op1) NE SIGN_APLVFP (op2))) ? -0.0 : 0.0, rnd);
     else
     if (mpfr_inf_p (op1)
      && mpfr_inf_p (op2))
@@ -3890,11 +4016,11 @@ void mpifr_div_ui
 {
     // Check for special cases
     if (op2 EQ 0)
-        // Divide by zero returns infinity with op1's sign
-        mpfr_set_inf (rop, mpfr_sgn (op1));
+        // The result is infinity whose sign is that of op1
+        mpfr_set_inf (rop, signumvfp (op1));
     else
     if (mpfr_inf_p (op1))
-        // Divide into infinity returns infinity with op1xop2's sign
+        // The result is infinity whose sign is the product of the signs
         mpfr_set_inf (rop, mpfr_sgn (op1) * signumint (op2));
     else
         mpfr_div_ui (mpfr_clr_inf (rop), op1, op2, rnd);
@@ -3916,7 +4042,8 @@ void mpifr_sqrt
     if (mpfr_inf_p (op))
     {
         if (mpfr_sgn (op) > 0)
-            mpfr_set_inf (rop, -mpfr_sgn (op));
+            // The result is infinity whose sign is that of op
+            mpfr_set_inf (rop, mpfr_sgn (op));
         else
             (*gmpfr_invalid) (MP_SQRT, rop, op, NULL, NULL, 0);
      }else
@@ -3937,9 +4064,10 @@ void mpifr_neg
 
 {
     if (mpfr_inf_p (op))
+        // The result is infinity whose sign is that of -op
         mpfr_set_inf (rop, -mpfr_sgn (op));
     else
-        mpfr_neg0 (mpfr_clr_inf (rop), op, rnd);
+        mpfr_neg (mpfr_clr_inf (rop), op, rnd);
 } // End mpifr_neg
 
 
@@ -3956,6 +4084,7 @@ void mpifr_abs
 
 {
     if (mpfr_inf_p (op))
+        // The result is infinity whose sign is positive
         mpfr_set_inf (rop, 1);
     else
         mpfr_abs (mpfr_clr_inf (rop), op, rnd);
@@ -3976,6 +4105,7 @@ void mpifr_mul_2exp
 
 {
     if (mpfr_inf_p (op1))
+        // The result is infinity whose sign is that of op1
         mpfr_set_inf (rop, mpfr_sgn (op1));
     else
         mpfr_mul_2exp (mpfr_clr_inf (rop), op1, (unsigned long) op2, rnd);
@@ -3996,6 +4126,7 @@ void mpifr_div_2exp
 
 {
     if (mpfr_inf_p (op1))
+            // The result is infinity whose sign is that of op1
         mpfr_set_inf (rop, mpfr_sgn (op1));
     else
         mpfr_div_2exp (mpfr_clr_inf (rop), op1, (unsigned long) op2, rnd);
@@ -4173,8 +4304,8 @@ void mpifr_reldiff
             break;
 
         case 2 * 0 + 1:     // Op2 only is an infinity
-            // The result is an infinity with the sign of finite argument (op1)
-            mpfr_set_inf (rop, mpfr_sgn (op1));
+            // The result is infinity whose sign is that of op1
+            mpfr_set_inf (rop, signumvfp (op1));
 
             break;
 
@@ -4199,6 +4330,7 @@ void mpifr_ceil
 
 {
     if (mpfr_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpfr_set_inf (rop, mpfr_sgn (op));
     else
         mpfr_ceil (mpfr_clr_inf (rop), op);
@@ -4217,6 +4349,7 @@ void mpifr_floor
 
 {
     if (mpfr_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpfr_set_inf (rop, mpfr_sgn (op));
     else
         mpfr_floor (mpfr_clr_inf (rop), op);
@@ -4235,6 +4368,7 @@ void mpifr_trunc
 
 {
     if (mpfr_inf_p (op))
+        // The result is infinity whose sign is that of op
         mpfr_set_inf (rop, mpfr_sgn (op));
     else
         mpfr_trunc (mpfr_clr_inf (rop), op);
@@ -4380,6 +4514,7 @@ void mpifr_pow_ui
 
 {
     if (mpfr_inf_p (op1))
+        // The result is infinity whose sign is that of op1 if op2 is odd and positive if op2 is even
         mpfr_set_inf (rop, (op2 & 1) ? mpfr_sgn (op1) : 1);
     else
         mpfr_pow_ui (mpfr_clr_inf (rop), op1, op2, rnd);
@@ -4405,7 +4540,8 @@ void mpifr_pow_z
         if (IsMpzInfinity (op2) && mpz_sgn (op2) < 0)
             mpfr_set_ui (mpfr_clr_inf (rop), 0, MPFR_RNDN);
         else
-            mpfr_set_inf (rop, mpz_odd_p (op2) ? mpfr_sgn (op1) : 1);
+            // The result is infinity whose sign is that of op1 if op2 is odd and positive if op2 is even
+            mpfr_set_inf (rop, mpz_odd_p (op2) ? signumvfp (op1) : 1);
     } else
     // If op2 is infinity, ...
     if (IsMpzInfinity (op2))
@@ -4426,7 +4562,7 @@ void mpifr_pow_z
                 // Result is 0
                 mpfr_set_ui (mpfr_clr_inf (rop), 0, MPFR_RNDN);
             else
-                // Result is {infinity}
+                // The result is infinity whose sign is positive
                 mpfr_set_inf (mpfr_clr_inf (rop), 1);
         } else
             // Izit < -1 or > 1, ...

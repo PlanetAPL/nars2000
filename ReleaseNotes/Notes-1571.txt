@@ -1,0 +1,10 @@
+Build #1571--Version0.4.18.xx
+--------------------------------
+
+* Display Function Fix Time As Local Time
+
+Directorytrunk:
+
+QF_AT.C:
+  In <AttributeFixTime>, convert the GMT time of the function to local time
+    before converting it to system time.

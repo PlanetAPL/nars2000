@@ -1,0 +1,15 @@
+Build #1544 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug When Calling Dyadic Squad As A Prototype
+
+Directory trunk:
+
+PF_INDEX.C:
+  Pass prototyping flag to <PrimFnDydSquadGlb_EM_YY>.
+
+PF_SQUAD.C:
+  Use local routine instead of global mixed routine to handle prototypes.
+  Pass prototyping flag to various routines.
+  Split out common code to handle prototyping.
+  Skip index range checks if prototyping.

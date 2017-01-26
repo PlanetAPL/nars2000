@@ -1,0 +1,14 @@
+Build #1236 -- Version 0.4.7.xx
+-------------------------------
+
+* Miscellaneous Bug Fixes
+
+Directory trunk:
+
+MAKEFILE.INC:
+  For DEBUG versions, use <libcmtd.lib> instead of <libcmt.lib>.
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Fix typo in Partition Operator.

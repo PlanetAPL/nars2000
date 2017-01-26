@@ -1,0 +1,9 @@
+Build #1373 -- Version 0.4.10.xx
+-------------------------------
+
+* Fix Bug In Sin, Cos, Tan Functions On Floats
+
+Directory trunk:
+
+PF_CIRCLE.C:
+  Fix bug in 1 2 3 {circle} functions on floats as I used the wrong var for testing and result.

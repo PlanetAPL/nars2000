@@ -1,0 +1,37 @@
+Build #1476 -- Version 0.4.14.xx
+--------------------------------
+
+* Implement Gamma Point Notation
+
+Directory trunk:
+
+DEFINES.H:
+EXTERNS.H:
+INITDATA.C:
+PERTAB.H:
+  Define Gamma Point Notation vars.
+
+DISPDBG.C:
+  Define Gamma Point Notation vars.
+  Rename <DisplayFnHdr> to <DisplayFcnHdr> as that's the more common abbrev I use for function.
+  In <DisplayFcnHdr>, when displaying operand and function names, ensure they are valid.
+
+FH_PARSE.Y:
+  Rename <DisplayFnHdr> to <DisplayFcnHdr> as that's the more common abbrev I use for function.
+
+PN_PARSE.Y:
+PN_PROC.C:
+  Define Gamma Point Notation vars.
+
+REBAR.C:
+  Document Gamma Point Notation
+
+STARTADDR.H:
+  Rename <DisplayFnHdr> to <DisplayFcnHdr> as that's the more common abbrev I use for function.
+  Include Gamma Point Notation function in list of functions.
+
+TOKENIZE.C:
+  Include Gamma Point Notation in list of Point Notation separators for Syntax Coloring.
+
+UNICODE.H:
+  Define Gamma Unicode character.

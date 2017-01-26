@@ -1,0 +1,11 @@
+Build #1479 -- Version 0.4.14.xx
+--------------------------------
+
+* Rename Function To be More Consistent
+
+Directory trunk:
+
+EXECDFN.C:
+FH_PARSE.Y:
+SC_LOAD.C:
+  Rename <IsThisSysName> to <IsSymSysName> to reflect the argument type.

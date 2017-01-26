@@ -1,0 +1,15 @@
+Build #1324 -- Version 0.4.9.xx
+-------------------------------
+
+* Remove Unused Functions
+
+Directory trunk:
+
+PARSELINE.C:
+STARTADDR.H:
+YYFNS.C:
+  Update copyright notice.
+  Remove unused functions.
+
+WCOM.BAT:
+  Fix bug in path usage.

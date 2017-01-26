@@ -1,0 +1,16 @@
+Build #1426 -- Version 0.4.12.xx
+--------------------------------
+
+* Use Proper Macro On String To Get Sizeof
+
+Directory trunk:
+
+FH_PARSE.Y:
+PN_PARSE.Y:
+  In <fh_yyerror>and <pn_parse.y>, use macro <strsizeof> to get the sizeof not counting the trailing zero.
+
+MACROS.H:
+  Define macro <strsizeof> to get sizeof a string not counting the trailing zero.
+
+PN_PARSE.H:
+  Define common string names for error messages.

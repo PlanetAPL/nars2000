@@ -1,0 +1,50 @@
+Build #1554 -- Version 0.4.17.xx
+--------------------------------
+
+* Update Copyright Years
+
+Directory trunk:
+
+CRASH.C:
+FMTSPEC.C:
+GOTO.C:
+HUNGARIAN_INT.C:
+HUNGARIAN_RAT.C:
+IDENTFNS.C:
+PERFMON.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DOMINO.C:
+PF_DSHOE.C:
+PF_DTACKJOT.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_LSHOE.C:
+PF_LSHOEUND.C:
+PF_RHO.C:
+PF_SECTION.C:
+PL_PROC.C:
+PO_MULTISET.C:
+PROGBAR.C:
+QF_AV.C:
+QF_D.C:
+QF_DL.C:
+QF_DR.C:
+QF_EA.C:
+QF_ERROR.C:
+QF_FMT.C:
+QF_LC.C:
+QF_NC.C:
+QF_SYSVER.C:
+QF_T.C:
+QF_UCS.C:
+QF_VR.C:
+SC_DROP.C:
+SC_IN.C:
+SC_RESET.C:
+SC_WSID.C:
+STATUSBAR.C:
+SYMTRANS.C:
+UPDATES.C:
+WEBCOLORS.C:
+  Update copyright years.

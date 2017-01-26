@@ -1,0 +1,9 @@
+Build #1416 -- Version 0.4.11.xx
+--------------------------------
+
+* Append An Asterisk To []STOP Display
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, when displaying a []STOP line, append an asterisk to mimic the display of )SI.

@@ -1,0 +1,27 @@
+Build #1349 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In GCD/LCM Of Floats
+
+Directory trunk:
+
+PF_DCARET.C:
+  In <gcdAplFloat>, terminate the loop based upon GCD_CT not SYS_CT which being too small loops longer than necessary.
+  In <gcdAplFloat>, use APL modulus function instead of the built-in one for floats as ours is more forgiving on floats.
+
+PF_STILE.C:
+  Simplify code in <PrimFnMonStileIisI>.
+  In <PrimFnDydStileIisIvI>, if either arg is zero, return the right arg with the appropriate sign.
+  In <PrimFnDydStileIisIvI>, if the result is zero and the left arg is negative, blowup to float.
+  Define new routine FisIvI to handle floating point blowup from IisIvI.
+  In <PrimFnDydStileFisFvF>, if either arg is zero, return the right arg with the appropriate sign.
+  In <PrimFnDydStileRisRvR>, return the result with the appropriate sign.
+  In <PrimFnDydStileRisRvR>, if the result is zero and the left arg is negative, blowup to VFP.
+  In <PrimFnDydStileVisVvV>, return the result with the appropriate sign.
+
+PF_UCARET.C:
+  In <lcmAplInt> and <lcmAplFloat>, in case the result of the CGD is zero, return a result with the correct sign (possibly -0).
+
+SYSVARS.H:
+  Update copyright year.
+  Define comparison tolerance for GCD/LCM.

@@ -1,0 +1,13 @@
+Build #1538 -- Version 0.4.15.xx
+--------------------------------
+
+* Allow -1 As File Offset In []NREPLACE []NREAD To Mean Current Offset
+
+Directory trunk:
+
+QF_NFNS.C:
+  Remove test for parenthesized list as it can't occur due to the syntax analyzer.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In IF stmts always compare ptr against NULL and value against 0.
+  In <SysFnCreateTie_EM_YY>, in the call to <CreateFileW> ensure the normal attribute flag is set.
+  In []NREPLACE and []NREAD allow a file offset of -1 to mean the current offset.

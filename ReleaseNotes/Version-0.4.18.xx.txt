@@ -1,0 +1,1213 @@
+Version 0.4.18.xx consists of the following Builds:
+
+
+Build #1607 -- Version 0.4.18.xx
+--------------------------------
+
+* Miscellaneous Changes And Bug Fixes
+
+Directory trunk:
+
+DISPDBG.C:
+  Fix DEBUG bug by handling certain cases of <MyGlobalLockTxt>.
+
+PRIMSPEC.C:
+  In IF stmts always compare ptr against NULL.
+  Pass <lpSymGlb[Lft|Rht]> to subfunctions instead of NULL as we need it in the case of Global Numerics.
+  In certain cases when the result is NESTED, but the calculation is numeric, we make the mistake of saving a
+    pseudo result on top of the actual result.
+  In <PrimFnDydSiScSiScSub_EM> when the result is NESTED, but the calculation is Global Numeric, we save the Global Numeric result
+    in the Nested array causing a crash.
+
+TYPEMOTE.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <TypeDemote>, we increment <lpMemRht> but fail to restore it to the beginning and re-use that ptr as if it were at the start.
+
+
+Build #1606 -- Version 0.4.18.xx
+--------------------------------
+
+* Handle Syntax: (A A A) F IDX SPA
+* Handle Syntax:  A[A] F MOP A
+* Handle Syntax:  A[A] F MOP SPA
+
+Directory trunk:
+
+PARSELINE.C:
+  Define reduction for "LNR ISPA" as the same as "LNR SPA".
+  Define reduction for "NDX SPA" as the same as "IDX SPA".
+  Define reduction for "F ISPA" as the same as "F SPA".
+  Define macro to extract SynObj of the right stack +3.
+  When checking for the "IDX" -> "NDX" translation, be sure to include the
+    trailing SPA so we know it's a NAM assignment.
+  Rename ADX to NDX to better suggest that this is a Name Index.
+  Restore <GetLftSynObj> as we need the special treatment in it.
+  Comment out (#if FALSE/#endif) <GetLftToken> as we no longer need it.
+  Omit <lpYYRht0> and <lptkRht0> as it always points to an empty entry.
+  Handle more syntax cases of modified assignment.
+
+PARSELINE.H:
+  Make the binding strength of 'F ISPA' the same as 'F SPA'.
+  Lower the binding strength of 'IDX SPA' to xIDX-1 so that 'IDX IDX SPA' -> IDX SPA.
+  Lower the binding strength of 'NAM IDX' to xIDX-2 so that 'NAM IDX IDX SPA' -> 'NAM IDX SPA'
+  Make the binding strength of 'LNR ISPA' the same as 'LNR SPA'.
+  Lower the binding strength of 'ADX SPA' to xIDX-1 so that 'NAM ADX SPA' -> NAM ISPA.
+  Define reduction for 'F ISPA' to ISPA.
+  Define reduction for 'LNR ISPA' to A.
+
+STARTADDR.H:
+  Put <GetLstSynObj> back in and comment out <GetLftToken> as the need for that change
+    was solved in <pl_yyLexCOM> with better detection of Name Assignment.
+
+SYNOBJ.H:
+  Rename ADX to NDX to better suggest that this is a Name Index.
+
+
+Build #1605 -- Version 0.4.18.xx
+--------------------------------
+
+* Handle Syntax:  NAM    F            SPA
+* Handle Syntax:  NAM[A] F            SPA
+* Handle Syntax:  NAM    F[A]         SPA
+* Handle Syntax:  NAM[A] F[A]         SPA
+* Handle Syntax:  NAM    F    MOP     SPA
+* Handle Syntax:  NAM[A] F    MOP     SPA
+* Handle Syntax:  NAM    F[A] MOP     SPA
+* Handle Syntax:  NAM[A] F[A] MOP     SPA
+* Handle Syntax:  NAM    F    MOP[A]  SPA
+* Handle Syntax:  NAM[A] F    MOP[A]  SPA
+* Handle Syntax:  NAM    F[A] MOP[A]  SPA
+* Handle Syntax:  NAM[A] F[A] MOP[A]  SPA
+* Handle Syntax:  (A F) MOP A
+* Handle Syntax:  F{is}A
+* Handle Syntax:  GOTO SYSLBL
+
+Directory trunk:
+
+PARSELINE.C:
+  Define tools needed to handle some of the above syntax cases.
+  Change <GetLstSynObj> to <GetLftToken> so as to test the TknType for a named var.
+  In <plRedMF_A>, pick out left argument evern if it's on the curried function which handles (A F) MOP A.
+  After <PARSELINE_START>, use the appropriate <MyGlobalLock>.
+  After <PARSELINE_SCAN1>, pick off cases where we convert an IDX to an ADX which handles the rest of the above syntax cases.
+  After <PARSELINE_DONE>, do not set the bSink flag if there's a curried function as that's a SYNTAX ERROR which handles F{is}A.
+  In <pl_yylexCOM/case TKT_VARNAMED/case NAMETYPE_VAR>, handle the case of GOTO SYSLBL by not confusing it with a System Function.
+  In <pl_yylexCOM/case TKT_VARNAMED/case NAMETYPE_VAR>, handle the above cases with SPA by marking NAM as a vars being assigned to.
+
+PARSELINE.H:
+  Lower the binding strength of F SPA so as be lower than that of DOP F so that DOP F SPA binds DOP F before F SPA.
+
+STARTADDR.H:
+  Change <GetLstSynObj> to <GetLftToken> so as to test the TknType for a named var.
+
+SYNOBJ.H:
+  Comment change.
+
+
+Build #1604 -- Version 0.4.18.xx
+--------------------------------
+
+* When Executing An Immediate Execution Mode Thread, Initialize The Per Thread Vars
+
+Directory trunk:
+
+IMMEXEC.C:
+  In <WaitForImmExecStmt>, free the MPFR cache at the end of the immediate mode execution.
+  In <ImmExecStmtInThread>, initialize per thread vars such as the MPFR default precision and rounding mode.
+
+
+Build #1603 -- Version 0.4.18.xx
+--------------------------------
+
+* Handle Indexed Assignment Of Nested Character Constant Into A Simple Var
+* Signal INDEX ERROR For A[B;empty] If B Is Not A Valid Index
+* Fix Bug Of Wrong Error Message For A[1 2 'a';]
+
+Directory trunk:
+
+GETFNS.C:
+  In <GetNextValueGlb>, allow an empty argument.
+
+PF_INDEX.C:
+  Fix bug in <ArrayIndexRef_EM_YY>, mis-casting <lpMemHdrSub> as a List Array rather than a Var Array.
+  In <ArrayIndexRef_EM_YY>, merge cases.
+  In <ArrayIndexRef_EM_YY>, at various points include Assertions so as to catch bugs.
+  In <ArrayIndexRefNamImmed_EM_YY>, change the type and name of <lpMemHdrLst> from a List Array to a Var Array header.
+  In <ArrayIndexSetSingLst_EM>, for RATs and VFPs, set the new value into the name rather than copy if as the name is already initialized.  This avoids a memory leak.
+
+PF_SQUAD.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <PrimFnDydSquadGlb_EM_YY>, count the number of elements in the result from non-zero indices so as to test for INDEX ERRORs on empty results.
+  In <PrimFnDydSquadGlb_EM_YY>, if the left arg is not numeric, signal a DOMAIN ERROR.
+  In <PrimFnDydSquadGlb_EM_YY>, if the left arg item is a global, but not a global numeric, get the item NELM for later use in case it's empty.
+  In <PrimFnDydSquadGlb_EM_YY>, if the left arg item is a global, but not a global numeric, merge RAT and VFP cases when converting to an integer.
+  In <PrimFnDydSquadGlb_EM_YY>, keep track of the item's NELM in case it's empty so as to avoid testing the value for an INDEX ERROR.
+
+PRIMFNS.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <IncrOdometer>, do not increment empty coordinate.
+
+PRIMSPEC.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <PrimIdentFnScalar_EM_YY>, do not assume that the identity element is zero.
+  In <PrimFnDydSiScSiSc_EM>, after calling <PrimFnDydSiScSiScSub_EM>, handle the case where the result is a global numeric.
+
+TYPEMOTE.C:
+  Change the name with "RhtHdr" to "HdrRht" to conform to naming conventions.
+  In <TPA_NEST2NEST>, copy the global handle instead of saving it as the new use is a separate copy and shouldn't be freed when the old handle is.
+    This handles the case of an indexed assignment of a nested character constant into a simple var.
+
+YYFNS.C:
+  Improve comments.
+
+
+Build #1602 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug Not Recognizing System Labels As Goto Targets
+
+Directory trunk:
+
+EXECDFN.C:
+  In <LocalizeLabels>. set the <DfnSysLabel> flag if a System Label.
+
+SAVEFCN.C:
+  In <GetLabelNums>, if it's a System Label, fill in the appropriate entry in the list of line labels.
+
+
+Build #1601 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement Temporary APVs To Handle Elided Indices
+
+Directory trunk:
+
+COMMON.C:
+  In <AllocateGlobalArray>, allow the dimension ptr to be NULL as that how Temporary APVs are initialized.
+
+EXTERNS.H:
+  Re-format and comment constant tokens <tkZero> and <tkBlank>.
+
+PF_INDEX.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In IF stmts always compare ptr against NULL.
+  Simplify and coalesce cases of integer conversion by calling <ConvertToInteger_SCT>.
+  Fix bug where the result of indexing may be marked as PV0 or PV1 incorrectly.
+  Implement temporary APVs to handle elided indices.
+
+STARTADDR.H:
+  Include more entry points.
+
+STRAND.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Implement temporary APVs to handle elided indices.
+
+TOKENS.H:
+  Implement temporary APVs to handle elided indices.
+
+
+Build #1600 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug With Storing INT_MIN As A VFPO Number
+
+Directory trunk:
+
+FREE.C:
+  Fix typo in comment.
+
+HEADERS.H:
+  Delete "#undef mpfr_set_sj" as we don't launder it ourselves.
+
+MACROS.H:
+  Use consistent naming convention for 64-bit integers with MPFR with a suffix of "_sx" and "_ux" instead of "_sj" and "uj".
+
+MPIFNS.C:
+  Delete our implementation of <mpfr_set_sx> in favor of calling <mpfr_set_sj> as ours has a bug with INT_MIN.
+  Redo our <mpfr_get_sx> to call <mpfr_get_sj>.
+
+
+Build #1599 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bugs With Signed Infinities
+* Include More Entry Points.
+
+Directory trunk:
+
+MACROS.H:
+  Delete unused macro.
+
+MPIFNS.C:
+  Improve comments.
+  Fix bugs with signed infinities.
+
+STARTADDR.H:
+  Include more entry points.
+
+
+Build #1598 -- Version 0.4.18.xx
+--------------------------------
+
+* Mark Function As AFO When Editing It
+* Include More Entry Points.
+
+Directory trunk:
+
+EDITFCN.C:
+EXTERNS.H:
+  When editing an AFO, mark it as such in the window title.
+
+STARTADDR.H:
+  Include more entry points.
+
+
+Build #1597 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement DEBUG Checks On MyGlobalLock, Part 2
+
+Directory trunk:
+
+QF_STRACE.C:
+SESSMAN.C:
+  Fix erroneous <MyGlobalLockXXX> specifiers.
+
+
+Build #1596 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug With Function Erased While Editing, Part 2
+
+Directory trunk:
+
+SAVEFCN.C:
+  In <SaveFunctionCom> if there's a previous function, when erasing it be sure to zap
+    the saved previous function handle in the window extra bytes.
+
+
+Build #1595 -- Version 0.4.18.xx
+--------------------------------
+
+* Remove More References To Vector And Matrix Editors
+
+Directory trunk:
+
+NARS2000.VCXPROJ:
+  Remove more references to both Vector and Matrix Editors
+
+
+Build #1594 -- Version 0.4.18.xx
+--------------------------------
+
+* Remove References To Vector And Matrix Editors
+* Fix Bug In Reference To /LTCG In MAKEFILE.INC
+
+Directory trunk:
+
+COMPRO.H:
+DEFINES.H:
+EDITMAT.C:
+EDITVEC.V:
+ENUMS.H:
+EXTERNS.H:
+MAIN.C:
+MAKEFILE.INC:
+MAKEFILE.SRC:
+STARTADDR.H:
+  Remove references to both Vector and Matrix Editors
+
+
+Build #1593 -- Version 0.4.18.xx
+--------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Insert /LCTG:off in <MakeVer> link command line to avoid spurious error message.
+
+
+Build #1592 -- Version 0.4.18.xx
+--------------------------------
+
+* Change Meaning Of Specified Precision (e.g., 1v64)
+* Implement Get Precision Function In []DR
+
+Directory trunk:
+
+MACROS.H:
+  Define <CopyAll> macro omitted from previous build.
+
+PN_PROC.C:
+  Change meaning of specified precision (e.g., 1v64) to exactly that precision.
+
+QF_DR.C:
+QF_DR.H:
+  Implement 3 []DR to return the (lowest) precision of the argument.
+
+
+Build #1591 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement DEBUG Checks On MyGlobalLock
+
+Directory trunk:
+
+AFOFNS.C:
+ASSIGN.C:
+AXISFNS.C:
+COMMON.C:
+CONVERT.C:
+CS_PROC.C:
+CUSTOMIZE.C:
+DATATYPE.H:
+DEBUG.H:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C:
+ERRMSG.C:
+EXCEPT.C:
+EXECDFN.C:
+EXECFNS.C:
+EXECMFN.C:
+EXTERNS.H:
+FH_PARSE.Y:
+FREE.C:
+GETFNS.C:
+GOTO.C:
+IMMEXEC.C:
+INIFILE.C:
+MAIN.C:
+PARSELINE.C:
+PERTAB.H:
+PF_BAR.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DOTDOT.C:
+PF_DSHOE.C:
+PF_DTACK.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_EPSUND.C:
+PF_EQUALUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_LSHOE.C:
+PF_PI.C:
+PF_PLUS.C:
+PF_QUERY.C:
+PF_RHO.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_TIMES.C:
+PF_UARROW.C:
+PF_UTACK.C:
+PF_UTACKJOT.C:
+PL_PROC.C:
+PN_PROC.C:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_MULTISET.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PO_VARIANT.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_AT.C:
+QF_AV.C:
+QF_CR.C:
+QF_DR.C:
+QF_EC.C:
+QF_ET.C:
+QF_EX.C:
+QF_FMT.C:
+QF_FX.C:
+QF_LC.C:
+QF_MF.C:
+QF_NC.C:
+QF_NFNS.C:
+QF_NFNS.H:
+QF_NL.C:
+QF_STRACE.C:
+QF_SYSID.C:
+QF_SYSVER.C:
+QF_TC.C:
+QF_TF.C:
+QF_TS.C:
+QF_UCS.C:
+REFCNT.C:
+RESDEBUG.H:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_ERASE.C:
+SC_FNOV.C:
+SC_IN.C:
+SC_INASCII.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+SC_SI.C:
+SC_WSID.C:
+SESSMAN.C:
+SORT.C:
+STRAND.C:
+SYMTAB.C:
+SYMTRANS.C:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+TYPEMOTE.C:
+YYFNS.C:
+  Implement DEBUG checks on MyGlobalLock
+
+COMPRO.H:
+CRASHSERVER.CPP:
+CS_PARSE.H:
+HUNGARIAN_DBL.C:
+HUNGARIAN_VFP.C:
+MAKEFILE.SRC:
+MAKEVER.C:
+MF_DIDTACK.H:
+MF_DIJOT.H:
+MF_DOMINO.H:
+MF_DOTDOT.H:
+MF_DSHOE.H:
+MF_EPSUND.H:
+MF_IOTA.H:
+MF_IOTAUND.H:
+MF_JOTDOT.H:
+MF_LSHOEUND.H:
+MF_MULTISET.H:
+MF_QUADVR.H:
+MF_ROS.H:
+MF_SECTION.H:
+MF_USHOE.H:
+PF_USHOE.C:
+QF_ES.C:
+SC_LIB.C:
+TOKENIZE.H:
+TOKENS.H:
+TOKENSO.H:
+VER.C:
+  Update copyright notice.
+
+
+Build #1590 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bugs In []Nfns
+
+Directory trunk:
+
+CONVERT.C:
+  In <ConvertToInteger_SCT>, allow indexing into HETERO and NESTED arrays.
+
+QF_NFNS.C:
+  In <NfnsArgAplint>, fix bug of failing to pass on the propert index and setting the default result to FALSE instead of TRUE;
+
+
+Build #1589 -- Version 0.4.18.xx
+--------------------------------
+
+* Extend Variant Operator Shorthand For []FPC To The Execute Function
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+MF_VARIANT.H:
+  Define magic function to localize []FPC, set its value to the left arg, and execute the character vector right arg.
+
+PO_VARIANT.C:
+  Extend Variant operator shorthand for []FPC (number only) to the Execute function.
+
+
+Build #1588 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug With Function Erased While Editing
+
+Directory trunk:
+
+CUSTOMIZE.C:
+EDITFCN.C:
+MACROS.H:
+PF_DTACKJOT.C:
+REFCNT.C:
+SESSMAN.C:
+  Use macro to make a global handle.
+
+QF_EX.C:
+  In <ExpungeName>, if the name is that of a UDFO/AFO, enumerate all Function Editor windows
+    passing the HGLOBAL of the UDFO/AFO so as to delete the matching handle of a previous
+    <hGlbDfnHdr>.
+
+
+Build #1587 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement Precision Specifier For VFP Constants
+
+Directory trunk:
+
+PN_PARSE.Y:
+PN_PROC.C:
+  Implement precision specifier for VFP constants
+
+
+Build #1586 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug In []NINFO Retrieval Of Symbolic Links
+
+Directory trunk:
+
+QF_NFNS.C:
+  Fix bug in []NINFO retrieval of symbolic links where an extra flag was included  in the call to <CreateFileW>.
+
+
+Build #1585 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement Wildcard Searches In []NINFO
+
+Directory trunk:
+
+AFOFNS.C:
+CUSTOMIZE.C:
+PF_PI.C:
+PN_PROC.C:
+PO_SLASH.C:
+QF_SYSVER.C:
+SYMTAB.C:
+TOKENIZE.C:
+  Document how GlobalReAlloc works.
+
+HEADERS.H:
+  Include new header in global header file.
+
+QF_NFNS.C:
+  Fix bug in prorotype for <GetFinalPathNameByHandle>.
+  Move enums to <qf_nfns.h>.
+  Define array with ARRAY_xxx storage types for each []NINFO property.
+  Implement wildcard searches for []NINFO.
+  Document how GlobalReAlloc works.
+  In <NfnsSaveData>, if <aplTypeWs> is <ARRAY_ERROR>, don't increment the RefCnt for the filename global memory handle.
+
+QF_NFNS.H:
+  Define header with []NINFO strucs so we may use them in prototype files.
+
+TRANSLATE.C:
+  In <TranslateArrayTypeToSizeof>, handle NESTED and HETERO types.
+
+
+Build #1584 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement "Copy" Button In The About Box
+
+Directory trunk:
+
+MAIN.RC:
+RESOURCE.H:
+VER.C:
+UNICODE.H:
+  Implement "Copy" button in the About box.
+
+
+Build #1583 -- Version 0.4.18.xx
+--------------------------------
+
+* Remove Unguarded DEBUG Statement
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  In <LclGetTabbedTextExtentW>, remove unguarded DEBUG statement.
+
+
+Build #1582 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug In []NINFO With Empty Left Argument
+
+Directory trunk:
+
+QF_NFNS.C:
+  Fix bug in []NINFO with empty left argument.
+
+
+Build #1581 -- Version 0.4.18.xx
+--------------------------------
+
+* Display )LOAD Line In Target Workspace Session
+
+Directory trunk:
+
+SC_LOAD.C:
+  Display the putative )LOAD line for the workspace in the target workspace's session.
+  Improve comments.
+
+SC_SAVE.C:
+  Improve comments.
+
+
+Build #1580 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement []NINFO
+
+Directory trunk:
+
+COMMON.C:
+  Fix minor bug in <AllocateGlobalArray>.
+
+QF_NFNS.C:
+  Define enum for File Types.
+  Implement []NINFO.
+  Include additional parameter in <SysFnCreateTie_EM_YY> to handle special cases.
+  Reduce storage size of <AccessMode> and <ShareMode> to what the API requires.
+  In <SysFnCreateTie_EM_YY>, handle special cases when tieing a directory or symbolic link.
+  Copy index validation code out of <NfnsArgAplint> to <NfnsArgTieNum>.
+  In <NfnsArgAplint>, use <ConvertToInteger_SCT> instead of special cases.
+  In <SysErrMsg_EM>, remove trailing "\r\n" if present.
+
+QF_TS.C:
+  In <SysFnTS_EM_YY>, break out code to allocate the timestamp to a separate function so we can call it from []NINFO.
+
+STARTADDR.H:
+  Include more entry points.
+
+SYSVARS.C:
+  Include entry point for []NINFO.
+
+
+Build #1579 -- Version 0.4.18.xx
+--------------------------------
+
+* Make Function Fix Time Sensitive To A User Preference
+
+Directory trunk:
+
+QF_AT.C:
+  Make the Function Fix Time sensitive to the User Preference "Use local time".
+
+
+Build #1578 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug In Output Debugging Macro
+
+Directory trunk:
+
+MACROS.H:
+  Fix bug in Output Debugging macro.
+
+
+Build #1577 -- Version 0.4.18.xx
+--------------------------------
+
+* Use Macro To Detect Chars For Output Debugging
+
+Directory trunk:
+
+EDITFCN.C:
+MACROS.H:
+  Use macro to detect chars for Output Debugging.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+LOCAL.H:
+  Use macro to detect chars for Output Debugging.
+
+
+Build #1576 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug Of Duplicate Accumulation In <CopyBlockLines>
+
+Directory trunk:
+
+EDITFCN.C:
+SAVEFCN.C:
+SESSMAN.C:
+TOKENIZE.C:
+  Improve comments.
+
+IMMEXEC.C:
+  In <CopyBlockLines>, delete duplicate length accumulation.
+  Improve comments.
+
+
+Build #1575 -- Version 0.4.18.xx
+--------------------------------
+
+* Allow []PW To Be As Large As Possible (2*31)-2
+
+Directory trunk:
+
+SC_LIB.C:
+  In <DisplayLibNames>, now that []PW can be much larger, allocate space for the line
+    dynamically as opposed to statically.
+
+SYSVARS.H:
+  Allow []PW to be as large as (2*31)-2.
+
+
+Build #1574 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug When Editing A Logical Line In A Function Header
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LftMarginsFE>, omit the small indent of 2 as we no longer need it
+  In <FEWndProc/WM_COMMAND/EN_CHANGE>, handle the case where the change is in the function header not on the first physical line.
+  In <GetFunctionName?, handle the case where the function name continues to the next physical line.
+  In <RespecifyNewQuadPW>, fix bug calculating the new width by taking into account the left margin in the SM.
+
+IMMEXEC.C:
+  In <CopyBlockLines>, return the number of chars copied.
+  Improve comments.
+
+SAVEFCN.C:
+  Improve comments.
+
+SESSMAN.C:
+  Define new function to return the left margin of a SM window.
+  In <SetMarginsSM>, use the new function.
+  Improve comments.
+
+TOKENIZE.C:
+  In <IsLocalName>, use the result of <CopyBlockLines> as opposed to calling a separate function.
+
+
+Build #1573 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug When Creating Fallback Font
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc/WM_SETFONT>, I mistyped the test for the Function Editor window causing it not to be found.
+
+MAIN.C:
+  In <CreateNewFontCom>, test for failure of that function when calling itself for Fallback fonts.
+
+
+Build #1572 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug Of Passing Too Large A Limit To UpDown Control For []PP
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Change DEF_MAX_QUADPPxxx names so as to better reflect on their usage as well as make them more readable.
+  Use UDM_SETPOS32 instead of UDM_SETPOS and UDM_SETRANGE32 instead of UDM_SETRANGE to be consistent.
+  Use special value of DEF_MAX_QUADPP_UDM for UDM_SETRANGE32 for []PP to workaround a bug in the UpDown Control.
+
+DISPLAY.C:
+GETFNS.C:
+INIFILE.C:
+PO_VARIANT.C:
+QF_TF.C:
+SC_SAVE.C:
+SYSVARS.C:
+SYSVARS.H:
+  Change DEF_MAX_QUADPPxxx names so as to better reflect on their usage as well as make them more readable.
+
+MAIN.C:
+REBAR.C:
+  Use UDM_SETPOS32 instead of UDM_SETPOS and UDM_SETRANGE32 instead of UDM_SETRANGE to be consistent.
+
+
+Build #1571 -- Version 0.4.18.xx
+--------------------------------
+
+* Display Function Fix Time As Local Time
+
+Directory trunk:
+
+QF_AT.C:
+  In <AttributeFixTime>, convert the GMT time of the function to local time
+    before converting it to system time.
+
+
+Build #1570 -- Version 0.4.18.xx
+--------------------------------
+
+* Replace Size-Limited Windows API Functions For Writing Private Profiles
+* Check For Too Short []FEATURE
+
+Directory trunk:
+
+DISPDBG.C:
+EXECDFN.C:
+PERTAB.H:
+SAVEFCN.H:
+SC_IN.C:
+SESSMAN.C:
+  Use proper size for iMaxSize var and rename from uMaxSize.
+
+HEADERS.H:
+  Include new header <sc_save.h>.
+
+INIFILE.C:
+SC_SAVE.C:
+SC_SI.C:
+  Define new and replace old size-limited Windows API functions for writing Private Profiles.
+
+INIPARSER.C:
+  Define matching INIPARSER.C profile writing functions.
+
+SC_COPY.C:
+  Use proper size for iMaxSize var and rename from uMaxSize.
+  Pass remaining size to various functions.
+
+SC_LOAD.C:
+  Use proper size for iMaxSize var and rename from uMaxSize.
+  Pass remaining size to various functions.
+  Pass SYMENTRY being loaded so as to check for []FEATURE.
+
+SC_SAVE.H:
+  Define new header file for Callback functions.
+
+WORKSPACE.H:
+  Define new and replace old size-limited Windows API functions for writing Private Profiles.
+  Use proper size for iMaxSize var and rename from uMaxSize.
+
+
+Build #1569 -- Version 0.4.18.xx
+--------------------------------
+
+* Prepare For Move To VS2015
+* Implement Output Debugging
+* Remove Vector and Matrix Editing Code
+* Allow Line Continuation Markers To Be Printed
+
+Directory trunk:
+
+COMMON.C:
+  Define function needed by VS2015.
+
+CUSTOMIZE.C:
+  Implement output debugging.
+  Prepare for move to VS2015.
+
+DEFINES.H:
+DISPLAY.C:
+EDITCTRL.H:
+EDITFCN.C:
+MAKEFILE.INC:
+PF_DTACKJOT.C:
+QF_TC.C:
+RESOURCE.H:
+UNICODE.H:
+UNITRANSTAB.H:
+  Implement output debugging.
+
+DISPLAY.H:
+  Delete unused struc element.
+
+EXTERNS.H:
+INIFILE.C:
+MAIN.C:
+MAIN.RC:
+  Implement output debugging.
+  Remove vector and matrix editing code.
+
+HEADERS.H:
+  Delete <termcode.h> as it is no longer used.
+
+PF_PI.C:
+SC_COMMON.C:
+SC_LOAD.C:
+  Prepare for move to VS2015.
+
+SESSMAN.C:
+  Allow Line Continuation markers to be printed.
+
+TERMCODE.H:
+  Delete this file as it defines numeric codes for ASCII equivalents and we use Unicode only.
+
+WORKSPACE.H:
+  Delete unused key name.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+LOCAL.H:
+  Implement output debugging.
+
+
+Directory trunk\WineHQ\include:
+
+BASETSD.H:
+  Comment out inline statements as they conflict with VS2015.
+
+
+Build #1568 -- Version 0.4.18.xx
+--------------------------------
+
+* Change Default Symbol For Alt-k From SingleQuote To DelTilde
+
+Directory trunk:
+
+KEYBOARDS.H:
+  Change the default symbol for Alt-k from a single quotemark to Del-Tilde.
+
+
+Build #1567 -- Version 0.4.18.xx
+--------------------------------
+
+* Don't Save []WSID Into The Workspace .INI File
+
+Directory trunk:
+
+SC_SAVE.C:
+  In IF stmts always compare ptr against NULL.
+  Don't save []WSID into the workspace .INI file.
+
+
+Build #1566 -- Version 0.4.18.xx
+--------------------------------
+
+* []EX Now Returns A Shy Result
+
+Directory trunk:
+
+QF_EX.C:
+  []EX now returns a shy result.
+
+
+Build #1565 -- Version 0.4.18.xx
+--------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+EDITFCN.C:
+MAIN.C:
+PERFMON.H:
+  New definition of PERFMONINIT and PERFMONSHOW has an argument.
+
+EXECDFN.C:
+SAVEFCN.C:
+  Fix typo in comment.
+
+QF_CR.C:
+  In IF stmts always compare ptr against NULL.
+
+SESSMAN.C:
+  In IF stmts always compare ptr against NULL.
+  For errors that occur during initialization, use <MBW> instead of <DbgMsg> as the latter won't display unless the Debug window is active, which it isn't during initialization.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Change upper limit of Bitcoin donation.
+  Reword Bitcoin donation text.
+
+LICENSE-BODY.HTML:
+  Update Copyright year.
+  Update source code repository from GoogleCode to SourceForge.
+  Include license agreement terms from MPC.
+
+
+Build #1564 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement Line Continuations
+
+Directory trunk:
+
+AFOFNS.C:
+  Define an FSA to detect whether or not text represents an AFO.
+  Define a function to erase $AFORESULT separated out from <AfoReturn>
+  Include additional functions needed to handle LC when saving a function.
+
+AFOFNS.H:
+  Define structs to handle the above FSA.
+
+COMMON.C:
+  In <CharFromPos>, allow the output ptrs to be NULL in case the caller doesn't need them.
+
+CRASH.C:
+DEBUG.C:
+  Rename AC_xx to WC_xx when it refers to a WCHAR.
+
+CUSTOMIZE.C:
+  Implement user control of the LC char similar to the code for Keyboards.
+  In IF stmts always compare ptr against NULL.
+
+DEFINES.H:
+  Define new window extra to hold the global memory handle of any old UDFO.
+  Define default char for LC along with related character and string constants.
+
+DISPLAY.C:
+  Display Line Continuation marker for CR/CR/LF when displaying a character vector.
+
+EDITCTRL.H:
+  Define message # for determining whether or not a line is continued.
+  Define function line # indent.
+
+EDITFCN.C:
+  Define function to calculate left margins for a function editor window.
+  Define functions to use in place of certain EM_REPLACESEL messages to disallow editing an AFO header.
+  Tell the Edit Ctrl we want soft line-breaks.
+  Draw Line Continuation markers when we draw function line numbers.
+  When drawing line numbers, skip those lines continued from the previous one.
+
+ENUMS.H:
+  Move var from <fh_parse.h> to <enums.h> as they are closely related to each other.
+
+EXECDFN.C:
+  If the function is an AFO and the current line starts with a System label, return NoValue.
+  Stop executing an AFO if it returns a value.
+
+EXECMFN.C:
+  Switch the function line numbers to origin-1 with 0 = header.
+
+EXTERNS.H:
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+  Allow the user to control the foreground and background of the LC char when drawn.
+  Save the Unicode char used in Customize's Keyboards and User Prefs categories.
+
+FH_PARSE.H:
+  Define bit flag for System Label line.
+  Move var from <fh_parse.h> to <enums.h> as they are closely related to each other.
+  Comment on dependencies for <FCN_VALENCES> and define <FCN_VALENCES_LENGTH>.
+
+FH_PARSE.Y:
+  Handle Line Continuations.
+
+GETFNS.C:
+  In <GetPrototypeFcnPtr>, allow AFO fns as we now support system labels in AFOs.
+
+HEADERS.H:
+  Include afofns.h.
+
+IMMEXEC.C:
+  Define various functions to handle a block of continued lines.
+  In <ImmExecLine>, handle LCs.
+
+INIFILE.C:
+  Read in on startup and write out on termination the two Unicode bases as well as the last Unicode chars.
+  Read in on startup and write out on termination Syntax Coloring for Line Continuations.
+
+KEYBOARDS.H:
+  Define vars to hold the Unicode base and last char for the Keyboard category.
+
+MAIN.C:
+  Define a enum callback function to draw Line Continuations when the User Preference LC char is set.
+  In <CreateNewFontCom>, pass the font enum and calculate the pixel width of the Line Continuation marker for that font.
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+
+MAIN.RC:
+  Define dialog entries for LC Syntax Coloring as well as the UI for changing the character used.
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+
+MAKEFILE.INC:
+  Include new library.
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+
+NARS2000.VCXPROJ:
+  Include new library.
+
+PARSELINE.C:
+  Handle stopping an AFO when it returns a value.
+  Handle LC encountered during parsing.
+
+PL_PARSE.H:
+  Handle stopping an AFO when it returns a value.
+
+PO_SLOPE.C:
+  In IF stmts always compare ptr against NULL.
+
+QF_CR.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Handle Line Continuations in []CR/[]VR results.
+  In IF stmts always compare ptr against NULL.
+
+QF_EX.C:
+  Allow []Z as an <EraseableName>.
+
+QF_FX.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Detect whether or not a text represents an AFO.
+  Include additional functions needed to handle LC when saving a function.
+  In IF stmts always compare ptr against NULL.
+
+QF_TF.C:
+  Include additional functions needed to handle LC when saving a function.
+
+RESOURCE.H:
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+  Define IDCs for User Prefs UI to change the default LC.
+  Define IDCs for LC Syntax Coloring as well as the UI for changing the character used.
+
+SAVEFCN.C:
+  Define AFO headers to cover all cases.
+  Include additional functions needed to handle LC when saving a function.
+  In IF stmts always compare ptr against NULL.
+  Switch the function line numbers to origin-1 with 0 = header.
+  Allow System Labels in an AFO.
+
+SAVEFCN.H:
+SC_INASCII.C:
+SC_LOAD.C:
+  Include additional functions needed to handle LC when saving a function.
+
+SESSMAN.C:
+  In IF stmts always compare ptr against NULL.
+  Define function to calculate the pixel width of a Line Continuation marker for a given font enum.
+  Define function to draw all Line Continuations as well as just one.
+  Tell the Edit Ctrl we want soft line-breaks.
+  In <MYWM_KEYDOWN/VK_ENTER>, handle Shift-Enter as well as Ctrl-Enter.
+
+SIS.H:
+  Handle stopping an AFO when it returns a value.
+
+SYNTAXCOLORS.H:
+  Define entries for Syntax Coloring of LCs.
+
+THREADS.H:
+  Improve comments.
+
+TOKENIZE.C:
+  Allow comments inside an AFO.
+
+VER.RC:
+  Increment version # to 0.4.18.xx.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Delete WIN16 code.
+  Comment existing code for soft line-breaks.
+  Handle Shift-Enter as a soft line-break.
+  Handle local message to determine if a line is continued.

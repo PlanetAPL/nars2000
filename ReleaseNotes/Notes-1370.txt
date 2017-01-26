@@ -1,0 +1,15 @@
+Build #1370 -- Version 0.4.9.xx
+-------------------------------
+
+* Include Menu Item To Display Documentation
+
+Directory trunk:
+
+MAIN.C:
+  Define window handler code for Documentation menu item.
+
+MAIN.RC:
+  Include Documentation item in Help menu.
+
+RESOURCE.H:
+  Define resource ID for Documentation menu item.

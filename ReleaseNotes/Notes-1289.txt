@@ -1,0 +1,9 @@
+Build #1289 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug Of Closing Thread Prematurely
+
+Directory trunk:
+
+SESSMAN.C:
+  In <SMWndProc/WM_DESTROY>, don't quit the thread here as that's the responsibility of <LclTabCtrlWndProc/TCM_DELETEITEM>.

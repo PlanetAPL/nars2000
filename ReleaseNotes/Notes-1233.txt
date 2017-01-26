@@ -1,0 +1,18 @@
+Build #1233 -- Version 0.4.7.xx
+-------------------------------
+
+* Implement Dyadic Scan As Magic Function/Operator
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Update copyright year.
+  Define entries for new magic function/operator.
+
+MF_DYDSCAN.H:
+  Define new file for magic function/operator code.
+
+PO_SLOPE.C:
+  Update copyright year.
+  Implement dyadic scan as magic function/operator.

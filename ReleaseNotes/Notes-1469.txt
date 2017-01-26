@@ -1,0 +1,13 @@
+Build #1469 -- Version 0.4.14.xx
+--------------------------------
+
+* Handle Overflow of Absolute Value of MININT64
+
+Directory trunk:
+
+DEFINES.H:
+  Define MAXINTxx values.
+
+PF_STILE.C:
+  In <PrimFnMonStileIisI>, if the arg is MININT64, signal a "Result is FLT" exception.
+  Handle "Result is FLT" exception by defining <PrimFnMonStileFisI>.

@@ -133,23 +133,23 @@ typedef unsigned int UHALF_PTR, *PUHALF_PTR;
 #define MINHALF_PTR 0x80000000
 #define MAXUHALF_PTR 0xffffffff
 
-__inline
-unsigned long
-HandleToUlong(
-    const void *h
-    )
-{
-    return((unsigned long) h );
-}
+// __inline
+// unsigned long
+// HandleToUlong(
+//     const void *h
+//     )
+// {
+//     return((unsigned long) h );
+// }
 
-__inline
-long
-HandleToLong(
-    const void *h
-    )
-{
-    return((long) h );
-}
+// __inline
+// long
+// HandleToLong(
+//     const void *h
+//     )
+// {
+//     return((long) h );
+// }
 
 __inline
 void *
@@ -161,23 +161,23 @@ LongToHandle(
 }
 
 
-__inline
-unsigned long
-PtrToUlong(
-    const void  *p
-    )
-{
-    return((unsigned long) p );
-}
+// __inline
+// unsigned long
+// PtrToUlong(
+//     const void  *p
+//     )
+// {
+//     return((unsigned long) p );
+// }
 
-__inline
-unsigned int
-PtrToUint(
-    const void  *p
-    )
-{
-    return((unsigned int) p );
-}
+// __inline
+// unsigned int
+// PtrToUint(
+//     const void  *p
+//     )
+// {
+//     return((unsigned int) p );
+// }
 
 __inline
 unsigned short
@@ -188,23 +188,23 @@ PtrToUshort(
     return((unsigned short) p );
 }
 
-__inline
-long
-PtrToLong(
-    const void  *p
-    )
-{
-    return((long) p );
-}
+// __inline
+// long
+// PtrToLong(
+//     const void  *p
+//     )
+// {
+//     return((long) p );
+// }
 
-__inline
-int
-PtrToInt(
-    const void  *p
-    )
-{
-    return((int) p );
-}
+// __inline
+// int
+// PtrToInt(
+//     const void  *p
+//     )
+// {
+//     return((int) p );
+// }
 
 __inline
 short

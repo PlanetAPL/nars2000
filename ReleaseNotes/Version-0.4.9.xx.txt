@@ -1,0 +1,3065 @@
+Version 0.4.9.xx consists of the following Builds:
+
+
+Build #1371 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Encode In Case Of Blowup Due To Negative Zero In Result
+
+Directory trunk:
+
+PF_DTACK.C:
+  Handle restart after blowing up from INT->FLT, RAT->VFP, etc.
+    due to an element of the result being negative zero.
+
+
+Build #1370 -- Version 0.4.9.xx
+-------------------------------
+
+* Include Menu Item To Display Documentation
+
+Directory trunk:
+
+MAIN.C:
+  Define window handler code for Documentation menu item.
+
+MAIN.RC:
+  Include Documentation item in Help menu.
+
+RESOURCE.H:
+  Define resource ID for Documentation menu item.
+
+
+Build #1369 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix A Bug In Multi-line Display Of Long Hetero Vector
+
+Directory trunk:
+
+DISPLAY.C:
+  When calculating the # rows of a display, I forgot to include the fact that
+    the six-space indent will shorten the second and subsequent lines.
+
+
+Build #1368 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Another Bug In VS2013 Solution File
+
+Directory trunk:
+
+NARS2000.SLN:
+  I forgot that without an old header, VS2013 won't upgrade an old .sln to a new one.
+
+
+Build #1367 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In VS2013 Solution File
+
+Directory trunk:
+
+NARS2000.SLN:
+  Load the .vcproj (not .vcxproj) file so as to go through the One-Time Upgrade.
+
+
+Build #1366 -- Version 0.4.9.xx
+-------------------------------
+
+* Move Compilers To VS2013
+
+Directory trunk:
+
+DBGBRK.ASM:
+  Split this file in two, one for 32-bit code and one for 64-bit code.
+  Delete this file.
+
+DBGBRK32.ASM:
+DBGBRK64.ASM:
+  New files one for 32-bit and one for 64-bit code.
+
+MAIN.C:
+  Replace deprecated version information APIs with new ones.
+
+MAKEFILE.INC:
+  Make .asm files sensitive to 32- or 64-bit.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Remove L98 in favor of LIB as used in <makefile.inc>.
+  Rename path for Resource Compiler as it changed in VS2013.
+  Remove 32- and 64-bit specific flags as they are no longer needed.
+
+MASM64.RULES:
+  Change the path to the 64-bit assembler as it is different under VS2013.
+
+NARS2000.SLN:
+  New file merged from <NARS2000.32.sln> and <NARS2000.64.sln>
+
+NARS2000.VCPROJ:
+  New file merged from <NARS2000.32.vcproj> and <NARS2000.64.vcproj>
+
+WCOM.BAT:
+  Move local customizations from here to <<wcustomize.bat>.
+  Remove dependency on drive letters in favor of environment vars.
+  Use separate 32- and 64-bit PATH environment var.
+  Change LIB environment var to reflect new paths for VS2013 libraries.
+  Start VS2013 using new GUI name (WDExpress vs. VCExpress).
+  Start VS2013 using merged solution file <NARS2000.sln>.
+
+WCUSTOMIZE.BAT:
+  Move local customizations here.
+
+With these changes, this project no longer compiles under VS2008.  It now
+requires VS2013 and the Windows 8.1 SDK.
+
+Also, it no longer is dependent upon drive letters to map the 32- vs. 64-bit
+compiler and SDK paths.
+
+
+Build #1365 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In MemberOf
+
+Directory trunk:
+
+PF_EPSILON.C:
+  In <PrimFnDydEpsilonOther_EM> (formerly names <PrimFnDydEpsilonOther>,
+    fix bug when computing Hetero vs. GlobalNumeric, e.g. 0 ' '{epsilon}0 1x.
+
+TRANSLATE.C:
+  Define new function to translate from an array type to sizeof ().
+
+
+Build #1364 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In =/'aaa' And In =\'a'
+
+Directory trunk:
+
+MF_ROS.H:
+  In <MFON_RoS2>, remove "1/" so that the scan of a scalar returns a scalar.
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, the case =/'aaa' was missed.
+
+PO_SLOPE.C:
+  In <PrimOpMonSlopeCommon_EM_YY>, the case of an immediate right arg was missed.
+
+
+Build #1363 -- Version 0.4.9.xx
+-------------------------------
+
+* Update David Gay's Floating Point Conversion Routines
+
+Directory trunk:
+
+CUSTOMIZE.C:
+INIFILE.C:
+PN_PROC.C:
+SC_LOAD.C:
+  Rename <strtod> to <MyStrtod> to avoid conflict with built-in version in VS2013.
+
+DTOA.C:
+DTOA.PROTO:
+  Rename <strtod> to <MyStrtod> to avoid conflict with built-in version in VS2013.
+  Update this file to the latest version.
+
+
+Build #1362 -- Version 0.4.9.xx
+-------------------------------
+
+* Prepare For VS2013
+
+Directory trunk:
+
+BISON.RULES:
+PROTOTYPE.RULES:
+  Change name from "... Rule" to "..._Rule".
+
+CUSTOMIZE.C:
+  Change name from deprecated <tmschema.h> to <vssym32.h>.
+
+DBGBRK.ASM:
+DBGBRK.PRO:
+DEFINES.H:
+  Remove <DbgBrk> assembly code and use <__debugbreak> built into Windows.
+
+DTOA.C:
+  Undefine <strtod> before redefining it (it wasn't defined before VS2013).
+
+ENUMS.H:
+EXCEPT.C:
+REBAR.C:
+  VS2013 picks a nit that wasn't in previous versions in that now a "typedef"
+    must have name defined by it.  The solution is remove the keyword "typedef".
+
+MAKEFILE.INC:
+  Various minor internal name changes to make more readable.
+  Remove </NODEFAULTLIB> as it's not worth the trouble to find where they
+    put all the functions we need to have in a few libraries.
+  Tell the linker not to load the wrong <libcmt[d].lib> file, or it will.
+
+MAKEFILE.PRO:
+  Minor changes.
+
+MAKEFILE.PRO.PARSE:
+  Remove reference to <pl_parse.*> which is no longer used thanks to 2by2.
+
+MKD64.BAT:
+  Call <w32> after finishing so as to return the subst drives to their 32-bit versions.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Change name from "... Rule" to "..._Rule".
+  Delete "VCWebServiceProxyGeneratorTool"
+  Delete "Detect64BitPortabilityProblems"
+  Redundant library references are removed, others are re-ordered.
+  "Use of macros in file paths no longer supported" is a minor PITA.
+  In a "RelativePath" replace all macros with an explicit path.  This applies to the three instances of $(OutDir)\??_parse.c, and the five instances of $(MS_DIR).  All other macros stay the same.
+  A consequence of this change is that the $(OutDir) is sometimes hard-coded as "Debug32" or "Debug64".
+  A consequence of this change is that the "msieve" directory can no longer be placed anywhere the environment variable %MS_DIR% says; now it must be directly under %NARSROOT% (and referenced as "..\msieve\")
+  Include the GSL headers only in those files that need them, rather than globally.
+
+WCOM.BAT:
+  Use a different technique to delete an already subst'ed drive even if it's not already subst'ed.
+  Define and use LIB environment variable separately for 32- and 64-bit compiles.
+  Define new environment variable _NT_SYMBOL_PATH for where to get MS Windows symbols.
+  Remove GSL include path from the global INCLUDE as it causes trouble.
+
+
+Build #1361 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Ctrl-Break vs Ctrl-C Handling
+
+Directory trunk:
+
+EDITFCN.C:
+  Define global value to hold the scan code for VK_CANCEL (Ctrl-Break).
+  Make explicit tests of ptr against "NE NULL".
+  In <LclEditCtrlWndProc>/WM_KEYDOWN/VK_CANCEL, save the scan code for VK_CANCEL so it mat be used later.
+  In <LclEditCtrlWndProc>/WM_CHAR/Ctrl-C, if the scan code is that of VK_CANCEL, do not signal WM_COPY as this call to WM_CHAR is bogus.
+  Improve comments.
+
+
+Build #1360 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In .ZIP File Not Including Correct Crash Reporting Files
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Change makefile to include the <sendrpt.exe> file in the .zip.
+  Remove definitions of <CS_LIB> as it's not used.
+
+MAIN.C:
+  Change text on missing <crashrpt.dll> to indicate that one of its missing dependencies might be the cause of the error.
+
+These files were mistakenly included in the previous build.
+
+
+Build #1359 -- Version 0.4.9.xx
+-------------------------------
+
+* Rename <signum> Functions
+* Fix Bug In LCM Result Sign
+
+Directory trunk:
+
+COMMON.C:
+  Define <signumXXX> functions for various datatypes making sure to handle negative 0 as negative.
+  Replace <signumf> with <signumflt> to parallel the other <signumXXX> fucntions.
+
+CONVERT.C:
+  Update copyright year.
+  Replace <signumf> with <signumflt> to parallel the other <signumXXX> fucntions.
+
+MACROS.H:
+  Define <signumrat> as an alias of <mpq_sgn> as it already returns -1, 0, 1.
+
+MPFNS.C:
+PF_DELTASTILE.C:
+PF_DSTILE.C:
+PF_IOTA.C:
+PF_PI.C:
+PF_STAR.C:
+PF_TIMES.C:
+QF_NFNS.C:
+  Use <signumXXX> functions in place of previous ones as they are more aptly named and we control them.
+
+MPIFNS.C:
+  Move <signumint> and <signumflt> to <common.c>.
+
+PF_UCARET.C:
+  Use <signumXXX> functions in place of previous ones as they are more aptly named and we control them.
+  Fix bug in LCM so as to return the sign of the result as the product of the signs of the args.
+
+STARTADDR.H:
+  Include new functions.
+
+
+Build #1358 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Replicate Reduction
+
+Directory trunk:
+
+PARSELINE.C:
+  Just before scanning, check for "HY HY" and convert it to "HY MOP".
+
+
+Build #1357 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In :select Ctrl Struc
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Use CL linked list of tokens instead of the whole linked list in one case.
+
+CS_PROC.C:
+  Update copyright year.
+  Use signed cast on unsigned short to catch errors while DEBUGging.
+
+
+Build #1356 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Display Of Quote-Quad Output
+
+Directory trunk:
+
+DISPLAY.C:
+  In <DisplayGlbArr_EM> at the end when deciding whether or not to display a blank line, the flag for an ending CR was ignored, but not anymore.
+
+
+Build #1355 -- Version 0.4.9.xx
+-------------------------------
+
+* Reorder Placement Of Toolbar Windows
+
+Directory trunk:
+
+EXTERNS.H:
+MAIN.RC:
+REBAR.C:
+RESOURCE.H:
+  Re-order the Toolbar Windows to push the Object Window to the right of the Font Window.
+
+
+Build #1354 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug Executing []EA From a UDFO
+
+Directory trunk:
+
+GOTO.C:
+  If executing under []EA/[]EC, save the {goto} target for subsequent use.
+  Improve comments.
+
+PRIMFNS.C:
+  In <GetSISLayer>, skip over ErrorCtrl layers ([]EA/[]EC), too.
+
+
+Build #1353 -- Version 0.4.9.xx
+-------------------------------
+
+* Miscellaneous Bug Fixes
+
+Directory trunk:
+
+FREE.C:
+  In <FreeResultSub>, handle additional token <TKT_EOL> which may occur during a SYNTAX ERROR due to a missing left operand.
+
+GETFNS.C:
+  In <GetPrototypeFcnPtr>, handle additional tokens for mop{each}{zilde}, etc., named and unnamed, monadic or dyadic, and AFO. Example: []nuntie{each}{zilde}.
+
+PARSELINE.C:
+  Improve comments.
+  In <pl_yylexCOM>, call <TranslateDfnTypeToSOType> as needed so as to handle the niladic case.
+
+PARSELINE.H:
+  Handle right brace bindings just like right brackets and parentheses.
+
+TOKENIZE.C:
+  In <CheckConstantCopyLoad>, simplify the code by using <TranslateDfnTypeToSOType>.
+
+TRANSLATE.C:
+  Define <TranslateDfnTypeToSOType> to translate a <DFN_HEADER> ptr to a <tkSynObj> ensuring that the niladic case is always handled.
+
+
+Build #1352 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Domino Returning NaN
+
+Directory trunk:
+
+PF_DOMINO.C:
+  Floating point domino can return a NaN from <gsl_linalg_SV_solve>, so we check for it and signal a DOMAIN ERROR if found.
+
+
+Build #1351 -- Version 0.4.9.xx
+-------------------------------
+
+* Disallow Axis Operator On Niladic Function
+* Allow Spaces In Function Header After First Semicolon
+
+Directory trunk:
+
+FH_PARSE.Y:
+  Disallow axis operator on niladic function.
+  Allow spaces instead of semicolons in function header after the first semicolon.
+
+
+Build #1350 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Comparing Infinite MPFRs W.R.T []CT
+
+Directory trunk:
+
+MPFNS.C:
+  Fix bug when comparing infinite MPFRs w.r.t. []CT.
+
+
+Build #1349 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In GCD/LCM Of Floats
+
+Directory trunk:
+
+PF_DCARET.C:
+  In <gcdAplFloat>, terminate the loop based upon GCD_CT not SYS_CT which being too small loops longer than necessary.
+  In <gcdAplFloat>, use APL modulus function instead of the built-in one for floats as ours is more forgiving on floats.
+
+PF_STILE.C:
+  Simplify code in <PrimFnMonStileIisI>.
+  In <PrimFnDydStileIisIvI>, if either arg is zero, return the right arg with the appropriate sign.
+  In <PrimFnDydStileIisIvI>, if the result is zero and the left arg is negative, blowup to float.
+  Define new routine FisIvI to handle floating point blowup from IisIvI.
+  In <PrimFnDydStileFisFvF>, if either arg is zero, return the right arg with the appropriate sign.
+  In <PrimFnDydStileRisRvR>, return the result with the appropriate sign.
+  In <PrimFnDydStileRisRvR>, if the result is zero and the left arg is negative, blowup to VFP.
+  In <PrimFnDydStileVisVvV>, return the result with the appropriate sign.
+
+PF_UCARET.C:
+  In <lcmAplInt> and <lcmAplFloat>, in case the result of the CGD is zero, return a result with the correct sign (possibly -0).
+
+SYSVARS.H:
+  Update copyright year.
+  Define comparison tolerance for GCD/LCM.
+
+
+Build #1348 -- Version 0.4.9.xx
+-------------------------------
+
+* Finish 2by2
+
+Directory trunk:
+
+ASSIGN.C:
+  Update copyright year.
+  Improve comments with example code for incrementing RefCnt.
+
+DATATYPE.H:
+  Update copyright year.
+  Define additional union members for common structures.
+
+DISPDBG.C:
+  In <DisplayGlobals> (DEBUG only), catch invalid <steFcnName> in DFN.
+  In <DisplayFcnStrand> (DEBUG only), catch <TKT_VARNAMED> case which should never occur.
+  In <DisplayFcnGlb>, display more DEBUG info in header.
+  In <DisplayFcnGlb>, handle OP2 immediates more carefully in case fewer than two operands
+
+EDITFCN.C:
+  Update copyright year.
+  In <CopyGlbMemory>, split cases based upon use of "My" functions or not.
+
+EXECDFN.C:
+  Update copyright year.
+  In <ExecDfnGlb_EM_YY>, set the <tkSynObj> value if the result is valid.
+  In <ExecDfnOprGlb_EM_YY>, on error exit be sure to call <UnlocalizeSTEs>.
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+  In <LocalizeAll>, handle error conditions.
+  In <InitFcnSTEs>, handle <TKT_OPxNAMED> cases.
+  Improve comments with example code for incrementing RefCnt.
+
+EXECFNS.C:
+  Update copyright year.
+  In <ExecFcnGlb_EM_YY>, set the <tkSynObj> value if the result is valid.
+  In <ExecTrain_EM_YY>, change definition of two-Train as per Dyalog.
+  In <ExecFuncStrLine_EM_YY>, handle immediate case for named fcn/oprs.
+
+FREE.C:
+  Remove outdated <DBGENTR> and <DBGLEAVE>.
+  Define <FreeTopResult> to free just the top level of a result.
+  In <FreeResult> handle the leafs of the function strand tree struc.
+  Delete unused <FreeResNNU> and <FreeResNNU1>.
+  Remove []DM check code as it's never executed.
+  In <FreeResultSub>, handle more cases (right brace, SYNTAX ERROR).
+  In <FreeResultGlobalFcn>, if not GlobalFree'ing, decrement the RefCnt of all items.
+  In <FreeResultGlobalFcn>, ensure curried args are all NULL.
+  In <FreeResultGlobalDfn>, decrement the RefCnt only if not an MFO.
+  In <FreeResultGlobalDfnStruc>, move code to free the function test line global memory until after <Untokenize>
+    so that if the latter function fails, we can still see the line of APL code that caused it to fail.
+  In <FreeTempResult>, include DEBUG check on the token count.
+
+GETFNS.C:
+  In <GetNextValueTokenIntoToken>, set tkSynObj.
+
+IMMEXEC.C:
+  Update copyright year.
+  In <WaitForImmExecStmt>, don't display the six-space indent if the current SIS level is quad input.
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+
+INIFILE.C:
+  Update copyright year.
+  Include commented out lines of vars to free, but have already been freed elsewhere.
+
+MACROS.H:
+  Define DEBUG versions of various common macros so that they can display location info when called and an error is detected.
+
+PARSELINE.C:
+PARSELINE.H:
+  Fix bugs in pre-release 2by2 implementation.
+  Remove <YYCopyArray> as it is no longer used.
+  Define <ConvertHY2PFO> to handle all conversion of a hybrid to a primitive function/operator.
+
+PF_COMMA.C:
+  Improve comments with example code for incrementing RefCnt.
+
+PF_INDEX.C:
+  Improve coments.
+  In <ArrayIndexSetSingLst_EM>, respecify the result storage type if it was promoted.
+
+PF_UTACKJOT.C:
+  Update copyright year.
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+
+PL_PARSE.H:
+  Update copyright year.
+  Improve coments.
+  Remove <YYCopyArray> as it is no longer used.
+  Move curried args/operands from <PLLOCALVARS> to <PL_YYSTYPE> to reflect the new tree structure of function strands.
+
+PL_PROC>C:
+  Update copyright year.
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+  In <ArrExprCheckCaller>, trigger DEBUG stmt if <IzitQuadDM> ever returns TRUE.
+  Improve comments with example code for incrementing RefCnt.
+
+PO_SLOPE.C:
+  Improve comments with example code for incrementing RefCnt.
+
+PRIMFNS.C:
+  In <TokenTypeFV>, include more cases.
+  Improve comments with example code for incrementing RefCnt.
+  In <CopyArray_EM>, trigger DEBUG stmt in cases where we never expect to be called.
+  Define <IsGlbFcnArray> to detect when a global memory handle is a function array.
+  Remove <IsFcnStrDirect> as it is no longer used.
+  In <IsTknNamed>, include more cases.
+  Define function <IsTknTrain> to detect when a token is a Train.
+  In <IsTknImmed>, include additional case.
+  Define function <IsTknHybrid> to detect when a token is a hybrid.
+
+QF_EA.C:
+QF_EC.C:
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+
+REFCNT.C:
+  Comment DbgBrk & DbgStop stmts to indicate they are #ifdef DEBUG-only.
+  In many increment/decrement functions, check for a function array and incr/decrement as appropriate.
+  Define <ChangeRefCntTkn> to incr/decrement the RefCnt in a token.
+  Define auxiliary functions <DecrRefCntFcnArray> and <ChangeRefCntFcnArray> to decr/increment RefCnt in a function array.
+
+STARTADDR.H:
+  Keep up-to-date with the changed function names.
+
+STRAND.C:
+  Remove unused functions <DbgPushFcnStrand>, <PushFcnStrand>, <DbgMakeFcnStrand>, and <MakeFcnStrand>.
+  In <MakeVarStrand_EM_YY>, trigger DEBUG stmt in cases where we never expect to be called.
+  Define function <UnFcnStrand_EM> to be used instead of <MakeFcnStrand_EM_YY>.
+  In <MakeTranOp_YY>, initialize the token count to zero as the other functions are now curried.
+  Improve comments with example code for incrementing RefCnt.
+  In <CopyToken_EM>, trigger DEBUG stmt in cases where we never expect to be called.
+
+SYNOBJ.H:
+  Update copyright year.
+  Changes to auto-generated file.
+
+SYSVARS.C:
+  In <DelePermVars>, zap the name after it's been freed.
+
+TOKENIZE.C:
+  In <fnCtrlDone>, check for :IN and mark the previous name as being assigned into.
+
+TOKENS.H:
+  Update copyright year.
+  Improve comments.
+
+TRANSLATE.C:
+  Improve comments.
+
+YYFNS.C:
+  Improve comments.
+  Define <YYCHECKINDEX> to aid in debugging <YYAlloc>s.
+  Define <YYCopyToMem> to copy one YYSTYPE to another, zapping curried items in the destination.
+  Make <YYFree>, <YYResIsEmpty>, and <YYCheckInUse> more DEBUG friendly.
+  Redo <YYCountFcnStr> to reflect the new function strand tree structure.
+  Define <YYCountFcnTrn> to do the same thing for Trains.
+  Redo <YYCopyFcnStr> to reflect the new function strand tree structure.
+  Define <YYCopyFcnTrn> to do the same thing for Trains.
+
+
+Build #1347 -- Version 0.4.9.xx
+-------------------------------
+
+* Mark Debug Stmts As Such For Easier Recognition
+
+Directory trunk:
+
+COMMON.C:
+CS_PARSE.Y:
+CUSTOMIZE.C:
+DEBUG.C:
+DEBUG.H:
+DISPDBG.C:
+EDITFCN.C:
+FH_PARSE.Y:
+FMTSPEC.C:
+INIFILE.C:
+INITDATA.C:
+MPFNS.C:
+PERFMON.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DELTASTILE.C:
+PF_DTACK.C:
+PN_PARSE.Y:
+QF_DR.C:
+REBAR.C:
+RESDEBUG.C:
+SESSMAN.C:
+SYMTAB.C:
+TOKENIZE.C:
+  Comment DbgBrk & DbgStop stmts to indicate they are #ifdef DEBUG-only.
+
+
+Build #1346 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Assembler Routines for Certain Circle Functions
+
+Directory trunk:
+
+DBGBRK.ASM:
+DBGBRK.PRO:
+  Define FPU code for some circle functions.
+
+PF_CIRCLE.C:
+  Move ASM code into DBGBRK.ASM.
+  Check for Complex results (NONCE ERRORs).
+  Check for NaN results (DOMAIN ERRORs).
+
+
+Build #1345 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Donation QR-Code And Link
+* Move from GoogleCode To SourceForge
+
+Directory trunk\art:
+
+NARS2000 DONATION.JPG:
+  Implement donation QR-Code and link.
+
+
+Directory trunk\htdocs:
+
+FOOTER-MON.HTML:
+FOOTER.HTML:
+  Update the copyright year.
+
+INDEX-BODY.AHTML:
+  Move from GoogleCode to SourceForge.
+  Update the copyright year.
+  Implement donation QR-Code and link.
+
+INDEX-LEFT.HTML:
+  Implement donation QR-Code and link.
+
+
+Build #1344 -- Version 0.4.9.xx
+-------------------------------
+
+* Move from GoogleCode To SourceForge
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Move from GoogleCode to SourceForge.
+
+
+Directory trunk\htdocs\Download:
+
+DOWNLOAD-MENU.HTML:
+  Move from GoogleCode to SourceForge.
+
+
+Build #1343 -- Version 0.4.9.xx
+-------------------------------
+
+* Copy Back Point Notation Result For :CONSTANT During )LOAD/)COPY
+
+Directory trunk:
+
+PN_PROC.C:
+  In <PN_VectorRes>, copy back the last result in case it's a scalar and we're
+    calculating :CONSTANT during )LOAD/)COPY.
+
+
+Build #1342 -- Version 0.4.9.xx
+-------------------------------
+
+* Include Missing Case When Calculating Nameclass Of A SymEntry
+
+Directory trunk:
+
+QF_NC.C:
+  Update copyright year.
+  In <CalcNameClass>, handle the OP3 case.
+
+
+Build #1341 -- Version 0.4.9.xx
+-------------------------------
+
+* Minor Comment Changes
+
+Directory trunk:
+
+QF_NFNS.C:
+  Update copyright year.
+  Improve Comments.
+
+
+Build #1340 -- Version 0.4.9.xx
+-------------------------------
+
+* Minor Improvements For Reference Counts
+
+Directory trunk:
+
+REFCNT.C:
+  Update copyright year.
+  In <IncrRefCntTkn> and <DecrRefCntTkn>, check for named direct fcn/opr.
+  Implement <IncrRefCntFcnArray> to increment all items of the Function Array.
+  In <GetRefCntGlb>, use Union of DFN/FCN/VAR headers.
+  Implement <SetRefCntGlb> to set the RefCnt of a global memory handle.
+  Implement <DbgIncrRefCntFcnArray> to handle debug version.
+
+
+Build #1339 -- Version 0.4.9.xx
+-------------------------------
+
+* DEBUG Code In )LOAD
+
+Directory trunk:
+
+SC_LOAD.C:
+  Update copyright year.
+  Improve comments.
+  In <LoadWorkspaceGlobal_EM>/Load Function Array, remove check for function/operator/train as it can't be anything else.
+
+
+Build #1338 -- Version 0.4.9.xx
+-------------------------------
+
+* DEBUG Code In Session Manager
+
+Directory trunk:
+
+SESSMAN.C:
+  Update copyright year.
+  Use macros instead of absolute constants when calling []LX.
+  Put in more DEBUG stmts for F2 and F11.
+
+
+Build #1337 -- Version 0.4.9.xx
+-------------------------------
+
+* Finish Symbol Translate Code
+
+Directory trunk:
+
+SYMTRANS.C:
+  Update copyright year.
+  In <SymTrans>, include TKT_FCNNAMED case and finish the other named cases.
+
+
+Build #1336 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs With Tokenization Of Underbars In Unusual Cases
+
+Directory trunk:
+
+TOKENIZE.C:
+  Update copyright year.
+  Improve comments.
+  Fix bug in tokenization with Underbar immediately to the right of a
+    character constant, ambiguous dot, ambiguous jot, or pound sign.
+  In <fnPointDone>, handle :CONSTANTs encountered in )LOAD/)COPY.
+  In <fnDelDone>, replace old Syntax Coloring check with Assert as it's
+    handled elsewhere (<scDelDone>).
+  Use the correct struc member when saving UTF16_xxx characters
+
+
+Build #1335 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Promoting A FLT To A FLT
+
+Directory trunk:
+
+TYPEMOTE.C:
+  Fix bug when promoting a FLT to a FLT (missing case).
+
+
+Build #1334 -- Version 0.4.9.xx
+-------------------------------
+
+* Replace AFO Token Test To Handle More Cases
+
+Directory trunk:
+
+FREE.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+  Rename <IsTknTypeAFO> to <IsTknAFO> to handle more cases, in particular
+    AFOs as named OP1/OP2.
+
+
+Build #1333 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug With !{infinity}
+
+Directory trunk:
+
+PF_QDOT.C:
+  Fix bug with !{infinity} to return {infinity} instead of DOMAIN ERROR.
+
+
+Build #1332 -- Version 0.4.9.xx
+-------------------------------
+
+* Use Correct Struc Member When Saving UTF16_xxx Characters
+
+Directory trunk:
+
+IDENTFNS.C:
+PF_CSLOPE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PO_VARIANT.C:
+  Use the correct struc member when saving UTF16_xxx characters
+
+
+Build #1331 -- Version 0.4.9.xx
+-------------------------------
+
+* Use Macro To Check For Axis Tokens
+
+Directory trunk:
+
+AXISFNS.C:
+DISPDBG.C:
+PO_DICIRCLE.C:
+PO_JOT.C:
+PRIMFNS.C:
+  Define and use a macro to check for axis tokens.
+
+
+Build #1330 -- Version 0.4.9.xx
+-------------------------------
+
+* Add New Tags <aplx> And <aplxx> To Wiki
+
+Directory MediWiki\extensions:
+
+APL.CSS:
+  Define new tags <aplx> and <aplxx>.
+
+RENDERAPL.PHP:
+  Define hooks for new tags.
+
+
+Build #1329 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Assembler Routines For Add, Subtract, and Multiply
+
+Directory trunk:
+
+DBGBRK.ASM:
+  Fix bug in Add, Subtract, and Multiply routines which fail to catch all cases of overflow.
+
+PRIMFNS.C:
+  Include commented out lines for overflow-detecting add and subtract in C.
+
+
+Build #1328 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Dyadic Iota When The NotFound Value Is FLT
+
+Directory trunk:
+
+PF_IOTA.C:
+  Fix bug in Dyadic Iota when the NotFound value is FLT.  Pass a Boolean flag to each routine
+    so it can fail if it ever needs to return a NotFound value.
+
+
+Build #1327 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In )COPY When Copying Uppercase System Var Names
+
+Directory trunk:
+
+SC_COPY.C:
+  Fix bug in <CopyWsVars>:  if the name of a system var is in uppercase, convert it to lowercase.
+
+
+Build #1326 -- Version 0.4.9.xx
+-------------------------------
+
+* Return APA From Non-Empty Replicate Of Singleton Integer-like Value
+
+Directory trunk:
+
+PF_SLASH.C:
+  If the right arg is a singleton, the result is non-empty and the right arg
+    is integer-like. return an APA as the result.
+
+
+Build #1325 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In GCD With Negative Args
+
+Directory trunk:
+
+PF_DCARET.C:
+  Fix bug in GCD with negative arguments.  The result should always be non-negative.
+
+
+Build #1324 -- Version 0.4.9.xx
+-------------------------------
+
+* Remove Unused Functions
+
+Directory trunk:
+
+PARSELINE.C:
+STARTADDR.H:
+YYFNS.C:
+  Update copyright notice.
+  Remove unused functions.
+
+WCOM.BAT:
+  Fix bug in path usage.
+
+
+Build #1323 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug Of Not Demoting Hetero To Lower Type During Indexed Assignment
+
+Directory trunk:
+
+PF_INDEX.C:
+  Improve comments for Reference Counts.
+  In <ArrayIndexSet_EM>, ensure the result is type demoted as appropriate.
+
+
+Build #1322 -- Version 0.4.9.xx
+-------------------------------
+
+* Miscellaneous DEBUG And Build Changes
+
+Directory trunk:
+
+AFOFNS.C:
+  Update copyright notice.
+  Improve comments.
+  Omit unneeded call to <nop>.
+
+COMMON.C:
+  Mark as DEBUG-only the definition of <nop> and <DbgNop>.
+
+DICTIONARY.C:
+  Mark as DEBUG-only the declaration of <nop>.
+
+MACROS.H:
+  Define <nop> and <DbgNop> as no-ops if non-DEBUG.
+
+MAKEFILE.INC:
+  Don't display Bison execution lines.
+
+WCOM.BAT:
+  Note Cygwin is now 64-bit.
+
+
+Build #1321 -- Version 0.4.9.xx
+-------------------------------
+
+* Conform To New Bison Rules
+
+Directory trunk:
+
+CS_PARSE.PROTO:
+CS_PARSE.Y:
+FH_PARSE.PROTO:
+FH_PARSE.Y:
+PN_PARSE.PROTO:
+PN_PARSE.Y:
+  Update copyright year.
+  Change <%name-prefix=> to <%name-prefix> as per new Bison rules.
+  Define <XX_yyerror> arg as const as per new Bison rules.
+
+
+Build #1320 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Empty RAT/VFPs
+
+Directory trunk:
+
+DISPDBG.C:
+  Update copyright notice.
+  In <DisplayGlobals>, handle empty RAT/VFPs.
+
+DISPLAY.C:
+  Update copyright notice.
+  In call to <GetNextItem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+EXTERNS.H:
+  Update copyright notice.
+  Define new globals of <mpqZero> and <mpfZero> so as to handle empty RAT/VFPs.
+
+GETFNS.C:
+  Update copyright notice.
+  In <GetFirstValueGlb>, handle empty RAT/VFPs.
+  In numerous <GetNextXXX> functions, pass arg of NELM so as to handle empty RAT/VFPs.
+
+GOTO.C:
+  Update copyright notice.
+  In <GotoLine_EM>, handle empty RAT/VFPs.
+
+INITDATA.C:
+  Update copyright notice.
+  In <InitGlbNumConstants>, initialize more global numeric constants.
+  In <UninitGlbNumConstants>, uninitialize global numeric constants.
+
+PF_CIRCLE.C:
+  Update copyright notice.
+  In <PrimSpecCircleStorageTypeMon> and <PrimSpecCircleStorageTypeDyd>, handle empty RAT/VFPs.
+
+PF_COMMA.C:
+  Update copyright notice.
+  In <PrimFnDydComma_EM_YY>, handle empty RAT/VFPs.
+
+PF_CSTAR.C:
+  Update copyright notice.
+  In <PrimSpecCircleStarStorageTypeMon> and <PrimSpecCircleStarStorageTypeDyd>, handle empty RAT/VFPs.
+
+PF_DOMINO.C:
+  Update copyright notice.
+  In <PrimFnMonDomino_EM_YY> and <PrimFnDydDomino_EM_YY>, handle empty RAT/VFPs.
+
+PF_DSTILE.C:
+  Update copyright notice.
+  In <PrimSpecDownStileStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_DTACK.C:
+  Update copyright notice.
+  In <PrimFnDydDownTack_EM_YY>, handle empty RAT/VFPs.
+
+PF_DTACKJOT.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_EPSILON.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_INDEX.C:
+  Update copyright notice.
+  In <ArrayIndexValidZilde_EM>, allow empty RAT/VFPs.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <ArrayIndexSetVector_EM>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_IOTA.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_LSHOE.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <PrimFnDydLeftShoeAppend_EM>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_QDOT.C:
+  Update copyright notice.
+  In <PrimSpecQuoteDotStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_RHO.C:
+  Update copyright notice.
+  In <PrimFnDydRho_EM_YY> and <PrimFnDydRhoRhtGlbCopyData_EM> , handle empty RAT/VFPs.
+
+PF_ROOT.C:
+  Update copyright notice.
+  In <PrimSpecRootStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_SLASH.C:
+  Update copyright notice.
+  In <PrimFnDydSlash_EM_YY>, handle empty RAT/VFPs.
+
+PF_SQUAD.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_STAR.C:
+  Update copyright notice.
+  In <PrimSpecStarStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_STILE.C:
+  Update copyright notice.
+  In <PrimSpecStileStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_TILDE.C:
+  Update copyright notice.
+  In <PrimSpecTildeStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_USTILE.C:
+  Update copyright notice.
+  In <PrimSpecUpStileStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_UTACK.C:
+  Update copyright notice.
+  In <PrimFnDydUpTack_EM_YY>, handle empty RAT/VFPs.
+
+PO_DIERESIS.C:
+  Update copyright notice.
+  In call to <GetNextValueMemIntoToken>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PO_DOT.C:
+  Update copyright notice.
+  In <PrimOpDydDotCommon_EM_YY>, handle empty RAT/VFPs.
+
+PO_JOTDOT.C:
+  Update copyright notice.
+  In call to <GetNextValueMemIntoToken>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PO_SLASH.C:
+  Update copyright notice.
+  In call to <GetNextValueMemIntoToken>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PO_SLOPE.C:
+  Update copyright notice.
+  In call to <GetNextValueMemIntoToken>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In <PrimOpMonSlopeCommon_EM_YY>, handle empty RAT/VFPs.
+
+PO_VARIANT.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PRIMFNS.C:
+  Update copyright notice.
+  In <MakeMonPrototype_EM_PTB> and <MakeDydPrototype_EM_PTB>, handle empty RAT/VFPs.
+
+PRIMSPEC.C:
+  Update copyright notice.
+  In <PrimProtoFnScalar_EM_YY>, omit call to <MakePtrTypeGlb> as it is unnecessary.
+  In <PrimIdentFnScalar_EM_YY>, handle empty RAT/VFPs.
+  In call to <GetNextSimple>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_DR.C:
+  Update copyright notice.
+  In <SysFnDR_Show_EM_YY>, handle empty RAT/VFPs.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_ES.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_FMT.C:
+  Update copyright notice.
+  In call to <SysFnDydFMTSimp>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <QFMT_CommonG>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <QFMT_CommonEFIR>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_FX.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_TF.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+SC_SAVE.C:
+  Update copyright notice.
+  In <AppendArrayHeader>, handle empty RAT/VFPs.
+
+STRAND.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+
+Build #1319 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Negative Zero
+
+Directory trunk:
+
+COMMON.C:
+MAIN.C:
+PARSELINE.C:
+QF_EA.C:
+  Update the copyright notice (omitted from previous builds this year).
+
+DISPLAY.C:
+  Update the copyright notice.
+  In <FormatAplFltFC>, if the number is zero, ensure negative sign is appended under all <FLTDISPFMT_x>s.
+  In <FormatAplVfpFC>, if the number is zero, ensure negative sign is appended if appropriate.
+  In <GetQuadICValue>, use more consistent naming.
+
+HUNGARIAN_VFP.C:
+  Update the copyright notice.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+
+MACROS.H:
+  Update the copyright notice.
+  For the various <SIGN_xxx> macros, ensure the result is of type <UBOOL> so it fits in a smaller width.
+  Define <mpfr_sgn0> macro in terms of <signumint>.
+  Remove <mpfr_neg0> macro as it's no longer needed.
+
+MPFNS.C:
+  Update the copyright notice.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <mpfr_invalid> raise a <NONCE ERROR> exception for sqrt of negative infinity as per HC2 values.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  Improve comments.
+
+MPIFNS.C:
+  Update the copyright notice.
+  Fix typos in comments.
+  In <signumint> and <signumflt>, simplify the code.
+  Improve comments.
+  In <mpifr_mul> and <mpifr_div> use correct sign for the result.
+  Fix bug in <mpifr_sqrt> to return the correct sign of the result.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+
+PF_BAR.C:
+  Update the copyright notice.
+  Check for negating zero in which case signal <EXCEPTION_RESULT_FLOAT>.
+  In <PrimFnMonBarFisF>, remove test for negative zero.
+  In <PrimFnMonBarRisR>, check for negative zero.
+  Improve comments.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  In <PrimFnMonBarAPA_EM>, check for negating zero in which case signal <EXCEPTION_RESULT_FLOAT>.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+
+PF_CIRCLE.C:
+  Update the copyright notice.
+  Improve comments.
+  In <PrimFnDydCircleFisIvI>, check for NaN result.
+  In <PrimFnDydCircleFisFvF>, check for HC2 result in which case signal a <NONCE ERROR>.
+  In <PrimFnDydCircleFisFvF>, check for NaN result.
+  In <PrimFnDydCircleVisVvV>, check for NaN result.
+  In <PrimFnDydCircleFisVvV>, check for HC2 result in which case signal a <NONCE ERROR>.
+
+PF_COLONBAR.C:
+  Update the copyright notice.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <PrimFnMonColonBarRisR>, check for {div}{neg}{inf}x and signal <EXCEPTION_RESULT_VFP>.
+
+PF_CSTAR.C:
+  Update the copyright notice.
+  In <PrimFnMonCircleStarFisI> and <PrimFnMonCircleStarFisF>, check for HC2 result and signal a <NONCE ERROR>.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  Improve comments.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  Use <SIGN_APLFLOAT (x)> instead of "x < 0.0" as the former works on negative zero.
+  Use <SIGN_APLVFP (x)> instead of "mpfr_sgn (x) < 0" as the former works on negative zero.
+
+PF_DCARET.C:
+  Update the copyright notice.
+  Improve comments.
+  Use <SIGN_APLVFP (x)> instead of "mpfr_sgn (x) < 0" as the former works on negative zero.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+
+PF_DOMINO.C:
+  Update the copyright notice.
+  Improve comments.
+
+PF_DOTDOT.C:
+  Update the copyright notice.
+  Improve comments.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+
+PF_PLUS.C:
+  Update the copyright notice.
+  Improve comments.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <PrimFnDydPlusRisRvR> and <PrimFnDydPlusVisVvV>, check for indeterminates "_ + -_  or  -_ + _".
+
+PF_QDOT.C:
+  Update the copyright notice.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <PrimFnDydQuoteDotFisFvF>,omit check for negative zero as IEEE-754 handles it well.
+
+PF_ROOT.C:
+  Update the copyright notice.
+  Improve comments.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <PrimFnDydRootFisFvF> and <PrimFnDydRootVisVvV>, handle L {root} -0.
+
+PF_STAR.C:
+  Update the copyright notice.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  Use <SIGN_APLFLOAT (x)> instead of "x < 0.0" as the former works on negative zero.
+
+PF_STILE.C:
+  Update the copyright notice.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  Improve comments.
+
+PF_TIMES.C:
+  Update the copyright notice.
+  In <PrimFnMonTimesVisV>, handle X {times} -0.
+  In <PrimFnDydTimesIisIvI> and <PrimFnDydTimesFisIvI>, handle (negative X) {times} 0.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  Improve comments.
+  In <PrimFnDydTimesAPA_EM>, check for negating zero in which case signal <EXCEPTION_RESULT_FLOAT>.
+
+PF_UARROW.C:
+  Update the copyright notice.
+  Improve comments.
+
+PF_UCARET.C:
+  Update the copyright notice.
+  Use <SIGN_APLFLOAT (x)> instead of "x < 0.0" as the former works on negative zero.
+  Use <SIGN_APLVFP (x)> instead of "mpfr_sgn (x) < 0" as the former works on negative zero.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+
+PF_USTILE.C:
+  Update the copyright notice.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+
+PN_PARSE.H:
+  Update the copyright notice.
+  In <tagPN_YYSTYPE> struc, make room for a sign bit.
+
+PN_PARSE.Y:
+  Update the copyright notice.
+  Take into account negative integer denominator and negative zero.
+
+PN_PROC.C:
+  Update the copyright notice.
+  In <PN_NumCalc>, handle negative zero.
+
+PO_DOT.C:
+  Update the copyright notice.
+  Improve comments.
+
+PO_SLASH.C:
+  Update the copyright notice.
+  Improve comments.
+
+TRANSLATE.C:
+  Update the copyright notice.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+
+TYPEMOTE.C:
+  Update the copyright notice.
+  In <TypeDemote>, do not demote negative float zero.
+
+
+Build #1318 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In []EA/[]EC
+
+Directory trunk:
+
+PARSELINE.C:
+  In <ParseLine>/PARSELINE_DONE, when checking for a function to release (and return NOVALUE),
+    exclude the naked {goto} case as the ExitType has already been set to RESET_ONE.
+
+QF_EA.C:
+  Set EC bit for []EA as that bit is checked when considering whether or not to suspend []EA's caller.
+
+
+Build #1317 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When No CRASHRPT.DLL
+
+Directory trunk:
+
+COMMON.C:
+  Define a function to do sprintfW and check for buffer overwrite.
+
+MAIN.C:
+  In <WinMain>, if there is no <CRASHRPT.DLL> in the same directory as the .exe,
+    a message is displayed which uses a buffer that is too short, thus overwriting
+    other data on the stack.  Use a longer buffer as well as a function to check the
+    buffer size.
+
+
+Build #1316 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+EXECFNS.C:
+  In <ExecFunc_EM_YY>, ensure a valid result has <tkSynObj> set to <soA>.
+
+PARSELINE.C:
+  Improve coding style.
+  In <plRedNAM_ISPA>, handle curried function as in "NAM[A] F {is} A".
+  After calling <lpplCurStr->lpplRedFcn>, ensure <tkSynObj> is set in the result.
+  In <pl_yylexCOM>/TKT_VARNAMED/NAMETYPE_VAR, mark the name in "NAM[A] F {is} A" as assigned to.
+  Improve comments.
+
+PARSELINE.H:
+  Raise the binding strength of "F SPA" so as to evaluate "F SPA" first, currying the function arg.
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY>, ensure a valid result has <tkSynObj> set to <soA>.
+
+
+Build #1315 -- Version 0.4.9.xx
+-------------------------------
+
+* Rename Float Infinity To Parallel MPQ/MPFR, Part II
+
+Directory trunk:
+
+DISPLAY.C:
+MACROS.H:
+MPIFNS.C:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_ROOT.C:
+PF_STAR.C:
+PF_UCARET.C:
+PF_USTILE.C:
+QF_FMT.C:
+  Rename float Infinity to parallel the names used for MPQ/MPFR.
+
+
+Build #1314 -- Version 0.4.9.xx
+-------------------------------
+
+* Handle Exceptions In Dyadic Scalar Function Error Checks With APA Result
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Remove debug level restriction on exception DEBUG messages.
+  In <PrimFnDyd_EM_YY>, handle exceptions in calls to <ApaResultDyd_EM>.
+
+
+Build #1313 -- Version 0.4.9.xx
+-------------------------------
+
+* Miscellanous DEBUG Changes
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayHeap>, include the random state's seed as a value not to be displayed.
+
+QF_DR.C:
+  In <SysFnDR_Show_EM_YY>, shorten the displayed name for VFP vars so it doesn't wrap on small screens.
+
+RESDEBUG.C:
+  In <_MyHeapAlloc>, don't put DEBUG_HEAP into effect unless DEBUG is also.
+
+
+Build #1312 -- Version 0.4.9.xx
+-------------------------------
+
+* Split Initial DEBUG Screen To One-Third Of Total Screen Height
+
+Directory trunk:
+
+SESSMAN.C:
+  Split the initial DEBUG screen to 1/3 of the total screen height.
+
+
+Build #1311 -- Version 0.4.9.xx
+-------------------------------
+
+* Improve Comments
+
+Directory trunk:
+
+COMMON.C:
+GETFNS.C:
+IDENTFNS.C:
+SYMTAB.C:
+TOKENIZE.C:
+  Improve comments.
+
+EXTERNS.H:
+  Include the index name in the comments for the list of default values for []IC.
+
+HEADERS.H:
+  Improve comments.
+  Surround arg to <mpfr_init0> with parens in case it is complicated.
+
+
+Build #1310 -- Version 0.4.9.xx
+-------------------------------
+
+* Include Additional Files Omitted From Previous Build
+
+Directory trunk:
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include additional files omitted from Build #1307.
+
+
+Build #1309 -- Version 0.4.9.xx
+-------------------------------
+
+* Handle Scalar Left Args In Matrix Lookup
+
+Directory trunk:
+
+MF_IOTA.H:
+  In the Magic Function for Matrix Lookup, allow scalar left args.
+
+
+Build #1308 -- Version 0.4.9.xx
+-------------------------------
+
+* Rename Float Pos/NegInfinity To Parallel MPQ/MPFR
+
+Directory trunk:
+
+EXTERNS.H:
+INITDATA.C:
+MACROS.H:
+MPIFNS.C:
+PF_CSTAR.C:
+PF_ROOT.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TIMES.C:
+PN_PROC.C:
+SC_LOAD.C:
+TRANSLATE.C:
+  Rename float Pos/NegInfinity to parallel the names used for MPQ/MPFR.
+
+
+Build #1307 -- Version 0.4.9.xx
+-------------------------------
+
+* Move From CrashServer To DoctorDump
+
+Directory trunk:
+
+CRASHSERVER.CPP:
+MAIN.C:
+MAKEFILE.INC:
+VER.C:
+WCOM.BAT:
+  Rename files and dirs from CrashServer to DoctorDump.
+
+
+Build #1306 -- Version 0.4.9.xx
+-------------------------------
+
+* Replace A Function With Its Expanded Equivalent
+
+Directory trunk:
+
+FREE.C:
+STARTADDR.H:
+  Delete <FreeYYFcn1> as it is not longer used.
+
+PARSELINE.C:
+  Replace <FreeYYFcn1> in favor of the expanded version so we can more easily see what's happening.
+  In most calls to <PushFcnStrand_YY>, use <IsFcnStrDirect> instead of a constant.
+  In <ParseLine> when setting <rht2SynObj>, avoid Asserting as sometimes it's invalid.
+
+PL_PROC.C:
+  Replace <FreeYYFcn1> in favor of the expanded version so we can more easily see what's happening.
+
+
+Build #1305 -- Version 0.4.9.xx
+-------------------------------
+
+* Catch More Unset Syntax Objects
+
+Directory trunk:
+
+STRAND.C:
+  In <StripStrand>, allow endpoint in Assert stmt.
+  In <MakeVarStrand_EM_YY>, set the Syntax Object type.
+  In <MakeFcnStrand_EM_YY>, set the Syntax Object type.
+  In <MakeFcnStrand_EM_YY>, simplify the code after <bSaveTxtLine>.
+
+TRANSLATE.C:
+  In <TranslateSOTypeToNameType>, include more Syntax Object types.
+  Define <TranslateNameTypeToSOType> needed in <MakeFcnStrand_EM_YY>.
+
+
+Build #1304 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In DEBUG Display of Temporary Function Lines
+
+Directory trunk:
+
+DISPDBG.C:
+  Fix display of function display with axis operators.
+
+
+Build #1303 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Displaying )LIB Names
+
+Directory trunk:
+
+SC_LIB.C:
+  In <DisplayLibNames>, avoid writing WC_EOS past the end of the line.
+
+
+Build #1302 -- Version 0.4.9.xx
+-------------------------------
+
+* When Converting A String To A Rational Number, Allow Decimal Point Input
+
+Directory trunk:
+
+MPIFNS.C:
+  In <mpiq_set_str>, handle decimal point input such as "1.3" -> 13r10.
+
+
+Build #1301 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Passing A System Function To A User-Defined Operator
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitFcnSTEs>, check for named internal functions as an operand.
+
+
+Build #1300 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When An AFO Passes A Special STE In A Global Or A Result
+
+Directory trunk:
+
+GETFNS.C:
+IDENTFNS.C:
+PERTAB.H:
+PF_UARROW.C:
+PO_SLASH.C:
+PRIMFNS.C:
+SESSMAN.C:
+SYMTAB.C:
+  When referencing special STEs (i.e., Zero, One, Blank), always use the global symentry
+    in case an AFO passes one such value outside the AFO.  If we use the local STE, the
+    matching HTS is gone after the AFO terminates.
+
+
+Build #1299 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug With Copy From DEBUG Window
+
+Directory trunk:
+
+DEBUG.C:
+  An earlier build mistakenly replaced a code sequence with a macro, but shouldn't have done so in this case.
+
+
+Build #1298 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug With AFO NoDisplay Flag
+
+Directory trunk:
+
+AFOFNS.C:
+  In <AfoDisplay_EM>, fix bug when setting the AFO's NoDisplay flag.
+  Include comment about <AssignName_EM> setting NoDisplay flag in source.
+
+
+Build #1297 -- Version 0.4.9.xx
+-------------------------------
+
+* Catch Unset Syntax Objects
+
+Directory trunk:
+
+ASSIGN.C:
+  Include comment about <AssignName_EM> setting NoDisplay flag in source.
+
+PARSELINE.C:
+  Define macro to check for valid Syntax Objects.
+  Use macro whenever checking for valid Syntax Objects.
+  In <plRedLBC_RBC> include comment indicating how the resulting Syntax Object is set.
+  Include comment about <AssignName_EM> setting NoDisplay flag in source.
+
+PARSELINE.H:
+  Define initial <soUNK> Syntax Object to catch unset values.
+
+PF_INDEX.C:
+  Include comment about <AssignName_EM> setting NoDisplay flag in source.
+
+PL_PROC.C:
+  Include comment better explaining the difference between the two <CopyPL_YYSTYPE_xxx>s.
+
+STRAND.C:
+  Include comment better explaining the difference between the two <CopyPL_YYSTYPE_xxx>s.
+  In <MakeFcnStrand_EM_YY>, simplify some of the coding.
+  Delete commented out functions.
+
+SYNOBJ.H:
+  Define initial <soUNK> Syntax Object to catch unset values.
+
+YYFNS.C:
+  In <YYAlloc>, initialize the Syntax Object in the result with an unknown value
+    so as to catch unset values.
+  Include comment better explaining the difference between the two <CopyPL_YYSTYPE_xxx>s.
+
+
+Build #1296 -- Version 0.4.9.xx
+-------------------------------
+
+* Change The Units Of []T To Seconds
+
+Directory trunk:
+
+EXTERNS.H:
+  Define constant for # CPU ticks per second.  This value doesn't change during a Windows session so it can be cached here.
+
+INITDATA.C:
+  Update copyright year.
+  Initialize constant <liTicksPerSec>.
+
+PERFMON.C:
+  Update copyright year.
+  Use cached value of <liTicksPerSec> instead of re-reading it each time.
+
+QF_MF.C:
+  Use cached value of <liTicksPerSec> instead of re-reading it each time.
+
+QF_T.C
+  Use cached value of <liTicksPerSec> instead of re-reading it each time.
+  Change the units of []T to seconds since the CPU was started.
+
+STATUSBAR.C:
+  Change name of []T to High Resolution Time.
+  Use cached value of <liTicksPerSec> instead of re-reading it each time.
+
+SYSVARS.C:
+  Change name of []T to High Resolution Time.
+
+
+Build #1295 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement []T To Return Tick Count
+
+Directory trunk:
+
+COMPRO.H:
+  Include <qf_t.pro> in the list of prototype files.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <qf_t.c> in the list of source files.
+
+QF_T.C
+  Implement []T.
+
+SYSVARS.C:
+  Include []T in the list of niladic system functions.
+
+
+Build #1294 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug With Trains
+
+Directory trunk:
+
+PARSELINE.C:
+  In <plRedCom_RP>, if incoming fcn is in the process of being stranded, convert it into a function strand before passing it on to the caller.
+
+STRAND.C:
+  In <PushFcnStrand>, ensure incoming fcn not already being stranded.
+
+
+Build #1293 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Debugging Aid To Catch Unset Syntax Objects
+
+Directory trunk:
+
+PARSELINE.C:
+  Delete unused and commented out var.
+  If the return current object is a function, set the ExitType to NOVALUE.
+  At the end of <pl_yylexCOM>, check for valid Syntax Object.
+
+PRIMFNS.C:
+  In <MakeNoValue>, initialize the Syntax Object to a known value.
+
+SYNOBJ.H:
+  Define a new Syntax Object for use with NoValue.
+
+YYFNS.C:
+  In <YYAlloc>, initialize the Syntax Object to a known value.
+
+
+Build #1292 -- Version 0.4.9.xx
+-------------------------------
+
+* Handle Indexing Of Scalars
+
+Directory trunk:
+
+PF_INDEX.C:
+  Improve comments.
+  Handle indexing of simple and non-simple scalars.
+
+PF_RSHOE.C:
+  Improve comments.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Include additional identities for Reach and Scatter indexing.
+
+
+Build #1291 -- Version 0.4.9.xx
+-------------------------------
+
+* Improve DEBUG Display of An APL Var
+
+Directory trunk:
+
+DISPDBG.C:
+  Improve <DisplayGlbVar> which is a preliminary version of a function to display the contents of an APL var.
+
+MACROS.H:
+  Define DEBUG and non-DEBUG version of <DisplayGlbVar>.
+
+
+Build #1290 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix ParseLine Bugs Of Freeing Temps Already Freed
+
+Directory trunk:
+
+PARSELINE.C:
+  In <plRedMF_ARBK>, don't free temps that have already been freed.
+  In <ParseLine/PARSELINE_MP_DONE>, if there's been an error, check for Stop Execution of the line which is not an error.
+  In <ExecuteCS0/TKT_CS_RETURN>, don't free temps that have already been freed.
+
+QF_EX.C:
+  In <IzitSusPendent>, handle more <DFNTYPE_xxx>s (should have been in Build #1282).
+
+
+Build #1289 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug Of Closing Thread Prematurely
+
+Directory trunk:
+
+SESSMAN.C:
+  In <SMWndProc/WM_DESTROY>, don't quit the thread here as that's the responsibility of <LclTabCtrlWndProc/TCM_DELETEITEM>.
+
+
+Build #1288 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Closing Tab With Open Function Editing Windows
+
+Directory trunk:
+
+EDITFCN.C:
+  Include more DEBUGging code in <CloseFunction>.
+
+TABCTRL.C:
+  In <LclTabCtrlWndProc/TCM_DELETEITEM>, attempt to close any open FEwindows before closing the tab,
+
+
+Build #1287 -- Version 0.4.9.xx
+-------------------------------
+
+* Include DEBUG Stmts For Thread Waits
+
+Directory trunk:
+
+RESDEBUG.C:
+RESDEBUG.H:
+  Define <MyWaitForThread> to handle waiting for a thread.
+
+STARTADDR.H:
+  Delete <DisplayYYRes> as it is unused (should have been in Build #1284).
+
+THREADS.H:
+  Remove flag to IE_THREAD struc that's always FALSE (should have been in Build #1286).
+
+UPDATES.C:
+  Use <MyWaitForThread> instead of <WaitForSingleObject>.
+  Improve comments.
+
+
+Build #1286 -- Version 0.4.9.xx
+-------------------------------
+
+* Remove Flag That's Always FALSE
+
+Directory trunk:
+
+IMMEXEC.C:
+  Remove flag to <ImmExecStmt> that's always FALSE.
+  In <ImmExecStmt> and <ImmExecStmtInThread>, remove code that is used only if the flag that's always FALSE is TRUE.
+  In <ImmExecStmtInThread>, remove commented out code.
+
+SESSMAN.C:
+  Remove flag to <ImmExecStmt> that's always FALSE.
+
+
+Build #1285 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Memory Leak As In (a b c){is]...
+
+Directory trunk:
+
+ASSIGN.C:
+  Fix memory leak when assigning to a list of named vars.
+
+
+Build #1284 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement DEBUG Display of An APL Var
+
+Directory trunk:
+
+DISPDBG.C:
+  Implement <DisplayGlbVar> which is a preliminary version of a function to display the contents of an APL var.
+  Delete <DisplayYYRes> as it is unused.
+
+
+Build #1283 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs When Indexing Scalars
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRefNamImmed_EM_YY>, handle a vector list of vectors of zildes.
+  In the call to <ArrayIndexValidZilde_EM>, change the # items to check to the index of the single item to check.
+  In <ArrayIndexValidZilde_EM>, check a single list item for all zildes.
+  In <ArrayIndexSet_EM>, handle all scalars (not just immediates) when calling <ArrayIndexSetNamImmed_EM>.
+  Use a more consistent coding style.
+
+PF_RSHOE.C:
+  In <PrimFnDydRightShoeImm_EM_YY>, allow the left arg to be a scalar or vector, not just a vector.
+
+PF_SQUAD.C:
+  In the call to <ArrayIndexValidZilde_EM>, change the # items to check to the index of the single item to check.
+
+
+Build #1282 -- Version 0.4.9.xx
+-------------------------------
+
+* Disallow Assignment To A Suspended Or Pendent Function
+
+Directory trunk:
+
+ASSIGN.C:
+  Disallow assignment to a suspended or pendent function.
+
+PARSELINE.C:
+  In <plRedNAM_SPCom>, handle error in return from <AssignName_EM>.
+
+
+Build #1281 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Handling Trains and Niladic Functions
+
+Directory trunk:
+
+PARSELINE.C:
+  Delete code which treats niladic function specially as that breaks Trains.
+  In <pl_yylexCOM>, simplify SWITCH code by merging empty stmts.
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY>, treat <fnNameType> train as no change to its RefCnt.
+
+
+Build #1280 -- Version 0.4.9.xx
+-------------------------------
+
+* Display More Information In ParseLine DEBUG Stmts
+
+Directory trunk:
+
+PARSELINE.C:
+STRAND.C:
+  Display filename and line # for <DbgMake,,,> and <DbgPush...> stmts.
+
+
+Build #1279 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Indexed Assignment When Assigning The Entire Array
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexSetSingLst_EM>, if the index is {enclose}{zilde} meaning assign the entire array, also free the items of the already <CopyArray>ed global memory handle.
+
+
+Build #1278 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Reduction Of Singletons
+
+Directory trunk:
+
+ENUMS.H:
+  Remove references to []SGL as we no longer need it.
+  Include comment from <externs.h> omitted when <FLT_DISP_FMT> enum moved over.
+
+EXECDFN.C:
+SYSVARS.C:
+SYSVARS.H:
+  Remove references to []SGL as we no longer need it.
+
+EXECMFN.C:
+FH_PARSE.H:
+  Define entries for RoS magic functions.
+
+EXECMFN.H:
+  Define entries for RoS magic functions.
+  Remove references to []SGL as we no longer need it.
+
+EXTERNS.H:
+  Include comment from <externs.h> omitted when <FLT_DISP_FMT> enums moved over.
+
+MACROS.H:
+  Refine macro for <IsSymNoValue> to handle NULL argument.
+
+MF_ROS.H:
+  Define RoS magic functions.
+
+PO_DOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+  Implement Reduction Of Singletons.
+
+RESDEBUG.C:
+  Fix typo.
+
+SAVEFCN.C:
+  Clear type bits before comparing global memory handles.
+  Remove references to []SGL as we no longer need it.
+
+SESSMAN.C:
+  Improve comment.
+
+STARTADDR.H:
+  Implement Reduction Of Singletons.
+  Include references to new function names.
+
+
+Build #1277 -- Version 0.4.9.xx
+-------------------------------
+
+* Disallow Attempt To Close Executing Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  Disallow attempt to close an executing tab with a message box.
+  Move Reset Thread creation code to separate function to parallel other such thread handling.
+
+THREADS.H:
+  Fix typo in comment.
+
+
+Build #1276 -- Version 0.4.9.xx
+-------------------------------
+
+* Use Leading Underscore In Name For Macro Expansions Only
+
+Directory trunk:
+
+CONVERT.C:
+  Move <FloatToAplInt_CT> to a macro calling <_FloatToAplInt_CT>.
+  Move <CompareCT> to a macro calling <_CompareCT>.
+
+DEBUG.C:
+EXECDFN.C:
+MPIFNS.C:
+  Remove underscore from function header reference block so as to find it more easily.
+
+EXECMFN.C:
+  Rename <_AssignDefaultSysVars> to <AssignDefaultHTSSysVars> as leading underscore in the name is reserved for macros.
+
+MACROS.H:
+  Rename <iadd64>,  <isub64>  and <imul64>  as <iadd64_RE>, <isub64_RE>, and <imul64_RE>.
+  Rename <_iadd64>, <_isub64> and <_imul64> as <iadd64>,    <isub64>,    and <imul64>.
+  Move <FloatToAplInt_CT> to a macro calling <_FloatToAplInt_CT>.
+  Move <CompareCT> to a macro calling <_CompareCT>.
+  Move <mpq_get_sctsx> to a macro calling <_mpq_get_ctsx>.
+  Move <mpq_get_ctsx> to a macro calling <_mpq_get_ctsx>.
+  Move <mpfr_get_ctsx> to a macro calling <_mpfr_get_ctsx>.
+  Move <mpfr_cmp_ct> to a macro calling <_mpfr_cmp_ct>.
+
+MPFNS.C:
+  Move <mpq_get_sctsx> to a macro calling <_mpq_get_ctsx>.
+  Move <mpq_get_ctsx> to a macro calling <_mpq_get_ctsx>.
+  Move <mpfr_get_ctsx> to a macro calling <_mpfr_get_ctsx>.
+  Move <mpfr_cmp_ct> to a macro calling <_mpfr_cmp_ct>.
+
+PARSELINE.C:
+  If DEBUGging, define <PushVarStrand>, <MakeVarStrand>, <PushFcnStrand>, and <MakeFcnStrand>
+    as <DbgXXX> versions.
+  Remove underscore from function header reference block so as to find it more easily.
+
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_DARROW.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_RHO.C:
+PF_STAR.C:
+PF_TIMES.C:
+PF_UTACK.C:
+PN_PROC.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+QF_DR.C:
+  Rename <iadd64>,  <isub64>  and <imul64>  as <iadd64_RE>, <isub64_RE>, and <imul64_RE>.
+  Rename <_iadd64>, <_isub64> and <_imul64> as <iadd64>,    <isub64>,    and <imul64>.
+
+REFCNT.C:
+RESDEBUG.C:
+STRAND.C:
+YYFNS.C:
+  Remove underscore from function header reference block so as to find it more easily.
+
+SAVEFCN.C:
+  Rename <_AssignDefaultSysVars> to <AssignDefaultHTSSysVars> as a leading underscore in the name is reserved for macros.
+
+STARTADDR.H:
+  Rename <_pl_yylex> to <pl_yylexCOM> as a leading underscore in the name is reserved for macros
+  Rename <iadd64>,  <isub64>  and <imul64>  as <iadd64_RE>, <isub64_RE>, and <imul64_RE>.
+  Rename <_AssignDefaultSysVars> to <AssignDefaultHTSSysVars> as a leading underscore in the name is reserved for macros.
+
+SYMTAB.C:
+  Rename <_SymTabXxx> to <SymTabHTSXxx> as a leading underscore in the name is reserved for macros.
+
+SYSVARS.C:
+  Rename <_SymTabXxx> to <SymTabHTSXxx> as a leading underscore in the name is reserved for macros.
+  Rename <_AssignDefaultSysVars> to <AssignDefaultHTSSysVars> as a leading underscore in the name is reserved for macros.
+
+TOKENIZE.C:
+  Rename <_SymTabXxx> to <SymTabHTSXxx> as a leading underscore in the name is reserved for macros.
+
+
+Build #1275 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Exittype When Resetting One Level
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in exittype when resetting one level.
+
+
+Build #1274 -- Version 0.4.9.xx
+-------------------------------
+
+* Include DEBUG Stmts For Semaphore Waits
+
+Directory trunk:
+
+EXECDFN.C:
+PL_PROC.C:
+QF_DL.C:
+TABCTRL.C
+  Use <MyWaitforSemaphore> instead of <WaitForSingleObject> when waiting for a semaphore
+    as it incorporates DEBUG stmts in it.
+
+RESDEBUG.C:
+RESDEBUG.H:
+  Define <MyWaitForSemaphore> to handle waiting for a semaphore.
+
+
+Build #1273 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Closing Tab With Non-empty SI
+
+Directory trunk:
+
+TABCTRL.C:
+  Define new temp struc for Reset thread.
+  In <FreeGlobalStorage>, use separate thread to run )RESET.
+
+THREADS.H:
+  Update copyright year.
+  Define new temp struc for Reset thread.
+
+
+Build #1272 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug Of Displaying Error Message After )RESET
+* Fix Bug Of Displaying Magic Function Line In Error Message
+* Remove References To LookAhead/Behind/Stop As They Are No Longer Used
+
+Directory trunk:
+
+ERRMSG.C:
+  In <AppendFcnNameLineNum>, include bit flag argument for whether or not a caller is []EC.
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+  In <AppendFcnNameLineNum>, fix bug where we incorrectly returned a
+    (locked) global memory ptr (never to unlock it) instead of an HGLOBAL.
+  In <AppendFcnNameLineNum>, if we're in an MFO wind back the stack to the UDFO
+    and return that functionname[line #].
+  In <AppendFcnNameLineNum>, if the function name is valid andwe're not under control of []EC, suspend execution at this level.
+  In <ErrorMessageDirect>, handle return of immediate execution line instead of global memory handle.
+
+EXECDFN.C:
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+  In <ExecuteFunction_EM_YY>, return NoValue token if EXITTYPE_RESET_ALL so we don't display an error message.
+  Improve comments.
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+
+EXECMFN.C:
+FH_PARSE.H:
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+
+GOTO.C:
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+
+IMMEXEC.C:
+  Make test in <if> statement explicit.
+
+PARSELINE.C:
+  In <plRedMF_A>, save the current function caret position for later use.
+  Remove references to LookAhead/Behind/Stop as they are no longer used.
+  In <ParseLine>, save a ptr to the local vars in the SIS header.
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+  If we suspend in an MFO, reset the error codes so we don't execute []ELX at this level.
+  Make test in <if> statement explicit.
+
+PL_PARSE.H:
+  Remove references to LookAhead/Behind/Stop as they are no longer used.
+
+PRIMFNS.C:
+  In <FillSISNxt>, include references to all <SIS_HEADER> members even if commented out.
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+
+QF_EA.C:
+QF_EC.C:
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+
+SC_LOAD.C:
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+
+SC_SI.C:
+  Update copyright year.
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+
+SIS.H:
+  Update copyright year.
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+  Include struct member of current function caret position.
+  Include struct member of ptr to this level's ParselLine Local Vars.
+
+TOKENS.H:
+  Remove references to LookAhead/Behind/Stop as they are no longer used.
+
+
+Build #1271 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Calling []ID Label
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecDfnGlbIdent_EM_YY>, we mistakenly pass a left argument when calling the user-defined function/operator at []ID.
+
+
+Build #1270 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Timing Bug When Destroying Main Window
+
+Directory trunk:
+
+EDITFCN.C:
+MAIN.C:
+  Define and use bit flag to indicate that we're in the midst of destroying the main window.
+    Sometimes, we get to a point where not all window handles are usable and we need a way to avoid locking up upon exit.
+
+
+Build #1269 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Displayability Of Assignment Of Name
+
+Directory trunk:
+
+ASSIGN.C:
+  In <AssignName_EM>, mark the source as non-displayable, not the name.
+
+
+Build #1268 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Syntax Coloring Of Line Labels With Spaces
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <scClnDone>, handle spaces between the line label and the separating colon.
+
+
+Build #1267 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  In variout <plRedXX_XX> functions, also change immediate type and Syntax Object of current symbol.
+  Omit spurious comment.
+  Fix bug if freeing function on the stack in the process of stranding.
+  Fix bug when )RESETting.
+
+STARTADDR.H:
+  Delete unused functions.
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY>, test for Stranding flag and clear it.
+  Delete unused functions.
+
+YYFNS.C:
+  Make test in DEBUG statement explicit.
+  Delete unused functions.
+
+
+Build #1266 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Comparing Storage Types To Detect Blow Up
+
+Directory trunk:
+
+GETFNS.C:
+  Improve comments.
+
+PF_INDEX.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+  When comparing APL storage types to detect blow up, use <aTypePromote> as indexed by the storage types.
+
+
+Build #1265 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  In <plRedF_HY>, <plRedA_HY>, <plRedDOP_HY>, <plRedJ_HY>, and <plRedF_HY>, also change immediate type and Syntax Object of Hybrid symbol.
+  Re-order code for easier debugging.
+  In <_pl_yylex>, delete unnecessary comment.
+  Set Syntax Object for named vars as they aren't set elsewhere.
+
+
+Build #1264 -- Version 0.4.9.xx
+-------------------------------
+
+* Miscellaneous DEBUG Changes
+
+Directory trunk:
+
+COMMON.C:
+  Update copyright year.
+  Use simpler code instead of the conditional syntax (a?b:c).
+
+DISPDBG.C:
+  In <DisplayTokens>, also display the Syntax Object.
+
+
+Build #1263 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Treatment of Name In For Statement
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix comment about reloading <lstSynObj>.
+  In <_pl_yylex>, don't substitute content for named var if it's in a For Stmt.
+  In <_pl_yylex>, use consistent code and comments when testing for a For Stmt.
+
+
+Build #1262 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug Accounting For Trains
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <IsFcnStrDirect>, if the argument is a function array and a Train,
+    return TRUE so it is handled correctly by <MakeFcnStrand>.
+
+YYFNS.C:
+  In <YYAlloc>, include comments on how to debug <YYResIsEmpty> memory leaks.
+  In <YYCountFcnStr>, if the item is a Train count it as a single element as
+    that's the way it is treated in <YYCountFcnGlb>.
+
+
+Build #1261 -- Version 0.4.9.xx
+-------------------------------
+
+* Omit DEBUG Flag No Longer Needed
+
+Directory trunk:
+
+PARSELINE.C:
+PL_PARSE.H:
+STRAND.C:
+YYFNS.C:
+  Omit <YYFlag> as it's no longer needed.
+  Omit separate indexing of <YYAlloc>s in <pl_yylex> as it's no longer needed.
+
+
+Build #1260 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs Found By Dr Memory
+
+Directory trunk:
+
+AXISFNS.C:
+CRASH.C:
+DEBUG.C:
+  Use macro for common unlock and free template.
+  Use more consistent naming convention for globals and their ptrs.
+
+EDITFCN.C:
+  Omit unnecessary cleanup of Window properties.
+  Use macro for common unlock and free template.
+
+EXECDFN.C:
+EXECMFN.C:
+IMMEXEC.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DTACKJOT.C:
+PF_EPSUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_LSHOE.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PO_DIERESIS.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_NFNS.C:
+SAVEFCN.C:
+SC_SAVE.C:
+TABCTRL.C:
+  Use macro for common unlock and free template.
+
+FREE.C:
+  Use ptr to xxGlbData so it can be written to consistently.
+  Use macro for common unlock and free template.
+
+GETFNS.C:
+  Define function to return ptr to xxGlbData.
+
+INIFILE.C:
+  Define function to delete global vars created by <ReadIniFileGlb>.
+
+MACROS.H:
+  Define a macro to free a global name.
+  Define a macro to unlock and free a global name.
+
+MAIN.C:
+  When selecting an object into a DC, save the old value and restore it
+    before releasing the DC.
+  Omit unnecessary cleanup of Window properties.
+  In <ParseCommandLine> test for empty command line using <lstrlen> so the
+    fake fault that Dr Memory finds is in the kernel and thus ignored.
+  Delete globals created by <ReadIniFileGlb>.
+  Delete permanent vars created by <MakePermVars>.
+
+PARSELINE.C:
+  Ensure <lstSynObj> is initialized at the start of the 2by2 code as there's
+    a path through the code that references it before it's set.
+
+SESSMAN.C:
+  Omit unnecessary cleanup of Window properties.
+
+STATUSBAR.C:
+  When selecting an object into a DC, save the old value and restore it
+    before releasing the DC.
+  Initialize a var that's set by an EM_GETSEL message, but Dr Memory doesn't parse that.
+
+SYMTAB.C:
+  In <FreeHshSymTabs>, also free the global storage for the names of objects.
+
+SYSVARS.C:
+  Define function to delete global vars created by <MakePermVars>.
+
+
+Build #1259 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Loading A Workspace With a VFP Number Not At Default Precision
+
+Directory trunk:
+
+SC_LOAD.C:
+  In <LoadWorkspaceGlobal_EM>, initialize the VFP number after the default precision is set or it won't be effective.
+
+
+Build #1258 -- Version 0.4.9.xx
+-------------------------------
+
+* Use More Consistent Function Names
+
+Directory trunk:
+
+CUSTOMIZE.C:
+DISPDBG.C:
+DISPLAY.C:
+INIFILE.C:
+PF_DTACKJOT.C:
+QF_FMT.C:
+QF_TF.C:
+SC_SAVE.C:
+STARTADDR.H:
+  Use <FormatAplFlt> and <FormatAplInt> for <FormatFloat> and <FormatAplint>
+   as more consistent names with other such functions.
+
+
+Build #1257 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  In <plRedIO_SPA>, set the syntax object for the result.
+
+
+Build #1256 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Session Manager
+
+Directory trunk:
+
+SESSMAN.C:
+  In <SMWndProc>/MYWM_KEYDOWN/VK_RETURN, sometimes the CR is handled before the current line has been saved.
+
+
+Build #1255 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement 2by2 Syntax Analyzer
+
+Directory trunk:
+
+AFOFNS.C:
+ASSIGN.C:
+COMPRO.H:
+CONVERT.C:
+CS_PARSE.H:
+CS_PROC.C:
+DATATYPE.H:
+DEFINES.H:
+DISPDBG.C:
+EDITFCN.C:
+ENUMS.H:
+EXECDFN.C:
+EXECFNS.C:
+EXECMFN.C:
+EXTERNS.H:
+FH_PARSE.H:
+FH_PARSE.Y:
+FREE.C:
+GETFNS.C:
+GOTO.C:
+HEADERS.H:
+IMMEXEC.C:
+MACROS.H:
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+PARSELINE.C:
+PARSELINE.H:
+PERTAB.H:
+PF_INDEX.C:
+PF_UTACKJOT.C:
+PL_PARSE.H:
+PL_PARSE.Y:
+PL_PROC.C:
+PO_CMIDDOT.C:
+PO_DICIRCLE.C:
+PO_DIDTACK.C:
+PO_DIERESIS.C:
+PO_DIJOT.C:
+PO_DITILDE.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_JOTDOT.C:
+PO_MULTISET.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PO_VARIANT.C:
+PRIMFNS.C:
+REFCNT.C:
+SC_IN.C:
+SC_LOAD.C:
+SESSMAN.C:
+STARTADDR.H:
+STRAND.C:
+SYMTRANS.C:
+SYNOBJ.H:
+SYSCMDS.C:
+TOKENIZE.C:
+TOKENS.H:
+TOKENSO.H:
+TRANSLATE.C:
+UNICODE.H:
+YYFNS.C:
+  Implement 2by2 syntax analyzer
+
+
+Build #1254 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Build #1249
+
+Directory trunk:
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, handle the APA case when initializing GlbNum temps.
+
+
+Build #1253 -- Version 0.4.9.xx
+-------------------------------
+
+* Switch To Simpler Macro
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+CUSTOMIZE.C:
+DISPDBG.C:
+FREE.C:
+GETFNS.C:
+INIFILE.C:
+MACROS.H:
+PF_BAR.C:
+PF_CSLOPE.C:
+PF_DTACK.C:
+PF_EPSILON.C:
+PF_PLUS.C:
+PF_TIMES.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PO_DIJOT.C:
+PO_JOTDOT.C:
+PO_MULTISET.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+QF_AV.C:
+QF_DR.C:
+QF_EA.C:
+QF_EC.C:
+QF_ERROR.C:
+QF_EX.C:
+QF_FX.C:
+QF_LC.C:
+QF_NC.C:
+QF_SYSID.C:
+QF_SYSVER.C:
+QF_TC.C:
+QF_TS.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_SAVE.C:
+SC_WSID.C:
+SESSMAN.C:
+STRAND.C:
+TABCTRL.C:
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.
+
+
+Build #1252 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In []EC
+
+Directory trunk:
+
+QF_EC.C:
+  In <SysFnMonEC_EM_YY>, save the <resetFlag> over the call to <UnlocalizeSTEs>.
+
+QF_EX.C:
+  Improve comments.
+
+
+Build #1251 -- Version 0.4.9.xx
+-------------------------------
+
+* Enable Debugging Of Semaphores
+
+Directory trunk:
+
+RESDEBUG.C:
+RESDEBUG.H:
+  Display a debugging message when creating, closing, or releasing a semaphore.
+
+
+Build #1250 -- Version 0.4.9.xx
+-------------------------------
+
+* Use A More Consistent Coding Style
+
+Directory trunk:
+
+AXISFNS.C
+CUSTOMIZE.C
+DICTIONARY.C
+DISPDBG.C
+EDITFCN.C
+ERRMSG.C
+EXCEPT.C
+EXECDFN.C
+EXECFNS.C
+EXECMFN.C
+FMTSPEC.C
+GETFNS.C
+IDENTFNS.C
+IMMEXEC.C
+INIFILE.C
+INIPARSER.C
+MAIN.C
+PF_COMMA.C
+PF_CSLOPE.C
+PF_CSTILE.C
+PF_DARROW.C
+PF_DELTASTILE.C
+PF_DOMINO.C
+PF_DOTDOT.C
+PF_DSHOE.C
+PF_DTACK.C
+PF_DTACKJOT.C
+PF_EPSILON.C
+PF_EPSUND.C
+PF_IOTA.C
+PF_IOTAUND.C
+PF_LSHOE.C
+PF_PI.C
+PF_QUERY.C
+PF_RHO.C
+PF_SLASH.C
+PF_SLOPE.C
+PF_UARROW.C
+PF_UTACK.C
+PF_UTACKJOT.C
+PN_PARSE.Y
+PN_PROC.C
+PO_CMIDDOT.C
+PO_DICIRCLE.C
+PO_DIERESIS.C
+PO_DITILDE.C
+PO_DOT.C
+PO_JOT.C
+PO_JOTDOT.C
+PO_MULTISET.C
+PO_SLASH.C
+PO_SLOPE.C
+PO_VARIANT.C
+PRIMSPEC.C
+PROGBAR.C
+QF_AT.C
+QF_AV.C
+QF_DR.C
+QF_EC.C
+QF_ET.C
+QF_EX.C
+QF_FMT.C
+QF_FX.C
+QF_LC.C
+QF_MF.C
+QF_NC.C
+QF_NFNS.C
+QF_NL.C
+QF_SYSID.C
+QF_SYSVER.C
+QF_TC.C
+QF_TF.C
+QF_TS.C
+QF_UCS.C
+RESDEBUG.C
+SAVEFCN.C
+SC_COMMON.C
+SC_COPY.C
+SC_IN.C
+SC_LOAD.C
+SC_WSID.C
+SESSMAN.C
+SYMTAB.C
+SYSVARS.C
+TABCTRL.C
+TOKENIZE.C
+TYPEMOTE.C
+UPDATES.C
+YYFNS.C
+  Use a more consistent coding style.
+
+DATATYPE.H
+  Omit PTR_REUSED and use PTR_SUCCESS in instances that previously overlapped.
+
+FREE.C
+  Omit PTR_REUSED and use PTR_SUCCESS in instances that previously overlapped.
+  Use a more consistent coding style.
+
+MACROS.H
+  Rename <NullPtrXXX> to <IsNullPtrXXX> to be more consistent.
+  Omit PTR_REUSED and use PTR_SUCCESS in instances that previously overlapped.
+
+PF_INDEX.C
+  Use a more consistent coding style.
+  Omit PTR_REUSED and use PTR_SUCCESS in instances that previously overlapped.
+
+PF_RSHOE.C
+PF_SQUAD.C
+PRIMFNS.C
+QF_CR.C
+SC_SAVE.C
+STRAND.C
+  Use a more consistent coding style.
+  Omit PTR_REUSED and use PTR_SUCCESS in instances that previously overlapped.
+
+
+Build #1249 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs When Type Promoting Reduce And Scan Operator Results
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplRatFC> and <FormatAplVfpFC> assert that the incoming value is valid.
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, also initialize GlbNum temp if right arg and result are different types.
+  Remove PTR_REUSED code as that's handled by <FreeResultGlobalIncompleteVar>.
+
+PO_SLOPE.C:
+  In <PrimOpMonSlopeCommon_EM_YY>, release unused values after type promotion.
+
+PRIMSPEC.C:
+  In <PrimFnDydSiScSiScSub_EM>, return newly allocated global memory handle if requested.
+  In <PrimFnDydSiScSiScSub_EM>, release unused values after type promotion.
+
+
+Build #1248 -- Version 0.4.9.xx
+-------------------------------
+
+* More DEBUG Support
+
+Directory trunk:
+
+CUSTOMIZE.C:
+DEBUG.C:
+EDITFCN.C:
+ENUMS.H:
+EXECDFN.C:
+EXECMFN.C:
+IMMEXEC.C:
+INIFILE.C:
+MACROS.H:
+MAIN.C:
+PF_DOMINO.C:
+PF_DTACKJOT.C:
+PF_EPSILON.C:
+PF_EPSUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_LSHOE.C:
+PF_PI.C:
+PF_UTACKJOT.C:
+PN_PROC.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PRIMSPEC.C:
+QF_AV.C:
+QF_NFNS.C:
+RESDEBUG.C:
+SAVEFCN.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_SAVE.C:
+SESSMAN.C:
+STARTADDR.H:
+SYMTAB.C:
+SYSVARS.C:
+TABCTRL.C:
+TOKENIZE.C:
+UPDATES.C:
+  Use DEBUG versions of <MyGlobalXXX> functions.
+
+EXCEPT.C:
+  Omit <EXCEPT_NAMES> in favor of <MyGetExceptionStr>.
+  Pass argument to <MyGetExceptionStr>.
+  Fill in more codes in <MyGetExceptionStr>.
+
+HEADERS.H:
+  Update copyright year.
+  Include header missing from Build #1247.
+
+MAKEFILE.INC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include new library for string safe functions.
+
+TYPEMOTE.C:
+  Use DEBUG versions of <MyGlobalXXX> functions.
+  Fix bug in <Assert> stmt.
+
+
+Build #1247 -- Version 0.4.9.xx
+-------------------------------
+
+* String Safe Support #1
+
+Directory trunk:
+
+CS_PARSE.Y:
+DEBUG.C:
+FH_PARSE.Y:
+PN_PARSE.Y:
+  Use string safe functions instead of the unsafe ones.
+
+
+Build #1246 -- Version 0.4.9.xx
+-------------------------------
+
+* Miscellaneous Fixes Omitted From Last Build
+
+Directory trunk:
+
+CUSTOMIZE.C
+  Update copyright year.
+  Update comment for "{div} 0"
+
+EXTERNS.H:
+  Update comment for "{div} 0"
+
+VER.RC:
+  Increment version # to 0.4.9.xx.

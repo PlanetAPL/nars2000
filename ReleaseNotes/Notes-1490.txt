@@ -1,0 +1,17 @@
+Build #1490 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bugs Handling -0
+
+Directory trunk:
+
+MPIFNS.C:
+  In <mpiq_div>, test for -0 and handle specially.
+  Define <mpifr_set> so as to avoid spurious increment/decrement from macro.
+
+MPIFNS.H:
+  Define <mpifr_set> so as to avoid spurious increment/decrement from macro.
+
+PF_STILE.C:
+  In <PrimFnDydStileIisIvI>, test for -0 allowed.
+  In <PrimFnDydStileVisVvV>, fix bug in test for -0 allowed.

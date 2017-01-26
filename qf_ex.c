@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -86,29 +86,29 @@ LPPL_YYSTYPE SysFnMonEX_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE     aplTypeRht;        // Right arg storage type
-    APLNELM      aplNELMRht,        // Right arg NELM
-                 aplNELMRes,        // Result NELM
-                 aplNELMCol;        // Result column NELM
-    APLRANK      aplRankRht;        // Right arg Rank
-    APLLONGEST   aplLongestRht;     // Right arg longest if immediate
-    HGLOBAL      hGlbRht = NULL,    // Right arg global memory handle
-                 hGlbRes = NULL;    // Result    ...
-    LPVOID       lpMemRht = NULL,   // Ptr to right arg global memory
-                 lpMemRes = NULL;   // Ptr to result    ...
-    LPAPLCHAR    lpMemDataRht,      // Ptr to right arg char data
-                 lpMemDataStart;    // Ptr to start of identifier
-    LPAPLBOOL    lpMemDataRes;      // Ptr to result Boolean data
-    APLUINT      uRht,              // Loop counter
-                 uCol,              // ...
-                 ByteRes;           // # bytes in the result
-    LPSYMENTRY   lpSymEntry;        // Ptr to SYMENTRY
-    STFLAGS      stFlags;           // STE flags
-    LPPL_YYSTYPE lpYYRes = NULL;    // Ptr to the result
-    UBOOL        bRet = TRUE,       // TRUE iff result is valid
-                 bAFO;              // TRUE iff we're parsing an AFO
-    UINT         uBitIndex;         // Bit index for looping through Boolean result
-    APLU3264     uLen;              // Name length
+    APLSTYPE          aplTypeRht;           // Right arg storage type
+    APLNELM           aplNELMRht,           // Right arg NELM
+                      aplNELMRes,           // Result NELM
+                      aplNELMCol;           // Result column NELM
+    APLRANK           aplRankRht;           // Right arg Rank
+    APLLONGEST        aplLongestRht;        // Right arg longest if immediate
+    HGLOBAL           hGlbRht = NULL,       // Right arg global memory handle
+                      hGlbRes = NULL;       // Result    ...
+    LPVARARRAY_HEADER lpMemHdrRht = NULL,   // Ptr to right arg header
+                      lpMemHdrRes = NULL;   // ...    result    ...
+    LPAPLCHAR         lpMemDataRht,         // Ptr to right arg char data
+                      lpMemDataStart;       // Ptr to start of identifier
+    LPAPLBOOL         lpMemDataRes;         // Ptr to result Boolean data
+    APLUINT           uRht,                 // Loop counter
+                      uCol,                 // ...
+                      ByteRes;              // # bytes in the result
+    LPSYMENTRY        lpSymEntry;           // Ptr to SYMENTRY
+    STFLAGS           stFlags;              // STE flags
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+    UBOOL             bRet = TRUE,          // TRUE iff result is valid
+                      bAFO;                 // TRUE iff we're parsing an AFO
+    UINT              uBitIndex;            // Bit index for looping through Boolean result
+    APLU3264          uLen;                 // Name length
 
     // Determine if we're parsing an AFO
     bAFO = (SISAfo (GetMemPTD ()) NE NULL);
@@ -127,13 +127,11 @@ LPPL_YYSTYPE SysFnMonEX_EM_YY
         goto RANK_EXIT;
 
     // Check for DOMAIN ERROR
-    if (!IsSimple (aplTypeRht)
-     || (!IsSimpleChar (aplTypeRht)
-      && !IsEmpty (aplNELMRht)))
+    if (!IsCharOrEmpty (aplTypeRht, aplNELMRht))
         goto DOMAIN_EXIT;
 
     // Get right arg's global ptrs
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // Calculate the # identifiers in the argument
     //   allowing for vector and matrix with multiple names
@@ -142,7 +140,7 @@ LPPL_YYSTYPE SysFnMonEX_EM_YY
                   aplRankRht,       // Right arg rank
                   aplLongestRht,    // Right arg longest
                   TRUE,             // TRUE iff we allow multiple names in a vector
-                  lpMemRht,         // Ptr to right arg global memory
+                  lpMemHdrRht,      // Ptr to right arg global memory header
                  &aplNELMRes,       // Ptr to # right arg IDs
                  &aplNELMCol);      // Ptr to # right arg cols (matrix only)
     // Note that if bRet EQ FALSE, aplNELMRes EQ 1
@@ -156,13 +154,13 @@ LPPL_YYSTYPE SysFnMonEX_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = ARRAY_BOOL;
@@ -174,10 +172,10 @@ LPPL_YYSTYPE SysFnMonEX_EM_YY
 #undef  lpHeader
 
     // Fill in the dimension
-    *VarArrayBaseToDim (lpMemRes) = aplNELMRes;
+    *VarArrayBaseToDim (lpMemHdrRes) = aplNELMRes;
 
     // Skip over the header and dimensions to the data
-    lpMemDataRes = VarArrayBaseToData (lpMemRes, 1);
+    lpMemDataRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // If we failed in CalcNumIDs, quit now
     if (!bRet)
@@ -217,7 +215,7 @@ LPPL_YYSTYPE SysFnMonEX_EM_YY
 
         case 1:
             // Skip over the header and dimensions to the data
-            lpMemDataRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+            lpMemDataRht = VarArrayDataFmBase (lpMemHdrRht);
 
             // Loop through the right arg looking for identifiers
             uRht = 0;
@@ -272,7 +270,7 @@ LPPL_YYSTYPE SysFnMonEX_EM_YY
 
         case 2:
             // Skip over the header and dimensions to the data
-            lpMemDataRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+            lpMemDataRht = VarArrayDataFmBase (lpMemHdrRht);
 
             for (uRht = 0; uRht < aplNELMRes; uRht++)
             {
@@ -322,7 +320,7 @@ LPPL_YYSTYPE SysFnMonEX_EM_YY
     } // End SWITCH
 YYALLOC_EXIT:
     // We no longer need this ptr
-    MyGlobalUnlock (hGlbRes); lpMemRes = lpMemDataRes = NULL;
+    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
     // Allocate a new YYRes
     lpYYRes = YYAlloc ();
@@ -330,7 +328,7 @@ YYALLOC_EXIT:
     // Fill in the result token
     lpYYRes->tkToken.tkFlags.TknType   = TKT_VARARRAY;
 ////lpYYRes->tkToken.tkFlags.ImmType   = IMMTYPE_ERROR; // Already zero from YYAlloc
-////lpYYRes->tkToken.tkFlags.NoDisplay = FALSE;         // Already zero from YYAlloc
+    lpYYRes->tkToken.tkFlags.NoDisplay = TRUE;
     lpYYRes->tkToken.tkData.tkGlbData  = MakePtrTypeGlb (hGlbRes);
     lpYYRes->tkToken.tkCharIndex       = lptkFunc->tkCharIndex;
 
@@ -352,28 +350,28 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
     // We no longer need this ptr
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
     return lpYYRes;
@@ -385,7 +383,7 @@ NORMAL_EXIT:
 //  $ExpungeName
 //
 //  Expunge a given name and
-//    return a one iff successful
+//    return TRUE iff successful
 //***************************************************************************
 
 APLBOOL ExpungeName
@@ -431,8 +429,17 @@ APLBOOL ExpungeName
         // If the STE is not immediate and has a value, ...
         if (!lpSymEntry->stFlags.Imm
          && lpSymEntry->stFlags.Value)
+        {
+            // If the name is that of a UDFO/AFO, ...
+            if (lpSymEntry->stFlags.UsrDfn)
+            {
+                // Enumerate all Function Editor windows
+                 EnumChildWindows (hWndMF, &EnumCallbackExpPrevGlb, (LPARAM) (lpSymEntry->stData.stGlbData));
+            } // End IF
+
             // Free the global memory handle
             FreeResultGlobalDFLV (lpSymEntry->stData.stGlbData);
+        } // End IF
 
         // Erase the Symbol Table Entry
         //   unless it's a []var
@@ -441,6 +448,45 @@ APLBOOL ExpungeName
 
     return TRUE;
 } // End ExpungeName
+
+
+//***************************************************************************
+//  $EnumCallbackExpPrevGlb
+//
+//  EnumChildWindows callback to expunge a matching previous FE window
+//   global memory handle
+//***************************************************************************
+
+UBOOL CALLBACK EnumCallbackExpPrevGlb
+    (HWND   hWnd,           // Handle to child window
+     LPARAM lParam)         // Application-defined value
+
+{
+    // When an MDI child window is minimized, Windows creates two windows: an
+    // icon and the icon title.  The parent of the icon title window is set to
+    // the MDI client window, which confines the icon title to the MDI client
+    // area.  The owner of the icon title is set to the MDI child window.
+    if (GetWindow (hWnd, GW_OWNER))     // If it's an icon title window, ...
+        return TRUE;                    // skip it, and continue enumerating
+
+    // If it's a Function Editor window, ...
+    if (IzitFE (hWnd))
+    {
+        HGLOBAL hGlbDfnHdr;             // User-defined function/operator header global memory handle
+
+        // Get the previous function global memory handle (if any)
+        hGlbDfnHdr = (HGLOBAL) GetWindowLongPtrW (hWnd, GWLSF_HGLBDFNHDR);
+
+        Assert (GetPtrTypeDir (MakeGlbFromVal (lParam)) EQ PTRTYPE_HGLOBAL);
+
+        // If they match, ...
+        if (ClrPtrTypeDir (hGlbDfnHdr) EQ ClrPtrTypeDir (MakeGlbFromVal (lParam)))
+            // Zap the previous global memory handle
+            SetWindowLongPtrW (hWnd, GWLSF_HGLBDFNHDR, (HANDLE_PTR) NULL);
+    } // End IF
+
+    return TRUE;        // Keep on truckin'
+} // End EnumCallbackExpPrevGlb
 
 
 //***************************************************************************
@@ -475,12 +521,12 @@ void EraseSTE
 //***************************************************************************
 //  $EraseableName
 //
-//  Return a one iff the name is erasable
+//  Return TRUE iff the name is erasable
 //***************************************************************************
 
 APLBOOL EraseableName
     (LPSYMENTRY lpSymEntry,     // Ptr to SYMENTRY of name
-     LPUBOOL    lpbQuadDM,      // Ptr to return flag of TRUE iff the name if []DM
+     LPUBOOL    lpbQuadDM,      // Ptr to return flag of TRUE iff the name is []DM
      LPUBOOL    lpbQuadEM)      // ...                                        []EM
 
 {
@@ -488,8 +534,9 @@ APLBOOL EraseableName
     LPAPLCHAR lpMemName;        // Ptr to name global memory
     APLBOOL   bRet;             // TRUE iff eraseable name
 
-    // Initialize the return value for []DM
-    *lpbQuadDM = FALSE;
+    // Initialize the return value for []DM & []EM
+    *lpbQuadDM =
+    *lpbQuadEM = FALSE;
 
     // Split cases based upon the Name Type
     switch (lpSymEntry->stFlags.stNameType)
@@ -503,13 +550,13 @@ APLBOOL EraseableName
         case NAMETYPE_TRN:
             // If the name is suspended or pendent, it's not eraseable
             if (IzitSusPendent (lpSymEntry))
-                return 0;
+                return FALSE;
 
             // Get the name global memory handle
             htGlbName = lpSymEntry->stHshEntry->htGlbName;
 
             // Lock the memory to get a ptr to it
-            lpMemName = MyGlobalLock (htGlbName);
+            lpMemName = MyGlobalLockWsz (htGlbName);
 
             // Izit a valid name?
             bRet = IsValidName (lpMemName, lstrlenW (lpMemName));
@@ -517,16 +564,22 @@ APLBOOL EraseableName
             // If it's a valid name, ...
             if (bRet)
             {
+                UBOOL bQuadZ;
+
                 // Save flag of whether or not the name is []DM
                 *lpbQuadDM = lstrcmpiW (lpMemName, $QUAD_DM) EQ 0;
 
                 // Save flag of whether or not the name is []EM
                 *lpbQuadEM = lstrcmpiW (lpMemName, $QUAD_EM) EQ 0;
 
+                // Save flag of whether or not the name is []Z
+                   bQuadZ  = lstrcmpiW (lpMemName, $AFORESULT) EQ 0;
+
                 // Not if it's a system name
-                //   but []DM and []EM are ok
+                //   but []DM, []EM, and []Z are ok
                 bRet = (*lpbQuadDM
                      || *lpbQuadEM
+                     ||    bQuadZ
                      || !IsSysName (lpMemName));
             } // End IF
 
@@ -537,7 +590,7 @@ APLBOOL EraseableName
 
 ////////case NAMETYPE_LST:
         defstop
-            return 0;
+            return FALSE;
     } // End SWITCH
 } // End EraseableName
 
@@ -570,7 +623,7 @@ APLBOOL IzitSusPendent
     htGlbName = lpSymEntry->stHshEntry->htGlbName;
 
     // Lock the memory to get a ptr to it
-    lpMemName = MyGlobalLock (htGlbName);
+    lpMemName = MyGlobalLockWsz (htGlbName);
 
     while (lpSISCur && !bRet)
     {
@@ -580,13 +633,14 @@ APLBOOL IzitSusPendent
             case DFNTYPE_IMM:
             case DFNTYPE_EXEC:
             case DFNTYPE_QUAD:
+            case DFNTYPE_ERRCTRL:
                 break;
 
             case DFNTYPE_OP1:
             case DFNTYPE_OP2:
             case DFNTYPE_FCN:
                 // Lock the memory to get a ptr to it
-                lpFcnName = MyGlobalLock (lpSISCur->hGlbFcnName);
+                lpFcnName = MyGlobalLockWsz (lpSISCur->hGlbFcnName);
 
                 // Compare the names
                 bRet = (lstrcmpW (lpMemName, lpFcnName) EQ 0);
@@ -596,6 +650,7 @@ APLBOOL IzitSusPendent
 
                 break;
 
+            case DFNTYPE_QQUAD:
             case DFNTYPE_UNK:
             defstop
                 break;

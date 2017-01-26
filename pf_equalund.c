@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -239,7 +239,7 @@ APLINT PrimFnMonEqualUnderBarGlb_PTB
             Assert (IsGlbTypeVarDir_PTB (hGlbRht));
 
             // Lock the memory to get a ptr to it
-            lpMemRht = MyGlobalLock (hGlbRht);
+            lpMemRht = MyGlobalLockVar (hGlbRht);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRht)
             // Get the Array Type, NELM, and Rank
@@ -789,7 +789,11 @@ UBOOL PrimFnDydEqualUnderbarSimpleOrd
                         mpq_set_sx (&aplRatLft,
                                      (uBitMask & *((LPAPLBOOL) lpMemLft)) ? TRUE : FALSE,
                                      1);
-                        if (mpq_cmp (&aplRatLft, ((LPAPLRAT) lpMemRht)++) NE 0)
+#ifdef RAT_EXACT
+                        if (mpq_cmp    (&aplRatLft,  ((LPAPLRAT) lpMemRht)++         ) NE 0)
+#else
+                        if (mpq_cmp_ct ( aplRatLft, *((LPAPLRAT) lpMemRht)++, fQuadCT) NE 0)
+#endif
                             bRet = FALSE;
 
                         // Shift over the bit mask
@@ -927,7 +931,11 @@ UBOOL PrimFnDydEqualUnderbarSimpleOrd
                         // Convert the INT to a RAT
                         mpq_set_sx (&aplRatLft, *((LPAPLINT) lpMemLft)++, 1);
 
-                        if (mpq_cmp (&aplRatLft, ((LPAPLRAT) lpMemRht)++) NE 0)
+#ifdef RAT_EXACT
+                        if (mpq_cmp    (&aplRatLft,  ((LPAPLRAT) lpMemRht)++         ) NE 0)
+#else
+                        if (mpq_cmp_ct ( aplRatLft, *((LPAPLRAT) lpMemRht)++, fQuadCT) NE 0)
+#endif
                             bRet = FALSE;
                     } // End FOR
 
@@ -1125,7 +1133,11 @@ UBOOL PrimFnDydEqualUnderbarSimpleOrd
                         // Convert the INT to a RAT
                         mpq_set_sx (&aplRatLft, apaOff + apaMul * uDim, 1);
 
-                        if (mpq_cmp (&aplRatLft, ((LPAPLRAT) lpMemRht)++) NE 0)
+#ifdef RAT_EXACT
+                        if (mpq_cmp    (&aplRatLft,  ((LPAPLRAT) lpMemRht)++         ) NE 0)
+#else
+                        if (mpq_cmp_ct ( aplRatLft, *((LPAPLRAT) lpMemRht)++, fQuadCT) NE 0)
+#endif
                             bRet = FALSE;
                     } // End FOR
 
@@ -1260,7 +1272,11 @@ UBOOL PrimFnDydEqualUnderbarSimpleOrd
                                     case ARRAY_RAT:     // Lft = HETERO:BOOL,  Rht = HETERO:RAT
                                         mpq_set_sx (&aplRatLft, aplIntegerLft, 1);
 
-                                        if (mpq_cmp (&aplRatLft, (LPAPLRAT) lpSymGlbRht) NE 0)
+#ifdef RAT_EXACT
+                                        if (mpq_cmp    (&aplRatLft,  (LPAPLRAT) lpSymGlbRht         ) NE 0)
+#else
+                                        if (mpq_cmp_ct ( aplRatLft, *(LPAPLRAT) lpSymGlbRht, fQuadCT) NE 0)
+#endif
                                             bRet = FALSE;
                                         break;
 
@@ -1350,7 +1366,11 @@ UBOOL PrimFnDydEqualUnderbarSimpleOrd
                                     case ARRAY_INT:     // Lft = HETERO:RAT,  Rht = HETERO:INT
                                         mpq_set_sx (&aplRatRht, aplIntegerRht, 1);
 
-                                        if (mpq_cmp ((LPAPLRAT) lpSymGlbLft, &aplRatRht) NE 0)
+#ifdef RAT_EXACT
+                                        if (mpq_cmp    ( (LPAPLRAT) lpSymGlbLft, &aplRatRht         ) NE 0)
+#else
+                                        if (mpq_cmp_ct (*(LPAPLRAT) lpSymGlbLft,  aplRatRht, fQuadCT) NE 0)
+#endif
                                             bRet = FALSE;
                                         break;
 
@@ -1368,7 +1388,11 @@ UBOOL PrimFnDydEqualUnderbarSimpleOrd
                                         break;
 
                                     case ARRAY_RAT:     // Lft = HETERO:RAT,  Rht = HETERO:RAT
-                                        if (mpq_cmp ((LPAPLRAT) lpSymGlbLft, (LPAPLRAT) lpSymGlbRht) NE 0)
+#ifdef RAT_EXACT
+                                        if (mpq_cmp    ( (LPAPLRAT) lpSymGlbLft,  (LPAPLRAT) lpSymGlbRht         ) NE 0)
+#else
+                                        if (mpq_cmp_ct (*(LPAPLRAT) lpSymGlbLft, *(LPAPLRAT) lpSymGlbRht, fQuadCT) NE 0)
+#endif
                                             bRet = FALSE;
                                         break;
 
@@ -1474,7 +1498,11 @@ UBOOL PrimFnDydEqualUnderbarSimpleOrd
                         if (CheckCtrlBreak (*lpbCtrlBreak))
                             goto ERROR_EXIT;
 
-                        if (mpq_cmp (((LPAPLRAT) lpMemLft)++, ((LPAPLRAT) lpMemRht)++) NE 0)
+#ifdef RAT_EXACT
+                        if (mpq_cmp    ( ((LPAPLRAT) lpMemLft)++,  ((LPAPLRAT) lpMemRht)++         ) NE 0)
+#else
+                        if (mpq_cmp_ct (*((LPAPLRAT) lpMemLft)++, *((LPAPLRAT) lpMemRht)++, fQuadCT) NE 0)
+#endif
                             bRet = FALSE;
                     } // End FOR
 
@@ -1699,7 +1727,7 @@ UBOOL PrimFnDydEqualUnderbarNested
                 hGlbSub = *(LPAPLNESTED) lpMemLft;
 
                 // Lock the memory to get a ptr to it
-                lpMemLft = MyGlobalLock (hGlbSub);
+                lpMemLft = MyGlobalLockVar (hGlbSub);
 
                 // Skip over the header and dimensions to the data
                 lpMemLft = VarArrayDataFmBase (lpMemLft);
@@ -1725,7 +1753,7 @@ UBOOL PrimFnDydEqualUnderbarNested
                 hGlbSub = *(LPAPLNESTED) lpMemRht;
 
                 // Lock the memory to get a ptr to it
-                lpMemRht = MyGlobalLock (hGlbSub);
+                lpMemRht = MyGlobalLockVar (hGlbSub);
 
                 // Skip over the header and dimensions to the data
                 lpMemRht = VarArrayDataFmBase (lpMemRht);
@@ -1797,8 +1825,8 @@ UBOOL PrimFnDydEqualUnderbarNested
                     return FALSE;
 
                 // Lock the memory to get a ptr to it
-                lpMemLft2 = MyGlobalLock (ClrPtrTypeInd (lpMemLft));
-                lpMemRht2 = MyGlobalLock (ClrPtrTypeInd (lpMemRht));
+                lpMemLft2 = MyGlobalLockVar (ClrPtrTypeInd (lpMemLft));
+                lpMemRht2 = MyGlobalLockVar (ClrPtrTypeInd (lpMemRht));
 
                 // Split based upon Simple vs. Hetero vs. Nested
                 switch (2 * IsNested (aplTypeLft)

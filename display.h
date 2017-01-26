@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -119,8 +119,7 @@ typedef struct tagFMTROWSTR
                *lpFmtRowNxt;            // 14:  Ptr to next sibling FMTROWSTR
     LPAPLCHAR   lpNxtChar,              // 18:  Ptr to next entry for raw output
                 lpEndChar;              // 1C:  ...    byte after last entry ...
-    APLSTYPE    aplType;                // 20:  Type of following array (if not nested)
-                                        // 24:  Length
+                                        // 20:  Length
 #ifdef DEBUG
       FMTCOLSTR *lpFmtColUp;            // 24:  Ptr to parent FMTCOLSTR
   #define FMTROWSTR_SIGNATURE 'RRRR'    // 52525252

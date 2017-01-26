@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ void PerfMonAccum
 {
     // Ensure no overflow
     if (uPerfMonData EQ countof (PerfMonData))
-        DbgBrk ();
+        DbgBrk ();          // #ifdef PERFMONON
 
     // Save the performance data
     PerfMonData[uPerfMonData].lpFileName = lpFileName;
@@ -104,8 +104,7 @@ void PerfMonShow
     HWND          hWndLB;           // ListBox window handle
     UINT          uCnt;             // Loop counter
     LARGE_INTEGER liLast = {0},     // Last value
-                  liCurrent,        // Current # ticks
-                  liTicksPerSec;    // Frequency (ticks per second)
+                  liCurrent;        // Current # ticks
     LPWCHAR       lpwszMicro = L"\x03BC" L"s";
 
     // If the Perfmonance Monitoring window is not created, do so now
@@ -118,9 +117,6 @@ void PerfMonShow
     // Clear the ListBox
     SendMessageW (hWndLB, LB_RESETCONTENT, 0, 0);
 
-    // Get # ticks per second
-    QueryPerformanceFrequency (&liTicksPerSec);
-
     // Insert the PM lines into the ListBox
     for (uCnt = 0; uCnt < uPerfMonData; uCnt++)
     {
@@ -128,13 +124,13 @@ void PerfMonShow
         liCurrent.QuadPart = PerfMonData[uCnt].liPerf.QuadPart - liLast.QuadPart;
 
         // Format the string
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"%-13S[%5d]: %s %s",
-                   PerfMonData[uCnt].lpFileName,
-                   PerfMonData[uCnt].uLine,
-                   FormatWithSep ((1000000 * liCurrent.QuadPart) / liTicksPerSec.QuadPart, 13),
-                   lpwszMicro);
-
+                    PerfMonData[uCnt].lpFileName,
+                    PerfMonData[uCnt].uLine,
+                    FormatWithSep ((1000000 * liCurrent.QuadPart) / liTicksPerSec.QuadPart, 13),
+                    lpwszMicro);
         // Zap for the next time
         lpwszMicro = L"";
 
@@ -148,12 +144,13 @@ void PerfMonShow
     liCurrent.QuadPart = PerfMonData[uPerfMonData - 1].liPerf.QuadPart;
 
     // Format the string
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%-13S %5s   %s %s",
                L"",
                L"",
-               FormatWithSep ((1000000 * liCurrent.QuadPart) / liTicksPerSec.QuadPart, 13),
-               lpwszMicro);
+                FormatWithSep ((1000000 * liCurrent.QuadPart) / liTicksPerSec.QuadPart, 13),
+                lpwszMicro);
     // Append the string
     SendMessageW (hWndLB, LB_ADDSTRING, 0, (LPARAM) wszTemp);
 } // End PerfMonShow

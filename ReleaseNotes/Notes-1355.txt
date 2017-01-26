@@ -1,0 +1,12 @@
+Build #1355 -- Version 0.4.9.xx
+-------------------------------
+
+* Reorder Placement Of Toolbar Windows
+
+Directory trunk:
+
+EXTERNS.H:
+MAIN.RC:
+REBAR.C:
+RESOURCE.H:
+  Re-order the Toolbar Windows to push the Object Window to the right of the Font Window.

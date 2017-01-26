@@ -1,0 +1,13 @@
+Build #1491 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bugs Handling Infinities In RAT Strands
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Set <uNumStart> when calling <PN_SetInfinity>.
+
+PN_PROC.C:
+  In <PN_VectorRes>, fix bug handling ininfities in RAT strands.
+  Set <uNumStart> when calling <PN_SetInfinity>.

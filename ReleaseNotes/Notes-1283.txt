@@ -1,0 +1,19 @@
+Build #1283 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs When Indexing Scalars
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRefNamImmed_EM_YY>, handle a vector list of vectors of zildes.
+  In the call to <ArrayIndexValidZilde_EM>, change the # items to check to the index of the single item to check.
+  In <ArrayIndexValidZilde_EM>, check a single list item for all zildes.
+  In <ArrayIndexSet_EM>, handle all scalars (not just immediates) when calling <ArrayIndexSetNamImmed_EM>.
+  Use a more consistent coding style.
+
+PF_RSHOE.C:
+  In <PrimFnDydRightShoeImm_EM_YY>, allow the left arg to be a scalar or vector, not just a vector.
+
+PF_SQUAD.C:
+  In the call to <ArrayIndexValidZilde_EM>, change the # items to check to the index of the single item to check.

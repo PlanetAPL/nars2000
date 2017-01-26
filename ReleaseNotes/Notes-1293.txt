@@ -1,0 +1,20 @@
+Build #1293 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Debugging Aid To Catch Unset Syntax Objects
+
+Directory trunk:
+
+PARSELINE.C:
+  Delete unused and commented out var.
+  If the return current object is a function, set the ExitType to NOVALUE.
+  At the end of <pl_yylexCOM>, check for valid Syntax Object.
+
+PRIMFNS.C:
+  In <MakeNoValue>, initialize the Syntax Object to a known value.
+
+SYNOBJ.H:
+  Define a new Syntax Object for use with NoValue.
+
+YYFNS.C:
+  In <YYAlloc>, initialize the Syntax Object to a known value.

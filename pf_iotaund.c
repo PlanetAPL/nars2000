@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -250,7 +250,7 @@ LPPL_YYSTYPE PrimFnMonIotaUnderbar_EM_YY
             case ARRAY_RAT:
             case ARRAY_VFP:
                 // Calculate space needed for the normalized right arg
-                ByteRes = _imul64 (aplNELMRht , sizeof (APLINT), &bRet);
+                ByteRes = imul64 (aplNELMRht , sizeof (APLINT), &bRet);
 
                 // Check for overflow
                 if (!bRet || ByteRes NE (APLU3264) ByteRes)
@@ -258,11 +258,11 @@ LPPL_YYSTYPE PrimFnMonIotaUnderbar_EM_YY
 
                 // Allocate temp storage for the normalized right arg
                 hGlbRep = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-                if (!hGlbRep)
+                if (hGlbRep EQ NULL)
                     goto WSFULL_EXIT;
 
                 // Lock the memory to get a ptr to it
-                lpMemRep = MyGlobalLock (hGlbRep);
+                lpMemRep = MyGlobalLock000 (hGlbRep);
 
                 break;
 
@@ -346,13 +346,13 @@ LPPL_YYSTYPE PrimFnMonIotaUnderbar_EM_YY
                     // Check the first and last values to validate the entire APA
                     if ((apaOff < 0)
 /////////////////////|| (apaOff + apaMul * ((APLINT) aplNELMRht - 1)) < 0)
-                     || iadd64 (apaOff, imul64 (apaMul, isub64 (aplNELMRht, 1))) < 0)
+                     || iadd64_RE (apaOff, imul64_RE (apaMul, isub64_RE (aplNELMRht, 1))) < 0)
                         goto DOMAIN_EXIT;
 
                     // Calculate the sum of the APA as
                     //  (apaOff * aplNELMRht) + (apaMul * aplNELMRht * (aplNELMRht - 1)) / 2
-                    aplNELMRes = imul64 (apaOff,         aplNELMRht)
-                               + imul64 (apaMul, imul64 (aplNELMRht,  aplNELMRht - 1) / 2);
+                    aplNELMRes = imul64_RE (apaOff,            aplNELMRht)
+                               + imul64_RE (apaMul, imul64_RE (aplNELMRht,  aplNELMRht - 1) / 2);
                 } __except (CheckException (GetExceptionInformation (), L"PrimFnMonIotaUnderbar_EM_YY"))
                 {
                     dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
@@ -447,11 +447,11 @@ LPPL_YYSTYPE PrimFnMonIotaUnderbar_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header values
@@ -486,11 +486,11 @@ LPPL_YYSTYPE PrimFnMonIotaUnderbar_EM_YY
         //   dimension in the right arg.
         //***************************************************************
         hGlbOdoRht = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbOdoRht)
+        if (hGlbOdoRht EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemOdoRht = MyGlobalLock (hGlbOdoRht);
+        lpMemOdoRht = MyGlobalLock000 (hGlbOdoRht);
 
         // If the result is empty, ...
         if (IsEmpty (aplNELMRes))
@@ -657,29 +657,11 @@ ERROR_EXIT:
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbOdoRht)
-    {
-        if (lpMemOdoRht)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbOdoRht); lpMemOdoRht = NULL;
-        } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdoRht, lpMemOdoRht);
 
-        // We no longer need this resource
-        MyGlobalFree (hGlbOdoRht); hGlbOdoRht = NULL;
-    } // End IF
-
-    if (hGlbRep)
-    {
-        if (lpMemRep)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbRep); lpMemRep = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbRep); hGlbRep = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbRep, lpMemRep);
 
     if (hGlbRht && lpMemRht)
     {
@@ -738,11 +720,11 @@ UBOOL PrimFnMonIotaUnderbarNest_EM
     // Allocate space for the next nested vector from the odometer
     //***************************************************************
     hGlbTmp = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbTmp)
+    if (hGlbTmp EQ NULL)
         return FALSE;
 
     // Lock the memory to get a ptr to it
-    lpMemTmp = MyGlobalLock (hGlbTmp);
+    lpMemTmp = MyGlobalLock000 (hGlbTmp);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemTmp)
     // Fill in the header values

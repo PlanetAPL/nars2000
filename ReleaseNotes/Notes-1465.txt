@@ -1,0 +1,9 @@
+Build #1465 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug When Tracing Line With Label Only
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug when tracing a line with a label only, e.g. L1:

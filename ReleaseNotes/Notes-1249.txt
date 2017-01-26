@@ -1,0 +1,20 @@
+Build #1249 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs When Type Promoting Reduce And Scan Operator Results
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplRatFC> and <FormatAplVfpFC> assert that the incoming value is valid.
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, also initialize GlbNum temp if right arg and result are different types.
+  Remove PTR_REUSED code as that's handled by <FreeResultGlobalIncompleteVar>.
+
+PO_SLOPE.C:
+  In <PrimOpMonSlopeCommon_EM_YY>, release unused values after type promotion.
+
+PRIMSPEC.C:
+  In <PrimFnDydSiScSiScSub_EM>, return newly allocated global memory handle if requested.
+  In <PrimFnDydSiScSiScSub_EM>, release unused values after type promotion.

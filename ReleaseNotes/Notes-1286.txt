@@ -1,0 +1,14 @@
+Build #1286 -- Version 0.4.9.xx
+-------------------------------
+
+* Remove Flag That's Always FALSE
+
+Directory trunk:
+
+IMMEXEC.C:
+  Remove flag to <ImmExecStmt> that's always FALSE.
+  In <ImmExecStmt> and <ImmExecStmtInThread>, remove code that is used only if the flag that's always FALSE is TRUE.
+  In <ImmExecStmtInThread>, remove commented out code.
+
+SESSMAN.C:
+  Remove flag to <ImmExecStmt> that's always FALSE.

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -309,7 +309,7 @@ LPPL_YYSTYPE SysFnDydFMT_EM_YY
                 } // End IF/ELSE
 
                 // Lock the memory to get a ptr to it
-                lpMemItm = MyGlobalLock (hGlbItm);
+                lpMemItm = MyGlobalLockVar (hGlbItm);
 
                 // Skip over the header to the dimensions
                 lpMemItm = VarArrayBaseToDim (lpMemItm);
@@ -483,11 +483,11 @@ LPPL_YYSTYPE SysFnDydFMT_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -521,6 +521,7 @@ LPPL_YYSTYPE SysFnDydFMT_EM_YY
     if (IsSimpleNHGlbNum (aplTypeRht))
         // Format the right arg into the result
         SysFnDydFMTSimp (aplTypeRht,            // Item storage type
+                         aplNELMRht,            // Item NELM
                          aplNumCols,            // Item # cols
                          aplNumRows,            // Item # rows
                          aplColsRes,            // Result # cols
@@ -560,6 +561,7 @@ LPPL_YYSTYPE SysFnDydFMT_EM_YY
 
                     // Format the item into the result
                     SysFnDydFMTSimp (aplTypeItm,            // Item storage type
+                                     aplNELMItm,            // Item NELM
                                      1,                     // Item # cols
                                      1,                     // Item # rows
                                      aplColsRes,            // Result # cols
@@ -592,7 +594,7 @@ LPPL_YYSTYPE SysFnDydFMT_EM_YY
                     } // End IF/ELSE
 
                     // Lock the memory to get a ptr to it
-                    lpMemItm = MyGlobalLock (hGlbItm);
+                    lpMemItm = MyGlobalLockVar (hGlbItm);
 
                     // Skip over the header to the dimensions
                     lpMemItm = VarArrayBaseToDim (lpMemItm);
@@ -644,6 +646,7 @@ LPPL_YYSTYPE SysFnDydFMT_EM_YY
                                 // Format the item into the result
                                 fmtSpecRes =
                                   SysFnDydFMTSimp (aplTypeItm,                      // Item storage type
+                                                   aplNELMItm,                      // Item NELM
                                                    1,                               // Item # cols
                                                    1,                               // Item # rows
                                                    aplColsRes,                      // Result # cols
@@ -667,6 +670,7 @@ LPPL_YYSTYPE SysFnDydFMT_EM_YY
                     } else
                         // Format the item into the result
                         SysFnDydFMTSimp (aplTypeItm,            // Item storage type
+                                         aplNELMItm,            // Item NELM
                                          aplNumCols,            // Item # cols
                                          aplNumRows,            // Item # rows
                                          aplColsRes,            // Result # cols
@@ -779,6 +783,7 @@ NORMAL_EXIT:
 
 FMTSPECVAL SysFnDydFMTSimp
     (APLSTYPE      aplTypeItm,              // Item storage type
+     APLSTYPE      aplNELMItm,              // Item NELM
      APLDIM        aplColsItm,              // Item # cols
      APLDIM        aplRowsItm,              // Item # rows
      APLDIM        aplColsRes,              // Result # cols
@@ -881,6 +886,7 @@ FMTSPECVAL SysFnDydFMTSimp
                                     // Continue with code common to G-format spec
                                     QFMT_CommonG (*lplpfsNxt,                                       // Ptr to FMTSPECSTR
                                                    aplTypeItm,                                      // Item storage type
+                                                   aplNELMItm,                                      // Item NELM
                                                    fmtSpecRes,                                      // Result format spec
                                                    lpMemItm,                                        // Ptr to item global memory
                                                    uRow,                                            // Row #
@@ -903,6 +909,7 @@ FMTSPECVAL SysFnDydFMTSimp
                                     // Continue with code common to E- F- I- R-format specs
                                     QFMT_CommonEFIR (*lplpfsNxt,                                    // Ptr to FMTSPECSTR
                                                       aplTypeItm,                                   // Item storage type
+                                                      aplNELMItm,                                   // Item NELM
                                                       fmtSpecRes,                                   // Result format spec
                                                       lpMemItm,                                     // Ptr to item global memory
                                                       uRow,                                         // Row #
@@ -1192,6 +1199,7 @@ FMTSPECVAL SysFnDydFMTSimp
 void QFMT_CommonG
     (LPFMTSPECSTR lpfsNxt,                  // Ptr to FMTSPECSTR
      APLSTYPE     aplTypeItm,               // Item storage type
+     APLNELM      aplNELMItm,               // Item NELM
      FMTSPECVAL   fmtSpecRes,               // Result format spec
      LPVOID       lpMemItm,                 // Ptr to item global memory
      APLDIM       uRow,                     // Row #
@@ -1235,6 +1243,7 @@ void QFMT_CommonG
     // Get the next value
     GetNextValueMem (lpMemItm,                              // Ptr to item global memory data
                      aplTypeItm,                            // Item storage type
+                     aplNELMItm,                            // Item NELM
                      (uRow * aplColsItm) + aplCurColItm,    // Index into item
                      NULL,                                  // Ptr to result LPSYMENTRY or HGLOBAL (may be NULL)
                     &aplLongestItm,                         // Ptr to result immediate value (may be NULL)
@@ -1310,18 +1319,18 @@ void QFMT_CommonG
     // Format the value
     if (IsImmInt (immTypeItm))
         lpaplChar =
-          FormatAplintFC (lpwszFormat,                  // Ptr to output save area
-                          aplIntItm,                    // The value to format
-                          UTF16_OVERBAR);               // Char to use as overbar
+          FormatAplIntFC (lpwszFormat,              // Ptr to output save area
+                          aplIntItm,                // The value to format
+                          UTF16_OVERBAR);           // Char to use as overbar
     else
         lpaplChar =
-          FormatFloatFC (lpwszFormat,                   // Ptr to output save area
-                         aplFltItm,                     // The value to format
-                         fsWid,                         // Precision for F-format, significant digits for E-format
-                         UTF16_DOT,                     // Char to use as decimal separator
-                         UTF16_OVERBAR,                 // Char to use as overbar
-                         FLTDISPFMT_RAWINT,             // Float display format
-                         FALSE);                        // TRUE iff we're to substitute text for infinity
+          FormatAplFltFC (lpwszFormat,              // Ptr to output save area
+                          aplFltItm,                // The value to format
+                          fsWid,                    // Precision for F-format, significant digits for E-format
+                          UTF16_DOT,                // Char to use as decimal separator
+                          UTF16_OVERBAR,            // Char to use as overbar
+                          FLTDISPFMT_RAWINT,        // Float display format
+                          FALSE);                   // TRUE iff we're to substitute text for infinity
     // Ensure properly terminated
     *--lpaplChar = WC_EOS;
 
@@ -1476,6 +1485,7 @@ void QFMT_CommonG
 void QFMT_CommonEFIR
     (LPFMTSPECSTR lpfsNxt,                  // Ptr to FMTSPECSTR
      APLSTYPE     aplTypeItm,               // Item storage type
+     APLNELM      aplNELMItm,               // Item NELM
      FMTSPECVAL   fmtSpecRes,               // Result format spec
      LPVOID       lpMemItm,                 // Ptr to item global memory
      APLDIM       uRow,                     // Row #
@@ -1533,6 +1543,7 @@ void QFMT_CommonEFIR
     // Get the next value
     GetNextValueMem (lpMemItm,                              // Ptr to item global memory data
                      aplTypeItm,                            // Item storage type
+                     aplNELMItm,                            // Item NELM
                      (uRow * aplColsItm) + aplCurColItm,    // Index into item
                     &lpSymGlbItm,                           // Ptr to result LPSYMENTRY or HGLOBAL (may be NULL)
                     &aplLongestItm,                         // Ptr to result immediate value (may be NULL)
@@ -1741,16 +1752,16 @@ void QFMT_CommonEFIR
                 case IMMTYPE_INT:
                 case IMMTYPE_FLOAT:
                     // Izit an infinity?
-                    bInfinity = IsInfinity (aplFltItm);
+                    bInfinity = IsFltInfinity (aplFltItm);
 
                     lpwEnd =
-                      FormatFloatFC (lpwszFormat,           // Ptr to output save area
-                                     aplFltItm,             // The value to format
-                                     fsDig,                 // Precision for F-format, significant digits for E-format
-                                     UTF16_DOT,             // Char to use as decimal separator
-                                     UTF16_OVERBAR,         // Char to use as overbar
-                                     FLTDISPFMT_E,          // Float display format
-                                     FALSE);                // TRUE iff we're to substitute text for infinity
+                      FormatAplFltFC (lpwszFormat,          // Ptr to output save area
+                                      aplFltItm,            // The value to format
+                                      fsDig,                // Precision for F-format, significant digits for E-format
+                                      UTF16_DOT,            // Char to use as decimal separator
+                                      UTF16_OVERBAR,        // Char to use as overbar
+                                      FLTDISPFMT_E,         // Float display format
+                                      FALSE);               // TRUE iff we're to substitute text for infinity
                     break;
 
                 case IMMTYPE_RAT:
@@ -1762,14 +1773,14 @@ void QFMT_CommonEFIR
 
                     lpwEnd =
                       FormatAplVfpFC (lpwszFormat,          // Ptr to output save area
-                                      aplVfpItm,            // The value to format
+                                   aplVfpItm,            // The value to format
                             -(APLINT) fsDig,                // # significant digits (0 = all)
                                       UTF16_DOT,            // Char to use as decimal separator
                                       UTF16_OVERBAR,        // Char to use as overbar
                                       FALSE,                // TRUE iff nDigits is # fractional digits
                                       FALSE,                // TRUE iff we're to substitute text for infinity
                                       FALSE);               // TRUE iff we're to precede the display with (FPC)
-                    // We no longer need this storage
+                    //    We no longer need this storage
                     Myf_clear (&aplVfpItm);
 
                     break;
@@ -1814,16 +1825,16 @@ void QFMT_CommonEFIR
                 case IMMTYPE_INT:
                 case IMMTYPE_FLOAT:
                     // Izit an infinity?
-                    bInfinity = IsInfinity (aplFltItm);
+                    bInfinity = IsFltInfinity (aplFltItm);
 
                     lpwEnd =
-                      FormatFloatFC (lpwszFormat,           // Ptr to output save area
-                                     aplFltItm,             // The value to format
-                                     fsDig,                 // Precision for F-format, significant digits for E-format
-                                     UTF16_DOT,             // Char to use as decimal separator
-                                     UTF16_OVERBAR,         // Char to use as overbar
-                                     FLTDISPFMT_F,          // Float display format
-                                     FALSE);                // TRUE iff we're to substitute text for infinity
+                      FormatAplFltFC (lpwszFormat,          // Ptr to output save area
+                                      aplFltItm,            // The value to format
+                                      fsDig,                // Precision for F-format, significant digits for E-format
+                                      UTF16_DOT,            // Char to use as decimal separator
+                                      UTF16_OVERBAR,        // Char to use as overbar
+                                      FLTDISPFMT_F,         // Float display format
+                                      FALSE);               // TRUE iff we're to substitute text for infinity
                     break;
 
                 case IMMTYPE_RAT:
@@ -1948,7 +1959,8 @@ void QFMT_CommonEFIR
                               aplRatTmp,            // The value to format
                               UTF16_OVERBAR,        // Char to use as overbar
                               DEF_RATSEP,           // Char to use as rational separator
-                              FALSE);               // TRUE iff we're to substitute text for infinity
+                              FALSE,                // TRUE iff we're to substitute text for infinity
+                              FALSE);               // TRUE iff this RAT is inside a larger syntax
 
             // We no longer need this storage
             Myq_clear (&aplRatTmp);
@@ -1998,7 +2010,7 @@ void QFMT_CommonEFIR
                 case IMMTYPE_BOOL:
                 case IMMTYPE_INT:
                     lpaplChar =
-                      FormatAplintFC (lpwszFormat,          // Ptr to output save area
+                      FormatAplIntFC (lpwszFormat,          // Ptr to output save area
                                       aplIntItm,            // The value to format
                                       UTF16_OVERBAR);       // Char to use as overbar
                     break;
@@ -2008,13 +2020,13 @@ void QFMT_CommonEFIR
                     aplFltItm = floor (aplFltItm + 0.5);
 
                     lpaplChar =
-                      FormatFloatFC (lpwszFormat,           // Ptr to output save area
-                                     aplFltItm,             // The value to format
-                                     fsWid,                 // Precision for F-format, significant digits for E-format
-                                     UTF16_DOT,             // Char to use as decimal separator
-                                     UTF16_OVERBAR,         // Char to use as overbar
-                                     FLTDISPFMT_RAWINT,     // Float display format
-                                     FALSE);                // TRUE iff we're to substitute text for infinity
+                      FormatAplFltFC (lpwszFormat,          // Ptr to output save area
+                                      aplFltItm,            // The value to format
+                                      fsWid,                // Precision for F-format, significant digits for E-format
+                                      UTF16_DOT,            // Char to use as decimal separator
+                                      UTF16_OVERBAR,        // Char to use as overbar
+                                      FLTDISPFMT_RAWINT,    // Float display format
+                                      FALSE);               // TRUE iff we're to substitute text for infinity
                     break;
 
                 case IMMTYPE_RAT:
@@ -2030,7 +2042,8 @@ void QFMT_CommonEFIR
                                       aplRatTmp,            // The value to format
                                       UTF16_OVERBAR,        // Char to use as overbar
                                       DEF_RATSEP,           // Char to use as rational separator
-                                      FALSE);               // TRUE iff we're to substitute text for infinity
+                                      FALSE,                // TRUE iff we're to substitute text for infinity
+                                      FALSE);               // TRUE iff this RAT is inside a larger syntax
                     // We no longer need this storage
                     Myq_clear (&aplRatTmp);
 
@@ -2245,7 +2258,7 @@ void QFMT_CommonEFIR
     // Append with positive text (Q-modifier)
     if ((lpfsNxt->bN && aplFltItm <  0)
      || (lpfsNxt->bQ && aplFltItm >= 0))
-        lstrcatW (lpwszFormat, lpSurrText->lpTail);
+        strcatW (lpwszFormat, lpSurrText->lpTail);
 
     // Get the formatted item length
     iWid = lstrlenW (lpwszFormat);

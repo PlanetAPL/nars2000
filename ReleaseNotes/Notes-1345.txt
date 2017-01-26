@@ -1,0 +1,25 @@
+Build #1345 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Donation QR-Code And Link
+* Move from GoogleCode To SourceForge
+
+Directory trunk\art:
+
+NARS2000 DONATION.JPG:
+  Implement donation QR-Code and link.
+
+
+Directory trunk\htdocs:
+
+FOOTER-MON.HTML:
+FOOTER.HTML:
+  Update the copyright year.
+
+INDEX-BODY.AHTML:
+  Move from GoogleCode to SourceForge.
+  Update the copyright year.
+  Implement donation QR-Code and link.
+
+INDEX-LEFT.HTML:
+  Implement donation QR-Code and link.

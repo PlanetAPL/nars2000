@@ -1,0 +1,9 @@
+Build #1542 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Catenate Between Empty Array And APA Of Differing Ranks
+
+Directory trunk:
+
+PF_COMMA.C:
+  Fix a bug when catenating an empty array (e.g., 0 4{rho}0) and an APA (e.g. {iota}4) of differing ranks.

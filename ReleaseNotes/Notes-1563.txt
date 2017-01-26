@@ -1,0 +1,10 @@
+Build #1563 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Localization Of System Vars
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in localization of System Vars in a function defined outside a local
+    HSHTABSTR but called from within it.

@@ -1,0 +1,9 @@
+Build #1376 -- Version 0.4.11.xx
+-------------------------------
+
+* Fix Bug In Primitive Function Encode
+
+Directory trunk:
+
+PF_DTACK.C:
+  Fix bug introduced in an earlier Build where the right arg is not reloaded for a new column in the left arg.

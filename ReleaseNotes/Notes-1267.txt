@@ -1,0 +1,23 @@
+Build #1267 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  In variout <plRedXX_XX> functions, also change immediate type and Syntax Object of current symbol.
+  Omit spurious comment.
+  Fix bug if freeing function on the stack in the process of stranding.
+  Fix bug when )RESETting.
+
+STARTADDR.H:
+  Delete unused functions.
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY>, test for Stranding flag and clear it.
+  Delete unused functions.
+
+YYFNS.C:
+  Make test in DEBUG statement explicit.
+  Delete unused functions.

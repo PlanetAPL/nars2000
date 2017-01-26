@@ -1,0 +1,10 @@
+Build #1389 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In -4 Circle Assembler Function
+
+Directory trunk:
+
+DBGBRK32.ASM:
+DBGBRK64.ASM:
+  In <iAsmCircleN4Int> and <iAsmCircleN4Flt>, change the assembler code to conform to the EAS definition of that function.

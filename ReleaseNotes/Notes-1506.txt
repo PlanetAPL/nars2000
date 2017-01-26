@@ -1,0 +1,11 @@
+Build #1506 -- Version 0.4.15.xx
+--------------------------------
+
+* More Fixes For Reduction/Scan With Demotion Of Temporary Float
+
+Directory trunk:
+
+PO_SLASH.C:
+PO_SLOPE.C:
+  Fix bug in dyadic reduction/scan where a temporary float result is demoted to integer
+    but stored as if it were a float.

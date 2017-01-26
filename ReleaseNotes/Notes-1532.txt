@@ -1,0 +1,16 @@
+Build #1532 -- Version 0.4.15.xx
+--------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+APLERRORS.H:
+  Fix typo in FILE ACCESS ERROR message.
+
+PF_UTACK.C:
+  Reword comment to be consistent with same comment elsewhere.
+
+PRIMSPEC.C:
+  Avoid printing Initiating/Restarting Exception error message.
+  Reword comment to be consistent with same comment elsewhere.

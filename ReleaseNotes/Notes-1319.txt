@@ -1,0 +1,182 @@
+Build #1319 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Negative Zero
+
+Directory trunk:
+
+COMMON.C:
+MAIN.C:
+PARSELINE.C:
+QF_EA.C:
+  Update the copyright notice (omitted from previous builds this year).
+
+DISPLAY.C:
+  Update the copyright notice.
+  In <FormatAplFltFC>, if the number is zero, ensure negative sign is appended under all <FLTDISPFMT_x>s.
+  In <FormatAplVfpFC>, if the number is zero, ensure negative sign is appended if appropriate.
+  In <GetQuadICValue>, use more consistent naming.
+
+HUNGARIAN_VFP.C:
+  Update the copyright notice.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+
+MACROS.H:
+  Update the copyright notice.
+  For the various <SIGN_xxx> macros, ensure the result is of type <UBOOL> so it fits in a smaller width.
+  Define <mpfr_sgn0> macro in terms of <signumint>.
+  Remove <mpfr_neg0> macro as it's no longer needed.
+
+MPFNS.C:
+  Update the copyright notice.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <mpfr_invalid> raise a <NONCE ERROR> exception for sqrt of negative infinity as per HC2 values.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  Improve comments.
+
+MPIFNS.C:
+  Update the copyright notice.
+  Fix typos in comments.
+  In <signumint> and <signumflt>, simplify the code.
+  Improve comments.
+  In <mpifr_mul> and <mpifr_div> use correct sign for the result.
+  Fix bug in <mpifr_sqrt> to return the correct sign of the result.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+
+PF_BAR.C:
+  Update the copyright notice.
+  Check for negating zero in which case signal <EXCEPTION_RESULT_FLOAT>.
+  In <PrimFnMonBarFisF>, remove test for negative zero.
+  In <PrimFnMonBarRisR>, check for negative zero.
+  Improve comments.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  In <PrimFnMonBarAPA_EM>, check for negating zero in which case signal <EXCEPTION_RESULT_FLOAT>.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+
+PF_CIRCLE.C:
+  Update the copyright notice.
+  Improve comments.
+  In <PrimFnDydCircleFisIvI>, check for NaN result.
+  In <PrimFnDydCircleFisFvF>, check for HC2 result in which case signal a <NONCE ERROR>.
+  In <PrimFnDydCircleFisFvF>, check for NaN result.
+  In <PrimFnDydCircleVisVvV>, check for NaN result.
+  In <PrimFnDydCircleFisVvV>, check for HC2 result in which case signal a <NONCE ERROR>.
+
+PF_COLONBAR.C:
+  Update the copyright notice.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <PrimFnMonColonBarRisR>, check for {div}{neg}{inf}x and signal <EXCEPTION_RESULT_VFP>.
+
+PF_CSTAR.C:
+  Update the copyright notice.
+  In <PrimFnMonCircleStarFisI> and <PrimFnMonCircleStarFisF>, check for HC2 result and signal a <NONCE ERROR>.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  Improve comments.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  Use <SIGN_APLFLOAT (x)> instead of "x < 0.0" as the former works on negative zero.
+  Use <SIGN_APLVFP (x)> instead of "mpfr_sgn (x) < 0" as the former works on negative zero.
+
+PF_DCARET.C:
+  Update the copyright notice.
+  Improve comments.
+  Use <SIGN_APLVFP (x)> instead of "mpfr_sgn (x) < 0" as the former works on negative zero.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+
+PF_DOMINO.C:
+  Update the copyright notice.
+  Improve comments.
+
+PF_DOTDOT.C:
+  Update the copyright notice.
+  Improve comments.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+
+PF_PLUS.C:
+  Update the copyright notice.
+  Improve comments.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <PrimFnDydPlusRisRvR> and <PrimFnDydPlusVisVvV>, check for indeterminates "_ + -_  or  -_ + _".
+
+PF_QDOT.C:
+  Update the copyright notice.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <PrimFnDydQuoteDotFisFvF>,omit check for negative zero as IEEE-754 handles it well.
+
+PF_ROOT.C:
+  Update the copyright notice.
+  Improve comments.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  In <PrimFnDydRootFisFvF> and <PrimFnDydRootVisVvV>, handle L {root} -0.
+
+PF_STAR.C:
+  Update the copyright notice.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  Use <SIGN_APLFLOAT (x)> instead of "x < 0.0" as the former works on negative zero.
+
+PF_STILE.C:
+  Update the copyright notice.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  Improve comments.
+
+PF_TIMES.C:
+  Update the copyright notice.
+  In <PrimFnMonTimesVisV>, handle X {times} -0.
+  In <PrimFnDydTimesIisIvI> and <PrimFnDydTimesFisIvI>, handle (negative X) {times} 0.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+  Improve comments.
+  In <PrimFnDydTimesAPA_EM>, check for negating zero in which case signal <EXCEPTION_RESULT_FLOAT>.
+
+PF_UARROW.C:
+  Update the copyright notice.
+  Improve comments.
+
+PF_UCARET.C:
+  Update the copyright notice.
+  Use <SIGN_APLFLOAT (x)> instead of "x < 0.0" as the former works on negative zero.
+  Use <SIGN_APLVFP (x)> instead of "mpfr_sgn (x) < 0" as the former works on negative zero.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+  Pass new arg to <mpz_QuadICValue>, <mpq_QuadICValue>, and <mpfr_QuadICValue> to handle negation of the result.
+
+PF_USTILE.C:
+  Update the copyright notice.
+  Replace <mpfr_neg0> with <mpfr_neg> as we no longer shun negative zero.
+
+PN_PARSE.H:
+  Update the copyright notice.
+  In <tagPN_YYSTYPE> struc, make room for a sign bit.
+
+PN_PARSE.Y:
+  Update the copyright notice.
+  Take into account negative integer denominator and negative zero.
+
+PN_PROC.C:
+  Update the copyright notice.
+  In <PN_NumCalc>, handle negative zero.
+
+PO_DOT.C:
+  Update the copyright notice.
+  Improve comments.
+
+PO_SLASH.C:
+  Update the copyright notice.
+  Improve comments.
+
+TRANSLATE.C:
+  Update the copyright notice.
+  Pass new arg to <TranslateQuadICIndex> to handle negation of the result.
+
+TYPEMOTE.C:
+  Update the copyright notice.
+  In <TypeDemote>, do not demote negative float zero.

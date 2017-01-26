@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -196,7 +196,7 @@ LPPL_YYSTYPE PrimIdentFnCircleStile_EM_YY
         hGlbRht = lptkRhtArg->tkData.tkGlbData;
 
         // Lock the memory to get a ptr to it
-        lpMemRht = MyGlobalLock (hGlbRht);
+        lpMemRht = MyGlobalLockVar (hGlbRht);
 
         // Skip over the header to the dimensions
         lpMemDimRht = VarArrayBaseToDim (lpMemRht);
@@ -215,11 +215,11 @@ LPPL_YYSTYPE PrimIdentFnCircleStile_EM_YY
 
         // Allocate storage for the result
         hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRes)
+        if (hGlbRes EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemRes = MyGlobalLock (hGlbRes);
+        lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
         // Fill in the header values
@@ -407,11 +407,11 @@ LPPL_YYSTYPE PrimFnMonCircleStile_EM_YY
 
     // Allocate storage for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header values
@@ -870,13 +870,13 @@ LPPL_YYSTYPE PrimFnDydCircleStile_EM_YY
 
         // Allocate temp storage for the normalized left arg
         hGlbRot = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRot)
+        if (hGlbRot EQ NULL)
             goto WSFULL_EXIT;
 
         // If the left arg is non-empty, ...
         if (ByteRes)
             // Lock the memory to get a ptr to it
-            lpMemRot = lpMemRotIni = MyGlobalLock (hGlbRot);
+            lpMemRot = lpMemRotIni = MyGlobalLock000 (hGlbRot);
         else
             // The left arg is empty and W doesn't handle
             //   locking empty storage, so we just NULL the ptrs
@@ -995,9 +995,10 @@ LPPL_YYSTYPE PrimFnDydCircleStile_EM_YY
                 {
                     // stData is a valid HGLOBAL variable array
                     Assert (IsGlbTypeVarDir_PTB (lptkRhtArg->tkData.tkSym->stData.stGlbData));
-
+#ifdef DEBUG
                     // If we ever get here, we must have missed a type demotion
-                    DbgStop ();
+                    DbgStop ();             // #ifdef DEBUG
+#endif
                 } // End IF
 
                 // Handle the immediate case
@@ -1033,11 +1034,11 @@ LPPL_YYSTYPE PrimFnDydCircleStile_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header values
@@ -1334,17 +1335,8 @@ ERROR_EXIT:
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbRot)
-    {
-        if (lpMemRot)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbRot); lpMemRot = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbRot); hGlbRot = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbRot, lpMemRot);
 
     if (hGlbLft && lpMemLft)
     {

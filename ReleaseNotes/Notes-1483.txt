@@ -1,0 +1,11 @@
+Build #1483 -- Version 0.4.14.xx
+--------------------------------
+
+* Validate []vars On )LOAD
+
+Directory trunk:
+
+SC_LOAD.C:
+  In IF stmts always compare ptr against NULL.
+  In <LoadWorkspace_EM> when loading a system var, run it through <*aSysVarValidSet> and
+    <*aSysVarValidPost> first in order to ensure validity.

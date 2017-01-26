@@ -1,0 +1,32 @@
+Build #1347 -- Version 0.4.9.xx
+-------------------------------
+
+* Mark Debug Stmts As Such For Easier Recognition
+
+Directory trunk:
+
+COMMON.C:
+CS_PARSE.Y:
+CUSTOMIZE.C:
+DEBUG.C:
+DEBUG.H:
+DISPDBG.C:
+EDITFCN.C:
+FH_PARSE.Y:
+FMTSPEC.C:
+INIFILE.C:
+INITDATA.C:
+MPFNS.C:
+PERFMON.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DELTASTILE.C:
+PF_DTACK.C:
+PN_PARSE.Y:
+QF_DR.C:
+REBAR.C:
+RESDEBUG.C:
+SESSMAN.C:
+SYMTAB.C:
+TOKENIZE.C:
+  Comment DbgBrk & DbgStop stmts to indicate they are #ifdef DEBUG-only.

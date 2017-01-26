@@ -1,0 +1,11 @@
+Build #1351 -- Version 0.4.9.xx
+-------------------------------
+
+* Disallow Axis Operator On Niladic Function
+* Allow Spaces In Function Header After First Semicolon
+
+Directory trunk:
+
+FH_PARSE.Y:
+  Disallow axis operator on niladic function.
+  Allow spaces instead of semicolons in function header after the first semicolon.

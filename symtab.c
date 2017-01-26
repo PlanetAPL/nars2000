@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,12 +34,12 @@
 #ifdef DEBUG_CS
   int gCSOHshTab = 0;
 
-  #define MyEnterCriticalSection(a)     {gCSOHshTab++;                                          \
-                                         dprintfWL0 (L"ECS:  %d (#%d)", gCSOHshTab, __LINE__);  \
+  #define MyEnterCriticalSection(a)     {gCSOHshTab++;                                              \
+                                         dprintfWL0 (L"ECS:  %d (#%d)", gCSOHshTab, __LINE__);      \
                                          EnterCriticalSection (a);}
-  #define MyLeaveCriticalSection(a)     {gCSOHshTab--;                                          \
-                                         if (gCSOHshTab < 0) DbgBrk ();                         \
-                                         dprintfWL0 (L"LCS:  %d (#%d)", gCSOHshTab, __LINE__);  \
+  #define MyLeaveCriticalSection(a)     {gCSOHshTab--;                                              \
+                                         if (gCSOHshTab < 0) DbgBrk ();     /* #ifdef DEBUG_CS */   \
+                                         dprintfWL0 (L"LCS:  %d (#%d)", gCSOHshTab, __LINE__);      \
                                          LeaveCriticalSection (a);}
 #else
   #define MyEnterCriticalSection(a)     EnterCriticalSection (a)
@@ -487,15 +487,17 @@ UBOOL HshTabResize_EM
     if (lpHTS->bGlbHshSymTabs)
     {
         // First, attempt to reallocate in place
+        //   moving the old data to the new location, and
+        //   freeing the old global memory
         lpHshTabNew =
           MyGlobalReAlloc (lpHTS->lpHshTab,         // At this address
                            iHshTabNewNelm * sizeof (lpHTS->lpHshTab[0]),
-                           GMEM_MOVEABLE | GMEM_ZEROINIT);
+                           GHND);
         // If it didn't succeed, ...
-        if (!lpHshTabNew)
+        if (lpHshTabNew EQ NULL)
             // Allocate anew
             lpHshTabNew =
-              MyGlobalAlloc (GHND,                  // At any address
+              DbgGlobalAlloc (GHND,                  // At any address
                              iHshTabNewNelm * sizeof (lpHTS->lpHshTab[0]));
     } else
     {
@@ -506,7 +508,7 @@ UBOOL HshTabResize_EM
                           MEM_COMMIT,
                           PAGE_READWRITE);
         // If it didn't succeed, ...
-        if (!lpHshTabNew)
+        if (lpHshTabNew EQ NULL)
             // Allocate anew
             lpHshTabNew =
               GuardAlloc (NULL,                     // Any address
@@ -516,7 +518,7 @@ UBOOL HshTabResize_EM
     } // End IF/ELSE
 
     // If it didn't succeed, ...
-    if (!lpHshTabNew)
+    if (lpHshTabNew EQ NULL)
         goto HSHTAB_FULL_EXIT;
 
     // If the new and old bases are different, ...
@@ -570,7 +572,7 @@ UBOOL HshTabResize_EM
         if (lpHTS->bGlbHshSymTabs)
         {
             // We no longer need this storage
-            MyGlobalFree (lpHTS->lpHshTab); lpHTS->lpHshTab = NULL;
+            DbgGlobalFree (lpHTS->lpHshTab); lpHTS->lpHshTab = NULL;
         } else
             // Free and unlink the old entry, relink the new one
             FreeRelinkHshTab (lpHshTabNew, lpHTS->lpHshTab); lpHTS->lpHshTab = NULL;
@@ -590,8 +592,8 @@ UBOOL HshTabResize_EM
         lpHTS->lpHshTab[i].PrevSameHash = LPHSHENTRY_NONE;
     } // End FOR
 
-    // Because iHshTabTotalNelm changed, we need to change iHshTabIncr
-    lpHTS->iHshTabIncrFree = DEF_HSHTAB_PRIME % (UINT) lpHTS->iHshTabTotalNelm;
+    // Because iHshTabTotalNelm changed, we need to change iHshTabIncrFree
+    lpHTS->iHshTabIncrFree  = DEF_HSHTAB_PRIME % lpHTS->iHshTabTotalNelm;
 
     // Set new hash table size
     lpHTS->iHshTabTotalNelm = iHshTabNewNelm;
@@ -658,10 +660,12 @@ UBOOL SymTabResize_EM
     // If the Hsh & Sym tabs are from global (not virtual) memory, ...
     if (lpHTS->bGlbHshSymTabs)
         // Attempt to reallocate in place
+        //   moving the old data to the new location, and
+        //   freeing the old global memory
         lpSymTabNew =
           MyGlobalReAlloc (lpHTS->lpSymTab,     // At this address
                            iSymTabNewNelm * sizeof (lpHTS->lpSymTab[0]),
-                           GMEM_MOVEABLE | GMEM_ZEROINIT);
+                           GHND);
     else
         // Attempt to reallocate in place
         lpSymTabNew =
@@ -670,17 +674,18 @@ UBOOL SymTabResize_EM
                           MEM_COMMIT,
                           PAGE_READWRITE);
 ////// ***DEBUG***
-////wsprintfW (wszTemp,
+////MySprintfW (wszTemp,
+////            sizeof (wszTemp),
 ////           L"SYMBOL TABLE REALLOCATE (%p to %p):  GlbHshSymTabs (%d) from %u to %u",
-////           lpHTS->lpSymTab,
-////                  lpSymTabNew,
-////           lpHTS->bGlbHshSymTabs,
-////           lpHTS->iSymTabTotalNelm,
-////           lpHTS->iSymTabTotalNelm + iResize);
+////            lpHTS->lpSymTab,
+////                   lpSymTabNew,
+////            lpHTS->bGlbHshSymTabs,
+////            lpHTS->iSymTabTotalNelm,
+////            lpHTS->iSymTabTotalNelm + iResize);
 ////MBW (wszTemp);
 
     // If it didn't succeed, ...
-    if (!lpSymTabNew)
+    if (lpSymTabNew EQ NULL)
         // Quit as we can't change the base address of the SymTab
         goto SYMTAB_FULL_EXIT;
 
@@ -825,12 +830,13 @@ UBOOL HshTabSplitNextEntry_EM
 ////        {
 ////            WCHAR wszTemp[1024];    // Ptr to temporary output area
 ////
-////            wsprintfW (wszTemp,
+////            MySprintfW (wszTemp,
+////                        sizeof (wszTemp),
 ////                       L"HshTabSplitNextEntry:  Entry %p <-- %p (%04X) (%04X)",
-////                       lpHshEntryDest,
-////                       lpHshEntrySrc,
-////                       lpHshEntrySrc->uHashAndMask,
-////                       uHashMask);
+////                        lpHshEntryDest,
+////                        lpHshEntrySrc,
+////                        lpHshEntrySrc->uHashAndMask,
+////                        uHashMask);
 ////            MBC (wszTemp)
 ////            lp = lpHshEntryDest;
 ////        } // End IF
@@ -929,10 +935,11 @@ UBOOL HshTabSplitNextEntry_EM
 ////{
 ////    WCHAR wszTemp[1024];    // Ptr to temporary output area
 ////
-////    wsprintfW (wszTemp,
+////   MySprintfW (wszTemp,
+////               sizeof (wszTemp),
 ////               L"@@@@ %d hash table entr%s moved by HshTabSplitNextEntry",
-////               iCntMoved,
-////               (iCntMoved EQ 1) ? L"y" : L"ies");
+////                iCntMoved,
+////                (iCntMoved EQ 1) ? L"y" : L"ies");
 ////    DbgMsgW (wszTemp);
 ////}
 #endif
@@ -946,7 +953,7 @@ ERROR_EXIT:
 //***************************************************************************
 //  $FindNextFreeUsingHash_SPLIT_EM
 //
-//  Find the next free hash table entry after a give one.
+//  Find the next free hash table entry after a given one.
 //  The search is first within the same block from low to high,
 //    then within each following block from high to low within
 //    the block, except for the principal hash (first) entry in
@@ -1062,7 +1069,7 @@ NORMAL_EXIT:
 //***************************************************************************
 //  $FindNextFreeUsingHTE_EM
 //
-//  Find the next free hash table entry after a give one.
+//  Find the next free hash table entry after a given one.
 //  The search is first within the same block from low to high,
 //    then within each following block from high to low within
 //    the block, except for the principal hash (first) entry in
@@ -1200,7 +1207,7 @@ LPHSHENTRY HshTabLookupCharHash
          lpHshEntry NE LPHSHENTRY_NONE;
          lpHshEntry = lpHshEntry->NextSameHash)
 #ifdef DEBUG
-    if (!lpHshEntry)
+    if (lpHshEntry EQ NULL)
     {
         DbgStop ();             // We should never get here
         DisplayHshTab (lpHTS);
@@ -1246,7 +1253,7 @@ LPHSHENTRY HshTabLookupNameHash
          lpHshEntry NE LPHSHENTRY_NONE;
          lpHshEntry = lpHshEntry->NextSameHash)
 #ifdef DEBUG
-    if (!lpHshEntry)
+    if (lpHshEntry EQ NULL)
     {
         DbgStop ();             // We should never get here
         DisplayHshTab (lpHTS);
@@ -1300,7 +1307,7 @@ UBOOL AppendSymbolValue
         lpHshEntryDest = FindNextFreeUsingHash_SPLIT_EM (uHash, TRUE, lpHTS);
 
         // If it's invalid, quit
-        if (!lpHshEntryDest)
+        if (lpHshEntryDest EQ NULL)
             goto ERROR_EXIT;
 
         // We *MUST NOT* call MaskTheHash until after the call
@@ -1376,7 +1383,7 @@ UBOOL AppendSymbolName
         lpHshEntryDest = FindNextFreeUsingHash_SPLIT_EM (uHash, TRUE, lpHTS);
 
         // If it's invalid, quit
-        if (!lpHshEntryDest)
+        if (lpHshEntryDest EQ NULL)
             goto ERROR_EXIT;
 
         // We *MUST NOT* call MaskTheHash until after the call
@@ -1573,21 +1580,21 @@ LPSYMENTRY SymTabLookupChar
      LPSTFLAGS lpstFlags)                   // Ptr to flags filter
 
 {
-    return _SymTabLookupChar (uHash,        // The hashed value
-                              aplChar,      // The value to lookup
-                              lpstFlags,    // Ptr to flags filter
-                              NULL);        // Ptr to HshTab struc (may be NULL)
+    return SymTabHTSLookupChar (uHash,      // The hashed value
+                                aplChar,    // The value to lookup
+                                lpstFlags,  // Ptr to flags filter
+                                NULL);      // Ptr to HshTab struc (may be NULL)
 } // End SymTabLookupChar
 
 
 //***************************************************************************
-//  $_SymTabLookupChar
+//  $SymTabHTSLookupChar
 //
 //  Lookup a char based upon hash, flags, and value
 //    using a specific HTS
 //***************************************************************************
 
-LPSYMENTRY _SymTabLookupChar
+LPSYMENTRY SymTabHTSLookupChar
     (UINT        uHash,             // The hashed value
      APLCHAR     aplChar,           // The value to lookup
      LPSTFLAGS   lpstFlags,         // Ptr to flags filter
@@ -1602,7 +1609,7 @@ LPSYMENTRY _SymTabLookupChar
     // If we're to supply our own HTS, ...
     if (lphtsPTD EQ NULL)
         // Get a ptr to the HshTab & SymTab strucs
-        lphtsPTD = GetMemPTD ()->lphtsPTD;
+        lphtsPTD = GetMemPTD ()->lphtsGLB;
 
     // Set mask flags
     stMaskFlags.Imm     =
@@ -1621,7 +1628,7 @@ LPSYMENTRY _SymTabLookupChar
              lpHshEntry NE LPHSHENTRY_NONE;
              lpHshEntry = lpHshEntry->NextSameHash)
 #ifdef DEBUG
-        if (!lpHshEntry)
+        if (lpHshEntry EQ NULL)
         {
             DbgStop ();             // We should never get here
             DisplayHshTab (lphtsPTD);
@@ -1652,7 +1659,7 @@ LPSYMENTRY _SymTabLookupChar
     MyLeaveCriticalSection (&CSOHshTab);
 
     return lpSymEntry;
-} // End _SymTabLookupChar
+} // End SymTabLookupCharHTS
 
 
 //***************************************************************************
@@ -1667,21 +1674,21 @@ LPSYMENTRY SymTabLookupNumber
      LPSTFLAGS lpstNeedFlags)   // The flags we require
 
 {
-    return _SymTabLookupNumber (uHash,          // The hashed value
-                                aplInteger,     // The integer/Boolean to lookup
-                                lpstNeedFlags,  // The flags we require
-                                NULL);          // Ptr to HshTab struc (may be NULL)
+    return SymTabHTSLookupNumber (uHash,            // The hashed value
+                                  aplInteger,       // The integer/Boolean to lookup
+                                  lpstNeedFlags,    // The flags we require
+                                  NULL);            // Ptr to HshTab struc (may be NULL)
 } // End SymTabLookupNumber
 
 
 //***************************************************************************
-//  $_SymTabLookupNumber
+//  $SymTabHTSLookupNumber
 //
 //  Lookup a number based upon hash, flags, and value
 //    using a specific HTS
 //***************************************************************************
 
-LPSYMENTRY _SymTabLookupNumber
+LPSYMENTRY SymTabHTSLookupNumber
     (UINT        uHash,             // The hashed value
      APLINT      aplInteger,        // The integer/Boolean to lookup
      LPSTFLAGS   lpstNeedFlags,     // The flags we require
@@ -1696,7 +1703,7 @@ LPSYMENTRY _SymTabLookupNumber
     // If we're to supply our own HTS, ...
     if (lphtsPTD EQ NULL)
         // Get a ptr to the HshTab & SymTab strucs
-        lphtsPTD = GetMemPTD ()->lphtsPTD;
+        lphtsPTD = GetMemPTD ()->lphtsGLB;
 
     // Set mask flags
     stMaskFlags.Imm     =
@@ -1718,7 +1725,7 @@ LPSYMENTRY _SymTabLookupNumber
              lpHshEntry NE LPHSHENTRY_NONE;
              lpHshEntry = lpHshEntry->NextSameHash)
 #ifdef DEBUG
-        if (!lpHshEntry)
+        if (lpHshEntry EQ NULL)
         {
             DbgStop ();             // We should never get here
             DisplayHshTab (lphtsPTD);
@@ -1749,7 +1756,7 @@ LPSYMENTRY _SymTabLookupNumber
     MyLeaveCriticalSection (&CSOHshTab);
 
     return lpSymEntry;
-} // End _SymTabLookupNumber
+} // End SymTabHTSLookupNumber
 
 
 //***************************************************************************
@@ -1764,21 +1771,21 @@ LPSYMENTRY SymTabLookupFloat
      LPSTFLAGS lpstFlags)                   // Ptr to flags filter
 
 {
-    return _SymTabLookupFloat (uHash,       // The hashed value
-                               fFloat,      // The value to lookup
-                               lpstFlags,   // Ptr to flags filter
-                               NULL);       // Ptr to HshTab struc (may be NULL)
+    return SymTabHTSLookupFloat (uHash,     // The hashed value
+                                 fFloat,    // The value to lookup
+                                 lpstFlags, // Ptr to flags filter
+                                 NULL);     // Ptr to HshTab struc (may be NULL)
 } // End SymTabLookupFloat
 
 
 //***************************************************************************
-//  $_SymTabLookupFloat
+//  $SymTabHTSLookupFloat
 //
 //  Lookup a Floating Point number based upon hash, flags, and value
 //    using a specific HTS
 //***************************************************************************
 
-LPSYMENTRY _SymTabLookupFloat
+LPSYMENTRY SymTabHTSLookupFloat
     (UINT        uHash,             // The hashed value
      APLFLOAT    fFloat,            // The value to lookup
      LPSTFLAGS   lpstFlags,         // Ptr to flags filter
@@ -1793,7 +1800,7 @@ LPSYMENTRY _SymTabLookupFloat
     // If we're to supply our own HTS, ...
     if (lphtsPTD EQ NULL)
         // Get a ptr to the HshTab & SymTab strucs
-        lphtsPTD = GetMemPTD ()->lphtsPTD;
+        lphtsPTD = GetMemPTD ()->lphtsGLB;
 
     // Set mask flags
     stMaskFlags.Imm     =
@@ -1812,7 +1819,7 @@ LPSYMENTRY _SymTabLookupFloat
              lpHshEntry NE LPHSHENTRY_NONE;
              lpHshEntry = lpHshEntry->NextSameHash)
 #ifdef DEBUG
-        if (!lpHshEntry)
+        if (lpHshEntry EQ NULL)
         {
             DbgStop ();             // We should never get here
             DisplayHshTab (lphtsPTD);
@@ -1843,7 +1850,7 @@ LPSYMENTRY _SymTabLookupFloat
     MyLeaveCriticalSection (&CSOHshTab);
 
     return lpSymEntry;
-} // End _SymTabLookupFloat
+} // End SymTabHTSLookupFloat
 
 
 //***************************************************************************
@@ -1858,21 +1865,21 @@ LPSYMENTRY SymTabLookupName
 
 {
     return
-      _SymTabLookupNameLength (lpwszString,             // Ptr to the name to lookup
-                               lstrlenW (lpwszString),  // Length of the name
-                               lpstFlags,               // Ptr to flags filter
-                               FALSE,                   // TRUE iff the name is to be local to the given HTS
-                               NULL);                   // Ptr to HshTab struc (may be NULL)
+      SymTabHTSLookupNameLength (lpwszString,               // Ptr to the name to lookup
+                                 lstrlenW (lpwszString),    // Length of the name
+                                 lpstFlags,                 // Ptr to flags filter
+                                 FALSE,                     // TRUE iff the name is to be local to the given HTS
+                                 NULL);                     // Ptr to HshTab struc (may be NULL)
 } // End SymTabLookupName
 
 
 //***************************************************************************
-//  $_SymTabLookupName
+//  $SymTabHTSLookupName
 //
 //  Lookup a named entry based upon hash, flags, and value
 //***************************************************************************
 
-LPSYMENTRY _SymTabLookupName
+LPSYMENTRY SymTabHTSLookupName
     (LPWCHAR     lpwszString,                           // Ptr to the name to lookup
      LPSTFLAGS   lpstFlags,                             // Ptr to flags filter
      UBOOL       bLocalName,                            // TRUE iff the name is to be local to the given HTS
@@ -1880,12 +1887,12 @@ LPSYMENTRY _SymTabLookupName
 
 {
     return
-      _SymTabLookupNameLength (lpwszString,             // Ptr to the name to lookup
-                               lstrlenW (lpwszString),  // Length of the name
-                               lpstFlags,               // Ptr to flags filter
-                               bLocalName,              // TRUE iff the name is to be local to the given HTS
-                               lpHTS);                  // Ptr to HshTab struc (may be NULL)
-} // End _SymTabLookupName
+      SymTabHTSLookupNameLength (lpwszString,             // Ptr to the name to lookup
+                                 lstrlenW (lpwszString),  // Length of the name
+                                 lpstFlags,               // Ptr to flags filter
+                                 bLocalName,              // TRUE iff the name is to be local to the given HTS
+                                 lpHTS);                  // Ptr to HshTab struc (may be NULL)
+} // End SymTabHTSLookupName
 
 
 //***************************************************************************
@@ -1948,22 +1955,22 @@ LPSYMENTRY SymTabLookupNameLength
      LPSTFLAGS lpstFlags)           // Ptr to flags filter
 
 {
-    return _SymTabLookupNameLength (lpwString,  // Ptr to the name to lookup (not necessarily zero-terminated)
-                                    iLen,       // Length of the name
-                                    lpstFlags,  // Ptr to flags filter
-                                    FALSE,      // TRUE iff the name is to be local to the given HTS
-                                    NULL);      // Ptr to HshTab struc (may be NULL)
+    return SymTabHTSLookupNameLength (lpwString,    // Ptr to the name to lookup (not necessarily zero-terminated)
+                                      iLen,         // Length of the name
+                                      lpstFlags,    // Ptr to flags filter
+                                      FALSE,        // TRUE iff the name is to be local to the given HTS
+                                      NULL);        // Ptr to HshTab struc (may be NULL)
 } // End SymTabLookupNameLength
 
 
 //***************************************************************************
-//  $_SymTabLookupNameLength
+//  $SymTabHTSLookupNameLength
 //
 //  Lookup a named entry based upon hash, flags, and value
 //    using a specific HTS
 //***************************************************************************
 
-LPSYMENTRY _SymTabLookupNameLength
+LPSYMENTRY SymTabHTSLookupNameLength
     (LPWCHAR     lpwString,         // Ptr to the name to lookup (not necessarily zero-terminated)
      APLU3264    iLen,              // Length of the name
      LPSTFLAGS   lpstFlags,         // Ptr to flags filter
@@ -2064,7 +2071,7 @@ LPSYMENTRY _SymTabLookupNameLength
                 Assert (lpHshEntry->htGlbName NE NULL);
 
                 // Lock the memory to get a ptr to it
-                lpwGlbName = MyGlobalLock (lpHshEntry->htGlbName);
+                lpwGlbName = MyGlobalLockWsz (lpHshEntry->htGlbName);
 
 #define ToLowerUnd(wch)     ((UTF16_A_ <= wch && wch <= UTF16_Z_) ? L'a' + (wch - UTF16_A_) : wch)
 
@@ -2108,7 +2115,7 @@ LPSYMENTRY _SymTabLookupNameLength
     MyLeaveCriticalSection (&CSOHshTab);
 ERROR_EXIT:
     return lpSymEntry;
-} // End _SymTabLookupNameLength
+} // End SymTabHTSLookupNameLength
 
 
 //***************************************************************************
@@ -2155,7 +2162,7 @@ LPSYMENTRY MakeSymEntry_EM
     } // End SWITCH
 
     // If it failed and there's a function token, set the error token
-    if (!lpSymDst && lptkFunc)
+    if (lpSymDst EQ NULL && lptkFunc)
         ErrorMessageSetToken (lptkFunc);
 
     return lpSymDst;
@@ -2211,7 +2218,7 @@ LPSYMENTRY CopyImmSymEntry_EM
     } // End SWITCH
 
     // If it failed and there's a function token, set the error token
-    if (!lpSymDst && lptkFunc)
+    if (lpSymDst EQ NULL && lptkFunc)
         ErrorMessageSetToken (lptkFunc);
 
     return lpSymDst;
@@ -2229,20 +2236,20 @@ LPSYMENTRY SymTabAppendInteger_EM
      UBOOL       bUseCommon)        // TRUE iff we may use common cases
 
 {
-    return _SymTabAppendInteger_EM (aplInteger, // The integer to append
-                                    bUseCommon, // TRUE iff we may use common cases
-                                    NULL);      // Ptr to HshTab struc (may be NULL)
+    return SymTabHTSAppendInteger_EM (aplInteger,   // The integer to append
+                                      bUseCommon,   // TRUE iff we may use common cases
+                                      NULL);        // Ptr to HshTab struc (may be NULL)
 } // End SymTabAppendInteger_EM
 
 
 //***************************************************************************
-//  $_SymTabAppendInteger_EM
+//  $SymTabHTSAppendInteger_EM
 //
 //  Append a Boolean or long long integer to the symbol table
 //    using a specific HTS
 //***************************************************************************
 
-LPSYMENTRY _SymTabAppendInteger_EM
+LPSYMENTRY SymTabHTSAppendInteger_EM
     (APLINT      aplInteger,        // The integer to append
      UBOOL       bUseCommon,        // TRUE iff we may use common cases
      LPHSHTABSTR lphtsPTD)          // Ptr to HshTab struc (may be NULL)
@@ -2260,7 +2267,7 @@ LPSYMENTRY _SymTabAppendInteger_EM
     // If we're to supply our own HTS, ...
     if (lphtsPTD EQ NULL)
         // Get a ptr to the HshTab & SymTab strucs
-        lphtsPTD = lpMemPTD->lphtsPTD;
+        lphtsPTD = lpMemPTD->lphtsGLB;
 
     MyEnterCriticalSection (&CSOHshTab);
 
@@ -2268,16 +2275,16 @@ LPSYMENTRY _SymTabAppendInteger_EM
     if (bUseCommon)
     {
         // Split off common Boolean cases
-        if (aplInteger EQ 0 && lpMemPTD->lphtsPTD->steZero)
+        if (aplInteger EQ 0 && lphtsPTD->steZero)
         {
-            lpSymEntryDest = lpMemPTD->lphtsPTD->steZero;
+            lpSymEntryDest = lphtsPTD->steZero;
 
             goto NORMAL_EXIT;
         } // End IF
 
-        if (aplInteger EQ 1 && lpMemPTD->lphtsPTD->steOne)
+        if (aplInteger EQ 1 && lphtsPTD->steOne)
         {
-            lpSymEntryDest = lpMemPTD->lphtsPTD->steOne;
+            lpSymEntryDest = lphtsPTD->steOne;
 
             goto NORMAL_EXIT;
         } // End IF
@@ -2301,12 +2308,12 @@ LPSYMENTRY _SymTabAppendInteger_EM
     // Use common cases?
     if (bUseCommon)
         // Lookup the number in the symbol table
-        lpSymEntryDest = _SymTabLookupNumber (uHash, aplInteger, &stNeedFlags, lphtsPTD);
+        lpSymEntryDest = SymTabHTSLookupNumber (uHash, aplInteger, &stNeedFlags, lphtsPTD);
     else
         lpSymEntryDest = NULL;
 
     // If it's not found, ...
-    if (!lpSymEntryDest)
+    if (lpSymEntryDest EQ NULL)
     {
         LPHSHENTRY lpHshEntryHash;
 
@@ -2314,7 +2321,7 @@ LPSYMENTRY _SymTabAppendInteger_EM
         lpHshEntryDest = FindNextFreeUsingHash_SPLIT_EM (uHash, TRUE, lphtsPTD);
 
         // If it's invalid, quit
-        if (!lpHshEntryDest)
+        if (lpHshEntryDest EQ NULL)
             goto ERROR_EXIT;
 
         // We *MUST NOT* call MaskTheHash until after the call
@@ -2369,7 +2376,7 @@ NORMAL_EXIT:
     MyLeaveCriticalSection (&CSOHshTab);
 
     return lpSymEntryDest;
-} // End _SymTabAppendInteger_EM
+} // End SymTabHTSAppendInteger_EM
 
 
 //***************************************************************************
@@ -2382,19 +2389,19 @@ LPSYMENTRY SymTabAppendFloat_EM
     (APLFLOAT aplFloat)             // The float to append
 
 {
-    return _SymTabAppendFloat_EM (aplFloat, // The float to append
-                                  NULL);    // Ptr to HshTab struc (may be NULL)
+    return SymTabHTSAppendFloat_EM (aplFloat,   // The float to append
+                                    NULL);      // Ptr to HshTab struc (may be NULL)
 } // End SymTabAppendFloat_EM
 
 
 //***************************************************************************
-//  $_SymTabAppendFloat_EM
+//  $SymTabHTSAppendFloat_EM
 //
 //  Append a Floating Point number to the symbol table
 //    using a specific HTS
 //***************************************************************************
 
-LPSYMENTRY _SymTabAppendFloat_EM
+LPSYMENTRY SymTabHTSAppendFloat_EM
     (APLFLOAT    aplFloat,          // The float to append
      LPHSHTABSTR lphtsPTD)          // Ptr to HshTab struc (may be NULL)
 
@@ -2407,7 +2414,7 @@ LPSYMENTRY _SymTabAppendFloat_EM
     // If we're to supply our own HTS, ...
     if (lphtsPTD EQ NULL)
         // Get a ptr to the HshTab & SymTab strucs
-        lphtsPTD = GetMemPTD ()->lphtsPTD;
+        lphtsPTD = GetMemPTD ()->lphtsGLB;
 
     MyEnterCriticalSection (&CSOHshTab);
 
@@ -2423,8 +2430,8 @@ LPSYMENTRY _SymTabAppendFloat_EM
     stNeedFlags.ImmType = IMMTYPE_FLOAT;
 
     // Lookup the number in the symbol table
-    lpSymEntryDest = _SymTabLookupFloat (uHash, aplFloat, &stNeedFlags, lphtsPTD);
-    if (!lpSymEntryDest)
+    lpSymEntryDest = SymTabHTSLookupFloat (uHash, aplFloat, &stNeedFlags, lphtsPTD);
+    if (lpSymEntryDest EQ NULL)
     {
         LPHSHENTRY lpHshEntryHash;
 
@@ -2432,7 +2439,7 @@ LPSYMENTRY _SymTabAppendFloat_EM
         lpHshEntryDest = FindNextFreeUsingHash_SPLIT_EM (uHash, TRUE, lphtsPTD);
 
         // If it's invalid, quit
-        if (!lpHshEntryDest)
+        if (lpHshEntryDest EQ NULL)
             goto ERROR_EXIT;
 
         // We *MUST NOT* call MaskTheHash until after the call
@@ -2486,7 +2493,7 @@ ERROR_EXIT:
     MyLeaveCriticalSection (&CSOHshTab);
 
     return lpSymEntryDest;
-} // End _SymTabAppendFloat_EM
+} // End SymTabHTSAppendFloat_EM
 
 
 //***************************************************************************
@@ -2500,20 +2507,20 @@ LPSYMENTRY SymTabAppendChar_EM
      UBOOL       bUseCommon)        // TRUE iff we may use common cases
 
 {
-    return _SymTabAppendChar_EM (aplChar,       // The char to append
-                                 bUseCommon,    // TRUE iff we may use common cases
-                                 NULL);         // Ptr to HshTab struc (may be NULL)
+    return SymTabHTSAppendChar_EM (aplChar,     // The char to append
+                                   bUseCommon,  // TRUE iff we may use common cases
+                                   NULL);       // Ptr to HshTab struc (may be NULL)
 } // End SymTabAppendChar_EM
 
 
 //***************************************************************************
-//  $_SymTabAppendChar_EM
+//  $SymTabHTSAppendChar_EM
 //
 //  Append a character to the symbol table
 //    using a specific HTS
 //***************************************************************************
 
-LPSYMENTRY _SymTabAppendChar_EM
+LPSYMENTRY SymTabHTSAppendChar_EM
     (APLCHAR     aplChar,           // The char to append
      UBOOL       bUseCommon,        // TRUE iff we may use common cases
      LPHSHTABSTR lphtsPTD)          // Ptr to HshTab struc (may be NULL)
@@ -2533,15 +2540,15 @@ LPSYMENTRY _SymTabAppendChar_EM
     // If we're to supply our own HTS, ...
     if (lphtsPTD EQ NULL)
         // Get a ptr to the HshTab & SymTab strucs
-        lphtsPTD = lpMemPTD->lphtsPTD;
+        lphtsPTD = lpMemPTD->lphtsGLB;
 
     // Use common cases?
     if (bUseCommon)
     {
         // Split off common blank case
-        if (aplChar EQ L' ' && lpMemPTD->lphtsPTD->steBlank)
+        if (aplChar EQ L' ' && lphtsPTD->steBlank)
         {
-            lpSymEntryDest = lpMemPTD->lphtsPTD->steBlank;
+            lpSymEntryDest = lphtsPTD->steBlank;
 
             goto NORMAL_EXIT;
         } // End IF
@@ -2561,12 +2568,12 @@ LPSYMENTRY _SymTabAppendChar_EM
     // Use common cases?
     if (bUseCommon)
         // Lookup the char in the symbol table
-        lpSymEntryDest = _SymTabLookupChar (uHash, aplChar, &stNeedFlags, lphtsPTD);
+        lpSymEntryDest = SymTabHTSLookupChar (uHash, aplChar, &stNeedFlags, lphtsPTD);
     else
         lpSymEntryDest = NULL;
 
     // If it's not found, ...
-    if (!lpSymEntryDest)
+    if (lpSymEntryDest EQ NULL)
     {
         LPHSHENTRY lpHshEntryHash;
 
@@ -2574,7 +2581,7 @@ LPSYMENTRY _SymTabAppendChar_EM
         lpHshEntryDest = FindNextFreeUsingHash_SPLIT_EM (uHash, TRUE, lphtsPTD);
 
         // If it's invalid, quit
-        if (!lpHshEntryDest)
+        if (lpHshEntryDest EQ NULL)
             goto ERROR_EXIT;
 
         // We *MUST NOT* call MaskTheHash until after the call
@@ -2629,7 +2636,7 @@ NORMAL_EXIT:
     MyLeaveCriticalSection (&CSOHshTab);
 
     return lpSymEntryDest;
-} // End _SymTabAppendChar_EM
+} // End SymTabHTSAppendChar_EM
 
 
 //***************************************************************************
@@ -2643,27 +2650,27 @@ LPSYMENTRY SymTabAppendName_EM
      LPSTFLAGS   lpstFlags)             // Ptr to incoming stFlags (may be NULL)
 
 {
-    return _SymTabAppendName_EM (lpwszString,   // Ptr to name
-                                 lpstFlags,     // Ptr to incoming stFlags (may be NULL)
-                                 FALSE,         // TRUE iff the name is to be local to the given HTS
-                                 NULL);         // Ptr to HshTab struc (may be NULL)
+    return SymTabHTSAppendName_EM (lpwszString, // Ptr to name
+                                   lpstFlags,   // Ptr to incoming stFlags (may be NULL)
+                                   FALSE,       // TRUE iff the name is to be local to the given HTS
+                                   NULL);       // Ptr to HshTab struc (may be NULL)
 } // End SymTabAppendName_EM
 
 
 //***************************************************************************
-//  $_SymTabAppendName_EM
+//  $SymTabHTSAppendName_EM
 //
 //  Append a name to the symbol table
 //    using a specific HTS
 //***************************************************************************
 
 #ifdef DEBUG
-#define APPEND_NAME     L" -- _SymTabAppendName_EM"
+#define APPEND_NAME     L" -- SymTabHTSAppendName_EM"
 #else
 #define APPEND_NAME
 #endif
 
-LPSYMENTRY _SymTabAppendName_EM
+LPSYMENTRY SymTabHTSAppendName_EM
     (LPWCHAR     lpwszString,           // Ptr to name
      LPSTFLAGS   lpstFlags,             // Ptr to incoming stFlags (may be NULL)
      UBOOL       bLocalName,            // TRUE iff the name is to be local to the given HTS
@@ -2687,18 +2694,18 @@ LPSYMENTRY _SymTabAppendName_EM
     // Lookup the name in the symbol table
     // SymTabLookupName sets the .ObjName enum,
     //   and the .Inuse flag
-    lpSymEntry = _SymTabLookupName (lpwszString, lpstFlags, bLocalName, lphtsPTD);
+    lpSymEntry = SymTabHTSLookupName (lpwszString, lpstFlags, bLocalName, lphtsPTD);
 
     // If not found and it's a system name, fail
     //    as we don't handle unknown system names
-    if (!lpSymEntry)
+    if (lpSymEntry EQ NULL)
     {
         if (lpstFlags->ObjName EQ OBJNAME_SYS)
             goto SYNTAX_EXIT;
         else
             lpSymEntry =
-              _SymTabAppendNewName_EM (lpwszString, lpstFlags, lphtsPTD);
-        if (!lpSymEntry)
+              SymTabHTSAppendNewName_EM (lpwszString, lpstFlags, lphtsPTD);
+        if (lpSymEntry EQ NULL)
             goto ERROR_EXIT;
     } // End IF
 
@@ -2715,7 +2722,7 @@ NORMAL_EXIT:
     MyLeaveCriticalSection (&CSOHshTab);
 
     return lpSymEntry;
-} // End _SymTabAppendName_EM
+} // End SymTabHTSAppendName_EM
 #undef  APPEND_NAME
 
 
@@ -2731,14 +2738,14 @@ LPSYMENTRY SymTabAppendNewName_EM
      LPSTFLAGS   lpstFlags)             // Ptr to incoming stFlags (may be NULL)
 
 {
-    return _SymTabAppendNewName_EM (lpwszString,    // Ptr to name
-                                    lpstFlags,      // Ptr to incoming stFlags (may be NULL)
-                                    NULL);          // Ptr to HshTab struc (may be NULL)
+    return SymTabHTSAppendNewName_EM (lpwszString,  // Ptr to name
+                                      lpstFlags,    // Ptr to incoming stFlags (may be NULL)
+                                      NULL);        // Ptr to HshTab struc (may be NULL)
 } // End SymTabAppendNewname_EM
 
 
 //***************************************************************************
-//  $_SymTabAppendNewName_EM
+//  $SymTabHTSAppendNewName_EM
 //
 //  Append a new name to the symbol table
 //    (no need to look it up as we know it isn't there)
@@ -2746,12 +2753,12 @@ LPSYMENTRY SymTabAppendNewName_EM
 //***************************************************************************
 
 #ifdef DEBUG
-#define APPEND_NAME     L" -- _SymTabAppendNewName_EM"
+#define APPEND_NAME     L" -- SymTabHTSAppendNewName_EM"
 #else
 #define APPEND_NAME
 #endif
 
-LPSYMENTRY _SymTabAppendNewName_EM
+LPSYMENTRY SymTabHTSAppendNewName_EM
     (LPWCHAR     lpwszString,           // Ptr to name
      LPSTFLAGS   lpstFlags,             // Ptr to incoming stFlags (may be NULL)
      LPHSHTABSTR lphtsPTD)              // Ptr to HshTab struc (may be NULL)
@@ -2795,7 +2802,7 @@ LPSYMENTRY _SymTabAppendNewName_EM
     lpHshEntryDest = FindNextFreeUsingHash_SPLIT_EM (uHash, TRUE, lphtsPTD);
 
     // If it's invalid, quit
-    if (!lpHshEntryDest)
+    if (lpHshEntryDest EQ NULL)
         goto ERROR_EXIT;
 
     // Ensure there's enough room in the symbol table for one more entry
@@ -2825,14 +2832,14 @@ LPSYMENTRY _SymTabAppendNewName_EM
 
     // Allocate global memory for the name ("+ 1" for the terminating zero)
     lpHshEntryDest->htGlbName = DbgGlobalAlloc (GHND, (iLen + 1) * sizeof (WCHAR));
-    if (!lpHshEntryDest->htGlbName)
+    if (lpHshEntryDest->htGlbName EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpwGlbName = MyGlobalLock (lpHshEntryDest->htGlbName);
+    lpwGlbName = MyGlobalLock000 (lpHshEntryDest->htGlbName);
 
     // Copy the name to the global memory
-    lstrcpyW (lpwGlbName, lpwszString);
+    strcpyW (lpwGlbName, lpwszString);
 
     // We no longer need this ptr
     MyGlobalUnlock (lpHshEntryDest->htGlbName); lpwGlbName = NULL;
@@ -2872,7 +2879,7 @@ NORMAL_EXIT:
     MyLeaveCriticalSection (&CSOHshTab);
 
     return lpSymEntryDest;
-} // End _SymTabAppendNewName_EM
+} // End SymTabHTSAppendNewName_EM
 #undef  APPEND_NAME
 
 
@@ -2882,16 +2889,22 @@ NORMAL_EXIT:
 //  Allocate global or virtual memory for the HshTab
 //***************************************************************************
 
+#ifdef DEBUG
+#define APPEND_NAME     L" -- AllocHshTab"
+#else
+#define APPEND_NAME
+#endif
+
 UBOOL AllocHshTab
     (LPMEMVIRTSTR lpLclMemVirtStr,  // Ptr to this entry in MemVirtStr (may be NULL if global allocation)
      LPHSHTABSTR  lpHTS,            // Ptr to HshTab Struc
-     UINT         uHshTabInitBlks,  // # blocks in this HshTab
-     UINT         uHshTabIncrNelm,  // # HTEs by which to resize when low
-     UINT         uHshTabMaxNelm)   // Maximum # HTEs
+     size_t       uHshTabInitBlks,  // # blocks in this HshTab
+     size_t       uHshTabIncrNelm,  // # HTEs by which to resize when low
+     size_t       uHshTabMaxNelm)   // Maximum # HTEs
 
 {
-    UINT uHshTabInitNelm,           // Initial NELM of HshTab
-         uCnt;                      // Loop counter
+    size_t uHshTabInitNelm;         // Initial NELM of HshTab
+    UINT   uCnt;                    // Loop counter
 
     // Validate the incoming constants
 
@@ -2900,14 +2913,14 @@ UBOOL AllocHshTab
         DbgStop ();
 
     // The maximum NELM must be divisible by DEF_HSHTAB_EPB
-    if (uHshTabMaxNelm % DEF_HSHTAB_EPB)
+    if (0 NE (uHshTabMaxNelm % DEF_HSHTAB_EPB))
         DbgStop ();
 
     // Calculate the initial # entries
     uHshTabInitNelm = uHshTabInitBlks * DEF_HSHTAB_EPB;
 
     // The amount to resize must be a divisor of uHshTabInitNelm
-    if (uHshTabInitNelm % uHshTabIncrNelm)
+    if (0 NE (uHshTabInitNelm % uHshTabIncrNelm))
         DbgStop ();
 
     // The maximum size must be >= the initial size
@@ -2915,33 +2928,33 @@ UBOOL AllocHshTab
         DbgStop ();
 
     // Initialize HTS fields
-    lpHTS->iHshTabTotalNelm = uHshTabInitNelm;
-    lpHTS->iHshTabBaseNelm  = uHshTabInitNelm;
-    lpHTS->iHshTabIncrFree  = DEF_HSHTAB_PRIME % uHshTabInitNelm;
-    lpHTS->iHshTabIncrNelm  = uHshTabIncrNelm;
-    lpHTS->uHashMask        = uHshTabInitBlks - 1;
+    lpHTS->iHshTabTotalNelm = (UINT) uHshTabInitNelm;
+    lpHTS->iHshTabBaseNelm  = (UINT) uHshTabInitNelm;
+    lpHTS->iHshTabIncrFree  = (UINT) (DEF_HSHTAB_PRIME % uHshTabInitNelm);
+    lpHTS->iHshTabIncrNelm  = (UINT) uHshTabIncrNelm;
+    lpHTS->uHashMask        = (UINT) uHshTabInitBlks - 1;
     lpHTS->iHshTabEPB       = DEF_HSHTAB_EPB;
 
     // If we are to allocate globally, ...
     if (lpLclMemVirtStr EQ NULL)
     {
         lpHTS->lpHshTab =
-          MyGlobalAlloc (GPTR, uHshTabMaxNelm  * sizeof (lpHTS->lpHshTab[0]));
+          DbgGlobalAlloc (GPTR, uHshTabMaxNelm  * sizeof (lpHTS->lpHshTab[0]));
 
-        if (!lpHTS->lpHshTab)
+        if (lpHTS->lpHshTab EQ NULL)
             return FALSE;
     } else
     {
         // Allocate virtual memory for the hash table
-        lpLclMemVirtStr->IncrSize = uHshTabIncrNelm * sizeof (lpHTS->lpHshTab[0]);
-        lpLclMemVirtStr->MaxSize  = uHshTabMaxNelm  * sizeof (lpHTS->lpHshTab[0]);
+        lpLclMemVirtStr->IncrSize = (UINT) (uHshTabIncrNelm * sizeof (lpHTS->lpHshTab[0]));
+        lpLclMemVirtStr->MaxSize  = (UINT) (uHshTabMaxNelm  * sizeof (lpHTS->lpHshTab[0]));
         lpLclMemVirtStr->IniAddr  = (LPVOID)
         lpHTS->lpHshTab =
           GuardAlloc (NULL,             // Any address
                       lpLclMemVirtStr->MaxSize,
                       MEM_RESERVE,
                       PAGE_READWRITE);
-        if (!lpLclMemVirtStr->IniAddr)
+        if (lpLclMemVirtStr->IniAddr EQ NULL)
             return FALSE;
 
         // Link this struc into the chain
@@ -2972,6 +2985,7 @@ UBOOL AllocHshTab
 
     return TRUE;
 } // End AllocHshTab
+#undef  APPEND_NAME
 
 
 //***************************************************************************
@@ -2980,21 +2994,27 @@ UBOOL AllocHshTab
 //  Allocate global or virtual memory for the SymTab
 //***************************************************************************
 
+#ifdef DEBUG
+#define APPEND_NAME     L" -- AllocSymTab"
+#else
+#define APPEND_NAME
+#endif
+
 UBOOL AllocSymTab
     (LPMEMVIRTSTR lpLclMemVirtStr,  // Ptr to this entry in MemVirtStr (may be NULL if global allocation)
      LPPERTABDATA lpMemPTD,         // Ptr to PerTabData global memory
      LPHSHTABSTR  lpHTS,            // Ptr to HshTab Struc
-     UINT         uSymTabInitNelm,  // Initial # STEs in SymTab
-     UINT         uSymTabIncrNelm,  // # STEs by which to resize when low
-     UINT         uSymTabMaxNelm)   // Maximum # STEs
+     size_t       uSymTabInitNelm,  // Initial # STEs in SymTab
+     size_t       uSymTabIncrNelm,  // # STEs by which to resize when low
+     size_t       uSymTabMaxNelm)   // Maximum # STEs
 
 {
 ////WCHAR wszTemp[1024];            // ***DEBUG***
 
     // Validate the incoming constants
 
-    // The amount to resize must be a divisor of uHshTabInitNelm
-    if (uSymTabInitNelm % uSymTabIncrNelm)
+    // The amount to resize must be a divisor of uSymTabInitNelm
+    if (0 NE (uSymTabInitNelm % uSymTabIncrNelm))
         DbgStop ();
 
     // The maximum NELM must be >= the initial NELM
@@ -3002,29 +3022,29 @@ UBOOL AllocSymTab
         DbgStop ();
 
     // Initialize HTS fields
-    lpHTS->uSymTabIncrNelm  = uSymTabIncrNelm;
-    lpHTS->iSymTabTotalNelm = uSymTabInitNelm;
+    lpHTS->uSymTabIncrNelm  = (UINT) uSymTabIncrNelm;
+    lpHTS->iSymTabTotalNelm = (UINT) uSymTabInitNelm;
 
     // If we are to allocate globally, ...
     if (lpLclMemVirtStr EQ NULL)
     {
         lpHTS->lpSymTab =
-          MyGlobalAlloc (GPTR, uSymTabMaxNelm  * sizeof (lpHTS->lpSymTab[0]));
+          DbgGlobalAlloc (GPTR, uSymTabMaxNelm  * sizeof (lpHTS->lpSymTab[0]));
 
-        if (!lpHTS->lpSymTab)
+        if (lpHTS->lpSymTab EQ NULL)
             return FALSE;
     } else
     {
         // Allocate virtual memory for the symbol table
-        lpLclMemVirtStr->IncrSize = uSymTabIncrNelm * sizeof (lpHTS->lpSymTab[0]);
-        lpLclMemVirtStr->MaxSize  = uSymTabMaxNelm  * sizeof (lpHTS->lpSymTab[0]);
+        lpLclMemVirtStr->IncrSize = (UINT) (uSymTabIncrNelm * sizeof (lpHTS->lpSymTab[0]));
+        lpLclMemVirtStr->MaxSize  = (UINT) (uSymTabMaxNelm  * sizeof (lpHTS->lpSymTab[0]));
         lpLclMemVirtStr->IniAddr  = (LPVOID)
         lpHTS->lpSymTab =
           GuardAlloc (NULL,             // Any address
                       lpLclMemVirtStr->MaxSize,
                       MEM_RESERVE,
                       PAGE_READWRITE);
-        if (!lpLclMemVirtStr->IniAddr)
+        if (lpLclMemVirtStr->IniAddr EQ NULL)
             return FALSE;
 
         // Link this struc into the chain
@@ -3038,28 +3058,29 @@ UBOOL AllocSymTab
     } // End IF/ELSE
 
 ////// ***DEBUG***
-////wsprintfW (wszTemp,
+////MySprintfW (wszTemp,
+////            sizeof (wszTemp),
 ////           L"NEW SYMBOL TABLE (%p):  GlbHshSymTabs (%d) Init (%u) Incr (%u) Max (%u)",
-////           lpHTS->lpSymTab,
-////           lpHTS->bGlbHshSymTabs,
-////                  uSymTabInitNelm,
-////                  uSymTabIncrNelm,
-////                  uSymTabMaxNelm);
+////            lpHTS->lpSymTab,
+////            lpHTS->bGlbHshSymTabs,
+////                   uSymTabInitNelm,
+////                   uSymTabIncrNelm,
+////                   uSymTabMaxNelm);
 ////MBW (wszTemp);
 
     // Initialize next available entry
     lpHTS->lpSymTabNext = lpHTS->lpSymTab;
 
     // Initialize the Symbol Table Entry for the special constants and names
-    lpHTS->steZero      = _SymTabAppendInteger_EM (0                      , FALSE, lpHTS);
-    lpHTS->steOne       = _SymTabAppendInteger_EM (1                      , FALSE, lpHTS);
-    lpHTS->steBlank     = _SymTabAppendChar_EM    (L' '                   , FALSE, lpHTS);
-    lpHTS->steAlpha     = _SymTabAppendName_EM    (WS_UTF16_ALPHA  , NULL , TRUE , lpHTS);
-    lpHTS->steDel       = _SymTabAppendName_EM    (WS_UTF16_DEL    , NULL , TRUE , lpHTS);
-    lpHTS->steOmega     = _SymTabAppendName_EM    (WS_UTF16_OMEGA  , NULL , TRUE , lpHTS);
-    lpHTS->steLftOper   = _SymTabAppendName_EM    (WS_UTF16_LFTOPER, NULL , TRUE , lpHTS);
-    lpHTS->steDelDel    = _SymTabAppendName_EM    (WS_UTF16_DELDEL , NULL , TRUE , lpHTS);
-    lpHTS->steRhtOper   = _SymTabAppendName_EM    (WS_UTF16_RHTOPER, NULL , TRUE , lpHTS);
+    lpHTS->steZero      = SymTabHTSAppendInteger_EM (0                      , FALSE, lpHTS);
+    lpHTS->steOne       = SymTabHTSAppendInteger_EM (1                      , FALSE, lpHTS);
+    lpHTS->steBlank     = SymTabHTSAppendChar_EM    (L' '                   , FALSE, lpHTS);
+    lpHTS->steAlpha     = SymTabHTSAppendName_EM    (WS_UTF16_ALPHA  , NULL , TRUE , lpHTS);
+    lpHTS->steDel       = SymTabHTSAppendName_EM    (WS_UTF16_DEL    , NULL , TRUE , lpHTS);
+    lpHTS->steOmega     = SymTabHTSAppendName_EM    (WS_UTF16_OMEGA  , NULL , TRUE , lpHTS);
+    lpHTS->steLftOper   = SymTabHTSAppendName_EM    (WS_UTF16_LFTOPER, NULL , TRUE , lpHTS);
+    lpHTS->steDelDel    = SymTabHTSAppendName_EM    (WS_UTF16_DELDEL , NULL , TRUE , lpHTS);
+    lpHTS->steRhtOper   = SymTabHTSAppendName_EM    (WS_UTF16_RHTOPER, NULL , TRUE , lpHTS);
     lpHTS->steNoValue   = lpHTS->lpSymTabNext++;
 #ifdef DEBUG
     // Save the header signature
@@ -3095,6 +3116,7 @@ UBOOL AllocSymTab
         return TRUE;
     } // End IF
 } // End AllocSymTab
+#undef  APPEND_NAME
 
 
 //***************************************************************************
@@ -3102,6 +3124,12 @@ UBOOL AllocSymTab
 //
 //  Free the storage associated with a HshTab and its associated SymTab
 //***************************************************************************
+
+#ifdef DEBUG
+#define APPEND_NAME     L" -- FreeHshSymTabs"
+#else
+#define APPEND_NAME
+#endif
 
 void FreeHshSymTabs
     (LPHSHTABSTR lpHTS,                 // Ptr to HshTab struc
@@ -3133,6 +3161,13 @@ void FreeHshSymTabs
             {
                 if (!lp->htFlags.CharIsValid)
                 {
+                    // If the ptr to the name is valid, ...
+                    if (lp->htGlbName NE NULL)
+                    {
+                        // Free the name
+                        DbgGlobalFree (lp->htGlbName); lp->htGlbName = NULL;
+                    } // End IF
+
                     Assert (lp->htSymEntry->stFlags.Inuse);
 
                     // If the entry has a value
@@ -3147,7 +3182,7 @@ void FreeHshSymTabs
             // If the Hsh & Sym tabs are from global (not virtual) memory, ...
             if (lpHTS->bGlbHshSymTabs)
                 // We no longer need this storage
-                MyGlobalFree (lpHTS->lpSymTab);
+                DbgGlobalFree (lpHTS->lpSymTab);
             else
                 // Free the virtual memory and unlink it
                 FreeVirtUnlink (PTDMEMVIRT_SYMTAB, NULL);
@@ -3158,7 +3193,7 @@ void FreeHshSymTabs
         // If the Hsh & Sym tabs are from global (not virtual) memory, ...
         if (lpHTS->bGlbHshSymTabs)
             // We no longer need this storage
-            MyGlobalFree (lpHTS->lpHshTab);
+            DbgGlobalFree (lpHTS->lpHshTab);
         else
             // Free the virtual memory and unlink it
             FreeVirtUnlink (PTDMEMVIRT_HSHTAB, NULL);
@@ -3172,7 +3207,7 @@ void FreeHshSymTabs
         // If the Hsh & Sym tabs are from global (not virtual) memory, ...
         if (lpHTS->bGlbHshSymTabs)
             // We no longer need this storage
-            MyGlobalFree (lpHTS);
+            DbgGlobalFree (lpHTS);
         else
             // Free the virtual memory and unlink it
             FreeVirtUnlink (PTDMEMVIRT_HTSPTD, NULL);
@@ -3182,6 +3217,7 @@ void FreeHshSymTabs
 
     MyLeaveCriticalSection (&CSOHshTab);
 } // End FreeHshSymTabs
+#undef  APPEND_NAME
 
 
 //***************************************************************************

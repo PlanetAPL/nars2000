@@ -1,0 +1,9 @@
+Build #1350 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Comparing Infinite MPFRs W.R.T []CT
+
+Directory trunk:
+
+MPFNS.C:
+  Fix bug when comparing infinite MPFRs w.r.t. []CT.

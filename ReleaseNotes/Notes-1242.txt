@@ -1,0 +1,16 @@
+Build #1242 -- Version 0.4.8.xx
+-------------------------------
+
+* Fix Race Condition Bug When Erasing a Native File
+
+Directory trunk:
+
+QF_NFNS.C:
+  Update copyright year.
+  Factor out <CloseHandle> from inside <NfnsRleaseOneResource> inside <NfnsReleaseResources>
+    so as to be able to delete file while the ptr to the filename is still valid.
+  In <NfnsReleasseOneResource>, test for validity before closing/freeing the resource.
+  In <NfnsEraseRenameResize_EM> when erasing a native file,
+    the unlock tests at the end of the subroutine must test for
+    the presence of the global memory handle.
+  In <NfnsErase>, close the handle, delete the file, and then release the resources.

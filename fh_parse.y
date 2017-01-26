@@ -8,7 +8,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ void fh_yyprint     (FILE *yyoutput, unsigned short int yytoknum, FH_YYSTYPE con
 %}
 
 %pure-parser
-%name-prefix="fh_yy"
+%name-prefix "fh_yy"
 %parse-param {LPFHLOCALVARS lpfhLocalVars}
 %lex-param   {LPFHLOCALVARS lpfhLocalVars}
 %token NAMEUNK NAMEOPR NAMESYS ASSIGN LINECONT UNK SOS NOMORE
@@ -91,9 +91,17 @@ Result
     5.  {(Z1 Z2 ...)}{is}
     6.  ({Z1 Z2 ...}){is}
 
+Left Arg
+--------
+    1.  **Empty**
+
 Fcn
 ---
     1.  FOO
+
+Right Arg
+---------
+    1.  **Empty**
 
 
 Monadic/Dyadic Functions/Operators
@@ -122,26 +130,31 @@ Left Arg
     9.  ({L})
    10.  ({L1 L2 ...})
 
-Fcn/Opr
--------
+Fcn
+---
     1.  FOO
-    2.  (FOO)
-    3.  (LO FOO)
-    4.  (LO FOO RO)
-    5.  FOO[X]
-    6.  (FOO[X])
-    7.  (LO FOO[X])
-    8.  (LO FOO[X] RO)
+    2.  FOO[X]
+
+Opr
+---
+    1.  (FOO)
+    2.  (LO FOO)
+    3.  (LO FOO RO)
+    4.  (FOO[X])
+    5.  (LO FOO[X])
+    6.  (LO FOO[X] RO)
 
 Right Arg
 ---------
     1.  R
     2.  (R)
     3.  (R1 R2 ...)
-
-This yields 1440 (=6 x 10 x 8 x 3) distinct Monadic/Dyadic Function/Operator headers
-and            6 (=6      x 1    ) distinct Niladic Function headers
-for a total of 1446 user-defined function/operator headers,
+                   Z    L   F   R
+This yields  360 (=6 x 10 x 2 x 3) distinct Monadic/Dyadic Function headers
+and         1080 (=6 x 10 x 6 x 3) distinct Monadic/Dyadic Derived Function headers from Monadic/Dyadic Operators
+and            6 (=6 x  1 x 1 x 1) distinct Niladic Function headers
+and           36 (=6 x  1 x 6 x 1) distinct Niladic Derived Function headers from Monadic/Dyadic Operators
+Total       1482                   user-defined function/operator headers,
 not counting the presence/absence of locals and presence/absence of a comment.
 
  */
@@ -274,17 +287,37 @@ NoResHdr:                       // N.B. that this production does not need to re
                                  MakeHdrStrand_YY (&$1);
 
                                  lpfhLocalVars->lpYYFcnName = $1.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $1.lpYYStrandBase->offTknIndex;
                                  lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
                                  lpfhLocalVars->fhNameType  = NAMETYPE_FN0;         // Mark as a niladic function
                                  lpfhLocalVars->FcnValence  = FCNVALENCE_NIL;       // Mark as niladic
                                 }
 
+    |         AxisOpr           {DbgMsgWP (L"%%NoResHdr:  AxisOpr");                // Niladic function w/axis operator
+                                 InitHdrStrand (&$1);
+                                 PushHdrStrand_YY (&$1);
+                                 MakeHdrStrand_YY (&$1);
+
+                                 lpfhLocalVars->lpYYFcnName = $1.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $1.lpYYStrandBase->offTknIndex;
+                                 lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
+                                 lpfhLocalVars->fhNameType  = NAMETYPE_FN0;         // Mark as a niladic function
+                                 lpfhLocalVars->FcnValence  = FCNVALENCE_NIL;       // Mark as niladic
+
+                                 // Check for Axis Operator on niladic function
+                                 if (lpfhLocalVars->DfnAxis)
+                                 {
+                                     fh_yyerror (lpfhLocalVars, "syntax error");
+                                     YYERROR;
+                                 } // End IF
+                                }
     |         AxisOpr  RhtArg   {DbgMsgWP (L"%%NoResHdr:  AxisOpr RhtArg");         // Monadic function w/axis operator
                                  InitHdrStrand (&$1);
                                  PushHdrStrand_YY (&$1);
                                  MakeHdrStrand_YY (&$1);
 
                                  lpfhLocalVars->lpYYFcnName = $1.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $1.lpYYStrandBase->offTknIndex;
                                  lpfhLocalVars->lpYYRhtArg  = $2.lpYYStrandBase;
                                  lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
                                  lpfhLocalVars->fhNameType  = NAMETYPE_FN12;        // Mark as a monadic/dyadic function
@@ -297,6 +330,7 @@ NoResHdr:                       // N.B. that this production does not need to re
                                  MakeHdrStrand_YY (&$1);
 
                                  lpfhLocalVars->lpYYFcnName = $1.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $1.lpYYStrandBase->offTknIndex;
                                  lpfhLocalVars->lpYYRhtArg  = $2.lpYYStrandBase;
                                  lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
                                  lpfhLocalVars->fhNameType  = NAMETYPE_FN12;        // Mark as a monadic/dyadic function
@@ -314,6 +348,7 @@ NoResHdr:                       // N.B. that this production does not need to re
 
                                  lpfhLocalVars->lpYYLftArg  = $1.lpYYStrandBase;
                                  lpfhLocalVars->lpYYFcnName = $2.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $2.lpYYStrandBase->offTknIndex;
                                  lpfhLocalVars->lpYYRhtArg  = $3.lpYYStrandBase;
                                  lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
                                  lpfhLocalVars->fhNameType  = NAMETYPE_FN12;        // Mark as a monadic/dyadic function
@@ -330,6 +365,7 @@ NoResHdr:                       // N.B. that this production does not need to re
 
                                  lpfhLocalVars->lpYYLftArg  = $1.lpYYStrandBase;
                                  lpfhLocalVars->lpYYFcnName = $2.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $2.lpYYStrandBase->offTknIndex;
                                  lpfhLocalVars->lpYYRhtArg  = $3.lpYYStrandBase;
                                  lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
                                  lpfhLocalVars->fhNameType  = NAMETYPE_FN12;        // Mark as a monadic/dyadic function
@@ -342,6 +378,7 @@ NoResHdr:                       // N.B. that this production does not need to re
 
                                  lpfhLocalVars->lpYYLftArg  = $1.lpYYStrandBase;
                                  lpfhLocalVars->lpYYFcnName = $2.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $2.lpYYStrandBase->offTknIndex;
                                  lpfhLocalVars->lpYYRhtArg  = $3.lpYYStrandBase;
                                  lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
                                  lpfhLocalVars->fhNameType  = NAMETYPE_FN12;        // Mark as a monadic/dyadic function
@@ -355,6 +392,7 @@ NoResHdr:                       // N.B. that this production does not need to re
 
                                  lpfhLocalVars->lpYYLftArg  = $1.lpYYStrandBase;
                                  lpfhLocalVars->lpYYFcnName = $2.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $2.lpYYStrandBase->offTknIndex;
                                  lpfhLocalVars->lpYYRhtArg  = $3.lpYYStrandBase;
                                  lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
                                  lpfhLocalVars->fhNameType  = NAMETYPE_FN12;        // Mark as a monadic/dyadic function
@@ -368,6 +406,7 @@ NoResHdr:                       // N.B. that this production does not need to re
 
                                  lpfhLocalVars->lpYYLftArg  = $1.lpYYStrandBase;
                                  lpfhLocalVars->lpYYFcnName = $2.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $2.lpYYStrandBase->offTknIndex;
                                  lpfhLocalVars->lpYYRhtArg  = $3.lpYYStrandBase;
                                  lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
                                  lpfhLocalVars->fhNameType  = NAMETYPE_FN12;        // Mark as a monadic/dyadic function
@@ -381,11 +420,19 @@ NoResHdr:                       // N.B. that this production does not need to re
 
                                  lpfhLocalVars->lpYYLftArg  = $1.lpYYStrandBase;
                                  lpfhLocalVars->lpYYFcnName = $2.lpYYStrandBase;
+                                 lpfhLocalVars->offFcnName  = $2.lpYYStrandBase->offTknIndex;
                                  lpfhLocalVars->lpYYRhtArg  = $3.lpYYStrandBase;
                                  lpfhLocalVars->DfnType     = DFNTYPE_FCN;          // Mark as a function
                                  lpfhLocalVars->fhNameType  = NAMETYPE_FN12;        // Mark as a monadic/dyadic function
                                  lpfhLocalVars->FcnValence  = FCNVALENCE_AMB;       // Mark as ambivalent
                                  lpfhLocalVars->ListLft     = $1.List;              // Copy the List bit
+                                }
+    |        AxisList           {DbgMsgWP (L"%%NoResHdr:  AxisList");               // Mon/Dyd operator, niladic derived function w/axis operator
+                                 if (!GetOprName_EM (&$1))
+                                     YYERROR;
+
+                                 lpfhLocalVars->FcnValence  = FCNVALENCE_NIL;       // Mark as niladic
+                                 lpfhLocalVars->fhNameType  = NAMETYPE_FN0;         // ...
                                 }
     |        AxisList  RhtArg   {DbgMsgWP (L"%%NoResHdr:  AxisList RhtArg");        // Mon/Dyd operator, monadic derived function w/axis operator
                                  if (!GetOprName_EM (&$1))
@@ -393,6 +440,13 @@ NoResHdr:                       // N.B. that this production does not need to re
 
                                  lpfhLocalVars->lpYYRhtArg  = $2.lpYYStrandBase;
                                  lpfhLocalVars->FcnValence  = FCNVALENCE_MON;       // Mark as monadic
+                                }
+    |         List              {DbgMsgWP (L"%%NoResHdr:  List");                   // Mon/Dyd operator, niladic derived function
+                                 if (!GetOprName_EM (&$1))
+                                     YYERROR;
+
+                                 lpfhLocalVars->FcnValence  = FCNVALENCE_NIL;       // Mark as niladic
+                                 lpfhLocalVars->fhNameType  = NAMETYPE_FN0;         // ...
                                 }
     |         List     RhtArg   {DbgMsgWP (L"%%NoResHdr:  List RhtArg");            // Mon/Dyd operator, monadic derived function
                                  if (!GetOprName_EM (&$1))
@@ -453,7 +507,7 @@ NoResHdr:                       // N.B. that this production does not need to re
                                  lpfhLocalVars->ListLft     = $1.List;              // Copy the List bit
                                 }
     | OptArg  List     RhtArg   {DbgMsgWP (L"%%NoResHdr:  OptArg List RhtArg");     // Mon/Dyd operator, ambivalent derived function
-                                  if (!GetOprName_EM (&$2))
+                                 if (!GetOprName_EM (&$2))
                                      YYERROR;
 
                                  lpfhLocalVars->lpYYLftArg  = $1.lpYYStrandBase;
@@ -500,6 +554,19 @@ Locals:
 
                                  $$ = *PushHdrStrand_YY (&$3);
                                 }
+    | Locals           NAMEUNK  {DbgMsgWP (L"%%Locals:  Locals ';' NAMEUNK");
+                                 $$ = *PushHdrStrand_YY (&$2);
+                                }
+    | Locals           NAMESYS  {DbgMsgWP (L"%%Locals:  Locals ';' NAMESYS");
+                                 if (!$2.tkToken.tkData.tkSym->stFlags.Value
+                                  && !lpfhLocalVars->ParseFcnName)
+                                 {
+                                     fh_yyerror (lpfhLocalVars, "value error");
+                                     YYERROR;
+                                 } // End IF
+
+                                 $$ = *PushHdrStrand_YY (&$2);
+                                }
     ;
 
 Header:
@@ -537,12 +604,12 @@ Header:
 HeaderComm:
       Header SOS                {DbgMsgWP (L"%%HeaderComm:  Header SOS");
 #ifdef DEBUG
-                                 DisplayFnHdr (lpfhLocalVars);
+                                 DisplayFcnHdr (lpfhLocalVars);
 #endif
                                 }
     | Header SOS NOMORE         {DbgMsgWP (L"%%HeaderComm:  Header SOS NOMORE");
 #ifdef DEBUG
-                                 DisplayFnHdr (lpfhLocalVars);
+                                 DisplayFcnHdr (lpfhLocalVars);
 #endif
                                 }
     ;
@@ -585,7 +652,7 @@ UBOOL ParseFcnHeader
         lpfhLocalVars->hGlbTknHdr = hGlbTknHdr;
 
         // Lock the memory to get a ptr to it
-        lpfhLocalVars->lpHeader  = MyGlobalLock (lpfhLocalVars->hGlbTknHdr);
+        lpfhLocalVars->lpHeader  = MyGlobalLockTkn (lpfhLocalVars->hGlbTknHdr);
 
         // Initialize the base & next strand ptrs
         lpfhLocalVars->lpYYStrandBase =
@@ -596,6 +663,9 @@ UBOOL ParseFcnHeader
 
         // Skip over the starting EOL
         lpfhLocalVars->lptkNext  = &lpfhLocalVars->lptkStart[1];
+
+        // Account for the above skip
+        lpfhLocalVars->offTknBase++;
 
         // Mark the stopping point
         lpfhLocalVars->lptkStop  = &lpfhLocalVars->lptkStart[lpfhLocalVars->lptkStart->tkData.tkChar];
@@ -664,6 +734,10 @@ int fh_yylex
 
 {
 FH_YYLEX_START:
+    // Save the token base as this item's index
+    //   and post-increment it
+    lpYYLval->offTknIndex = lpfhLocalVars->offTknBase++;
+
     // Check for stopping point
     if (lpfhLocalVars->lptkStop EQ lpfhLocalVars->lptkNext)
     {
@@ -711,8 +785,14 @@ FH_YYLEX_START:
         case TKT_VARNAMED:
             // If the token is a sysname, return NAMESYS
             if (lpfhLocalVars->lptkNext[-1].tkData.tkSym->stFlags.ObjName EQ OBJNAME_SYS)
+            {
+                // If this local is []RL, ...
+                if (IsSymSysName (lpfhLocalVars->lptkNext[-1].tkData.tkSym, $QUAD_RL))
+                   // Set a flag
+                   lpfhLocalVars->bLclRL = TRUE;
+
                 return NAMESYS;
-            else
+            } else
             {
                 // If the next token is a left bracket, return NAMEOPR
                 if (lpfhLocalVars->lptkNext->tkFlags.TknType EQ TKT_LEFTBRACKET)
@@ -749,6 +829,7 @@ FH_YYLEX_START:
             return SOS;
 
         case TKT_GLBDFN:
+        case TKT_LINECONT:
             goto FH_YYLEX_START;    // Ignore these tokens
 
         default:
@@ -771,7 +852,7 @@ FH_YYLEX_START:
 
 void fh_yyerror                         // Called for Bison syntax error
     (LPFHLOCALVARS lpfhLocalVars,       // Ptr to Function Header local vars
-     LPCHAR        s)                   // Ptr to error msg
+     const char   *s)                   // Ptr to error msg
 
 {
     char  szTemp[1024];
@@ -779,7 +860,7 @@ void fh_yyerror                         // Called for Bison syntax error
     UINT  uCharIndex;
 
 #ifdef DEBUG
-    DbgMsg (s);
+    DbgMsg ((char *) s);
 #endif
     // Check for stopping point
     if (lpfhLocalVars->lptkStop EQ lpfhLocalVars->lptkNext)
@@ -794,10 +875,13 @@ void fh_yyerror                         // Called for Bison syntax error
 
     // Check for SYNTAX ERROR
 #define ERR     "syntax error"
-    lstrcpyn (szTemp, s, sizeof (ERR));     // Note: Terminates the string, too
+    MyStrcpyn (szTemp, sizeof (szTemp), s, strsizeof (ERR));    // Note: Terminates the string, too
     if (lstrcmp (szTemp, ERR) EQ 0)
     {
-        wsprintfW (wszTemp, L"SYNTAX ERROR in header position %d -- function NOT saved.", uCharIndex);
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                   L"SYNTAX ERROR in header position %d -- function NOT saved.",
+                    uCharIndex);
         wp = wszTemp;
 
         goto DISPLAYCAT;
@@ -806,10 +890,13 @@ void fh_yyerror                         // Called for Bison syntax error
 
     // Check for VALUE ERROR
 #define ERR     "value error"
-    lstrcpyn (szTemp, s, sizeof (ERR));     // Note: Terminates the string, too
+    MyStrcpyn (szTemp, sizeof (szTemp), s, strsizeof (ERR));    // Note: Terminates the string, too
     if (lstrcmp (szTemp, ERR) EQ 0)
     {
-        wsprintfW (wszTemp, L"VALUE ERROR in header position %d -- function NOT saved.", uCharIndex);
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                   L"VALUE ERROR in header position %d -- function NOT saved.",
+                    uCharIndex);
         wp = wszTemp;
 
         goto DISPLAYCAT;
@@ -818,10 +905,13 @@ void fh_yyerror                         // Called for Bison syntax error
 
     // Check for LENGTH ERROR
 #define ERR     "length error"
-    lstrcpyn (szTemp, s, sizeof (ERR));     // Note: Terminates the string, too
+    MyStrcpyn (szTemp, sizeof (szTemp), s, strsizeof (ERR));    // Note: Terminates the string, too
     if (lstrcmp (szTemp, ERR) EQ 0)
     {
-        wsprintfW (wszTemp, L"LENGTH ERROR in header position %d -- function NOT saved.", uCharIndex);
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                   L"LENGTH ERROR in header position %d -- function NOT saved.",
+                    uCharIndex);
         wp = wszTemp;
 
         goto DISPLAYCAT;
@@ -829,10 +919,12 @@ void fh_yyerror                         // Called for Bison syntax error
     } // End IF
 
 #define ERR     "memory exhausted"
-    lstrcpyn (szTemp, s, sizeof (ERR));     // Note: Terminates the string, too
+    MyStrcpyn (szTemp, sizeof (szTemp), s, strsizeof (ERR));    // Note: Terminates the string, too
     if (lstrcmp (szTemp, ERR) EQ 0)
     {
-        wsprintfW (wszTemp, L"Insufficient memory to parse header -- function NOT saved.");
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                   L"Insufficient memory to parse header -- function NOT saved.");
         wp = wszTemp;
 
         goto DISPLAYCAT;
@@ -840,7 +932,10 @@ void fh_yyerror                         // Called for Bison syntax error
     } // End IF
 
     // Use the error message as given
-    wsprintfW (wszTemp, L"%S", s);
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%S",
+                s);
     wp = wszTemp;
 
     goto DISPLAY;
@@ -850,18 +945,21 @@ DISPLAYCAT:
     if (!lpfhLocalVars->DisplayErr)
     {
         // Pass the error message back to the caller
-        lstrcpyW (lpfhLocalVars->wszErrMsg, wszTemp);
+        MyStrcpyW (lpfhLocalVars->wszErrMsg, sizeof (lpfhLocalVars->wszErrMsg), wszTemp);
 
         return;
     } // End IF
 
 #ifdef DEBUG
     // Append the original error message
-    wsprintfW (&wszTemp[lstrlenW (wszTemp)], L"(%S)", s);
+    MySprintfW (&wszTemp[lstrlenW (wszTemp)],
+                 sizeof (wszTemp) - (lstrlenW (wszTemp) * sizeof (wszTemp[0])),
+                L"(%S)",
+                 s);
 #endif
 DISPLAY:
     // Display a message box
-    MessageBoxW (lpfhLocalVars->hWndEC,
+    MessageBoxW (hWndMF,
                  wp,
                  lpwszAppName,
                  MB_OK | MB_ICONWARNING | MB_APPLMODAL);
@@ -882,32 +980,29 @@ void fh_yyfprintf
 
 {
 #if (defined (DEBUG)) && (defined (YYFPRINTF_DEBUG))
+    HRESULT  hResult;       // The result of <StringCbVPrintf>
     va_list  vl;
-    APLU3264 i1,
-             i2,
-             i3;
-    static  char szTemp[256] = {'\0'};
+    APLU3264 i1;
+    static   char szTemp[256] = {'\0'};
 
+    // Initialize the variable list
     va_start (vl, lpszFmt);
-
-    // Bison uses no more than three arguments.
-    // Note we must grab them separately this way
-    //   as using va_arg in the argument list to
-    //   wsprintf pushes the arguments in reverse
-    //   order.
-    i1 = va_arg (vl, APLU3264);
-    i2 = va_arg (vl, APLU3264);
-    i3 = va_arg (vl, APLU3264);
-
-    va_end (vl);
 
     // Accumulate into local buffer because
     //   Bison calls this function multiple
     //   times for the same line, terminating
     //   the last call for the line with a LF.
-    wsprintf (&szTemp[lstrlen (szTemp)],
-              lpszFmt,
-              i1, i2, i3);
+    hResult = StringCbVPrintf (&szTemp[lstrlen (szTemp)],
+                                sizeof (szTemp),
+                                lpszFmt,
+                                vl);
+    // End the variable list
+    va_end (vl);
+
+    // If it failed, ...
+    if (FAILED (hResult))
+        DbgBrk ();                  // #ifdef DEBUG
+
     // Check last character.
     i1 = lstrlen (szTemp);
 

@@ -1,0 +1,17 @@
+Build #1418 -- Version 0.4.11.xx
+--------------------------------
+
+* Display Workspace Version # In About Box
+* Display Workspace Version # On )SAVE line If DEBUG
+
+Directory trunk:
+
+MAIN.RC:
+  Make room for workspace version # in the About box.
+
+SC_SAVE.C:
+  In <CmdSave_EM> if we're in DEBUG mode, display the workspace version # at the end of the
+    current time and date if the command is successful.
+
+VER.C:
+  Append the workspace version # to the text displayed in the About box.

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2009 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ UBOOL CmdErase_EM
                     htGlbName = lpSymEntry->stHshEntry->htGlbName;
 
                     // Lock the memory to get a ptr to it
-                    lpwGlbName = MyGlobalLock (htGlbName);
+                    lpwGlbName = MyGlobalLockWsz (htGlbName);
 
                     // Display an error message
                     ExpungeError (lpwGlbName,                       // Ptr to name in global memory

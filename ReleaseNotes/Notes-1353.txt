@@ -1,0 +1,25 @@
+Build #1353 -- Version 0.4.9.xx
+-------------------------------
+
+* Miscellaneous Bug Fixes
+
+Directory trunk:
+
+FREE.C:
+  In <FreeResultSub>, handle additional token <TKT_EOL> which may occur during a SYNTAX ERROR due to a missing left operand.
+
+GETFNS.C:
+  In <GetPrototypeFcnPtr>, handle additional tokens for mop{each}{zilde}, etc., named and unnamed, monadic or dyadic, and AFO. Example: []nuntie{each}{zilde}.
+
+PARSELINE.C:
+  Improve comments.
+  In <pl_yylexCOM>, call <TranslateDfnTypeToSOType> as needed so as to handle the niladic case.
+
+PARSELINE.H:
+  Handle right brace bindings just like right brackets and parentheses.
+
+TOKENIZE.C:
+  In <CheckConstantCopyLoad>, simplify the code by using <TranslateDfnTypeToSOType>.
+
+TRANSLATE.C:
+  Define <TranslateDfnTypeToSOType> to translate a <DFN_HEADER> ptr to a <tkSynObj> ensuring that the niladic case is always handled.

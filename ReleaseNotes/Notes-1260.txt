@@ -1,0 +1,87 @@
+Build #1260 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs Found By Dr Memory
+
+Directory trunk:
+
+AXISFNS.C:
+CRASH.C:
+DEBUG.C:
+  Use macro for common unlock and free template.
+  Use more consistent naming convention for globals and their ptrs.
+
+EDITFCN.C:
+  Omit unnecessary cleanup of Window properties.
+  Use macro for common unlock and free template.
+
+EXECDFN.C:
+EXECMFN.C:
+IMMEXEC.C:
+PF_COMMA.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DARROW.C:
+PF_DELTASTILE.C:
+PF_DOMINO.C:
+PF_DTACKJOT.C:
+PF_EPSUND.C:
+PF_INDEX.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_LSHOE.C:
+PF_RSHOE.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PO_DIERESIS.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+QF_NFNS.C:
+SAVEFCN.C:
+SC_SAVE.C:
+TABCTRL.C:
+  Use macro for common unlock and free template.
+
+FREE.C:
+  Use ptr to xxGlbData so it can be written to consistently.
+  Use macro for common unlock and free template.
+
+GETFNS.C:
+  Define function to return ptr to xxGlbData.
+
+INIFILE.C:
+  Define function to delete global vars created by <ReadIniFileGlb>.
+
+MACROS.H:
+  Define a macro to free a global name.
+  Define a macro to unlock and free a global name.
+
+MAIN.C:
+  When selecting an object into a DC, save the old value and restore it
+    before releasing the DC.
+  Omit unnecessary cleanup of Window properties.
+  In <ParseCommandLine> test for empty command line using <lstrlen> so the
+    fake fault that Dr Memory finds is in the kernel and thus ignored.
+  Delete globals created by <ReadIniFileGlb>.
+  Delete permanent vars created by <MakePermVars>.
+
+PARSELINE.C:
+  Ensure <lstSynObj> is initialized at the start of the 2by2 code as there's
+    a path through the code that references it before it's set.
+
+SESSMAN.C:
+  Omit unnecessary cleanup of Window properties.
+
+STATUSBAR.C:
+  When selecting an object into a DC, save the old value and restore it
+    before releasing the DC.
+  Initialize a var that's set by an EM_GETSEL message, but Dr Memory doesn't parse that.
+
+SYMTAB.C:
+  In <FreeHshSymTabs>, also free the global storage for the names of objects.
+
+SYSVARS.C:
+  Define function to delete global vars created by <MakePermVars>.

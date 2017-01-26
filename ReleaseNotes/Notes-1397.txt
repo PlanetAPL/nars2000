@@ -1,0 +1,11 @@
+Build #1397 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bugs In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+SYNOBJ.H:
+  Fix bugs in syntax analyzer.

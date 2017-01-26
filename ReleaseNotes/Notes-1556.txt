@@ -1,0 +1,9 @@
+Build #1556 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Tokenize With :FOR {quad} :IN ...
+
+Directory trunk:
+
+TOKENIZE.C:
+  Fix bug in <fnCtrlDone> when testing the "NAME" in :FOR NAME :IN ...

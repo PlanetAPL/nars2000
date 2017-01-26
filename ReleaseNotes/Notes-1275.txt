@@ -1,0 +1,9 @@
+Build #1275 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Exittype When Resetting One Level
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in exittype when resetting one level.

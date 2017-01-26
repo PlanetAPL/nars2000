@@ -1,0 +1,12 @@
+Build #1265 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  In <plRedF_HY>, <plRedA_HY>, <plRedDOP_HY>, <plRedJ_HY>, and <plRedF_HY>, also change immediate type and Syntax Object of Hybrid symbol.
+  Re-order code for easier debugging.
+  In <_pl_yylex>, delete unnecessary comment.
+  Set Syntax Object for named vars as they aren't set elsewhere.

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -138,7 +138,7 @@ LPPL_YYSTYPE PrimFnMonUpTackJot_EM_YY
         goto RANK_EXIT;
 
     // Check for RIGHT DOMAIN ERROR
-    if ((!IsSimpleChar (aplTypeRht)) && !IsEmpty (aplNELMRht))
+    if (!IsCharOrEmpty (aplTypeRht, aplNELMRht))
         goto DOMAIN_EXIT;
 
     // Check for empty case
@@ -230,7 +230,7 @@ LPPL_YYSTYPE PrimFnMonUpTackJotImm_EM_YY
                       (1 + 1) * sizeof (WCHAR), // "+ 1" for the terminating zero
                       MEM_COMMIT | MEM_TOP_DOWN,
                       PAGE_READWRITE);
-    if (!lpwszCompLine)
+    if (lpwszCompLine EQ NULL)
         goto WSFULL_EXIT;
 
     // Save the char in the line
@@ -277,7 +277,7 @@ LPPL_YYSTYPE PrimFnMonUpTackJotGlb_EM_YY
     APLRANK   aplRankRht;           // Right arg rank
 
     // Lock the memory to get a ptr to it
-    lpMemRht = MyGlobalLock (hGlbRht);
+    lpMemRht = MyGlobalLockVar (hGlbRht);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRht)
     // Get the NELM and Rank
@@ -286,7 +286,7 @@ LPPL_YYSTYPE PrimFnMonUpTackJotGlb_EM_YY
 #undef  lpHeader
 
     // Skip over the header and dimension
-    lpMemRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+    lpMemRht = VarArrayDataFmBase (lpMemRht);
 
     if (aplNELMRht NE (APLU3264) aplNELMRht)
         goto WSFULL_EXIT;
@@ -297,7 +297,7 @@ LPPL_YYSTYPE PrimFnMonUpTackJotGlb_EM_YY
                       (DWORD) (aplNELMRht + 1) * sizeof (APLCHAR),   // "+ 1" for the terminating zero
                       MEM_COMMIT | MEM_TOP_DOWN,
                       PAGE_READWRITE);
-    if (!lpwszCompLine)
+    if (lpwszCompLine EQ NULL)
         goto WSFULL_EXIT;
 
     // Check for overflow
@@ -362,6 +362,7 @@ LPPL_YYSTYPE PrimFnMonUpTackJotCommon_EM_YY
                                    aplNELMComp,     // Length of the line to execute
                                    bActOnErrors,    // TRUE iff we should act on errors
                                    FALSE,           // TRUE iff we're to skip the depth check
+                                   DFNTYPE_EXEC,    // DfnType for FillSISNxt
                                    lptkFunc);       // Ptr to function token
     // Split cases based upon the exit type
     switch (exitType)
@@ -398,6 +399,10 @@ LPPL_YYSTYPE PrimFnMonUpTackJotCommon_EM_YY
             {
                 // Make a PL_YYSTYPE NoValue entry
                 lpYYRes = MakeNoValue_YY (lptkFunc);
+
+                // If the exit type is NONE, ...
+                if (exitType EQ EXITTYPE_NONE)
+                    exitType = EXITTYPE_NOVALUE;
 
                 break;
             } // End IF
@@ -453,6 +458,7 @@ EXIT_TYPES WINAPI PrimFnMonUpTackJotCSPLParse
      APLNELM      aplNELMComp,          // Length of the line to execute
      UBOOL        bActOnErrors,         // TRUE iff we should act on errors
      UBOOL        bNoDepthCheck,        // TRUE iff we're to skip the depth check
+     DFN_TYPES    DfnType,              // DfnType for FillSISNxt
      LPTOKEN      lptkFunc)             // Ptr to function token
 
 {
@@ -501,11 +507,12 @@ EXIT_TYPES WINAPI PrimFnMonUpTackJotCSPLParse
         static WCHAR wszTemp[1024];
 
         // Format the error message
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"%s -- Line %d statement %d",
-                   csLocalVars.lpwszErrMsg,
-                   csLocalVars.tkCSErr.tkData.Orig.c.uLineNum,
-                   csLocalVars.tkCSErr.tkData.Orig.c.uStmtNum + 1);
+                    csLocalVars.lpwszErrMsg,
+                    csLocalVars.tkCSErr.tkData.Orig.c.uLineNum,
+                    csLocalVars.tkCSErr.tkData.Orig.c.uStmtNum + 1);
         // Save the error message
         ErrorMessageIndirectToken (wszTemp, lptkFunc);
 
@@ -515,7 +522,7 @@ EXIT_TYPES WINAPI PrimFnMonUpTackJotCSPLParse
     } // End IF
 
     // Lock the memory to get a ptr to it
-    lpMemTknHdr = MyGlobalLock (hGlbTknHdr);
+    lpMemTknHdr = MyGlobalLockTkn (hGlbTknHdr);
 
     // Fill the SIS struc, execute the line via ParseLine, and cleanup
     exitType =
@@ -528,15 +535,13 @@ EXIT_TYPES WINAPI PrimFnMonUpTackJotCSPLParse
                                  0,                 // Starting token # in the above function line
                                  bActOnErrors,      // TRUE iff we should act on errors
                                  FALSE,             // TRUE iff executing only one stmt
+                                 DfnType,           // DfnType for FillSISNxt
                                  bNoDepthCheck);    // TRUE iff we're to skip the depth check
     // Untokenize the temporary line and free its memory
     Untokenize (lpMemTknHdr);
 
-    // We no longer need this ptr
-    MyGlobalUnlock (hGlbTknHdr); lpMemTknHdr = NULL;
-
-    // We no longer need this storage
-    MyGlobalFree (hGlbTknHdr); hGlbTknHdr = NULL;
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbTknHdr, lpMemTknHdr);
 ERROR_EXIT:
     // Restore the ptr to the next token on the CS stack
     lpMemPTD->lptkCSNxt = lptkCSBeg;
@@ -544,8 +549,7 @@ ERROR_EXIT:
     // If there's a semaphore to signal, ...
     if (hSigaphore)
     {
-        dprintfWL9 (L"~~Releasing semaphore:  %p (%S#%d)", hSigaphore, FNLN);
-
+        // Release it
         MyReleaseSemaphore (hSigaphore, 1, NULL);
 
         // Release our time slice so the released thread can act
@@ -573,6 +577,7 @@ EXIT_TYPES PrimFnMonUpTackJotPLParse
      UINT           uTknNum,            // Starting token # in the above function line
      UBOOL          bActOnErrors,       // TRUE iff we should act on errors
      UBOOL          bExec1Stmt,         // TRUE iff executing only one stmt
+     DFN_TYPES      DfnType,            // DfnType for FillSISNxt
      UBOOL          bNoDepthCheck)      // TRUE iff we're to skip the depth check
 
 {
@@ -582,7 +587,7 @@ EXIT_TYPES PrimFnMonUpTackJotPLParse
     // Fill in the SIS header for Execute
     FillSISNxt (lpMemPTD,               // Ptr to PerTabData global memory
                 NULL,                   // Semaphore handle
-                DFNTYPE_EXEC,           // DfnType
+                DfnType,                // DfnType
                 FCNVALENCE_MON,         // FcnValence
                 FALSE,                  // Suspended
                 TRUE,                   // Restartable
@@ -596,7 +601,9 @@ EXIT_TYPES PrimFnMonUpTackJotPLParse
                  lpMemPTD,              // Ptr to PerTabData global memory
                  uLineNum,              // Function line # (1 for execute or immexec)
                  uTknNum,               // Starting token # in the above function line
+                 FALSE,                 // TRUE iff we're tracing this line
                  NULL,                  // User-defined function/operator global memory handle (NULL = execute/immexec)
+                 NULL,                  // Ptr to function token used for AFO function name
                  bActOnErrors,          // TRUE iff errors are acted upon
                  bExec1Stmt,            // TRUE iff executing only one stmt
                  bNoDepthCheck);        // TRUE iff we're to skip the depth check
@@ -645,7 +652,7 @@ EXIT_TYPES PrimFnMonUpTackJotPLParse
 
     // Unlocalize the STEs on the innermost level
     //   and strip off one level
-    UnlocalizeSTEs ();
+    UnlocalizeSTEs (NULL);
 
     // If this hSigaphore is not for this level, pass it on up the line
     if (lphSigaphore)

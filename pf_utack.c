@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ LPPL_YYSTYPE PrimProtoFnUpTack_EM_YY
     //***************************************************************
 
     // Convert to a prototype
-    return PrimProtoFnMixed_EM_YY (&PrimFnUpTack_EM_YY,   // Ptr to primitive function routine
+    return PrimProtoFnMixed_EM_YY (&PrimFnUpTack_EM_YY,     // Ptr to primitive function routine
                                     lptkLftArg,             // Ptr to left arg token
                                     lptkFunc,               // Ptr to function token
                                     lptkRhtArg,             // Ptr to right arg token
@@ -302,15 +302,16 @@ LPPL_YYSTYPE PrimFnDydUpTack_EM_YY
     // Calc result NELM
     aplNELMRes = aplRestLft * aplRestRht;
 
-    // Check for empty result
-    if (IsEmpty (aplNELMRes))
+    // Calc result Type
+    aplTypeRes = aTypePromote[aplTypeLft][aplTypeRht];
+
+    // Check for empty and non-global numeric result
+    if (IsEmpty (aplNELMRes)
+     && !IsGlbNum (aplTypeRes))
         // Calc result Type
         aplTypeRes = ARRAY_BOOL;
     else
     {
-        // Calc result Type
-        aplTypeRes = aTypePromote[aplTypeLft][aplTypeRht];
-
         // Promote Boolean to integer
         if (IsSimpleBool (aplTypeRes))
             aplTypeRes = ARRAY_INT;
@@ -342,11 +343,11 @@ RESTART_EXCEPTION:
     // Now we can allocate the storage for the result
     //***************************************************************
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -508,7 +509,7 @@ RESTART_EXCEPTION:
                     __try
                     {
                         // Add into accumulator
-                        aplIntAcc = iadd64 (aplIntAcc, imul64 (InnValInt, aplLongestRht));
+                        aplIntAcc = iadd64_RE (aplIntAcc, imul64_RE (InnValInt, aplLongestRht));
 
                         // Get the next left arg value
                         if (hGlbLft)
@@ -525,7 +526,7 @@ RESTART_EXCEPTION:
                         } // End IF
 
                         // Multiply into the weighting value
-                        InnValInt = imul64 (InnValInt, aplLongestLft);
+                        InnValInt = imul64_RE (InnValInt, aplLongestLft);
                     } __except (CheckException (GetExceptionInformation (), L"PrimFnDydUpTack_EM_YY"))
                     {
                         switch (MyGetExceptionCode ())
@@ -821,25 +822,25 @@ RESTART_EXCEPTION:
         {
             case ARRAY_BOOL:
             case ARRAY_INT:
-                // Save in result
+                // Save in the result
                 ((LPAPLINT)   lpMemRes)[uRes] = aplIntAcc;
 
                 break;
 
             case ARRAY_FLOAT:
-                // Save in result
+                // Save in the result
                 ((LPAPLFLOAT) lpMemRes)[uRes] = aplFloatAcc;
 
                 break;
 
             case ARRAY_RAT:
-                // Save in result
+                // Save in the result
                 mpq_init_set (&((LPAPLRAT) lpMemRes)[uRes], &aplRatAcc);
 
                 break;
 
             case ARRAY_VFP:
-                // Save in result
+                // Save in the result
                 mpfr_init_copy (&((LPAPLVFP) lpMemRes)[uRes], &aplVfpAcc);
 
                 break;

@@ -1,0 +1,9 @@
+Build #1471 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In []AT Returning The Wrong Rank Result
+
+Directory trunk:
+
+QF_AT.C:
+  Fix bug in []AT returning the wrong rank result.

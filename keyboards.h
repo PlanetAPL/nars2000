@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -83,7 +83,6 @@ typedef struct tagVKSTATE
 //     < Left Caret               Alt-'3'
 //     ? Question Mark            Alt-'q'
 //     > Right Caret              Alt-'7'
-//     ' Single Quote             Alt-'k'
 //     ~ Tilde                    Alt-'t'
 //     ^ Up Caret (Circumflex)    Alt-'0'
 
@@ -146,7 +145,7 @@ CHARCODE aCharCodesNARS_US_EN_ALT[NUM_KEYS]
  {L'g', UTF16_DEL               , 0, 0, L'G', UTF16_DIERESISDEL       , 0, 0},    // 22:  'g'
  {L'h', UTF16_DELTA             , 0, 0, L'H', UTF16_DELTAUNDERBAR     , 0, 0},    // 23:  'h'
  {L'j', UTF16_JOT               , 0, 0, L'J', UTF16_DIERESISJOT       , 0, 0},    // 24:  'j'
- {L'k', UTF16_APOSTROPHE        , 0, 0, L'K', 0                       , 0, 0},    // 25:  'k'
+ {L'k', UTF16_DELTILDE          , 0, 0, L'K', 0                       , 0, 0},    // 25:  'k'
  {L'l', UTF16_QUAD              , 0, 0, L'L', UTF16_SQUAD             , 0, 0},    // 26:  'l'
  {L';', UTF16_UPTACKJOT         , 0, 0, L':', 0                       , 0, 0},    // 27:  ';'
  {L'\'',UTF16_DOWNTACKJOT       , 0, 0, L'"', 0                       , 0, 0},    // 28:  '''
@@ -260,7 +259,7 @@ CHARCODE aCharCodesNARS_US_EN_ALT[NUM_KEYS]
  {L'g', 0, UTF16_DEL               , 0, L'G', 0, UTF16_DIERESISDEL       , 0},    // 22:  'g'
  {L'h', 0, UTF16_DELTA             , 0, L'H', 0, UTF16_DELTAUNDERBAR     , 0},    // 23:  'h'
  {L'j', 0, UTF16_JOT               , 0, L'J', 0, UTF16_DIERESISJOT       , 0},    // 24:  'j'
- {L'k', 0, UTF16_APOSTROPHE        , 0, L'K', 0, 0                       , 0},    // 25:  'k'
+ {L'k', 0, UTF16_DELTILDE          , 0, L'K', 0, 0                       , 0},    // 25:  'k'
  {L'l', 0, UTF16_QUAD              , 0, L'L', 0, UTF16_SQUAD             , 0},    // 26:  'l'
  {L';', 0, UTF16_UPTACKJOT         , 0, L':', 0, 0                       , 0},    // 27:  ';'
  {L'\'',0, UTF16_DOWNTACKJOT       , 0, L'"', 0, 0                       , 0},    // 28:  '''
@@ -371,7 +370,7 @@ CHARCODE aCharCodesNARS_US_EN_ALT[NUM_KEYS]
  {  L'g' ,  0    , 0x2207,  0    ,  L'G' ,  0    , 0x2362,  0     },              // 22:  'g'
  {  L'h' ,  0    , 0x2206,  0    ,  L'H' ,  0    , 0x2359,  0     },              // 23:  'h'
  {  L'j' ,  0    , 0x2218,  0    ,  L'J' ,  0    , 0x2364,  0     },              // 24:  'j'
- {  L'k' ,  0    ,  L'\'',  0    ,  L'K' ,  0    ,  0    ,  0     },              // 25:  'k'
+ {  L'k' ,  0    , 0x236B,  0    ,  L'K' ,  0    ,  0    ,  0     },              // 25:  'k'
  {  L'l' ,  0    , 0x2395,  0    ,  L'L' ,  0    , 0x2337,  0     },              // 26:  'l'
  { 0x00E6,  0    , 0x234E,  0    , 0x00C6,  0    ,  0    ,  0     },              // 27:  ';'
  { 0x00F8,  0    , 0x2355,  0    , 0x00D8,  0    , 0x2262,  0     },              // 28:  '''
@@ -480,7 +479,7 @@ CHARCODE aCharCodesNARS_US_EN_ALT[NUM_KEYS]
  {  L'g' , 0x2207,  0    ,  0    ,  L'G' , 0x2362,  0    ,  0     },              // 22:  'g'
  {  L'h' , 0x2206,  0    ,  0    ,  L'H' , 0x2359,  0    ,  0     },              // 23:  'h'
  {  L'j' , 0x2218,  0    ,  0    ,  L'J' , 0x2364,  0    ,  0     },              // 24:  'j'
- {  L'k' ,  L'\'',  0    ,  0    ,  L'K' ,  0    ,  0    ,  0     },              // 25:  'k'
+ {  L'k' , 0x236B,  0    ,  0    ,  L'K' ,  0    ,  0    ,  0     },              // 25:  'k'
  {  L'l' , 0x2395,  0    ,  0    ,  L'L' , 0x2337,  0    ,  0     },              // 26:  'l'
  {  L'm' , 0x234E,  0    ,  0    ,  L'M' ,  0    ,  0    ,  0     },              // 27:  ';'
  { 0x00F9, 0x2355,  0    ,  0    ,  L'%' ,  0    ,  0    ,  0     },              // 28:  '''
@@ -624,7 +623,8 @@ UINT uGlbKeybLayoutNumAct,          // # of active keyboard layout
 = countof (aKeybLayoutsBI)          // Initialize to # built-in keyboard layouts
 #endif
 ,
-     uKeybUnibase,                  // Keyboard Unicode base:  10 or 16
+     uKeybUnibase,                  // Keyboard Unicode base:  10 or 16 for Current Char
+     uKeybChar,                     // Current Character
      uKeybTCNum,                    // Initial keyboard TabCtrl index
      uKeybState;                    // Initial keyboard state:  0 to 7 (3 bits, Shift(4), Ctrl(2), Alt(1))
 

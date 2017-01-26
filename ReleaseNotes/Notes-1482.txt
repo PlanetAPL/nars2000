@@ -1,0 +1,14 @@
+Build #1482 -- Version 0.4.14.xx
+--------------------------------
+
+* Handle Niladic Calls To Monadic/Dyadic Operators, Part 2
+
+Directory trunk:
+
+PO_CMIDDOT.C:
+PO_DIDTACK.C:
+PO_DIERESIS.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_MULTISET.C:
+  Handle niladic calls to monadic/dyadic operators by testing for NULL right args.

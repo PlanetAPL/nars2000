@@ -1,0 +1,12 @@
+Build #1540 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In A[A][A]
+* Fix Bug In {is}NF (Sink Of Niladic Function)
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in A[A][A] where the trailing indices are ignored.
+  Fix bug in A[A][A] where the curried indices are linked together in the wrong order.
+  Fix bug in syntax analysis of {is}NF where NF is a niladic function.

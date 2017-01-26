@@ -1,0 +1,37 @@
+Build #1297 -- Version 0.4.9.xx
+-------------------------------
+
+* Catch Unset Syntax Objects
+
+Directory trunk:
+
+ASSIGN.C:
+  Include comment about <AssignName_EM> setting NoDisplay flag in source.
+
+PARSELINE.C:
+  Define macro to check for valid Syntax Objects.
+  Use macro whenever checking for valid Syntax Objects.
+  In <plRedLBC_RBC> include comment indicating how the resulting Syntax Object is set.
+  Include comment about <AssignName_EM> setting NoDisplay flag in source.
+
+PARSELINE.H:
+  Define initial <soUNK> Syntax Object to catch unset values.
+
+PF_INDEX.C:
+  Include comment about <AssignName_EM> setting NoDisplay flag in source.
+
+PL_PROC.C:
+  Include comment better explaining the difference between the two <CopyPL_YYSTYPE_xxx>s.
+
+STRAND.C:
+  Include comment better explaining the difference between the two <CopyPL_YYSTYPE_xxx>s.
+  In <MakeFcnStrand_EM_YY>, simplify some of the coding.
+  Delete commented out functions.
+
+SYNOBJ.H:
+  Define initial <soUNK> Syntax Object to catch unset values.
+
+YYFNS.C:
+  In <YYAlloc>, initialize the Syntax Object in the result with an unknown value
+    so as to catch unset values.
+  Include comment better explaining the difference between the two <CopyPL_YYSTYPE_xxx>s.

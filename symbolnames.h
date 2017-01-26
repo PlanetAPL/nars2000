@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ typedef struct tagSYMBOLNAMES
 
 // Translate table for symbols to names
 SYMBOLNAMES aSymbolNames[]
-#ifdef DEFINE_VALUES
 =
 {
 // No keystroke equivalents for these as yet
@@ -281,6 +280,8 @@ SYMBOLNAMES aSymbolNames[]
   {UTF16_CIRCLEMIDDLEDOT      , L"{circlemiddledot}"    },  // Alt-'?' - circle-middle-dot
 
   {L' '                       , L"{space}"              },
+  {L'\r'                      , L"{cr}"                 },
+  {L'\n'                      , L"{lf}"                 },
 
 // Non-Alt key equivalents (these are the only ones we need for SaveWS)
   {UTF16_QUOTEDOT             , L"{quotedot}"           },  // 0021:  Quote dot
@@ -307,17 +308,15 @@ SYMBOLNAMES aSymbolNames[]
   {UTF16_CIRCLE2              , L"{circle2}"            },  // 26AA:  Circle2  (a.k.a. 0x25CB)
   {UTF16_LEFTCARETUNDERBAR2   , L"{notmore2}"           },  // 2A7D:  Notmore2 (a.k.a. 0x2264)
   {UTF16_RIGHTCARETUNDERBAR2  , L"{notless2}"           },  // 2A7E:  Notless2 (a.k.a. 0x2265)
-  {UTF16_DIAMOND2             , L"{diamond2}"           },  // 2B26:  Diamond2 (a.k.a. 0x22C4)
+  {UTF16_DIAMOND2             , L"{diamond2}"           },  // 25C7:  Diamond2 (a.k.a. 0x22C4)
   {UTF16_DIAMOND3             , L"{diamond3}"           },  // 25CA:  Diamond3 (a.k.a. 0x22C4)
+  {UTF16_DIAMOND4             , L"{diamond4}"           },  // 2B26:  Diamond4 (a.k.a. 0x22C4)
 }
-#endif
 ;
 
 // The # rows in the aSymbolNames table
 UINT aSymbolNames_NRows
-#ifdef DEFINE_VALUES
 = (sizeof (aSymbolNames) / sizeof (aSymbolNames[0]))
-#endif
 ;
 
 

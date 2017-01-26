@@ -1,0 +1,9 @@
+Build #1325 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In GCD With Negative Args
+
+Directory trunk:
+
+PF_DCARET.C:
+  Fix bug in GCD with negative arguments.  The result should always be non-negative.

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2012 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ typedef enum tagDR_VAL
     DR_SHOW          =    0,    // Return a character vector representation
     DR_FLOAT2CHAR    =    1,    // Convert between float   and its 16-digit hexadecimal character representation
     DR_INT2CHAR      =    2,    // Convert between integer and its 16-digit hexadecimal character representation
+    DR_GETPREC       =    3,    // Return the number's precision
     DR_BOOL          =  110,    //  1 bit  per value
     DR_CHAR8         =  811,    //  8 bits ...
     DR_CHAR16        = 1611,    // 16 ...  ...

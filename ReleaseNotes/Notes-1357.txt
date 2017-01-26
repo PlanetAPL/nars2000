@@ -1,0 +1,13 @@
+Build #1357 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In :select Ctrl Struc
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Use CL linked list of tokens instead of the whole linked list in one case.
+
+CS_PROC.C:
+  Update copyright year.
+  Use signed cast on unsigned short to catch errors while DEBUGging.

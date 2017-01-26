@@ -1,0 +1,15 @@
+Build #1430 -- Version 0.4.12.xx
+--------------------------------
+
+* When Displaying DEBUG Crash Screen Show Offsets From Actual <mpifns.c> Routines
+
+Directory trunk:
+
+EXCEPT.C:
+HEADERS.H:
+  In order to expose the symbols which we substitute for in <mpifns.c>, do not include
+    <mpifns.h> via <headers.h> in <except.c>.
+
+MPFNS.C:
+MPIFNS.C:
+  Clean up code when freeing a RAT or VFP.

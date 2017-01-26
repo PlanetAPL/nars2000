@@ -1,0 +1,213 @@
+Version 0.4.17.xx consists of the following Builds:
+
+
+Build #1563 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Localization Of System Vars
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in localization of System Vars in a function defined outside a local
+    HSHTABSTR but called from within it.
+
+
+Build #1562 -- Version 0.4.17.xx
+--------------------------------
+
+* Special Case {max) And {min} Reduction Of An APA
+
+Directory trunk:
+
+PO_SLASH.C:
+  Special case {max} and {min} reduction of an APA.
+
+
+Build #1561 -- Version 0.4.17.xx
+--------------------------------
+
+* Rename Internal Function For Consistency
+* Make Dependencies Earlier
+* Fix Comment Bug
+
+Directory trunk:
+
+MAKEFILE.DEP:
+  Make LALR parse file dependencies at this stage instead of later.
+
+PARSELINE.C:
+STRAND.C:
+  Rename <UnStrand> to <UnVarStrand> to parallel <UnFcnStrand>.
+
+SAVEFCN.H:
+  Fix comment bug.
+
+
+Build #1560 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In {iota}1E16 And Higher
+
+Directory trunk:
+
+MPFNS.C:
+  Fix bug in <_mpfr_get_ctsx> not returning error if the converted number doesn't fit in the result.
+
+
+Build #1559 -- Version 0.4.17.xx
+--------------------------------
+
+* Apply Bandaid To Skip DEBUG Stmts
+
+Directory trunk:
+
+CS_PARSE.Y:
+CS_PROC.C:
+  Comment out code as bandaid to cover the fact that :if ... :end isn't handled by the parser inside a :case stmt.
+
+
+Build #1558 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Function Editor When Editing A Local Function And Saving Back To Wrong SI Level
+
+Directory trunk:
+
+AFOFNS.C:
+QF_FX.C:
+QF_TF.C:
+SC_INASCII.C:
+SC_LOAD.C:
+  Identify the caller of <SaveFunctionCom> for later use.
+
+FH_PARSE.H:
+FH_PARSE.Y:
+FH_PROC.C:
+  Define new fields to track the token offset in <hGlbTknHdr> of the function name.
+
+SAVEFCN.C:
+  Identify the caller of <SaveFunctionCom> for later use.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In IF stmts always compare ptr against NULL and value against 0.
+  In <SaveFunctionCom> after calling <ParseFcnHeader>, if called from FE find the next SI level in which
+    a given name is localized and when found change the LPSYMENTRY into the header tokens and incoming SYMENTRY.
+
+SAVEFCN.H:
+  Define fields to track caller of <SaveFunctionCom>.
+
+TOKENIZE.C:
+  Remove parens around {del} in <fnDelDone> as they are unnecessary and also mess up the above tracking of the function name token.
+
+
+Build #1557 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Point Notation Parsing Of 2g3x, 2p3x, And 2x3x
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Fix bug in parsing of 2g3x, 2p3x, and 2x3x where they are all SYNTAX ERRORs because those
+    cases aren't handled by the parser in <ParsePointNotation>.
+
+
+Build #1556 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Tokenize With :FOR {quad} :IN ...
+
+Directory trunk:
+
+TOKENIZE.C:
+  Fix bug in <fnCtrlDone> when testing the "NAME" in :FOR NAME :IN ...
+
+
+Build #1555 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Typo In Dyadic Scan Magic Functions
+
+Directory trunk:
+
+MF_DYDSCAN.H:
+  Fix typo in axis operator lines.
+
+
+Build #1554 -- Version 0.4.17.xx
+--------------------------------
+
+* Update Copyright Years
+
+Directory trunk:
+
+CRASH.C:
+FMTSPEC.C:
+GOTO.C:
+HUNGARIAN_INT.C:
+HUNGARIAN_RAT.C:
+IDENTFNS.C:
+PERFMON.C:
+PF_CSLOPE.C:
+PF_CSTILE.C:
+PF_DOMINO.C:
+PF_DSHOE.C:
+PF_DTACKJOT.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_LSHOE.C:
+PF_LSHOEUND.C:
+PF_RHO.C:
+PF_SECTION.C:
+PL_PROC.C:
+PO_MULTISET.C:
+PROGBAR.C:
+QF_AV.C:
+QF_D.C:
+QF_DL.C:
+QF_DR.C:
+QF_EA.C:
+QF_ERROR.C:
+QF_FMT.C:
+QF_LC.C:
+QF_NC.C:
+QF_SYSVER.C:
+QF_T.C:
+QF_UCS.C:
+QF_VR.C:
+SC_DROP.C:
+SC_IN.C:
+SC_RESET.C:
+SC_WSID.C:
+STATUSBAR.C:
+SYMTRANS.C:
+UPDATES.C:
+WEBCOLORS.C:
+  Update copyright years.
+
+
+Build #1553 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug When Deleting Sys Vars
+
+Directory trunk:
+
+SYSVARS.C:
+  In <DeleteSysVars>, clear the global memory handle after deleting it so we don't try to delete it twice.
+
+Build #1552 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Subroutine To []SYSID
+
+Directory trunk:
+
+QF_SYSID.C:
+  Fix bug of using the wrong macro <countof> instead of <strcountof>.
+
+YYFNS.C:
+  Fix bug in <YYAllocGlb> to mark the global handle as such.
+
+VER.RC:
+  Increment version # to 0.4.17.xx.

@@ -1,0 +1,14 @@
+Build #1598 -- Version 0.4.18.xx
+--------------------------------
+
+* Mark Function As AFO When Editing It
+* Include More Entry Points.
+
+Directory trunk:
+
+EDITFCN.C:
+EXTERNS.H:
+  When editing an AFO, mark it as such in the window title.
+
+STARTADDR.H:
+  Include more entry points.

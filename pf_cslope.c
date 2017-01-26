@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -144,7 +144,7 @@ LPPL_YYSTYPE PrimIdentFnCircleSlope_EM_YY
     tkFcn.tkFlags.TknType   = TKT_FCNIMMED;
     tkFcn.tkFlags.ImmType   = IMMTYPE_PRIMFCN;
 ////tkFcn.tkFlags.NoDisplay = FALSE;           // Already zero from = {0}
-    tkFcn.tkData.tkIndex    = UTF16_IOTA;
+    tkFcn.tkData.tkChar     = UTF16_IOTA;
     tkFcn.tkCharIndex       = lptkFunc->tkCharIndex;
 
     // The (left) identity function for dyadic CircleSlope
@@ -214,11 +214,11 @@ LPPL_YYSTYPE PrimFnMonCircleSlope_EM_YY
 
     // Allocate storage for the left argument
     hGlbLft = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbLft)
+    if (hGlbLft EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemLft = MyGlobalLock (hGlbLft);
+    lpMemLft = MyGlobalLock000 (hGlbLft);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemLft)
     // Fill in the header values
@@ -235,7 +235,7 @@ LPPL_YYSTYPE PrimFnMonCircleSlope_EM_YY
     *VarArrayBaseToDim (lpMemLft) = aplRankRht;
 
     // Skip over the header and dimensions to the data
-    lpMemLft = VarArrayBaseToData (lpMemLft, 1);
+    lpMemLft = VarArrayDataFmBase (lpMemLft);
 
     // Fill in the APA parameters
 #define lpAPA       ((LPAPLAPA) lpMemLft)
@@ -403,9 +403,10 @@ LPPL_YYSTYPE PrimFnDydCircleSlope_EM_YY
                 {
                     // stData is a valid HGLOBAL variable array
                     Assert (IsGlbTypeVarDir_PTB (lptkRhtArg->tkData.tkSym->stData.stGlbData));
-
+#ifdef DEBUG
                     // If we ever get here, we must have missed a type demotion
-                    DbgStop ();
+                    DbgStop ();             // #ifdef DEBUG
+#endif
                 } // End IF
 
                 // Handle the immediate case
@@ -436,7 +437,7 @@ LPPL_YYSTYPE PrimFnDydCircleSlope_EM_YY
     aplRankRes++;
 
     // Lock the memory to get a ptr to it
-    lpMemAxisHead = MyGlobalLock (hGlbAxis);
+    lpMemAxisHead = MyGlobalLockInt (hGlbAxis);
 
     // Point to the grade-up of the first
     //   <aplRankRht> values in lpMemAxisHead
@@ -449,7 +450,7 @@ LPPL_YYSTYPE PrimFnDydCircleSlope_EM_YY
     lpMemDimRht = VarArrayBaseToDim (lpMemRht);
 
     // Skip over the header and dimensions to the data
-    lpMemRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+    lpMemRht = VarArrayDataFmBase (lpMemRht);
 
     // Calculate the NELM of the result
     aplNELMRes = 1;
@@ -482,11 +483,11 @@ LPPL_YYSTYPE PrimFnDydCircleSlope_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header values
@@ -538,9 +539,9 @@ LPPL_YYSTYPE PrimFnDydCircleSlope_EM_YY
     ByteRes = aplRankRht * sizeof (APLUINT);
 
     // In case the result is a scalar, allocate at least
-    //   one byte so the GlobalLock doesn't fail -- Windows
+    //   four bytes so the GlobalLock doesn't fail -- Windows
     //   doesn't handle the empty case well.
-    ByteRes = max (ByteRes, 1);
+    ByteRes = max (ByteRes, 4);
 
     // Check for overflow
     if (ByteRes NE (APLU3264) ByteRes)
@@ -551,11 +552,11 @@ LPPL_YYSTYPE PrimFnDydCircleSlope_EM_YY
     //   {times}{backscan}1{drop}({rho}R),1
     //***************************************************************
     hGlbWVec = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbWVec)
+    if (hGlbWVec EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemWVec = MyGlobalLock (hGlbWVec);
+    lpMemWVec = MyGlobalLock000 (hGlbWVec);
 
     // Loop through the dimensions of the result in reverse
     //   order {backscan} and compute the cumulative product
@@ -573,9 +574,9 @@ LPPL_YYSTYPE PrimFnDydCircleSlope_EM_YY
     ByteRes = aplRankRes * sizeof (APLUINT);
 
     // In case the result is a scalar, allocate at least
-    //   one byte so the GlobalLock doesn't fail -- Windows
+    //   four bytes so the GlobalLock doesn't fail -- Windows
     //   doesn't handle the empty case well.
-    ByteRes = max (ByteRes, 1);
+    ByteRes = max (ByteRes, 4);
 
     // Check for overflow
     if (ByteRes NE (APLU3264) ByteRes)
@@ -586,11 +587,11 @@ LPPL_YYSTYPE PrimFnDydCircleSlope_EM_YY
     //   in the result, with values initially all zero (thanks to GHND).
     //***************************************************************
     hGlbOdo = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbOdo)
+    if (hGlbOdo EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemOdo = MyGlobalLock (hGlbOdo);
+    lpMemOdo = MyGlobalLock000 (hGlbOdo);
 
     // Copy the data to the result
 
@@ -870,41 +871,14 @@ ERROR_EXIT:
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbWVec)
-    {
-        if (lpMemWVec)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbWVec); lpMemWVec = NULL;
-        } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWVec, lpMemWVec);
 
-        // We no longer need this storage
-        DbgGlobalFree (hGlbWVec); hGlbWVec = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdo, lpMemOdo);
 
-    if (hGlbOdo)
-    {
-        if (lpMemOdo)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbOdo); lpMemOdo = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbOdo); hGlbOdo = NULL;
-    } // End IF
-
-    if (hGlbAxis)
-    {
-        if (lpMemAxisHead)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbAxis); lpMemAxisHead = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbAxis); hGlbAxis = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbAxis, lpMemAxisHead);
 
     if (hGlbLft && lpMemLft)
     {

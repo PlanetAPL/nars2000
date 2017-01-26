@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -144,20 +144,39 @@ APLSTYPE PrimSpecQuoteDotStorageTypeMon
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
-
-    if (IsSimpleChar (*lpaplTypeRht)
-     || *lpaplTypeRht EQ ARRAY_LIST)
-        return ARRAY_ERROR;
 
     // The storage type of the result is
     //   the same as that of the right arg
-    //   except that APAs are converted to INTs
-    if (IsSimpleAPA (*lpaplTypeRht))
-        aplTypeRes = ARRAY_INT;
-    else
-        aplTypeRes = *lpaplTypeRht;
+    aplTypeRes = *lpaplTypeRht;
+
+    // Split cases based upon the storage type
+    switch (aplTypeRes)
+    {
+        case ARRAY_BOOL:
+        case ARRAY_INT:
+        case ARRAY_FLOAT:
+        case ARRAY_RAT:
+        case ARRAY_VFP:
+        case ARRAY_NESTED:
+            break;
+
+        // Except that APAs are converted to INTs
+        case ARRAY_APA:
+            aplTypeRes = ARRAY_INT;
+
+            break;
+
+        case ARRAY_CHAR:
+        case ARRAY_HETERO:
+            aplTypeRes = ARRAY_ERROR;
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
 
     return aplTypeRes;
 } // End PrimSpecQuoteDotStorageTypeMon
@@ -219,11 +238,13 @@ APLINT PrimFnMonQuoteDotIisI
     if (aplIntegerRht < 0)
     {
         // Get the result as float
-        aplFloatRes = TranslateQuadICIndex (0,
-                                            ICNDX_QDOTn,
-                                            (APLFLOAT) aplIntegerRht);
+        aplFloatRes =
+          TranslateQuadICIndex (0,
+                                ICNDX_QDOTn,
+                     (APLFLOAT) aplIntegerRht,
+                                FALSE);
         // If it's infinite, ...
-        if (IsInfinity (aplFloatRes))
+        if (IsFltInfinity (aplFloatRes))
             RaiseException (EXCEPTION_RESULT_FLOAT, 0, 0, NULL);
         else
             return (APLINT) aplFloatRes;
@@ -274,8 +295,13 @@ APLFLOAT PrimFnMonQuoteDotFisF
          || aplFloatRht EQ ceil  (aplFloatRht))
             return TranslateQuadICIndex (0,
                                          ICNDX_QDOTn,
-                                         aplFloatRht);
+                                         aplFloatRht,
+                                         FALSE);
     } // End IF
+
+    // Check for PosInfinity
+    if (IsFltPosInfinity (aplFloatRht))
+        return fltPosInfinity;
 
     // Check for too large for GSL
     if ((aplFloatRht + 1) > GSL_SF_GAMMA_XMAX)
@@ -323,7 +349,12 @@ APLRAT PrimFnMonQuoteDotRisR
         return *mpq_QuadICValue (&aplRatRht,        // No left arg
                                   ICNDX_QDOTn,
                                  &aplRatRht,
-                                 &mpqRes);
+                                 &mpqRes,
+                                  FALSE);
+    // Check for PosInfinity
+    if (IsMpqPosInfinity (&aplRatRht))
+        return mpqPosInfinity;
+
     // If the denominator is 1,
     //   and the numerator fts in a UINT, ...
     if (mpq_integer_p (&aplRatRht)
@@ -364,7 +395,12 @@ APLVFP PrimFnMonQuoteDotVisV
         return *mpfr_QuadICValue (&aplVfpRht,       // No left arg
                                    ICNDX_QDOTn,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
+    // Check for PosInfinity
+    if (IsMpfPosInfinity (&aplVfpRht))
+        return mpfPosInfinity;
+
     // If the arg is an integer,
     //   and it fits in a ULONG, ...
     if (mpfr_integer_p (&aplVfpRht)
@@ -412,12 +448,12 @@ APLSTYPE PrimSpecQuoteDotStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // Calculate the storage type of the result
@@ -481,7 +517,7 @@ APLINT PrimFnDydQuoteDotIisIvI
             //      T = R-L;
             //      Z = Prod (I, 1, L, (I+T) / I)
             for (T = R - L, Z = 1, I = 1; I <= L; I++)
-                Z = (imul64 (Z, I + T)) / I;
+                Z = (imul64_RE (Z, I + T)) / I;
             return Z;
 
         case 4*0 + 2*0 + 1*1:   // 0
@@ -573,7 +609,7 @@ APLFLOAT PrimFnDydQuoteDotFisIvI
                  II <= LI;
                  II++)
             {
-                TI2 = _imul64 (ZI, II + TI, &bRet);
+                TI2 = imul64 (ZI, II + TI, &bRet);
                 if (bRet)
                     ZI = TI2 / II;
                 else
@@ -583,7 +619,7 @@ APLFLOAT PrimFnDydQuoteDotFisIvI
                          II++, IF++)
                     {
                         ZF = (ZF * (IF + TF)) / IF;
-                        if (IsInfinity (ZF))
+                        if (IsFltInfinity (ZF))
                             RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
                     } // End FOR
 
@@ -710,14 +746,10 @@ APLFLOAT PrimFnDydQuoteDotFisFvF
     } else
     {
         // Z = (!R) / (!L) * !R-L
-        aplFloatRes =
+        return
                 PrimFnMonQuoteDotFisF (RF, NULL)
              / (PrimFnMonQuoteDotFisF (LF, NULL)
               * PrimFnMonQuoteDotFisF (RF - LF, NULL));
-        // Convert {neg}0 to 0
-        if (aplFloatRes EQ 0)
-            aplFloatRes = 0;
-        return aplFloatRes;
     } // End IF/ELSE
 
 #undef  IF

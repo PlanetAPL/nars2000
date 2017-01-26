@@ -1,0 +1,26 @@
+Build #1454 -- Version 0.4.13.xx
+--------------------------------
+
+* Fix Bug In []AT When Calculating The Size Of An Immediate Function/Operator Or A System Function
+* Miscellaneous Minor Related Fixes
+
+Directory trunk:
+
+ASSIGN.C:
+  Improve comments.
+  In <AssignName_EM>, ensure the named result is marked as Inuse.
+
+FREE.C:
+  Include Assert to ensure the token is named.
+
+MACROS.H:
+  Change the definition of the <IsSymNoValue> to disallow Direct (System) Functions.
+
+QF_AT.C:
+  Fix bug not handling the SymEntry size of immediate functions and operators, and Direct (System) Functions.
+
+SYMTAB.H:
+  In <HSHENTRY> struc, widen the DEBUG entry to display the name to 16 WCHARs.
+
+YYFNS.C:
+  In <_YYFree> fix typo in DEBUG string for Permanent vars.

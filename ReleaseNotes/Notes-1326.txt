@@ -1,0 +1,10 @@
+Build #1326 -- Version 0.4.9.xx
+-------------------------------
+
+* Return APA From Non-Empty Replicate Of Singleton Integer-like Value
+
+Directory trunk:
+
+PF_SLASH.C:
+  If the right arg is a singleton, the result is non-empty and the right arg
+    is integer-like. return an APA as the result.

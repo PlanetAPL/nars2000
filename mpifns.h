@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2012 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #define MPIFNS
 
 #undef  mpz_init_set
+#undef  mpz_init_set_str
 #undef  mpz_init_set_d
 
 #undef  mpz_set
@@ -177,6 +178,7 @@
 #undef  mpz_size
 
 #undef  mpq_canonicalize
+#undef  mpq_clear
 
 #undef  mpq_set
 #undef  mpq_set_z
@@ -208,10 +210,12 @@
 #undef  mpq_out_str
 #undef  mpq_inp_str
 
+#undef  mpfr_set
 #undef  mpfr_set_d
 #undef  mpfr_set_z
 #undef  mpfr_set_q
 #undef  mpfr_set_str
+#undef  mpfr_strtofr
 
 #undef  mpfr_init_set_d
 #undef  mpfr_init_set_str
@@ -269,6 +273,7 @@
 
 
 #define mpz_init_set            mpiz_init_set
+#define mpz_init_set_str        mpiz_init_set_str
 #define mpz_init_set_d          mpiz_init_set_d
 
 #define mpz_set                 mpiz_set
@@ -422,6 +427,7 @@
 #define mpz_size                mpiz_size
 
 #define mpq_canonicalize        mpiq_canonicalize
+#define mpq_clear               mpiq_clear
 
 #define mpq_set                 mpiq_set
 #define mpq_set_z               mpiq_set_z
@@ -453,10 +459,12 @@
 #define mpq_out_str             mpiq_out_str
 #define mpq_inp_str             mpiq_inp_str
 
+#define mpfr_set                mpifr_set
 #define mpfr_set_d              mpifr_set_d
 #define mpfr_set_z              mpifr_set_z
 #define mpfr_set_q              mpifr_set_q
 #define mpfr_set_str            mpifr_set_str
+#define mpfr_strtofr            mpifr_strtofr
 
 #define mpfr_init_set_d         mpifr_init_set_d
 #define mpfr_init_set_str       mpifr_init_set_str

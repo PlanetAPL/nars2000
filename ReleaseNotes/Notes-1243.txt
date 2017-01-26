@@ -1,0 +1,11 @@
+Build #1243 -- Version 0.4.8.xx
+-------------------------------
+
+* Fix Bug When Changing []PW
+
+Directory trunk:
+
+EDITFCN.C:
+  Update copyright year.
+  In <RespecifyNewQuadPW> under some circumstances, the <lphtsPTD> can be NULL
+    which crashes the interpreter.

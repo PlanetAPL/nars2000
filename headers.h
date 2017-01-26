@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 // Disable stack checking
 #pragma check_stack(off)
 
+#define STRSAFE_NO_DEPRECATE
+#include <strsafe.h>
 #include <wininet.h>
 #include <float.h>
 #include <setjmp.h>
@@ -37,16 +39,17 @@
 #include <mpir.h>
 #include <mpfr.h>
 #include "classnames.h"
+#include "perfmon.h"
 #include "defines.h"
 #include "enums.h"
 #include "types.h"
 #include "macros.h"
-#include "perfmon.h"
 #include "uniscribe.h"
 #include "aplerrors.h"
 #include "resdebug.h"
 #include "resource.h"
 #include "datatype.h"
+#include "synobj.h"
 #include "tokens.h"
 #include "primfns.h"
 #include "execmfn.h"
@@ -72,24 +75,28 @@
 #include "grade.h"
 #include "sis.h"
 #include "editctrl.h"
-#include "termcode.h"
 #include "qf.h"
 #include "fmtspec.h"
-#include "mpifns.h"
+#ifndef REAL_MPIFNS
+  #include "mpifns.h"
+#endif
 #include "malloc.h"
 #include "qf_dr.h"
 #include "hungarian.h"
+#include "sc_save.h"
+#include "cr_proc.h"
+#include "afofns.h"
+#include "qf_nfns.h"
 
 #pragma pack(pop)
 
-#undef  mpfr_set_sj
 #undef  mpfr_init_set       // The mpfr_init_set* functions are implemented
 #undef  mpfr_init_set_ui    //   as macros which causes a problem when used
 #undef  mpfr_init_set_si    //   as mpfr_init_set_q ((LPAPLVFP) lpMemRes)++, ...
-#undef  mpfr_init_set_d     //   so we must implement then ourselves as fns.
+#undef  mpfr_init_set_d     //   so we must implement them ourselves as fns.
 #undef  mpfr_init_set_z
 #undef  mpfr_init_set_q
-#define mpfr_init0(a)   mpfr_init_set_ui (a, 0, MPFR_RNDN)
+#define mpfr_init0(a)   mpfr_init_set_ui ((a), 0, MPFR_RNDN)
 
 #ifndef __ATTR_SAL
  /* used for msvc code analysis */

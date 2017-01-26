@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -59,6 +59,16 @@ extern MAGIC_FCNOPR MFO_MonDotInit;
 extern MAGIC_FCNOPR MFO_DydEpsUnderbar;
 extern MAGIC_FCNOPR MFO_DydConv;
 extern MAGIC_FCNOPR MFO_IdnConv;
+extern MAGIC_FCNOPR MFO_DydScan;
+extern MAGIC_FCNOPR MFO_DydScan1;
+extern MAGIC_FCNOPR MFO_RoS1L;
+extern MAGIC_FCNOPR MFO_RoS1R;
+extern MAGIC_FCNOPR MFO_RoS2;
+extern MAGIC_FCNOPR MFO_RoS3;
+extern MAGIC_FCNOPR MFO_MDIU;
+extern MAGIC_FCNOPR MFO_DetSing;
+extern MAGIC_FCNOPR MFO_DydVOFact;
+extern MAGIC_FCNOPR MFO_MonExecute;
 
 
 //***************************************************************************
@@ -202,7 +212,7 @@ LPPL_YYSTYPE ExecuteMagicOperator_EM_YY
 //***************************************************************************
 
 #ifdef DEBUG
-#define APPEND_NAME     L" -- InitMagicFunction"
+#define APPEND_NAME     L" -- Init1MagicFunction"
 #else
 #define APPEND_NAME
 #endif
@@ -282,7 +292,7 @@ HGLOBAL Init1MagicFunction
 ////        SymTabAppendAllSysNames_EM (lpInitMFO->lphtsMFO);
 ////
 ////        // Assign default values to the system vars
-////        _AssignDefaultSysVars (lpMemPTD, lpInitMFO->lphtsMFO);
+////        AssignDefaultHTSSysVars (lpMemPTD, lpInitMFO->lphtsMFO);
 ////
 ////        // Mark as appended so as to avoid doing this the next time
 ////        lpInitMFO->lphtsMFO->bSysNames = TRUE;
@@ -297,12 +307,12 @@ HGLOBAL Init1MagicFunction
     uLineLen  = lstrlenW (lpMagicFcnOpr->Header);
 
     // Allocate space for the text
-    //   (the "sizeof (uLineLen)" is for the leading line length
+    //   (the "sizeof (lpMemTxtLine->U)" is for the leading line length
     //    and the "+ 1" is for the terminating zero)
-    hGlbTxtHdr = MyGlobalAlloc (GHND, sizeof (lpMemTxtLine->U) + (uLineLen + 1) * sizeof (lpMemTxtLine->C));
-    if (!hGlbTxtHdr)
+    hGlbTxtHdr = DbgGlobalAlloc (GHND, sizeof (lpMemTxtLine->U) + (uLineLen + 1) * sizeof (lpMemTxtLine->C));
+    if (hGlbTxtHdr EQ NULL)
     {
-        MessageBox (hWndEC,
+        MessageBox (hWndMF,
                     "Insufficient memory to save the magic function/operator header text!!",
                     lpszAppName,
                     MB_OK | MB_ICONWARNING | MB_APPLMODAL);
@@ -315,10 +325,10 @@ HGLOBAL Init1MagicFunction
     //   on the call to EM_GETLINE.
 
     // If the line is non-empty, ...
-    if (uLineLen)
+    if (uLineLen NE 0)
     {
         // Lock the memory to get a ptr to it
-        lpMemTxtLine = MyGlobalLock (hGlbTxtHdr);
+        lpMemTxtLine = MyGlobalLock000 (hGlbTxtHdr);    // ->U not assigned as yet
 
         // Save the line length
         lpMemTxtLine->U = uLineLen;
@@ -350,16 +360,17 @@ HGLOBAL Init1MagicFunction
                        NULL,                // Ptr to error handling function (may be NULL)
                        NULL,                // Ptr to common struc (may be NULL if unused)
                        TRUE);               // TRUE iff we're tokenizing a Magic Function/Operator
-    if (!hGlbTknHdr)
+    if (hGlbTknHdr EQ NULL)
     {
         WCHAR wszTemp[1024];
 
         // Format the error message
-        wsprintfW (wszTemp,
-                   ERRMSG_SYNTAX_ERROR_IN_FUNCTION_HEADER,
-                   lpMemPTD->uCaret);
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                    ERRMSG_SYNTAX_ERROR_IN_FUNCTION_HEADER,
+                    lpMemPTD->uCaret);
         // Display the error message
-        MessageBoxW (hWndEC,
+        MessageBoxW (hWndMF,
                     wszTemp,
                     lpwszAppName,
                     MB_OK | MB_ICONWARNING | MB_APPLMODAL);
@@ -378,7 +389,7 @@ HGLOBAL Init1MagicFunction
                   PAGE_READWRITE);
     if (!lclMemVirtStr[0].IniAddr)
     {
-        MessageBox (hWndEC,
+        MessageBox (hWndMF,
                     "Insufficient memory to save the function header strand stack!!",
                     lpszAppName,
                     MB_OK | MB_ICONWARNING | MB_APPLMODAL);
@@ -396,7 +407,7 @@ HGLOBAL Init1MagicFunction
     // Parse the function header
     if (ParseFcnHeader (hWndEC, hGlbTknHdr, &fhLocalVars, TRUE))
     {
-        UINT         uLineNum,          // Current line # in the Edit Ctrl
+        UINT         uLineNum,          // Current line # in the Edit Ctrl (0 = header)
                      uOffset,           // Cumulative offset
                      numResultSTE,      // # result STEs (may be zero)
                      numLftArgSTE,      // # left arg ...
@@ -442,22 +453,22 @@ HGLOBAL Init1MagicFunction
         numFcnLines = lpMagicFcnOpr->numFcnLines;
 
         // Get size of tokenization of all lines (excluding the header)
-        for (uOffset = uLineNum = 0; uLineNum < numFcnLines; uLineNum++)
+        for (uOffset = 0, uLineNum = 1; uLineNum <= numFcnLines; uLineNum++)
             // Size a function line
             if (SaveFunctionLine (NULL, lpMagicFcnOpr, NULL, uLineNum, NULL, hWndEC, NULL, &uOffset) EQ -1)
                 goto ERROR_EXIT;
         // Allocate global memory for the function header
         hGlbDfnHdr =
-          MyGlobalAlloc (GHND, sizeof (DFN_HEADER)
-                             + sizeof (LPSYMENTRY) * (numResultSTE
-                                                    + numLftArgSTE
-                                                    + numRhtArgSTE
-                                                    + numLocalsSTE)
-                             + sizeof (FCNLINE) * numFcnLines
-                             + uOffset);
-        if (!hGlbDfnHdr)
+          DbgGlobalAlloc (GHND, sizeof (DFN_HEADER)
+                              + sizeof (LPSYMENTRY) * (numResultSTE
+                                                     + numLftArgSTE
+                                                     + numRhtArgSTE
+                                                     + numLocalsSTE)
+                              + sizeof (FCNLINE) * numFcnLines
+                              + uOffset);
+        if (hGlbDfnHdr EQ NULL)
         {
-            MessageBox (hWndEC,
+            MessageBox (hWndMF,
                         "Insufficient memory to save the function header!!",
                         lpszAppName,
                         MB_OK | MB_ICONWARNING | MB_APPLMODAL);
@@ -465,7 +476,7 @@ HGLOBAL Init1MagicFunction
         } // End IF
 
         // Lock the memory to get a ptr to it
-        lpMemDfnHdr = MyGlobalLock (hGlbDfnHdr);
+        lpMemDfnHdr = MyGlobalLock000 (hGlbDfnHdr);
 
         // Save numbers in global memory
         lpMemDfnHdr->numResultSTE = numResultSTE;
@@ -483,7 +494,6 @@ HGLOBAL Init1MagicFunction
         lpMemDfnHdr->ListRes      = fhLocalVars.ListRes;
         lpMemDfnHdr->ListLft      = fhLocalVars.ListLft;
         lpMemDfnHdr->ListRht      = fhLocalVars.ListRht;
-        lpMemDfnHdr->PermFn       = TRUE;
         lpMemDfnHdr->RefCnt       = 1;
         lpMemDfnHdr->numFcnLines  = numFcnLines;
         lpMemDfnHdr->steLftOpr    = fhLocalVars.lpYYLftOpr
@@ -586,7 +596,7 @@ HGLOBAL Init1MagicFunction
         uOffset = lpMemDfnHdr->offTknLines;
 
         // Loop through the lines
-        for (uLineNum = 0; uLineNum < numFcnLines; uLineNum++)
+        for (uLineNum = 1; uLineNum <= numFcnLines; uLineNum++)
         {
             // Save a function line
             uLineLen =
@@ -596,7 +606,7 @@ HGLOBAL Init1MagicFunction
 
             // Transfer Stop & Trace info
             lpFcnLines->bStop  =
-            lpFcnLines->bTrace = FALSE;     // ***FIXME*** -- transfer from orig fn
+            lpFcnLines->bTrace = FALSE;
 
             // Skip to the next struct
             lpFcnLines++;
@@ -617,13 +627,14 @@ HGLOBAL Init1MagicFunction
             WCHAR wszTemp[1024];
 
             // Format the error message
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"%s in %s -- Line %d statement %d position %d",
-                       csLocalVars.lpwszErrMsg,
-                       lpwszName,
-                       csLocalVars.tkCSErr.tkData.Orig.c.uLineNum,
-                       csLocalVars.tkCSErr.tkData.Orig.c.uStmtNum + 1,
-                       csLocalVars.tkCSErr.tkCharIndex);
+                        csLocalVars.lpwszErrMsg,
+                        lpwszName,
+                        csLocalVars.tkCSErr.tkData.Orig.c.uLineNum,
+                        csLocalVars.tkCSErr.tkData.Orig.c.uStmtNum + 1,
+                        csLocalVars.tkCSErr.tkCharIndex);
             MBW (wszTemp);
 
             goto ERROR_EXIT;
@@ -661,23 +672,17 @@ ERROR_EXIT:
         LPTOKEN_HEADER lpMemTknHdr;
 
         // Lock the memory to get a ptr to it
-        lpMemTknHdr = MyGlobalLock (hGlbTknHdr);
+        lpMemTknHdr = MyGlobalLockTkn (hGlbTknHdr);
 
         // Free the tokens
         Untokenize (lpMemTknHdr);
 
-        // We no Longer need this ptr
-        MyGlobalUnlock (hGlbTknHdr); lpMemTknHdr = NULL;
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbTknHdr); hGlbTknHdr = NULL;
+        // Unlock and free (and set to NULL) a global name and ptr
+        UnlFreeGlbName (hGlbTknHdr, lpMemTknHdr);
     } // End IF
 
-    if (hGlbTxtHdr)
-    {
-        // We no longer need this storage
-        MyGlobalFree (hGlbTxtHdr); hGlbTxtHdr = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbTxtHdr, lpMemTxtLine);
 NORMAL_EXIT:
     // Restore the ptr to the next token on the CS stack
     lpMemPTD->lptkCSNxt = lptkCSBeg;
@@ -721,49 +726,61 @@ UBOOL InitMagicFunctions
      UINT         uPtdMemVirtEnd)       // Ending   ...
 
 {
+    UBOOL bRet = TRUE;                  // TRUE iff the result is valid
+
     // Define the magic functions/operators
-    lpMemPTD->hGlbMFO[MFOE_MonIota          ]  = Init1MagicFunction (MFON_MonIota          , &MFO_MonIota          , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydIota          ]  = Init1MagicFunction (MFON_DydIota          , &MFO_DydIota          , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MonDnShoe        ]  = Init1MagicFunction (MFON_MonDnShoe        , &MFO_MonDnShoe        , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MonRank          ]  = Init1MagicFunction (MFON_MonRank          , &MFO_MonRank          , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydRank          ]  = Init1MagicFunction (MFON_DydRank          , &MFO_DydRank          , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_Conform          ]  = Init1MagicFunction (MFON_Conform          , &MFO_Conform          , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MonFMT           ]  = Init1MagicFunction (MFON_MonFMT           , &MFO_MonFMT           , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_BoxFMT           ]  = Init1MagicFunction (MFON_BoxFMT           , &MFO_BoxFMT           , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MonVR            ]  = Init1MagicFunction (MFON_MonVR            , &MFO_MonVR            , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_IdnDot           ]  = Init1MagicFunction (MFON_IdnDot           , &MFO_IdnDot           , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_IdnJotDot        ]  = Init1MagicFunction (MFON_IdnJotDot        , &MFO_IdnJotDot        , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MAD              ]  = Init1MagicFunction (MFON_MAD              , &MFO_MAD              , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MSD              ]  = Init1MagicFunction (MFON_MSD              , &MFO_MSD              , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MU               ]  = Init1MagicFunction (MFON_MU               , &MFO_MU               , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MI               ]  = Init1MagicFunction (MFON_MI               , &MFO_MI               , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MIO              ]  = Init1MagicFunction (MFON_MIO              , &MFO_MIO              , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MEO              ]  = Init1MagicFunction (MFON_MEO              , &MFO_MEO              , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MM               ]  = Init1MagicFunction (MFON_MM               , &MFO_MM               , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MLRS             ]  = Init1MagicFunction (MFON_MLRS             , &MFO_MLRS             , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MLRSU            ]  = Init1MagicFunction (MFON_MLRSU            , &MFO_MLRSU            , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MMUL             ]  = Init1MagicFunction (MFON_MMUL             , &MFO_MMUL             , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydDnShoe        ]  = Init1MagicFunction (MFON_DydDnShoe        , &MFO_DydDnShoe        , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydUpShoe        ]  = Init1MagicFunction (MFON_DydUpShoe        , &MFO_DydUpShoe        , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydLRShoeUnd     ]  = Init1MagicFunction (MFON_DydLRShoeUnd     , &MFO_DydLRShoeUnd     , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_SD               ]  = Init1MagicFunction (MFON_SD               , &MFO_SD               , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MonDomino        ]  = Init1MagicFunction (MFON_MonDomino        , &MFO_MonDomino        , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydDomino        ]  = Init1MagicFunction (MFON_DydDomino        , &MFO_DydDomino        , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydDotDot        ]  = Init1MagicFunction (MFON_DydDotDot        , &MFO_DydDotDot        , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydIotaUnderbar  ]  = Init1MagicFunction (MFON_DydIotaUnderbar  , &MFO_DydIotaUnderbar  , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_MonDotInit       ]  = Init1MagicFunction (MFON_MonDotInit       , &MFO_MonDotInit       , lpMemPTD, hWndEC, NULL);
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MonIota          ]  = Init1MagicFunction (MFON_MonIota          , &MFO_MonIota          , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydIota          ]  = Init1MagicFunction (MFON_DydIota          , &MFO_DydIota          , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MonDnShoe        ]  = Init1MagicFunction (MFON_MonDnShoe        , &MFO_MonDnShoe        , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MonRank          ]  = Init1MagicFunction (MFON_MonRank          , &MFO_MonRank          , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydRank          ]  = Init1MagicFunction (MFON_DydRank          , &MFO_DydRank          , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_Conform          ]  = Init1MagicFunction (MFON_Conform          , &MFO_Conform          , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MonFMT           ]  = Init1MagicFunction (MFON_MonFMT           , &MFO_MonFMT           , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_BoxFMT           ]  = Init1MagicFunction (MFON_BoxFMT           , &MFO_BoxFMT           , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MonVR            ]  = Init1MagicFunction (MFON_MonVR            , &MFO_MonVR            , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_IdnDot           ]  = Init1MagicFunction (MFON_IdnDot           , &MFO_IdnDot           , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_IdnJotDot        ]  = Init1MagicFunction (MFON_IdnJotDot        , &MFO_IdnJotDot        , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MAD              ]  = Init1MagicFunction (MFON_MAD              , &MFO_MAD              , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MSD              ]  = Init1MagicFunction (MFON_MSD              , &MFO_MSD              , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MU               ]  = Init1MagicFunction (MFON_MU               , &MFO_MU               , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MI               ]  = Init1MagicFunction (MFON_MI               , &MFO_MI               , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MIO              ]  = Init1MagicFunction (MFON_MIO              , &MFO_MIO              , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MEO              ]  = Init1MagicFunction (MFON_MEO              , &MFO_MEO              , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MM               ]  = Init1MagicFunction (MFON_MM               , &MFO_MM               , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MLRS             ]  = Init1MagicFunction (MFON_MLRS             , &MFO_MLRS             , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MLRSU            ]  = Init1MagicFunction (MFON_MLRSU            , &MFO_MLRSU            , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MMUL             ]  = Init1MagicFunction (MFON_MMUL             , &MFO_MMUL             , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydDnShoe        ]  = Init1MagicFunction (MFON_DydDnShoe        , &MFO_DydDnShoe        , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydUpShoe        ]  = Init1MagicFunction (MFON_DydUpShoe        , &MFO_DydUpShoe        , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydLRShoeUnd     ]  = Init1MagicFunction (MFON_DydLRShoeUnd     , &MFO_DydLRShoeUnd     , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_SD               ]  = Init1MagicFunction (MFON_SD               , &MFO_SD               , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MonDomino        ]  = Init1MagicFunction (MFON_MonDomino        , &MFO_MonDomino        , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydDomino        ]  = Init1MagicFunction (MFON_DydDomino        , &MFO_DydDomino        , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydDotDot        ]  = Init1MagicFunction (MFON_DydDotDot        , &MFO_DydDotDot        , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydIotaUnderbar  ]  = Init1MagicFunction (MFON_DydIotaUnderbar  , &MFO_DydIotaUnderbar  , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MonDotInit       ]  = Init1MagicFunction (MFON_MonDotInit       , &MFO_MonDotInit       , lpMemPTD, hWndEC, NULL));
 
     // Run MFON_MonDotInit to initialize the Determinant Operator magic function subroutines
     // Note we must run this function AFTER MonDotInit is initialized and BEFORE MonDot is initialized
     //   so as to get the reference counts balanced.
     ExecNilMFO (lpMemPTD, hWndEC);
 
-    lpMemPTD->hGlbMFO[MFOE_MonDot           ]  = Init1MagicFunction (MFON_MonDot           , &MFO_MonDot           , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydEpsUnderbar   ]  = Init1MagicFunction (MFON_DydEpsUnderbar   , &MFO_DydEpsUnderbar   , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_DydConv          ]  = Init1MagicFunction (MFON_DydConv          , &MFO_DydConv          , lpMemPTD, hWndEC, NULL);
-    lpMemPTD->hGlbMFO[MFOE_IdnConv          ]  = Init1MagicFunction (MFON_IdnConv          , &MFO_IdnConv          , lpMemPTD, hWndEC, NULL);
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MonDot           ]  = Init1MagicFunction (MFON_MonDot           , &MFO_MonDot           , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydEpsUnderbar   ]  = Init1MagicFunction (MFON_DydEpsUnderbar   , &MFO_DydEpsUnderbar   , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydConv          ]  = Init1MagicFunction (MFON_DydConv          , &MFO_DydConv          , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_IdnConv          ]  = Init1MagicFunction (MFON_IdnConv          , &MFO_IdnConv          , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydScan          ]  = Init1MagicFunction (MFON_DydScan          , &MFO_DydScan          , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydScan1         ]  = Init1MagicFunction (MFON_DydScan1         , &MFO_DydScan1         , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_RoS1L            ]  = Init1MagicFunction (MFON_RoS1L            , &MFO_RoS1L            , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_RoS1R            ]  = Init1MagicFunction (MFON_RoS1R            , &MFO_RoS1R            , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_RoS2             ]  = Init1MagicFunction (MFON_RoS2             , &MFO_RoS2             , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_RoS3             ]  = Init1MagicFunction (MFON_RoS3             , &MFO_RoS3             , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MDIU             ]  = Init1MagicFunction (MFON_MDIU             , &MFO_MDIU             , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DetSing          ]  = Init1MagicFunction (MFON_DetSing          , &MFO_DetSing          , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_DydVOFact        ]  = Init1MagicFunction (MFON_DydVOFact        , &MFO_DydVOFact        , lpMemPTD, hWndEC, NULL));
+    bRet &= NULL NE (lpMemPTD->hGlbMFO[MFOE_MonExecute       ]  = Init1MagicFunction (MFON_MonExecute       , &MFO_MonExecute       , lpMemPTD, hWndEC, NULL));
 
-    return TRUE;
+    return bRet;
 } // InitMagicFunctions
 
 
@@ -772,6 +789,12 @@ UBOOL InitMagicFunctions
 //
 //  Execute and erase a niladic MFO (MFON_MonDotInit)
 //***************************************************************************
+
+#ifdef DEBUG
+#define APPEND_NAME     L" -- ExecNilMFO"
+#else
+#define APPEND_NAME
+#endif
 
 void ExecNilMFO
     (LPPERTABDATA lpMemPTD,             // Ptr to PerTabData global memory
@@ -794,7 +817,7 @@ void ExecNilMFO
                    NULL,                        // Ptr to common struc (may be NULL if unused)
                    TRUE);                       // TRUE iff we're tokenizing a Magic Function/Operator
     // Lock the memory to get a ptr to it
-    lpMemTknHdr = MyGlobalLock (hGlbTknHdr);
+    lpMemTknHdr = MyGlobalLockTkn (hGlbTknHdr);
 
     // Execute the line
 ////exitType =
@@ -805,15 +828,14 @@ void ExecNilMFO
                  lpMemPTD,              // Ptr to PerTabData global memory
                  1,                     // Function line #  (1 for execute or immexec)
                  0,                     // Starting token # in the above function line
+                 FALSE,                 // TRUE iff we're tracing this line
                  NULL,                  // User-defined function/operator global memory handle (NULL = execute/immexec)
+                 NULL,                  // Ptr to function token used for AFO function name
                  FALSE,                 // TRUE iff errors are acted upon
                  FALSE,                 // TRUE iff executing only one stmt
                  FALSE);                // TRUE iff we're to skip the depth check
-    // We no longer need this ptr
-    MyGlobalUnlock (hGlbTknHdr); lpMemTknHdr = NULL;
-
-    // We no longer need this resource
-    DbgGlobalFree (hGlbTknHdr); hGlbTknHdr = NULL;
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbTknHdr, lpMemTknHdr);
 
     // Tell 'em we're looking for MFO objects
 ////ZeroMemory (&stFlags, sizeof (stFlags));
@@ -827,7 +849,7 @@ void ExecNilMFO
     Assert (lpSymEntry);
 
     // Lock the memory to get a ptr to it
-    lpMemDfnHdr = MyGlobalLock (lpSymEntry->stData.stGlbData);
+    lpMemDfnHdr = MyGlobalLockDfn (lpSymEntry->stData.stGlbData);
 
     // Free the globals in the struc
     //   but don't Untokenize the function lines
@@ -845,6 +867,7 @@ void ExecNilMFO
     // Erase the Symbol Table Entry
     EraseSTE (lpSymEntry, FALSE); lpSymEntry = NULL;
 } // End ExecNilMFO
+#undef  APPEND_NAME
 
 
 //***************************************************************************

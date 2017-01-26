@@ -1,0 +1,22 @@
+Build #1607 -- Version 0.4.18.xx
+--------------------------------
+
+* Miscellaneous Changes And Bug Fixes
+
+Directory trunk:
+
+DISPDBG.C:
+  Fix DEBUG bug by handling certain cases of <MyGlobalLockTxt>.
+
+PRIMSPEC.C:
+  In IF stmts always compare ptr against NULL.
+  Pass <lpSymGlb[Lft|Rht]> to subfunctions instead of NULL as we need it in the case of Global Numerics.
+  In certain cases when the result is NESTED, but the calculation is numeric, we make the mistake of saving a
+    pseudo result on top of the actual result.
+  In <PrimFnDydSiScSiScSub_EM> when the result is NESTED, but the calculation is Global Numeric, we save the Global Numeric result
+    in the Nested array causing a crash.
+
+TYPEMOTE.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <TypeDemote>, we increment <lpMemRht> but fail to restore it to the beginning and re-use that ptr as if it were at the start.

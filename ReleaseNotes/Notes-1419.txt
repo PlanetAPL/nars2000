@@ -1,0 +1,15 @@
+Build #1419 -- Version 0.4.11.xx
+--------------------------------
+
+* Improve The Description Of The Right Operand To Two Identity Element Functions
+
+Directory trunk:
+
+EXECFNS.C:
+  Remove Assert stmt as it's no longer needed (because it's no longer TRUE!).
+
+IDENTFNS.C:
+PO_DOT.C:
+PO_SLASH.C:
+  Note that the right operand to <GetIdentityElement_EM> and <FillIdentityElement_EM>,
+    may be NULL if Scan; otherwise it's Inner Product.

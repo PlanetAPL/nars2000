@@ -1,0 +1,28 @@
+Build #1450 -- Version 0.4.13.xx
+--------------------------------
+
+* Handle Decimal/Exponentiation Form In Denominator Of Rational Point Notation
+
+Directory trunk:
+
+CR_PROC.C:
+  Fix bug in FSA which mistakenly allows a '/' or 'x' after a negative sign.
+  Handle decimal/exponential form in denominator of rational point notation.
+
+MACROS.H:
+  Define macro to detect -0 as a FLT.
+
+MPIFNS.C:
+MPIFNS.H:
+  Use <mpfr_strtofr> instead of <mpfr_set_str> when the string isn't zero-terminated.
+
+PN_PARSE.H:
+PN_PARSE.Y:
+  Define and set flags to deal with rational numbers in strings.
+
+PN_PROC.C:
+  Use <mpfr_strtofr> instead of <mpfr_set_str> when the string isn't zero-terminated.
+  In <PN_NumCalc>, set FLT flag as appropriate.
+  In <PN_NumCalc>, call <mpq_init_set_str2> to convert string to a rational number and
+    deal with the return code.
+  In <PN_VectorAcc> and <PN_VectorRes>, set and test flags to deal with rational numbers in strings.

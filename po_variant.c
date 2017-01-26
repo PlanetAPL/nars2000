@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,10 +45,6 @@ LPPL_YYSTYPE PrimOpVariant_EM_YY
 
 {
     Assert (lpYYFcnStrOpr->tkToken.tkData.tkChar EQ UTF16_VARIANT);
-
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (&lpYYFcnStrOpr->tkToken APPEND_NAME_ARG);
 
     // Split cases based upon monadic or dyadic derived function
     if (lptkLftArg EQ NULL)
@@ -165,18 +161,18 @@ LPPL_YYSTYPE PrimIdentOpVariant_EM_YY
 
     // Set ptr to left & right operands,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrLft = &lpYYFcnStrOpr[1 + (lptkAxisOpr NE NULL)];
-    lpYYFcnStrRht = &lpYYFcnStrLft[lpYYFcnStrLft->TknCount];
+    lpYYFcnStrRht = GetDydRhtOper (lpYYFcnStrOpr, lptkAxisOpr);
+    lpYYFcnStrLft = GetDydLftOper (lpYYFcnStrRht);
 
     // Ensure the left operand is a function
     if (!IsTknFcnOpr (&lpYYFcnStrLft->tkToken)
      || IsTknFillJot (&lpYYFcnStrLft->tkToken))
-        goto LEFT_OPERAND_SYNTAX_EXIT;
+        goto LEFT_OPERAND_DOMAIN_EXIT;
 
     // Ensure the right operand is a variable
     if (IsTknFcnOpr (&lpYYFcnStrRht->tkToken)
      || IsTknFillJot (&lpYYFcnStrRht->tkToken))
-        goto RIGHT_OPERAND_SYNTAX_EXIT;
+        goto RIGHT_OPERAND_DOMAIN_EXIT;
 
     // Check for left operand axis operator
     lptkAxisLft = CheckAxisOper (lpYYFcnStrLft);
@@ -185,7 +181,7 @@ LPPL_YYSTYPE PrimIdentOpVariant_EM_YY
     lpPrimFlagsLft = GetPrimFlagsPtr (&lpYYFcnStrLft->tkToken);
 
     // Check for error
-    if (!lpPrimFlagsLft || !lpPrimFlagsLft->lpPrimOps)
+    if (lpPrimFlagsLft EQ NULL || lpPrimFlagsLft->lpPrimOps EQ NULL)
         goto LEFT_OPERAND_DOMAIN_EXIT;
 
     // Execute the left operand identity function on the right arg
@@ -200,13 +196,8 @@ AXIS_SYNTAX_EXIT:
                                lptkAxisOpr);
     goto ERROR_EXIT;
 
-LEFT_OPERAND_SYNTAX_EXIT:
-    ErrorMessageIndirectToken (ERRMSG_SYNTAX_ERROR APPEND_NAME,
-                              &lpYYFcnStrLft->tkToken);
-    goto ERROR_EXIT;
-
-RIGHT_OPERAND_SYNTAX_EXIT:
-    ErrorMessageIndirectToken (ERRMSG_SYNTAX_ERROR APPEND_NAME,
+RIGHT_OPERAND_DOMAIN_EXIT:
+    ErrorMessageIndirectToken (ERRMSG_DOMAIN_ERROR APPEND_NAME,
                               &lpYYFcnStrRht->tkToken);
     goto ERROR_EXIT;
 
@@ -232,9 +223,10 @@ LPPL_YYSTYPE PrimOpMonVariant_EM_YY
      LPTOKEN      lptkRhtArg)           // Ptr to right arg token
 
 {
-    return PrimOpMonVariantCommon_EM_YY (lpYYFcnStrOpr,       // Ptr to operator function strand
-                                           lptkRhtArg,          // Ptr to right arg token
-                                           FALSE);              // TRUE iff prototyping
+    return
+      PrimOpMonVariantCommon_EM_YY (lpYYFcnStrOpr,      // Ptr to operator function strand
+                                    lptkRhtArg,         // Ptr to right arg token
+                                    FALSE);             // TRUE iff prototyping
 } // End PrimOpMonVariant_EM_YY
 
 
@@ -255,16 +247,16 @@ LPPL_YYSTYPE PrimOpMonVariantCommon_EM_YY
 
     // Set ptr to left & right operands,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrLft = &lpYYFcnStrOpr[1 + (NULL NE CheckAxisOper (lpYYFcnStrOpr))];
-    lpYYFcnStrRht = &lpYYFcnStrLft[lpYYFcnStrLft->TknCount];
+    lpYYFcnStrRht = GetDydRhtOper (lpYYFcnStrOpr, CheckAxisOper (lpYYFcnStrOpr));
+    lpYYFcnStrLft = GetDydLftOper (lpYYFcnStrRht);
 
     return
-      PrimOpVariantCommon_EM_YY (NULL,                // Ptr to left arg token (may be NULL if monadic derived function)
-                                   lpYYFcnStrLft,       // Ptr to left operand function strand
-                                   lpYYFcnStrOpr,       // Ptr to operator function strand
-                                   lpYYFcnStrRht,       // Ptr to right operand function strand
-                                   lptkRhtArg,          // Ptr to right arg token
-                                   bPrototyping);       // TRUE iff protoyping
+      PrimOpVariantCommon_EM_YY (NULL,                  // Ptr to left arg token (may be NULL if monadic derived function)
+                                 lpYYFcnStrLft,         // Ptr to left operand function strand
+                                 lpYYFcnStrOpr,         // Ptr to operator function strand
+                                 lpYYFcnStrRht,         // Ptr to right operand function strand
+                                 lptkRhtArg,            // Ptr to right arg token
+                                 bPrototyping);         // TRUE iff protoyping
 } // End PrimOpMonVariantCommon_EM_YY
 
 
@@ -282,52 +274,53 @@ LPPL_YYSTYPE PrimOpMonVariantCommon_EM_YY
 #endif
 
 LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
-    (LPTOKEN      lptkLftArg,           // Ptr to left arg token (may be NULL if monadic derived function)
-     LPPL_YYSTYPE lpYYFcnStrLft,        // Ptr to left operand function strand
-     LPPL_YYSTYPE lpYYFcnStrOpr,        // Ptr to operator function strand
-     LPPL_YYSTYPE lpYYFcnStrRht,        // Ptr to right operand function strand
-     LPTOKEN      lptkRhtArg,           // Ptr to right arg token
-     UBOOL        bPrototyping)         // TRUE iff protoyping
+    (LPTOKEN      lptkLftArg,               // Ptr to left arg token (may be NULL if monadic derived function)
+     LPPL_YYSTYPE lpYYFcnStrLft,            // Ptr to left operand function strand
+     LPPL_YYSTYPE lpYYFcnStrOpr,            // Ptr to operator function strand
+     LPPL_YYSTYPE lpYYFcnStrRht,            // Ptr to right operand function strand
+     LPTOKEN      lptkRhtArg,               // Ptr to right arg token
+     UBOOL        bPrototyping)             // TRUE iff protoyping
 
 {
-    LPPL_YYSTYPE  lpYYRes = NULL;       // Ptr to result
-////              lpYYRes2;             // Ptr to secondary result
-    LPTOKEN       lptkAxis;             // Ptr to axis token
-    APLSTYPE      aplTypeRhtOpr;        // Right operand storage type
-    APLNELM       aplNELMRhtOpr;        // Right operand NELM
-    APLRANK       aplRankRhtOpr;        // Right operand rank
-    APLINT        aplIntegerRhtOpr;     // Right operand integer value
-    APLCHAR       aplCharRhtOpr;        // Right operand character value
-    APLFLOAT      aplFloatRhtOpr;       // Right operand float value
-    UBOOL         bRet = TRUE,          // TRUE iff the result is valid
-                  bQuadIOFound = FALSE, // TRUE iff []IO value found
-                  bQuadDTFound = FALSE; // ...      []DT ...
-    APLFLOAT      fQuadCT;              // []CT
-    APLCHAR       cQuadDT;              // []DT
-    APLBOOL       bQuadIO;              // []IO
-    APLINT        uQuadPPV;             // []PP for VFPs
-    TOKEN         tkFcn = {0},          // Function token
-                  tkRht = {0};          // Right arg token
-    HGLOBAL       hGlbRhtOpr;           // Right operand global memory handle
-    LPVOID        lpMemRhtOpr;          // Ptr to right operand memory
-////HGLOBAL       hGlbMFO;              // Magic function/operator global memory handle
-    LPPERTABDATA  lpMemPTD;             // Ptr to PerTabData global memory
+    LPTOKEN           lptkAxisOpr;          // Ptr to axis token (may be NULL)
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+////                  lpYYRes2;             // Ptr to secondary result
+    LPTOKEN           lptkAxisLft;          // Ptr to axis token on the left operand
+    APLSTYPE          aplTypeRhtOpr;        // Right operand storage type
+    APLNELM           aplNELMRhtOpr;        // Right operand NELM
+    APLRANK           aplRankRhtOpr;        // Right operand rank
+    APLINT            aplIntegerRhtOpr;     // Right operand integer value
+    APLCHAR           aplCharRhtOpr;        // Right operand character value
+    APLFLOAT          aplFloatRhtOpr;       // Right operand float value
+    UBOOL             bRet = TRUE,          // TRUE iff the result is valid
+                      bQuadIOFound = FALSE, // TRUE iff []IO value found
+                      bQuadDTFound = FALSE; // ...      []DT ...
+    APLFLOAT          fQuadCT;              // []CT
+    APLCHAR           cQuadDT;              // []DT
+    APLBOOL           bQuadIO;              // []IO
+    APLINT            uQuadPPV;             // []PP for VFPs
+    TOKEN             tkFcn = {0},          // Function token
+                      tkRht = {0};          // Right arg token
+    HGLOBAL           hGlbRhtOpr;           // Right operand global memory handle
+    LPVOID            lpMemRhtOpr;          // Ptr to right operand memory
+    HGLOBAL           hGlbMFO;              // Magic function/operator global memory handle
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
 
-    // Check for axis operator
-    lptkAxis = CheckAxisOper (lpYYFcnStrOpr);
+    // Check for axis operator on the left operand
+    lptkAxisLft = CheckAxisOper (lpYYFcnStrLft);
 
     // Ensure the left operand is a function
     if (!IsTknFcnOpr (&lpYYFcnStrLft->tkToken)
      || IsTknFillJot (&lpYYFcnStrLft->tkToken))
-        goto LEFT_OPERAND_SYNTAX_EXIT;
+        goto LEFT_OPERAND_DOMAIN_EXIT;
 
     // Ensure the right operand is a variable
     if (IsTknFcnOpr (&lpYYFcnStrRht->tkToken)
      || IsTknFillJot (&lpYYFcnStrRht->tkToken))
-        goto RIGHT_OPERAND_SYNTAX_EXIT;
+        goto RIGHT_OPERAND_DOMAIN_EXIT;
 
     //***************************************************************
     // Get the attributes (Type, NELM, and Rank) of the right operand
@@ -338,14 +331,15 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
     //    the right operand is nested or hetero, ...
     if (!IsTknImmed (&lpYYFcnStrLft->tkToken)
       || IsPtrArray (aplTypeRhtOpr))
-        return PrimOpVariantKeyword_EM_YY (lptkLftArg,      // Ptr to left arg token (may be NULL if monadic derived function)
-                                           lpYYFcnStrLft,   // Ptr to left operand function strand
-                                           lpYYFcnStrRht,   // Ptr to right operand function strand
-                                           lptkRhtArg,      // Ptr to right arg token
-                                           aplTypeRhtOpr,   // Right operand storage type
-                                           aplNELMRhtOpr,   // ...           NELM
-                                           aplRankRhtOpr,   // ...           rank
-                                           lpMemPTD);       // Ptr to PerTabData global memory
+        return
+          PrimOpVariantKeyword_EM_YY (lptkLftArg,       // Ptr to left arg token (may be NULL if monadic derived function)
+                                      lpYYFcnStrLft,    // Ptr to left operand function strand
+                                      lpYYFcnStrRht,    // Ptr to right operand function strand
+                                      lptkRhtArg,       // Ptr to right arg token
+                                      aplTypeRhtOpr,    // Right operand storage type
+                                      aplNELMRhtOpr,    // ...           NELM
+                                      aplRankRhtOpr,    // ...           rank
+                                      lpMemPTD);        // Ptr to PerTabData global memory
     // ***TESTME*** -- Handle axis operator on a PSDF
     // Split cases based upon the immediate function
     switch (lpYYFcnStrLft->tkToken.tkData.tkChar)
@@ -414,9 +408,7 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
             lpYYRes =
               ExecFunc_EM_YY (lptkLftArg,           // Ptr to left arg token (may be NULL if monadic)
                               lpYYFcnStrLft,        // Ptr to function strand
-                              lptkRhtArg,           // Ptr to right arg token
-                              FALSE,                // TRUE iff we should free the left arg on exit
-                              FALSE);               // ...                         right ...
+                              lptkRhtArg);          // Ptr to right arg token
             // Restore the original values
             SetQuadIO (bQuadIO);
             SetQuadCT (fQuadCT);
@@ -429,8 +421,10 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
         case UTF16_RIGHTSHOE:               // ...          (Pick)
         case UTF16_PI:                      // ...          (Number theoretic)
             // Ensure there's a left arg
-            if (!lptkLftArg)
-                goto LEFT_SYNTAX_EXIT;
+            if (lptkLftArg EQ NULL)
+                goto LEFT_VALENCE_EXIT;
+
+            // Fall through to common code
 
         case UTF16_DELSTILE:                // Monadic:  Grade down, Dyadic: Grade down
         case UTF16_DELTASTILE:              // ...             up    ...           up
@@ -471,9 +465,7 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
             lpYYRes =
               ExecFunc_EM_YY (lptkLftArg,           // Ptr to left arg token (may be NULL if monadic)
                               lpYYFcnStrLft,        // Ptr to function strand
-                              lptkRhtArg,           // Ptr to right arg token
-                              FALSE,                // TRUE iff we should free the left arg on exit
-                              FALSE);               // ...                         right ...
+                              lptkRhtArg);          // Ptr to right arg token
             // Restore the original values
             SetQuadIO (bQuadIO);
 
@@ -502,7 +494,7 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
             // Validate the value
             if (!ValidateIntegerTest (&aplIntegerRhtOpr,
                                        DEF_MIN_QUADPP,      // Minimum value
-                                       DEF_MAX_QUADPPVFP,   // Maximum ...   for VFPs
+                                       DEF_MAX_QUADPP_VFP,  // Maximum ...   for VFPs
                                        bRangeLimit.PP))     // TRUE iff range limiting
                 goto RIGHT_OPERAND_DOMAIN_EXIT;
 
@@ -518,9 +510,7 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
             lpYYRes =
               ExecFunc_EM_YY (lptkLftArg,           // Ptr to left arg token (may be NULL if monadic)
                               lpYYFcnStrLft,        // Ptr to function strand
-                              lptkRhtArg,           // Ptr to right arg token
-                              FALSE,                // TRUE iff we should free the left arg on exit
-                              FALSE);               // ...                         right ...
+                              lptkRhtArg);          // Ptr to right arg token
             // Restore the original value for VFPs
             SetQuadPPV (uQuadPPV);
 
@@ -548,8 +538,10 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
         case UTF16_TILDE2:                  // ...          (Without)
         case UTF16_EPSILONUNDERBAR:         // ...          (Find)
             // Ensure there's a left arg
-            if (!lptkLftArg)
-                goto LEFT_SYNTAX_EXIT;
+            if (lptkLftArg EQ NULL)
+                goto LEFT_VALENCE_EXIT;
+
+            // Fall through to common code
 
         case UTF16_DOWNSHOE:                // Monadic:  Unique,   Dyadic:  Set union
         case UTF16_DOWNSTILE:               // ...       Minimum   ...      Floor
@@ -574,7 +566,7 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
                 goto RIGHT_OPERAND_DOMAIN_EXIT;
 
             // Validate the value
-            if (!ValidateFloatTest (&aplFloatRhtOpr,    //
+            if (!ValidateFloatTest (&aplFloatRhtOpr,        // Ptr to float value
                                      DEF_MIN_QUADCT,        // Minimum value
                                      DEF_MAX_QUADCT,        // Maximum ...
                                      bRangeLimit.CT))       // TRUE iff range limiting
@@ -591,9 +583,7 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
             lpYYRes =
               ExecFunc_EM_YY (lptkLftArg,           // Ptr to left arg token (may be NULL if monadic)
                               lpYYFcnStrLft,        // Ptr to function strand
-                              lptkRhtArg,           // Ptr to right arg token
-                              FALSE,                // TRUE iff we should free the left arg on exit
-                              FALSE);               // ...                         right ...
+                              lptkRhtArg);          // Ptr to right arg token
             // Restore the original value
             SetQuadCT (fQuadCT);
 
@@ -608,8 +598,9 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
             switch (aplRankRhtOpr)
             {
                 case 0:
-                    // If it's not simple global numeric, ...
-                    if (!IsNumeric (aplTypeRhtOpr))
+                    // If it's not simple global numeric and not simple char, ...
+                    if (!IsNumeric (aplTypeRhtOpr)
+                     && !IsSimpleChar (aplTypeRhtOpr))
                         goto RIGHT_OPERAND_DOMAIN_EXIT;
                     break;
 
@@ -730,13 +721,84 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
             lpYYRes =
               ExecFunc_EM_YY (lptkLftArg,           // Ptr to left arg token (may be NULL if monadic)
                               lpYYFcnStrLft,        // Ptr to function strand
-                              lptkRhtArg,           // Ptr to right arg token
-                              FALSE,                // TRUE iff we should free the left arg on exit
-                              FALSE);               // ...                         right ...
+                              lptkRhtArg);          // Ptr to right arg token
             // Restore the original values
             SetQuadDT (cQuadDT);
             SetQuadCT (bQuadIO);
 
+            break;
+
+        // Pochhammer Symbol (Rising and Falling factorials):
+        // See https://en.wikipedia.org/wiki/Falling_and_rising_factorials
+        case UTF16_QUOTEDOT:                // Monadic only
+            // Ensure there's no left arg
+            if (lptkLftArg NE NULL)
+                goto LEFT_VALENCE_EXIT;
+
+            // Validate the right operand as
+            //   a simple or global numeric scalar or one- or two-element vector
+            if (IsMultiRank (aplRankRhtOpr))
+                goto RIGHT_OPERAND_RANK_EXIT;
+            if (aplNELMRhtOpr NE 1
+             && aplNELMRhtOpr NE 2)
+                goto RIGHT_OPERAND_LENGTH_EXIT;
+            if (!IsNumeric (aplTypeRhtOpr))
+                goto RIGHT_OPERAND_DOMAIN_EXIT;
+
+            // Compute the rising/falling factorial using the Shreik primitive
+
+            // Get the magic function/operator global memory handle
+            hGlbMFO = lpMemPTD->hGlbMFO[MFOE_DydVOFact];
+
+            lpYYRes =
+              ExecuteMagicFunction_EM_YY (lptkLftArg,               // Ptr to left arg token
+                                         &lpYYFcnStrOpr->tkToken,   // Ptr to function token
+                                          lpYYFcnStrOpr,            // Ptr to function strand
+                                          lptkRhtArg,               // Ptr to right arg token
+                                         &lpYYFcnStrRht->tkToken,   // Ptr to axis token (from right operand)
+                                          hGlbMFO,                  // Magic function/operator global memory handle
+                                          NULL,                     // Ptr to HSHTAB struc (may be NULL)
+                                          bPrototyping
+                                        ? LINENUM_PRO
+                                        : LINENUM_ONE);             // Starting line # type (see LINE_NUMS)
+            break;
+
+        // []FPC:  Execute
+        case UTF16_UPTACKJOT:
+            // Validate the right operand as
+            //   a simple numeric scalar or one-element vector
+            if (IsMultiRank (aplRankRhtOpr))
+                goto RIGHT_OPERAND_RANK_EXIT;
+            if (aplNELMRhtOpr NE 1)
+                goto RIGHT_OPERAND_LENGTH_EXIT;
+            if (!IsNumeric (aplTypeRhtOpr))
+                goto RIGHT_OPERAND_DOMAIN_EXIT;
+
+            // Ensure there's no left arg
+            if (lptkLftArg NE NULL)
+                goto LEFT_VALENCE_EXIT;
+
+            // Check for axis operator
+            lptkAxisOpr = CheckAxisOper (lpYYFcnStrOpr);
+
+            // Set ptr to right operand,
+            //   skipping over the operator and axis token (if present)
+            lptkLftArg = GetDydRhtOper (lpYYFcnStrOpr, lptkAxisOpr).tkToken;
+
+            // Get the magic function/operator global memory handle
+            hGlbMFO = lpMemPTD->hGlbMFO[MFOE_MonExecute];
+
+            lpYYRes =
+              ExecuteMagicFunction_EM_YY (lptkLftArg,               // Ptr to left arg token
+                                         &lpYYFcnStrOpr->tkToken,   // Ptr to function token
+                                          lpYYFcnStrOpr,            // Ptr to function strand
+                                          lptkRhtArg,               // Ptr to right arg token
+                                          lptkAxisOpr,              // Ptr to axis token
+                                          hGlbMFO,                  // Magic function/operator global memory handle
+                                          NULL,                     // Ptr to HSHTAB struc (may be NULL)
+                                          bPrototyping
+                                        ? LINENUM_PRO
+                                        : LINENUM_ONE);             // Starting line # type (see LINE_NUMS)
             break;
 
 ////////// []CF:  Circular Functions divisor:
@@ -769,15 +831,11 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
 ////////    break;
 
 ////////// []RA:  Residue arithmetic:  Operand | L f R
-////////// Rising and falling factorial:
-////////// See http://en.wikipedia.org/wiki/Pochhammer_symbol
 ////////case UTF16_STAR:                    // Dyadic only
 ////////case UTF16_STAR2:                   // Dyadic only
 ////////    // Ensure there's a left arg
-////////    if (lpYYFcnStrLft->tkToken.tkData.tkChar NE UTF16_BAR
-////////     && lpYYFcnStrLft->tkToken.tkData.tkChar NE UTF16_BAR2
-////////     && !lptkLftArg)
-////////        goto LEFT_SYNTAX_EXIT;
+////////    if (lptkLftArg EQ NULL)
+////////        goto LEFT_VALENCE_EXIT;
 ////////
 ////////    // Validate the right operand as
 ////////    //   a simple numeric scalar or one- or two-element vector
@@ -788,28 +846,6 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
 ////////        goto RIGHT_OPERAND_LENGTH_EXIT;
 ////////    if (!IsNumeric (aplTypeRhtOpr))
 ////////        goto RIGHT_OPERAND_DOMAIN_EXIT;
-////////    // If there's a second element, ...
-////////    if (aplNELMRhtOpr EQ 2)
-////////    {
-////////        // Compute the factorial number
-////////        //   as {times}/{each} L + Opr2 {times} {iota} {each} R
-////////
-////////        // Get the magic function/operator global memory handle
-////////        hGlbMFO = lpMemPTD->hGlbMFO[MFOE_DydVOFact];
-////////
-////////        lpYYRes =
-////////          ExecuteMagicFunction_EM_YY (lptkLftArg,               // Ptr to left arg token
-////////                                     &lpYYFcnStrOpr->tkToken,   // Ptr to function token
-////////                                      lpYYFcnStrOpr,            // Ptr to function strand
-////////                                      lptkRhtArg,               // Ptr to right arg token
-////////                                     &lpYYFcnStrRht->tkToken,   // Ptr to axis token
-////////                                      hGlbMFO,                  // Magic function/operator global memory handle
-////////                                      NULL,                     // Ptr to HSHTAB struc (may be NULL)
-////////                                      bPrototyping
-////////                                    ? LINENUM_PRO
-////////                                    : LINENUM_ONE);             // Starting line # type (see LINE_NUMS)
-////////        break;
-////////    } // End IF
 ////////
 ////////    // Fall through to other Residue Arithmetic code
 ////////
@@ -821,8 +857,8 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
 ////////    // Ensure there's a left arg
 ////////    if (lpYYFcnStrLft->tkToken.tkData.tkChar NE UTF16_BAR
 ////////     && lpYYFcnStrLft->tkToken.tkData.tkChar NE UTF16_BAR2
-////////     && !lptkLftArg)
-////////        goto LEFT_SYNTAX_EXIT;
+////////     && lptkLftArg EQ NULL)
+////////        goto LEFT_VALENCE_EXIT;
 ////////
 ////////    // Validate the right operand as
 ////////    //   a simple numeric scalar or one-element vector
@@ -837,9 +873,7 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
 ////////    lpYYRes2 =
 ////////      ExecFunc_EM_YY (lptkLftArg,           // Ptr to left arg token (may be NULL if monadic)
 ////////                      lpYYFcnStrLft,        // Ptr to function strand
-////////                      lptkRhtArg,           // Ptr to right arg token
-////////                      FALSE,                // TRUE iff we should free the left arg on exit
-////////                      FALSE);               // ...                         right ...
+////////                      lptkRhtArg);          // Ptr to right arg token
 ////////    // If the result is valid, ...
 ////////    if (lpYYRes2)
 ////////    {
@@ -847,7 +881,7 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
 ////////        tkFcn.tkFlags.TknType   = TKT_FCNIMMED;
 ////////        tkFcn.tkFlags.ImmType   = IMMTYPE_PRIMFCN;
 ////////////////tkFcn.tkFlags.NoDisplay = FALSE;           // Already zero from = {0}
-////////        tkFcn.tkData.tkIndex    = UTF16_STILE;
+////////        tkFcn.tkData.tkChar     = UTF16_STILE;
 ////////        tkFcn.tkCharIndex       = lpYYFcnStrLft->tkToken.tkCharIndex;
 ////////
 ////////        // Execute the function
@@ -865,7 +899,7 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
 ////////// []FE:  Fill Element:  ***FIXME*** -- Default value is either 0 or ' '
 ////////case UTF16_UPARROW:                 // Dyadic only
 ////////case UTF16_SLOPE:                   // ...
-////////    // DbgBrk ();           // ***FINISHME***
+////////    // DbgBrk ();           // ***FINISHME*** -- []FE
 ////////
 ////////    PrimFnNonceError_EM (&lpYYFcnStrLft->tkToken APPEND_NAME_ARG);
 ////////
@@ -885,24 +919,19 @@ LPPL_YYSTYPE PrimOpVariantCommon_EM_YY
 ////////    break;
 
         default:
-            goto LEFT_OPERAND_SYNTAX_EXIT;
+            goto LEFT_OPERAND_DOMAIN_EXIT;
     } // End SWITCH
 
     goto NORMAL_EXIT;
 
-LEFT_OPERAND_SYNTAX_EXIT:
-    ErrorMessageIndirectToken (ERRMSG_SYNTAX_ERROR APPEND_NAME,
+LEFT_OPERAND_DOMAIN_EXIT:
+    ErrorMessageIndirectToken (ERRMSG_DOMAIN_ERROR APPEND_NAME,
                               &lpYYFcnStrLft->tkToken);
     goto ERROR_EXIT;
 
-LEFT_SYNTAX_EXIT:
+LEFT_VALENCE_EXIT:
     ErrorMessageIndirectToken (ERRMSG_SYNTAX_ERROR APPEND_NAME,
                                lptkLftArg);
-    goto ERROR_EXIT;
-
-RIGHT_OPERAND_SYNTAX_EXIT:
-    ErrorMessageIndirectToken (ERRMSG_SYNTAX_ERROR APPEND_NAME,
-                              &lpYYFcnStrRht->tkToken);
     goto ERROR_EXIT;
 
 RIGHT_OPERAND_RANK_EXIT:
@@ -932,31 +961,12 @@ NORMAL_EXIT:
 #undef  APPEND_NAME
 
 
-/// //***************************************************************************
-/// //  Magic function/operator for rising/falling factorials from the Variant Operator
-/// //***************************************************************************
-///
-/// static APLCHAR DydVOFactHeader[] =
-///   L"Z" $IS L"L " MFON_DydVOFact L"[X] R;" $QUAD_IO;
-///
-/// static APLCHAR DydVOFactLine1[] =
-///   $QUAD_IO $IS L"0";
-///
-/// static APLCHAR DydVOFactLine2[] =
-///   L"Z" $IS L"X[0]|" $TIMES L"/" $EACH L"L+X[1]" $TIMES $IOTA $EACH L"R";
-///
-/// static LPAPLCHAR DydVOFactBody[] =
-/// {DydVOFactLine1,
-///  DydVOFactLine2,
-/// };
-///
-/// MAGIC_FCNOPR MFO_DydVOFact =
-/// {DydVOFactHeader,
-///  DydVOFactBody,
-///  countof (DydVOFactBody),
-/// };
-///
-///
+//***************************************************************************
+//  Magic functions/operators for Variant Operator
+//***************************************************************************
+
+#include "mf_variant.h"
+
 /// //***************************************************************************
 /// //  Magic function/operator for circular function divisor from the Variant Operator
 /// //***************************************************************************
@@ -1136,8 +1146,8 @@ LPPL_YYSTYPE PrimOpDydVariantCommon_EM_YY
 
     // Set ptr to left & right operands,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrLft = &lpYYFcnStrOpr[1 + (NULL NE CheckAxisOper (lpYYFcnStrOpr))];
-    lpYYFcnStrRht = &lpYYFcnStrLft[lpYYFcnStrLft->TknCount];
+    lpYYFcnStrRht = GetDydRhtOper (lpYYFcnStrOpr, CheckAxisOper (lpYYFcnStrOpr));
+    lpYYFcnStrLft = GetDydLftOper (lpYYFcnStrRht);
 
     return
       PrimOpVariantCommon_EM_YY (lptkLftArg,            // Ptr to left arg token (may be NULL if monadic derived function)
@@ -1377,11 +1387,11 @@ UBOOL PrimOpVariantValidateGlb_EM
     switch (GetPtrTypeDir (hGlbRhtOpr))
     {
         case PTRTYPE_STCONST:
-            goto RIGHT_OPERAND_RANK_EXIT;
+            goto RIGHT_OPERAND_DOMAIN_EXIT;
 
         case PTRTYPE_HGLOBAL:
             // Lock the memory to get a ptr to it
-            lpMemRhtOpr = MyGlobalLock (hGlbRhtOpr);
+            lpMemRhtOpr = MyGlobalLockVar (hGlbRhtOpr);
 
             // Get the storage type
             aplTypeRhtOpr = ((LPVARARRAY_HEADER) lpMemRhtOpr)->ArrType;
@@ -1412,6 +1422,7 @@ UBOOL PrimOpVariantValidateGlb_EM
     // Get the first value from the right operand
     GetNextValueMem (lpMemRhtOpr,               // Ptr to right operand global memory
                       aplTypeRhtOpr,            // Right operand storage type
+                      aplNELMRhtOpr,            // Right operand NELM
                       0,                        // Index to use
                      &hGlbItm,                  // Ptr to the LPSYMENTRY or HGLOBAL (may be NULL)
                      &aplLongestItm,            // ...        immediate value (may be NULL)
@@ -1450,11 +1461,12 @@ UBOOL PrimOpVariantValidateGlb_EM
         {
             // Get the second value from the right operand
             GetNextValueMem (lpMemRhtOpr,               // Ptr to right operand global memory
-                              aplTypeRhtOpr,            // Right operand storage type
-                              1,                        // Index to use
-                             &hGlbItm,                  // Ptr to the LPSYMENTRY or HGLOBAL (may be NULL)
-                             &aplLongestItm,            // ...        immediate value (may be NULL)
-                             &immTypeItm);              // ...        immediate type:  IMM_TYPES (may be NULL)
+                             aplTypeRhtOpr,             // Right operand storage type
+                             aplNELMRhtOpr,             // Right operand NELM
+                             1,                         // Index to use
+                            &hGlbItm,                   // Ptr to the LPSYMENTRY or HGLOBAL (may be NULL)
+                            &aplLongestItm,             // ...        immediate value (may be NULL)
+                            &immTypeItm);               // ...        immediate type:  IMM_TYPES (may be NULL)
             if (hGlbItm EQ NULL             // Item is immediate
              && IsImmChr (immTypeItm))      //   and char
             {
@@ -1522,11 +1534,12 @@ UBOOL PrimOpVariantValidateGlb_EM
 
     // Get the second value from the right operand
     GetNextValueMem (lpMemRhtOpr,               // Ptr to right operand global memory
-                      aplTypeRhtOpr,            // Right operand storage type
-                      1,                        // Index to use
-                     &hGlbItm,                  // Ptr to the LPSYMENTRY or HGLOBAL (may be NULL)
-                     &aplLongestItm,            // ...        immediate value (may be NULL)
-                     &immTypeItm);              // ...        immediate type:  IMM_TYPES (may be NULL)
+                     aplTypeRhtOpr,             // Right operand storage type
+                     aplNELMRhtOpr,             // Right operand NELM
+                     1,                         // Index to use
+                    &hGlbItm,                   // Ptr to the LPSYMENTRY or HGLOBAL (may be NULL)
+                    &aplLongestItm,             // ...        immediate value (may be NULL)
+                    &immTypeItm);               // ...        immediate type:  IMM_TYPES (may be NULL)
     // Check for error
     if (IsImmErr (immTypeItm))
         goto RIGHT_OPERAND_DOMAIN_EXIT;
@@ -1621,9 +1634,8 @@ UBOOL VariantValidateSymVal_EM
 
     // Validate the value
     return VariantValidateCom_EM (immTypeItm,                               // Immediate type
-                                  (IsImmGlbNum (immTypeItm))
-                               ?  hGlbItm
-                               : &aplLongestItm,                            // Ptr to immediate value (ignored if bReset)
+                                  hGlbItm,                                  //
+                                 &aplLongestItm,                            // Ptr to immediate value (ignored if bReset)
                                   bReset,                                   // TRUE iff assignment value is empty (we're resetting to CLEAR WS/System)
                                   aVariantKeyStr[varKey].aSysVarValidSet,   // Ptr to validate set function
                                   lpSymEntry,                               // Ptr to sysvar SYMENTRY
@@ -1646,7 +1658,7 @@ VARIANTKEYS PrimOpVariantValKeyGlb_EM
     LPAPLCHAR   lpMemKey;               // Ptr to key global memory
 
     // Lock the memory to get a ptr to it
-    lpMemKey = MyGlobalLock (hGlbKey);
+    lpMemKey = MyGlobalLockVar (hGlbKey);
 
     // Skip over header and dimensions to the data
     lpMemKey = VarArrayDataFmBase (lpMemKey);

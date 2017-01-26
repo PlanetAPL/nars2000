@@ -1,0 +1,36 @@
+Build #1509 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Ctrl-Break Display And Subsequent )RESET
+
+Directory trunk:
+
+ERRMSG.C:
+  In IF stmts always compare ptr against NULL.
+  In <BreakMessage>, omit leading ellipsis from text.
+  Change one-bit struc names to have a leading 'b'.
+  In <ErrorMessageDirect>, allow line text ptr to be NULL to indicate do not create []DM and []EM.
+
+EXCEPT.C:
+PRIMFNS.C:
+SC_SI.C:
+SIS.H:
+  Change one-bit struc names to have a leading 'b'.
+
+EXECDFN.C:
+  In <ExecDfnGlb_EM_YY>, change Assert stmt to allow axes ptr to be the same.
+  Change one-bit struc names to have a leading 'b'.
+  In <ExecuteFunction_EM_YY>, display function name/line # on []STOP only.
+  In <ExecuteFunction_EM_YY> with RESETFLAG_ALL, return NULL not NoValue.
+
+GOTO.C:
+  In <GotoLine_EM>, set var in case the value is immediate.
+  Change one-bit struc names to have a leading 'b'.
+
+PARSELINE.C:
+  Change one-bit struc names to have a leading 'b'.
+  In <ParseLine>, note whether or not <BreakMessage> has been called so we don't overwrite []DM/[]EM.
+
+SESSMAN.C:
+  In IF stmts always compare ptr against NULL.
+  Change one-bit struc names to have a leading 'b'.

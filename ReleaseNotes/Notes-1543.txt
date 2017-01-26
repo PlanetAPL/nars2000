@@ -1,0 +1,11 @@
+Build #1543 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug When Loading A Workspace With A Name Assigned To An Existing User Function/Operator
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix a bug when loading a workspace with an existing user defined function/operator (say F)
+    which has been assigned to another name as in G {is} F.  In this case, the STE for G is
+    not setup properly.

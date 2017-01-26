@@ -1,0 +1,24 @@
+Build #1315 -- Version 0.4.9.xx
+-------------------------------
+
+* Rename Float Infinity To Parallel MPQ/MPFR, Part II
+
+Directory trunk:
+
+DISPLAY.C:
+MACROS.H:
+MPIFNS.C:
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_ROOT.C:
+PF_STAR.C:
+PF_UCARET.C:
+PF_USTILE.C:
+QF_FMT.C:
+  Rename float Infinity to parallel the names used for MPQ/MPFR.

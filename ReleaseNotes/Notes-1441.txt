@@ -1,0 +1,11 @@
+Build #1441 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug With (A B C) F {is} R
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+ASSIGN.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix bug in <ModifyAssignNamedVars_EM> with (A B C) F {is} R where the function
+    (F) was applied to the entire right arg (R) instead of to the individual items
+    as per the number of names in parens.

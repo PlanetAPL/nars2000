@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 ***************************************************************************/
 
 
-typedef enum tagMENUPOS_SM      // Positions of items in SM menu
+enum tagMENUPOS_SM              // Positions of items in SM menu
 {
     IDMPOS_SM_FILE = 0,         // 00:  File menu item
     IDMPOS_SM_EDIT    ,         // 01:  Edit ...
@@ -30,7 +30,7 @@ typedef enum tagMENUPOS_SM      // Positions of items in SM menu
     IDMPOS_SM_HELP    ,         // 04:  Help ...
 };
 
-typedef enum tagMENUPOS_FE      // Positions of items in FE menu
+enum tagMENUPOS_FE              // Positions of items in FE menu
 {
     IDMPOS_FE_FILE = 0,         // 00:  File menu item
     IDMPOS_FE_EDIT    ,         // 01:  Edit ...
@@ -59,7 +59,7 @@ typedef enum tagALLMENUPOS      // All Menu Positions (the union of the above me
 typedef UINT (*GETIDMPOS_XX) (ALLMENUPOS);
 
 
-typedef enum tagWINDOWIDS       // Window IDs
+enum tagWINDOWIDS               // Window IDs
 {
     IDWC_DB_LB = 1,             // 01:  Window ID for ListBox       in DB window
     IDWC_FE_EC    ,             // 02:  ...           EditCtrl      in FE ...
@@ -90,8 +90,6 @@ typedef enum tagWINDOWCLASS     // Window Classes
     WINDOWCLASS_RB      ,       // 01:  Rebar
     WINDOWCLASS_SM      ,       // 02:  Session Manager
     WINDOWCLASS_FE      ,       // 03:  Function Editor
-    WINDOWCLASS_VE      ,       // 04:  Vector Editor
-    WINDOWCLASS_ME      ,       // 05:  Matrix Editor
 } WINDOWCLASS, *LPWINDOWCLASS;
 
 
@@ -106,28 +104,29 @@ typedef enum tagSYSCMDS_ENUM    // System Commands
     SYSCMD_ERASE    ,           // 06:  )ERASE
     SYSCMD_EXIT     ,           // 07:  )EXIT
     SYSCMD_FNS      ,           // 08:  )FNS
-    SYSCMD_IN       ,           // 09:  )IN
-    SYSCMD_INASCII  ,           // 0A:  )INASCII
-    SYSCMD_LIB      ,           // 0B:  )LIB
-    SYSCMD_LOAD     ,           // 0C:  )LOAD
-    SYSCMD_NEWTAB   ,           // 0D:  )NEWTAB
-    SYSCMD_NMS      ,           // 0E:  )NMS
-    SYSCMD_OPS      ,           // 0F:  )OPS
-    SYSCMD_OUT      ,           // 10:  )OUT
-    SYSCMD_RESET    ,           // 11:  )RESET
-    SYSCMD_SAVE     ,           // 12:  )SAVE
-    SYSCMD_SI       ,           // 13:  )SI
-    SYSCMD_SINL     ,           // 14:  )SINL
-    SYSCMD_ULIB     ,           // 15:  )ULIB
-    SYSCMD_VARS     ,           // 16:  )VARS
-    SYSCMD_XLOAD    ,           // 17:  )XLOAD
-    SYSCMD_WSID     ,           // 18:  )WSID
+    SYSCMD_FOPS     ,           // 09:  )FOPS
+    SYSCMD_IN       ,           // 0A:  )IN
+    SYSCMD_INASCII  ,           // 0B:  )INASCII
+    SYSCMD_LIB      ,           // 0C:  )LIB
+    SYSCMD_LOAD     ,           // 0D:  )LOAD
+    SYSCMD_NEWTAB   ,           // 0E:  )NEWTAB
+    SYSCMD_NMS      ,           // 0F:  )NMS
+    SYSCMD_OPS      ,           // 10:  )OPS
+    SYSCMD_OUT      ,           // 11:  )OUT
+    SYSCMD_RESET    ,           // 12:  )RESET
+    SYSCMD_SAVE     ,           // 13:  )SAVE
+    SYSCMD_SI       ,           // 14:  )SI
+    SYSCMD_SINL     ,           // 15:  )SINL
+    SYSCMD_ULIB     ,           // 16:  )ULIB
+    SYSCMD_VARS     ,           // 17:  )VARS
+    SYSCMD_XLOAD    ,           // 18:  )XLOAD
+    SYSCMD_WSID     ,           // 19:  )WSID
 } SYSCMDS_ENUM, *LPSYSCMDS_ENUM;
 
 
 typedef enum tagEXCEPTION_CODES // Exception Codes
 {
-    EXCEPTION_SUCCESS = 0  ,    // 00:  All OK
+    EXCEPTION_SUCCESS = 0 ,     // 00:  All OK
     EXCEPTION_RESULT_FLOAT ,    // 01:  Result should be Float
     EXCEPTION_RESULT_RAT   ,    // 02:  Result should be RAT
     EXCEPTION_RESULT_VFP   ,    // 03:  Result should be VFP
@@ -141,8 +140,7 @@ typedef enum tagEXCEPTION_CODES // Exception Codes
 // N.B.:  Whenever changing the above tagEXCEPTION_CODES enum,
 //   be sure to make a corresponding change to
 //   <CheckException> in <except.c>,
-//   <MyGetExceptionStr> in <except.c>,
-//   <ExceptNames> in <except.c>
+//   <MyGetExceptionStr> in <except.c>
 
 
 typedef enum tagMAKE_PROTO
@@ -194,7 +192,6 @@ typedef enum tagLINE_NUMS       // Starting line #s
     LINENUM_INV,                // 02:  Line []INV
     LINENUM_MS ,                // 03:  Line []MS
     LINENUM_PRO,                // 04:  Line []PRO
-    LINENUM_SGL,                // 05:  Line []SGL
 } LINE_NUMS, *LPLINE_NUMS;
 
 
@@ -207,6 +204,10 @@ typedef enum tagFLT_DISP_FMT    // Floating Point Display Formats
                                 //      to E-format if more than []PP digits required
     FLTDISPFMT_LENGTH,          // 04:  # entries in this enum
 } FLTDISPFMT, *LPFLTDISPFMT;
+
+// N.B.:  Whenever changing the above enum (FLT_DISP_FMT),
+//   be sure to make a corresponding change to
+//   <gDTOA_Mode> in <display.c>.
 
 
 typedef enum tagTIMER_SOURCE
@@ -267,6 +268,14 @@ typedef enum tagDFN_TYPES               // User-Defined Function/Operator Types
                                         // 09-0F:  Available entries (4 bits)
 } DFN_TYPES;
 
+#ifdef DEBUG
+  // N.B.:  Whenever changing the above enum
+  //   be sure to make a corresponding change to
+  //   <cDfnTypeStr> below.
+
+  #define cDfnTypeStr     L"?12FIE!@%"
+#endif
+
 
 typedef enum tagPTDMEMVIRTENUM
 {
@@ -287,7 +296,9 @@ typedef enum tagPTDMEMVIRTENUM
     PTDMEMVIRT_FORSTMT,                 // 0E:  FOR ... IN stmts
     PTDMEMVIRT_MFO1,                    // 0F:  Magic functions/operators
     PTDMEMVIRT_MFO2,                    // 10:  ...
-    PTDMEMVIRT_LENGTH                   // 11:  # entries
+    PTDMEMVIRT_LFTSTK,                  // 11:  2by2 left stack
+    PTDMEMVIRT_RHTSTK,                  // 12:  ...  right ...
+    PTDMEMVIRT_LENGTH                   // 13:  # entries
 } PTDMEMVIRTENUM;
 
 

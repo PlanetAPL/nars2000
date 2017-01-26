@@ -1,5 +1,5 @@
 int cs_yyparse (LPCSLOCALVARS lpcsLocalVars);
 UBOOL ParseCtrlStruc_EM (LPCSLOCALVARS lpcsLocalVars);
 int  cs_yylex     (LPCS_YYSTYPE lpYYLval, LPCSLOCALVARS lpcsLocalVars);
-void cs_yyerror   (LPCSLOCALVARS lpcsLocalVars, LPCHAR s);
+void cs_yyerror   (LPCSLOCALVARS lpcsLocalVars, const char *s);
 void cs_yyfprintf (FILE  *hfile, LPCHAR lpszFmt, ...);

@@ -1,0 +1,159 @@
+Build #1348 -- Version 0.4.9.xx
+-------------------------------
+
+* Finish 2by2
+
+Directory trunk:
+
+ASSIGN.C:
+  Update copyright year.
+  Improve comments with example code for incrementing RefCnt.
+
+DATATYPE.H:
+  Update copyright year.
+  Define additional union members for common structures.
+
+DISPDBG.C:
+  In <DisplayGlobals> (DEBUG only), catch invalid <steFcnName> in DFN.
+  In <DisplayFcnStrand> (DEBUG only), catch <TKT_VARNAMED> case which should never occur.
+  In <DisplayFcnGlb>, display more DEBUG info in header.
+  In <DisplayFcnGlb>, handle OP2 immediates more carefully in case fewer than two operands
+
+EDITFCN.C:
+  Update copyright year.
+  In <CopyGlbMemory>, split cases based upon use of "My" functions or not.
+
+EXECDFN.C:
+  Update copyright year.
+  In <ExecDfnGlb_EM_YY>, set the <tkSynObj> value if the result is valid.
+  In <ExecDfnOprGlb_EM_YY>, on error exit be sure to call <UnlocalizeSTEs>.
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+  In <LocalizeAll>, handle error conditions.
+  In <InitFcnSTEs>, handle <TKT_OPxNAMED> cases.
+  Improve comments with example code for incrementing RefCnt.
+
+EXECFNS.C:
+  Update copyright year.
+  In <ExecFcnGlb_EM_YY>, set the <tkSynObj> value if the result is valid.
+  In <ExecTrain_EM_YY>, change definition of two-Train as per Dyalog.
+  In <ExecFuncStrLine_EM_YY>, handle immediate case for named fcn/oprs.
+
+FREE.C:
+  Remove outdated <DBGENTR> and <DBGLEAVE>.
+  Define <FreeTopResult> to free just the top level of a result.
+  In <FreeResult> handle the leafs of the function strand tree struc.
+  Delete unused <FreeResNNU> and <FreeResNNU1>.
+  Remove []DM check code as it's never executed.
+  In <FreeResultSub>, handle more cases (right brace, SYNTAX ERROR).
+  In <FreeResultGlobalFcn>, if not GlobalFree'ing, decrement the RefCnt of all items.
+  In <FreeResultGlobalFcn>, ensure curried args are all NULL.
+  In <FreeResultGlobalDfn>, decrement the RefCnt only if not an MFO.
+  In <FreeResultGlobalDfnStruc>, move code to free the function test line global memory until after <Untokenize>
+    so that if the latter function fails, we can still see the line of APL code that caused it to fail.
+  In <FreeTempResult>, include DEBUG check on the token count.
+
+GETFNS.C:
+  In <GetNextValueTokenIntoToken>, set tkSynObj.
+
+IMMEXEC.C:
+  Update copyright year.
+  In <WaitForImmExecStmt>, don't display the six-space indent if the current SIS level is quad input.
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+
+INIFILE.C:
+  Update copyright year.
+  Include commented out lines of vars to free, but have already been freed elsewhere.
+
+MACROS.H:
+  Define DEBUG versions of various common macros so that they can display location info when called and an error is detected.
+
+PARSELINE.C:
+PARSELINE.H:
+  Fix bugs in pre-release 2by2 implementation.
+  Remove <YYCopyArray> as it is no longer used.
+  Define <ConvertHY2PFO> to handle all conversion of a hybrid to a primitive function/operator.
+
+PF_COMMA.C:
+  Improve comments with example code for incrementing RefCnt.
+
+PF_INDEX.C:
+  Improve coments.
+  In <ArrayIndexSetSingLst_EM>, respecify the result storage type if it was promoted.
+
+PF_UTACKJOT.C:
+  Update copyright year.
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+
+PL_PARSE.H:
+  Update copyright year.
+  Improve coments.
+  Remove <YYCopyArray> as it is no longer used.
+  Move curried args/operands from <PLLOCALVARS> to <PL_YYSTYPE> to reflect the new tree structure of function strands.
+
+PL_PROC>C:
+  Update copyright year.
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+  In <ArrExprCheckCaller>, trigger DEBUG stmt if <IzitQuadDM> ever returns TRUE.
+  Improve comments with example code for incrementing RefCnt.
+
+PO_SLOPE.C:
+  Improve comments with example code for incrementing RefCnt.
+
+PRIMFNS.C:
+  In <TokenTypeFV>, include more cases.
+  Improve comments with example code for incrementing RefCnt.
+  In <CopyArray_EM>, trigger DEBUG stmt in cases where we never expect to be called.
+  Define <IsGlbFcnArray> to detect when a global memory handle is a function array.
+  Remove <IsFcnStrDirect> as it is no longer used.
+  In <IsTknNamed>, include more cases.
+  Define function <IsTknTrain> to detect when a token is a Train.
+  In <IsTknImmed>, include additional case.
+  Define function <IsTknHybrid> to detect when a token is a hybrid.
+
+QF_EA.C:
+QF_EC.C:
+  Pass global memory handle to <UnlocalizeSTEs> so as to not lock it if invalid.
+
+REFCNT.C:
+  Comment DbgBrk & DbgStop stmts to indicate they are #ifdef DEBUG-only.
+  In many increment/decrement functions, check for a function array and incr/decrement as appropriate.
+  Define <ChangeRefCntTkn> to incr/decrement the RefCnt in a token.
+  Define auxiliary functions <DecrRefCntFcnArray> and <ChangeRefCntFcnArray> to decr/increment RefCnt in a function array.
+
+STARTADDR.H:
+  Keep up-to-date with the changed function names.
+
+STRAND.C:
+  Remove unused functions <DbgPushFcnStrand>, <PushFcnStrand>, <DbgMakeFcnStrand>, and <MakeFcnStrand>.
+  In <MakeVarStrand_EM_YY>, trigger DEBUG stmt in cases where we never expect to be called.
+  Define function <UnFcnStrand_EM> to be used instead of <MakeFcnStrand_EM_YY>.
+  In <MakeTranOp_YY>, initialize the token count to zero as the other functions are now curried.
+  Improve comments with example code for incrementing RefCnt.
+  In <CopyToken_EM>, trigger DEBUG stmt in cases where we never expect to be called.
+
+SYNOBJ.H:
+  Update copyright year.
+  Changes to auto-generated file.
+
+SYSVARS.C:
+  In <DelePermVars>, zap the name after it's been freed.
+
+TOKENIZE.C:
+  In <fnCtrlDone>, check for :IN and mark the previous name as being assigned into.
+
+TOKENS.H:
+  Update copyright year.
+  Improve comments.
+
+TRANSLATE.C:
+  Improve comments.
+
+YYFNS.C:
+  Improve comments.
+  Define <YYCHECKINDEX> to aid in debugging <YYAlloc>s.
+  Define <YYCopyToMem> to copy one YYSTYPE to another, zapping curried items in the destination.
+  Make <YYFree>, <YYResIsEmpty>, and <YYCheckInUse> more DEBUG friendly.
+  Redo <YYCountFcnStr> to reflect the new function strand tree structure.
+  Define <YYCountFcnTrn> to do the same thing for Trains.
+  Redo <YYCopyFcnStr> to reflect the new function strand tree structure.
+  Define <YYCopyFcnTrn> to do the same thing for Trains.

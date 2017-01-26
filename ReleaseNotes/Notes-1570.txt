@@ -1,0 +1,42 @@
+Build #1570--Version0.4.18.xx
+--------------------------------
+
+* Replace Size-Limited Windows API Functions For Writing Private Profiles
+* Check For Too Short []FEATURE
+
+Directorytrunk:
+
+DISPDBG.C:
+EXECDFN.C:
+PERTAB.H:
+SAVEFCN.H:
+SC_IN.C:
+SESSMAN.C:
+  Use proper size for iMaxSize var and rename from uMaxSize.
+
+HEADERS.H:
+  Include new header <sc_save.h>.
+
+INIFILE.C:
+SC_SAVE.C:
+SC_SI.C:
+  Define new and replace old size-limited Windows API functions for writing Private Profiles.
+
+INIPARSER.C:
+  Define matching INIPARSER.C profile writing functions.
+
+SC_COPY.C:
+  Use proper size for iMaxSize var and rename from uMaxSize.
+  Pass remaining size to various functions.
+
+SC_LOAD.C:
+  Use proper size for iMaxSize var and rename from uMaxSize.
+  Pass remaining size to various functions.
+  Pass SYMENTRY being loaded so as to check for []FEATURE.
+
+SC_SAVE.H:
+  Define new header file for Callback functions.
+
+WORKSPACE.H:
+  Define new and replace old size-limited Windows API functions for writing Private Profiles.
+  Use proper size for iMaxSize var and rename from uMaxSize.

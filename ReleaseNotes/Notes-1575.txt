@@ -1,0 +1,13 @@
+Build #1575--Version0.4.18.xx
+--------------------------------
+
+* Allow []PW To Be As Large As Possible (2*31)-2
+
+Directory trunk:
+
+SC_LIB.C:
+  In <DisplayLibNames>, now that []PW can be much larger, allocate space for the line
+    dynamically as opposed to statically.
+
+SYSVARS.H:
+  Allow []PW to be as large as (2*31)-2.

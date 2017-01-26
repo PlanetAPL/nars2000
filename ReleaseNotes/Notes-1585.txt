@@ -1,0 +1,33 @@
+Build #1585 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement Wildcard Searches In []NINFO
+
+Directory trunk:
+
+AFOFNS.C:
+CUSTOMIZE.C:
+PF_PI.C:
+PN_PROC.C:
+PO_SLASH.C:
+QF_SYSVER.C:
+SYMTAB.C:
+TOKENIZE.C:
+  Document how GlobalReAlloc works.
+
+HEADERS.H:
+  Include new header in global header file.
+
+QF_NFNS.C:
+  Fix bug in prorotype for <GetFinalPathNameByHandle>.
+  Move enums to <qf_nfns.h>.
+  Define array with ARRAY_xxx storage types for each []NINFO property.
+  Implement wildcard searches for []NINFO.
+  Document how GlobalReAlloc works.
+  In <NfnsSaveData>, if <aplTypeWs> is <ARRAY_ERROR>, don't increment the RefCnt for the filename global memory handle.
+
+QF_NFNS.H:
+  Define header with []NINFO strucs so we may use them in prototype files.
+
+TRANSLATE.C:
+  In <TranslateArrayTypeToSizeof>, handle NESTED and HETERO types.

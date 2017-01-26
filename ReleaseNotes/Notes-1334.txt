@@ -1,0 +1,12 @@
+Build #1334 -- Version 0.4.9.xx
+-------------------------------
+
+* Replace AFO Token Test To Handle More Cases
+
+Directory trunk:
+
+FREE.C:
+PRIMFNS.C:
+PRIMSPEC.C:
+  Rename <IsTknTypeAFO> to <IsTknAFO> to handle more cases, in particular
+    AFOs as named OP1/OP2.

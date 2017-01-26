@@ -1,0 +1,9 @@
+Build #1555 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Typo In Dyadic Scan Magic Functions
+
+Directory trunk:
+
+MF_DYDSCAN.H:
+  Fix typo in axis operator lines.

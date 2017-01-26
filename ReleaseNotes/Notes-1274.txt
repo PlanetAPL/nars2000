@@ -1,0 +1,17 @@
+Build #1274 -- Version 0.4.9.xx
+-------------------------------
+
+* Include DEBUG Stmts For Semaphore Waits
+
+Directory trunk:
+
+EXECDFN.C:
+PL_PROC.C:
+QF_DL.C:
+TABCTRL.C
+  Use <MyWaitforSemaphore> instead of <WaitForSingleObject> when waiting for a semaphore
+    as it incorporates DEBUG stmts in it.
+
+RESDEBUG.C:
+RESDEBUG.H:
+  Define <MyWaitForSemaphore> to handle waiting for a semaphore.

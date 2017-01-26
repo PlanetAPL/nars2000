@@ -1,0 +1,689 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug32|Win32">
+      <Configuration>Debug32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug64|Win32">
+      <Configuration>Debug64</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release32|Win32">
+      <Configuration>Release32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release64|Win32">
+      <Configuration>Release64</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BF04BD9C-0A74-4FD1-B681-1389F6C4AD64}</ProjectGuid>
+    <RootNamespace>NARS2000</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="Prototype.props" />
+    <Import Project="Bison.props" />
+    <Import Project="masm64.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <ExtensionsToDeleteOnClean>*.output%3b*.pro%3b*.obj%3b*.ilk%3b*.tlb%3b*.tli%3b*.tlh%3b*.tmp%3b*.rsp%3b*.pgc%3b*.pgd%3b*.meta%3b??_parse.c%3b$(TargetPath)</ExtensionsToDeleteOnClean>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <ExtensionsToDeleteOnClean>*.output%3b*.pro%3b*.obj%3b*.ilk%3b*.tlb%3b*.tli%3b*.tlh%3b*.tmp%3b*.rsp%3b*.pgc%3b*.pgd%3b*.meta%3b??_parse.c%3b$(TargetPath)</ExtensionsToDeleteOnClean>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <ExtensionsToDeleteOnClean>*.output%3b*.pro%3b*.obj%3b*.ilk%3b*.tlb%3b*.tli%3b*.tlh%3b*.tmp%3b*.rsp%3b*.pgc%3b*.pgd%3b*.meta%3b??_parse.c%3b$(TargetPath)</ExtensionsToDeleteOnClean>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <ExtensionsToDeleteOnClean>*.output%3b*.pro%3b*.obj%3b*.ilk%3b*.tlb%3b*.tli%3b*.tlh%3b*.tmp%3b*.rsp%3b*.pgc%3b*.pgd%3b*.meta%3b??_parse.c%3b$(TargetPath)</ExtensionsToDeleteOnClean>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">
+    <PreBuildEvent>
+      <Message>Generate Prototypes</Message>
+      <Command>call w32.bat
+"$(MSVC)bin\nmake" /f makefile.pro "DEBUG=1" O="$(OutDir)\"
+"$(MSVC)bin\nmake" /f makefile.pro.parse "DEBUG=1" O="$(OutDir)\"
+echo *****Solution directory is $(SolutionDir), Configuration-Platform is $(Configuration)-$(Platform)
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>.\;$(OutDir);$(MPIR_DIR)include;$(MPFR_DIR)include;$(MPC_DIR)include;$(ECM_DIR)include;$(MS_DIR);$(NARSROOT)qdebug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32;_CRT_SECURE_NO_WARNINGS;NTDDI_VERSION=NTDDI_WINXP;_WIN32_WINNT=_WIN32_WINNT_WINXP;_WIN32_IE=0x0600;DEBUG;RESDEBUG=1;_STDINT_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <BrowseInformation />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <Link>
+      <AdditionalOptions>/ignore:4099 comctl32.lib Wininet.lib version.lib libcmtd.lib oldnames.lib MSImg32.lib dbghelp.lib Shlwapi.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>mpir32d.lib;mpfr32d.lib;mpc32d.lib;ecm32d.lib;gsl.lib;cblas.lib;qdebug32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(MPIR_DIR)lib;$(MPFR_DIR)lib;$(MPC_DIR)lib;$(ECM_DIR)lib;$(CS_DIR)lib;$(GSL_DIR)x86\lib;$(NARSROOT)qdebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalManifestDependencies>NARS2000.exe.manifest32;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <ModuleDefinitionFile>main32.def</ModuleDefinitionFile>
+      <IgnoreEmbeddedIDL>true</IgnoreEmbeddedIDL>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copy default APL font</Message>
+      <Command>if not exist "$(OutDir)SImPL-Medium.ttf" copy $(NARSROOT)SImPL-Medium.ttf "$(OutDir)\" &gt;NUL
+echo *****Solution directory is $(SolutionDir), Configuration-Platform is $(Configuration)-$(Platform)
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">
+    <PreBuildEvent>
+      <Message>Generate Prototypes</Message>
+      <Command>call w64.bat
+"$(MSVC)bin\nmake" /f makefile.pro "DEBUG=1" O="$(OutDir)\"
+"$(MSVC)bin\nmake" /f makefile.pro.parse "DEBUG=1" O="$(OutDir)\"
+echo *****Solution directory is $(SolutionDir), Configuration-Platform is $(Configuration)-$(Platform)
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>.\;$(OutDir);$(MPIR_DIR)include;$(MPFR_DIR)include;$(MPC_DIR)include;$(ECM_DIR)include;$(MS_DIR);$(NARSROOT)qdebug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32;_WIN64;_AMD64_;_CRT_SECURE_NO_WARNINGS;NTDDI_VERSION=NTDDI_WINXP;_WIN32_WINNT=_WIN32_WINNT_WINXP;_WIN32_IE=0x0600;DEBUG;RESDEBUG=1;_STDINT_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <BrowseInformation />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <Link>
+      <AdditionalOptions>/ignore:4099 comctl32.lib Wininet.lib version.lib libcmtd.lib oldnames.lib MSImg32.lib dbghelp.lib Shlwapi.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>mpir64d.lib;mpfr64d.lib;mpc64d.lib;ecm64d.lib;gsl.lib;cblas.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(MPIR_DIR)lib;$(MPFR_DIR)lib;$(MPC_DIR)lib;$(ECM_DIR)lib;$(CS_DIR)lib;$(GSL_DIR)x64\lib;$(NARSROOT)qdebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalManifestDependencies>NARS2000.exe.manifest64;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <ModuleDefinitionFile>main64.def</ModuleDefinitionFile>
+      <IgnoreEmbeddedIDL>true</IgnoreEmbeddedIDL>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <TargetMachine>MachineX64</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copy default APL font</Message>
+      <Command>if not exist "$(OutDir)SImPL-Medium.ttf" copy $(NARSROOT)SImPL-Medium.ttf "$(OutDir)\" &gt;NUL
+echo *****Solution directory is $(SolutionDir), Configuration-Platform is $(Configuration)-$(Platform)
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
+    <PreBuildEvent>
+      <Message>Generate Prototypes</Message>
+      <Command>call w32.bat
+"$(MSVC)bin\nmake" /f makefile.pro "DEBUG=0" O="$(OutDir)\"
+"$(MSVC)bin\nmake" /f makefile.pro.parse "DEBUG=0" O="$(OutDir)\"
+echo *****Solution directory is $(SolutionDir), Configuration-Platform is $(Configuration)-$(Platform)
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>MinSpace</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>.\;$(OutDir);$(MPIR_DIR)include;$(MPFR_DIR)include;$(MPC_DIR)include;$(ECM_DIR)include;$(MS_DIR);$(NARSROOT)qdebug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32;_CRT_SECURE_NO_WARNINGS;NTDDI_VERSION=NTDDI_WINXP;_WIN32_WINNT=_WIN32_WINNT_WINXP;_WIN32_IE=0x0600;_STDINT_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <BrowseInformation />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <Link>
+      <AdditionalOptions>/ignore:4099 comctl32.lib Wininet.lib version.lib libcmt.lib oldnames.lib MSImg32.lib dbghelp.lib Shlwapi.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>mpir32.lib;mpfr32.lib;mpc32.lib;ecm32.lib;gsl.lib;cblas.lib;qdebug32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(MPIR_DIR)lib;$(MPFR_DIR)lib;$(MPC_DIR)lib;$(ECM_DIR)lib;$(CS_DIR)lib;$(GSL_DIR)x86\lib;$(NARSROOT)qdebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalManifestDependencies>NARS2000.exe.manifest32;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <ModuleDefinitionFile>main32.def</ModuleDefinitionFile>
+      <IgnoreEmbeddedIDL>true</IgnoreEmbeddedIDL>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copy default APL font</Message>
+      <Command>if not exist "$(OutDir)SImPL-Medium.ttf" copy $(NARSROOT)SImPL-Medium.ttf "$(OutDir)\" &gt;NUL
+echo *****Solution directory is $(SolutionDir), Configuration-Platform is $(Configuration)-$(Platform)
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">
+    <PreBuildEvent>
+      <Message>Generate Prototypes</Message>
+      <Command>call w64.bat
+"$(MSVC)bin\nmake" /f makefile.pro "DEBUG=0" O="$(OutDir)\"
+"$(MSVC)bin\nmake" /f makefile.pro.parse "DEBUG=0" O="$(OutDir)\"
+echo *****Solution directory is $(SolutionDir), Configuration-Platform is $(Configuration)-$(Platform)
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>MinSpace</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>.\;$(OutDir);$(MPIR_DIR)include;$(MPFR_DIR)include;$(MPC_DIR)include;$(ECM_DIR)include;$(MS_DIR);$(NARSROOT)qdebug;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32;_WIN64;_AMD64_;_CRT_SECURE_NO_WARNINGS;NTDDI_VERSION=NTDDI_WINXP;_WIN32_WINNT=_WIN32_WINNT_WINXP;_WIN32_IE=0x0600;_STDINT_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <BrowseInformation />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <Link>
+      <AdditionalOptions>/ignore:4099 comctl32.lib Wininet.lib version.lib libcmt.lib oldnames.lib MSImg32.lib dbghelp.lib Shlwapi.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>mpir64.lib;mpfr64.lib;mpc64.lib;ecm64.lib;gsl.lib;cblas.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(MPIR_DIR)lib;$(MPFR_DIR)lib;$(MPC_DIR)lib;$(ECM_DIR)lib;$(CS_DIR)lib;$(GSL_DIR)x64\lib;$(NARSROOT)qdebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalManifestDependencies>NARS2000.exe.manifest64;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <ModuleDefinitionFile>main64.def</ModuleDefinitionFile>
+      <IgnoreEmbeddedIDL>true</IgnoreEmbeddedIDL>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <TargetMachine>MachineX64</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copy default APL font</Message>
+      <Command>if not exist "$(OutDir)SImPL-Medium.ttf" copy $(NARSROOT)SImPL-Medium.ttf "$(OutDir)\" &gt;NUL
+echo *****Solution directory is $(SolutionDir), Configuration-Platform is $(Configuration)-$(Platform)
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\msieve\mp.c" />
+    <ClCompile Include="..\msieve\prime_delta.c" />
+    <ClCompile Include="..\msieve\smallfact.c" />
+    <ClCompile Include="..\msieve\squfof.c" />
+    <ClCompile Include="..\msieve\tinyqs.c" />
+    <ClCompile Include="afofns.c" />
+    <ClCompile Include="assign.c" />
+    <ClCompile Include="axisfns.c" />
+    <ClCompile Include="bjhash.c" />
+    <ClCompile Include="common.c" />
+    <ClCompile Include="convert.c" />
+    <ClCompile Include="crash.c" />
+    <ClCompile Include="crashserver.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">$(CS_DIR)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">$(CS_DIR)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">CompileAsCpp</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">$(CS_DIR)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">$(CS_DIR)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">CompileAsCpp</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="cr_proc.c" />
+    <ClCompile Include="cs_proc.c" />
+    <ClCompile Include="customize.c" />
+    <ClCompile Include="debug.c" />
+    <ClCompile Include="$(OutDir)\cs_parse.c" />
+    <ClCompile Include="$(OutDir)\fh_parse.c" />
+    <ClCompile Include="$(OutDir)\pn_parse.c" />
+    <ClCompile Include="dictionary.c" />
+    <ClCompile Include="dispdbg.c" />
+    <ClCompile Include="display.c" />
+    <ClCompile Include="dtoa.c" />
+    <ClCompile Include="editfcn.c" />
+    <ClCompile Include="errmsg.c" />
+    <ClCompile Include="except.c" />
+    <ClCompile Include="execdfn.c" />
+    <ClCompile Include="execfns.c" />
+    <ClCompile Include="execmfn.c" />
+    <ClCompile Include="fastbool.c" />
+    <ClCompile Include="fh_proc.c" />
+    <ClCompile Include="fmtspec.c" />
+    <ClCompile Include="free.c" />
+    <ClCompile Include="getfns.c" />
+    <ClCompile Include="getreent.c" />
+    <ClCompile Include="goto.c" />
+    <ClCompile Include="hungarian_dbl.c" />
+    <ClCompile Include="hungarian_int.c" />
+    <ClCompile Include="hungarian_rat.c" />
+    <ClCompile Include="hungarian_vfp.c" />
+    <ClCompile Include="identfns.c" />
+    <ClCompile Include="immexec.c" />
+    <ClCompile Include="inifile.c" />
+    <ClCompile Include="iniparser.c" />
+    <ClCompile Include="initdata.c" />
+    <ClCompile Include="main.c" />
+    <ClCompile Include="malloc.c" />
+    <ClCompile Include="mpfns.c" />
+    <ClCompile Include="mpifns.c" />
+    <ClCompile Include="parseline.c" />
+    <ClCompile Include="perfmon.c" />
+    <ClCompile Include="pf_bar.c" />
+    <ClCompile Include="pf_circle.c">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">true</IgnoreStandardIncludePath>
+    </ClCompile>
+    <ClCompile Include="pf_colonbar.c" />
+    <ClCompile Include="pf_comma.c" />
+    <ClCompile Include="pf_cslope.c" />
+    <ClCompile Include="pf_cstar.c" />
+    <ClCompile Include="pf_cstile.c" />
+    <ClCompile Include="pf_darrow.c" />
+    <ClCompile Include="pf_dcaret.c" />
+    <ClCompile Include="pf_deltastile.c" />
+    <ClCompile Include="pf_domino.c">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">true</IgnoreStandardIncludePath>
+    </ClCompile>
+    <ClCompile Include="pf_dotdot.c" />
+    <ClCompile Include="pf_dshoe.c" />
+    <ClCompile Include="pf_dstile.c" />
+    <ClCompile Include="pf_dtack.c" />
+    <ClCompile Include="pf_dtackjot.c" />
+    <ClCompile Include="pf_epsilon.c" />
+    <ClCompile Include="pf_epsund.c" />
+    <ClCompile Include="pf_equal.c" />
+    <ClCompile Include="pf_equalund.c" />
+    <ClCompile Include="pf_index.c" />
+    <ClCompile Include="pf_iota.c" />
+    <ClCompile Include="pf_iotaund.c" />
+    <ClCompile Include="pf_lcaret.c" />
+    <ClCompile Include="pf_lcaretund.c" />
+    <ClCompile Include="pf_lshoe.c" />
+    <ClCompile Include="pf_lshoeund.c" />
+    <ClCompile Include="pf_ltack.c" />
+    <ClCompile Include="pf_ndcaret.c" />
+    <ClCompile Include="pf_nequal.c" />
+    <ClCompile Include="pf_nucaret.c" />
+    <ClCompile Include="pf_pi.c" />
+    <ClCompile Include="pf_plus.c" />
+    <ClCompile Include="pf_qdot.c">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">true</IgnoreStandardIncludePath>
+    </ClCompile>
+    <ClCompile Include="pf_query.c">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">true</IgnoreStandardIncludePath>
+    </ClCompile>
+    <ClCompile Include="pf_rcaret.c" />
+    <ClCompile Include="pf_rcaretund.c" />
+    <ClCompile Include="pf_rho.c" />
+    <ClCompile Include="pf_root.c" />
+    <ClCompile Include="pf_rshoe.c" />
+    <ClCompile Include="pf_rshoeund.c" />
+    <ClCompile Include="pf_rtack.c" />
+    <ClCompile Include="pf_section.c" />
+    <ClCompile Include="pf_slash.c" />
+    <ClCompile Include="pf_slope.c" />
+    <ClCompile Include="pf_squad.c" />
+    <ClCompile Include="pf_star.c" />
+    <ClCompile Include="pf_stile.c" />
+    <ClCompile Include="pf_tilde.c" />
+    <ClCompile Include="pf_times.c" />
+    <ClCompile Include="pf_uarrow.c" />
+    <ClCompile Include="pf_ucaret.c" />
+    <ClCompile Include="pf_ushoe.c" />
+    <ClCompile Include="pf_ustile.c" />
+    <ClCompile Include="pf_utack.c" />
+    <ClCompile Include="pf_utackjot.c" />
+    <ClCompile Include="pl_proc.c" />
+    <ClCompile Include="pn_proc.c" />
+    <ClCompile Include="po_cmiddot.c" />
+    <ClCompile Include="po_dicircle.c" />
+    <ClCompile Include="po_didtack.c" />
+    <ClCompile Include="po_dieresis.c" />
+    <ClCompile Include="po_dijot.c" />
+    <ClCompile Include="po_ditilde.c" />
+    <ClCompile Include="po_dot.c">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">true</IgnoreStandardIncludePath>
+    </ClCompile>
+    <ClCompile Include="po_jot.c" />
+    <ClCompile Include="po_jotdot.c" />
+    <ClCompile Include="po_multiset.c" />
+    <ClCompile Include="po_slash.c" />
+    <ClCompile Include="po_slope.c" />
+    <ClCompile Include="po_variant.c" />
+    <ClCompile Include="primfns.c" />
+    <ClCompile Include="primspec.c" />
+    <ClCompile Include="progbar.c" />
+    <ClCompile Include="qf_a.c" />
+    <ClCompile Include="qf_at.c" />
+    <ClCompile Include="qf_av.c" />
+    <ClCompile Include="qf_cr.c" />
+    <ClCompile Include="qf_d.c" />
+    <ClCompile Include="qf_dl.c" />
+    <ClCompile Include="qf_dr.c" />
+    <ClCompile Include="qf_ea.c" />
+    <ClCompile Include="qf_ec.c" />
+    <ClCompile Include="qf_em.c" />
+    <ClCompile Include="qf_error.c" />
+    <ClCompile Include="qf_es.c" />
+    <ClCompile Include="qf_et.c" />
+    <ClCompile Include="qf_ex.c" />
+    <ClCompile Include="qf_fmt.c" />
+    <ClCompile Include="qf_fx.c" />
+    <ClCompile Include="qf_lc.c" />
+    <ClCompile Include="qf_mf.c" />
+    <ClCompile Include="qf_nc.c" />
+    <ClCompile Include="qf_nfns.c" />
+    <ClCompile Include="qf_nl.c" />
+    <ClCompile Include="qf_strace.c" />
+    <ClCompile Include="qf_sysid.c" />
+    <ClCompile Include="qf_sysver.c" />
+    <ClCompile Include="qf_t.c" />
+    <ClCompile Include="qf_tc.c" />
+    <ClCompile Include="qf_tf.c" />
+    <ClCompile Include="qf_ts.c" />
+    <ClCompile Include="qf_ucs.c" />
+    <ClCompile Include="qf_vr.c" />
+    <ClCompile Include="qf_wa.c" />
+    <ClCompile Include="rebar.c" />
+    <ClCompile Include="refcnt.c" />
+    <ClCompile Include="resdebug.c" />
+    <ClCompile Include="savefcn.c" />
+    <ClCompile Include="sc_common.c" />
+    <ClCompile Include="sc_copy.c" />
+    <ClCompile Include="sc_drop.c" />
+    <ClCompile Include="sc_erase.c" />
+    <ClCompile Include="sc_fnov.c" />
+    <ClCompile Include="sc_in.c" />
+    <ClCompile Include="sc_inascii.c" />
+    <ClCompile Include="sc_lib.c" />
+    <ClCompile Include="sc_load.c" />
+    <ClCompile Include="sc_out.c" />
+    <ClCompile Include="sc_reset.c" />
+    <ClCompile Include="sc_save.c" />
+    <ClCompile Include="sc_si.c" />
+    <ClCompile Include="sc_wsid.c" />
+    <ClCompile Include="sessman.c" />
+    <ClCompile Include="sort.c" />
+    <ClCompile Include="statusbar.c" />
+    <ClCompile Include="strand.c" />
+    <ClCompile Include="symtab.c" />
+    <ClCompile Include="symtrans.c" />
+    <ClCompile Include="syscmds.c" />
+    <ClCompile Include="sysvars.c" />
+    <ClCompile Include="tabctrl.c">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">$(INCLUDE);$(GSL_DIR)\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">$(INCLUDE);$(GSL_DIR)\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">true</IgnoreStandardIncludePath>
+    </ClCompile>
+    <ClCompile Include="tokenize.c" />
+    <ClCompile Include="translate.c" />
+    <ClCompile Include="typemote.c" />
+    <ClCompile Include="updates.c" />
+    <ClCompile Include="ver.c" />
+    <ClCompile Include="webcolors.c" />
+    <ClCompile Include="WineHQ\editctrl.c">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">.\WineHQ\Include;.\WineHQ\Include\msvcrt;$(INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">.\WineHQ\Include;.\WineHQ\Include\msvcrt;$(INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">.\WineHQ\Include;.\WineHQ\Include\msvcrt;$(INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">.\WineHQ\Include;.\WineHQ\Include\msvcrt;$(INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">true</IgnoreStandardIncludePath>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">true</IgnoreStandardIncludePath>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">__x86_64__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">__x86_64__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="yyfns.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Bison_Rule Include="cs_parse.y">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">
+      </AdditionalOptions>
+    </Bison_Rule>
+    <Bison_Rule Include="fh_parse.y">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">
+      </AdditionalOptions>
+    </Bison_Rule>
+    <Bison_Rule Include="pn_parse.y">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
+      </AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">
+      </AdditionalOptions>
+    </Bison_Rule>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="dbgbrk32.asm">
+      <AdditionalOptions>/safeseh</AdditionalOptions>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">true</ExcludedFromBuild>
+    </MASM>
+    <MASM64 Include="dbgbrk64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">true</ExcludedFromBuild>
+    </MASM64>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\mpc\include\mpc.h" />
+    <ClInclude Include="aplerrors.h" />
+    <ClInclude Include="colornames.h" />
+    <ClInclude Include="compro.h" />
+    <ClInclude Include="cs_parse.h" />
+    <ClInclude Include="datatype.h" />
+    <ClInclude Include="defines.h" />
+    <ClInclude Include="display.h" />
+    <ClInclude Include="editctrl.h" />
+    <ClInclude Include="eventtypes.h" />
+    <ClInclude Include="execmfn.h" />
+    <ClInclude Include="externs.h" />
+    <ClInclude Include="fh_parse.h" />
+    <ClInclude Include="grade.h" />
+    <ClInclude Include="headers.h" />
+    <ClInclude Include="hungarian_src.h" />
+    <ClInclude Include="macros.h" />
+    <ClInclude Include="main.h" />
+    <ClInclude Include="nameclass.h" />
+    <ClInclude Include="parseline.h" />
+    <ClInclude Include="perfmon.h" />
+    <ClInclude Include="pertab.h" />
+    <ClInclude Include="pl_parse.h" />
+    <ClInclude Include="pn_parse.h" />
+    <ClInclude Include="primfns.h" />
+    <ClInclude Include="primspec.h" />
+    <ClInclude Include="qf.h" />
+    <ClInclude Include="qf_ec.h" />
+    <ClInclude Include="resdebug.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="savefcn.h" />
+    <ClInclude Include="sis.h" />
+    <ClInclude Include="startaddr.h" />
+    <ClInclude Include="symbolnames.h" />
+    <ClInclude Include="symtab.h" />
+    <ClInclude Include="syntaxcolors.h" />
+    <ClInclude Include="sysvars.h" />
+    <ClInclude Include="termcode.h" />
+    <ClInclude Include="threads.h" />
+    <ClInclude Include="tokenize.h" />
+    <ClInclude Include="tokens.h" />
+    <ClInclude Include="transfer.h" />
+    <ClInclude Include="Unicode.h" />
+    <ClInclude Include="uniscribe.h" />
+    <ClInclude Include="unitranshdr.h" />
+    <ClInclude Include="unitranstab.h" />
+    <ClInclude Include="workspace.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="edit.rch" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="main.rc">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug32|Win32'">DEBUG;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug64|Win32'">DEBUG;_WIN32;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release64|Win32'">_WIN32;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <ResourceCompile Include="version.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="Prototype.targets" />
+    <Import Project="Bison.targets" />
+    <Import Project="masm64.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
+</Project>

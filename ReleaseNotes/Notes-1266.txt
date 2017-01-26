@@ -1,0 +1,15 @@
+Build #1266 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Comparing Storage Types To Detect Blow Up
+
+Directory trunk:
+
+GETFNS.C:
+  Improve comments.
+
+PF_INDEX.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+  When comparing APL storage types to detect blow up, use <aTypePromote> as indexed by the storage types.

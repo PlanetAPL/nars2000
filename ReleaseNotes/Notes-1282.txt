@@ -1,0 +1,12 @@
+Build #1282 -- Version 0.4.9.xx
+-------------------------------
+
+* Disallow Assignment To A Suspended Or Pendent Function
+
+Directory trunk:
+
+ASSIGN.C:
+  Disallow assignment to a suspended or pendent function.
+
+PARSELINE.C:
+  In <plRedNAM_SPCom>, handle error in return from <AssignName_EM>.

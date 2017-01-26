@@ -1,0 +1,47 @@
+Build #1449 -- Version 0.4.13.xx
+--------------------------------
+
+* Minor Build, DEBUG, And Documentation Changes
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Include previous CFLAGS in /GL line.
+
+VER.RC:
+  Increment version # to 0.4.13.xx.
+
+
+Directory trunk\ReleaseNotes:
+
+NOTES-1425.TXT:
+NOTES-1430.TXT:
+NOTES-1431.TXT:
+NOTES-1432.TXT:
+NOTES-1433.TXT:
+NOTES-1434.TXT:
+NOTES-1435.TXT:
+NOTES-1436.TXT:
+NOTES-1437.TXT:
+NOTES-1438.TXT:
+NOTES-1439.TXT:
+VERSION-0.4.12.XX.TXT:
+  Minor editing and format changes.
+
+
+Directory trunk\htdocs:
+
+FOOTER-MON.HTML:
+FOOTER.HTML:
+INDEX-BODY.AHTML:
+  Update copyright year.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Include .pdb files in the list of files available for download..
+  Fix typo in id="Beta_Versions" (Missing underbar).
+
+DOWNLOAD-LEFT.HTML:
+  Fix typo in id="Beta_Versions" (Missing underbar).

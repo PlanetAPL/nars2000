@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -380,11 +380,11 @@ LPPL_YYSTYPE PrimFnMonCommaScalar_EM_YY
     // Now we can allocate the storage for the result
     //***************************************************************
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -409,7 +409,7 @@ LPPL_YYSTYPE PrimFnMonCommaScalar_EM_YY
     if (hGlbRht)
     {
         // Lock the memory to get a handle to it
-        lpMemRht = MyGlobalLock (hGlbRht);
+        lpMemRht = MyGlobalLockVar (hGlbRht);
 
         // Skip over the header and dimensions to the data
         lpMemRht = VarArrayDataFmBase (lpMemRht);
@@ -653,7 +653,7 @@ LPPL_YYSTYPE PrimFnMonCommaGlb_EM_YY
     } // End IF
 
     // Lock the memory to get a ptr to it
-    lpMemRht = lpMemHdrRht = MyGlobalLock (hGlbRht);
+    lpMemRht = lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRht)
     // Get the Array Type and NELM
@@ -671,7 +671,7 @@ LPPL_YYSTYPE PrimFnMonCommaGlb_EM_YY
     if (hGlbAxis)
     {
         // Lock the memory to get a ptr to it
-        lpMemAxisHead = MyGlobalLock (hGlbAxis);
+        lpMemAxisHead = MyGlobalLockInt (hGlbAxis);
 
         // Point to the grade-up of the first
         //   <aplRankRht> values in lpMemAxis
@@ -720,11 +720,11 @@ LPPL_YYSTYPE PrimFnMonCommaGlb_EM_YY
     // Now we can allocate the storage for the result.
     //***************************************************************
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -829,7 +829,8 @@ LPPL_YYSTYPE PrimFnMonCommaGlb_EM_YY
 
                 // Loop through the right arg
                 for (uRht = 0; uRht < aplNELM; uRht++)
-                    DbgIncrRefCntDir_PTB (((LPAPLNESTED) lpMemRht)[uRht]);
+                    // Increment the refcnt
+                    DbgIncrRefCntDir_PTB (((LPAPLNESTED) lpMemRht)[uRht]);  // EXAMPLE:  ,NestedMarix
 
                 // Account for the header and dimensions
                 ByteRes -= sizeof (VARARRAY_HEADER)
@@ -852,7 +853,7 @@ LPPL_YYSTYPE PrimFnMonCommaGlb_EM_YY
 
                     case PTRTYPE_HGLOBAL:
                         // Increment the reference count
-                        DbgIncrRefCntDir_PTB (((LPAPLNESTED) lpMemRht)[uRes]);
+                        DbgIncrRefCntDir_PTB (((LPAPLNESTED) lpMemRht)[uRes]);  // EXAMPLE:  ,1 2{rho}'a' 1x
 
                         // Copy the ptr
                         ((LPAPLHETERO *) lpMemRes)[uRes] = ((LPAPLHETERO *) lpMemRht)[uRes];
@@ -905,11 +906,11 @@ LPPL_YYSTYPE PrimFnMonCommaGlb_EM_YY
         //   {times}{backscan}1{drop}({rho}R),1
         //***************************************************************
         hGlbWVec = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbWVec)
+        if (hGlbWVec EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemWVec = MyGlobalLock (hGlbWVec);
+        lpMemWVec = MyGlobalLock000 (hGlbWVec);
 
         // Loop through the dimensions of the right arg in reverse
         //   order {backscan} and compute the cumulative product
@@ -935,11 +936,11 @@ LPPL_YYSTYPE PrimFnMonCommaGlb_EM_YY
         //   in the right arg, with values initially all zero (thanks to GHND).
         //***************************************************************
         hGlbOdo = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbOdo)
+        if (hGlbOdo EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemOdo = MyGlobalLock (hGlbOdo);
+        lpMemOdo = MyGlobalLock000 (hGlbOdo);
 
         // Split cases based upon the storage type of the right arg/result
         switch (aplTypeRht)
@@ -1208,41 +1209,14 @@ NORMAL_EXIT:
         MyGlobalUnlock (hGlbRht);  lpMemRht  = NULL;
     } // End IF
 
-    if (hGlbWVec)
-    {
-        if (lpMemWVec)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbWVec); lpMemWVec = NULL;
-        } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWVec, lpMemWVec);
 
-        // We no longer need this storage
-        DbgGlobalFree (hGlbWVec); hGlbWVec = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdo, lpMemOdo);
 
-    if (hGlbOdo)
-    {
-        if (lpMemOdo)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbOdo); lpMemOdo = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbOdo); hGlbOdo = NULL;
-    } // End IF
-
-    if (hGlbAxis)
-    {
-        if (lpMemAxisHead)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbAxis); lpMemAxisHead = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbAxis); hGlbAxis = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbAxis, lpMemAxisHead);
 
     return lpYYRes;
 } // End PrimFnMonCommaGlb_EM_YY
@@ -1279,7 +1253,8 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
     APLRANK       aplRankLft,       // The rank of the left arg
                   aplRankRht,       // ...             right ...
                   aplRankRes,       // ...             result
-                  aplRankTmp;       // Temporary rank
+                  aplRankLo,        // ...             smaller rank arg
+                  aplRankHi;        // ...             larger  ...
     APLSTYPE      aplTypeLft,       // Left arg storage type
                   aplTypeRht,       // Right ...
                   aplTypeRes;       // Result   ...
@@ -1289,7 +1264,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
     HGLOBAL       hGlbLft = NULL,   // Left arg global memory handle
                   hGlbRht = NULL,   // Right ...
                   hGlbRes = NULL,   // Result   ...
-                  hGlbTmp;          // Temporary ...
+                  hGlbNMT;          // Non-empty ...
     LPVOID        lpMemLft = NULL,  // Ptr to left arg global memory
                   lpMemRht = NULL,  // ...    right ...
                   lpMemRes = NULL,  // ...    result   ...
@@ -1298,7 +1273,8 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
     LPAPLDIM      lpMemDimLft,      // Ptr to left arg dimensions
                   lpMemDimRht,      // ...    right ...
                   lpMemDimRes,      // ...    result   ...
-                  lpMemDimDir;      // ...
+                  lpMemDimLo,       // ...    smaller rank dimensions
+                  lpMemDimHi;       // ...    larger  ...
     APLDIM        aplDimTmp,
                   aplDimBeg,
                   aplDimLftEnd,
@@ -1525,25 +1501,29 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
     // Get a ptr to the dimensions of the larger (or equal) rank arg
     if (aplRankLft < aplRankRht)
     {
-        lpMemDimDir = lpMemDimRht;
-        aplRankTmp  = aplRankRht;
+        lpMemDimHi  = lpMemDimRht;
+        lpMemDimLo  = lpMemDimLft;
+        aplRankHi   = aplRankRht;
+        aplRankLo   = aplRankLft;
     } else
     {
-        lpMemDimDir = lpMemDimLft;
-        aplRankTmp  = aplRankLft;
+        lpMemDimHi  = lpMemDimLft;
+        lpMemDimLo  = lpMemDimRht;
+        aplRankHi   = aplRankLft;
+        aplRankLo   = aplRankRht;
     } // End IF/ELSE
 
     // Calculate the product of the non-axis dimensions
-    for (uRht = 0, aplDimTmp = 1; uRht < aplRankTmp; uRht++)
+    for (uRht = 0, aplDimTmp = 1; uRht < aplRankHi; uRht++)
     if (bFract || uRht NE aplAxis)
-        aplDimTmp *= lpMemDimDir[uRht];
+        aplDimTmp *= lpMemDimHi[uRht];
 
     // Calculate the NELM of the result
     if (bFract)
         aplNELMRes = aplDimTmp * 2;
     else
     if (aplRankLft NE aplRankRht)
-        aplNELMRes = aplDimTmp * (lpMemDimDir[aplAxis] + 1);
+        aplNELMRes = aplDimTmp * (lpMemDimHi [aplAxis] + 1);
     else
         aplNELMRes = aplDimTmp * (lpMemDimLft[aplAxis] + lpMemDimRht[aplAxis]);
 
@@ -1553,12 +1533,12 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
     if (IsEmpty (aplNELMLft))
     {
         aplTypeRes = aplTypeLft = aplTypeRht;
-        hGlbTmp    = hGlbRht;
+        hGlbNMT    = hGlbRht;
     } else
     if (IsEmpty (aplNELMRht))
     {
         aplTypeRes = aplTypeRht = aplTypeLft;
-        hGlbTmp    = hGlbLft;
+        hGlbNMT    = hGlbLft;
     } else
         aplTypeRes = aTypePromote[aplTypeLft][aplTypeRht];
 
@@ -1572,8 +1552,67 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
     // Check for APA result
     if (IsSimpleAPA (aplTypeRes))
     {
-        // Copy the right arg
-        hGlbRes = CopySymGlbDirAsGlb (hGlbTmp);
+        // If the ranks differ, ...
+        if (aplRankLft NE aplRankRht)
+        {
+            LPAPLAPA lpaplAPARes,
+                     lpaplAPALo;
+
+            // Allocate a new APA
+
+            //***************************************************************
+            // Calculate space needed for the result
+            //***************************************************************
+            ByteRes = CalcArraySize (aplTypeRes, aplNELMRes, aplRankRes);
+
+            //***************************************************************
+            // Check for overflow
+            //***************************************************************
+            if (ByteRes NE (APLU3264) ByteRes)
+                goto WSFULL_EXIT;
+
+            //***************************************************************
+            // Now we can allocate the storage for the result
+            //***************************************************************
+            hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
+            if (hGlbRes EQ NULL)
+                goto WSFULL_EXIT;
+
+            // Lock the memory to get a ptr to it
+            lpMemRes = MyGlobalLock000 (hGlbRes);
+
+#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
+            // Fill in the header
+            lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
+            lpHeader->ArrType    = aplTypeRes;
+////////////lpHeader->PermNdx    = PERMNDX_NONE;    // Already zero from GHND
+////////////lpHeader->SysVar     = FALSE;           // Already zero from GHND
+            lpHeader->RefCnt     = 1;
+            lpHeader->NELM       = aplNELMRes;
+            lpHeader->Rank       = aplRankRes;
+#undef  lpHeader
+            // Skip over the header to the dimensions
+            lpMemDimRes = VarArrayBaseToDim (lpMemRes);
+
+            // Copy the dimensions from the higher rank arg
+            CopyMemory (lpMemDimRes, lpMemDimHi, (APLU3264) (aplRankRes * sizeof (APLDIM)));
+
+            // Change the empty dimension
+            lpMemDimRes[aplAxis]++;
+
+            // Point to the APA data
+            lpaplAPARes = VarArrayDimToData (lpMemDimRes, aplRankRes);
+            lpaplAPALo  = VarArrayDimToData (lpMemDimLo , aplRankLo );
+
+            // Copy the APA data
+            lpaplAPARes->Off = lpaplAPALo->Off;
+            lpaplAPARes->Mul = lpaplAPALo->Mul;
+
+            // We no longer need this ptr
+            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        } else
+            // Copy the non-empty arg
+            hGlbRes = CopySymGlbDirAsGlb (hGlbNMT);
 
         goto YYALLOC_EXIT;
     } // End IF
@@ -1587,8 +1626,6 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
             case ARRAY_BOOL:
             case ARRAY_INT:
             case ARRAY_FLOAT:
-            case ARRAY_RAT:
-            case ARRAY_VFP:
                 aplTypeRes = ARRAY_BOOL;
 
                 break;
@@ -1598,6 +1635,8 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
 
                 break;
 
+            case ARRAY_RAT:
+            case ARRAY_VFP:
             case ARRAY_NESTED:
                 break;
 
@@ -1619,11 +1658,11 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
     // Now we can allocate the storage for the result
     //***************************************************************
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -1643,8 +1682,8 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
     lpMemRes = VarArrayDataFmBase (lpMemRes);
 
     // Copy the dimensions of the larger rank arg
-    for (uRht = 0; uRht < aplRankTmp; uRht++)
-        lpMemDimRes[uRht + (bFract && (aplAxis <= uRht))] = lpMemDimDir[uRht];
+    for (uRht = 0; uRht < aplRankHi; uRht++)
+        lpMemDimRes[uRht + (bFract && (aplAxis <= uRht))] = lpMemDimHi[uRht];
 
     // Add in the axis dimension
     if (bFract)
@@ -2324,7 +2363,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                   MakeSymEntry_EM (TranslateArrayTypeToImmType (aplTypeLft),    // Immediate type
                                   &aplVal,                                      // Ptr to immediate value
                                    lptkFunc);                                   // Ptr to function token
-                if (!lpSymGlbLft)
+                if (lpSymGlbLft EQ NULL)
                     goto ERROR_EXIT;
             } // End IF
 
@@ -2360,7 +2399,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                   MakeSymEntry_EM (TranslateArrayTypeToImmType (aplTypeRht),    // Immediate type
                                   &aplVal,                                      // Ptr to immediate value
                                    lptkFunc);                                   // Ptr to function token
-                if (!lpSymGlbRht)
+                if (lpSymGlbRht EQ NULL)
                     goto ERROR_EXIT;
             } // End IF
 
@@ -2400,7 +2439,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                   MakeSymEntry_EM (IMMTYPE_BOOL,    // Immediate type
                                                   &aplVal,          // Ptr to immediate value
                                                    lptkFunc);       // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
                                 // Shift over the bit mask
                                 uBitMaskLft <<= 1;
@@ -2440,7 +2479,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                   MakeSymEntry_EM (IMMTYPE_INT,     // Immediate type
                                                   &aplVal,          // Ptr to immediate value
                                                   lptkFunc);        // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
                             } // End FOR
                         break;
@@ -2471,7 +2510,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                   MakeSymEntry_EM (IMMTYPE_FLOAT,   // Immediate type
                                                   &aplVal,          // Ptr to immediate value
                                                   lptkFunc);        // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
                             } // End FOR
                         break;
@@ -2502,7 +2541,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                   MakeSymEntry_EM (IMMTYPE_CHAR,    // Immediate type
                                                   &aplVal,          // Ptr to immediate value
                                                    lptkFunc);       // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
                             } // End FOR
                         break;
@@ -2521,7 +2560,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                               MakeSymEntry_EM (IMMTYPE_INT,         // Immediate type
                                               &aplVal,              // Ptr to immediate value
                                                lptkFunc);           // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
                         } // End FOR
 
@@ -2566,7 +2605,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                    ((LPAPLRAT) lpMemLft)++,     // Ptr to the value
                                                TRUE,            // TRUE iff we should initialize the target first
                                                lptkFunc);       // Ptr to function token
-                            if (!lpSymTmp)
+                            if (lpSymTmp EQ NULL)
                                 goto ERROR_EXIT;
                         } // End FOR
 
@@ -2586,7 +2625,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                    ((LPAPLVFP) lpMemLft)++,     // Ptr to the value
                                                TRUE,            // TRUE iff we should initialize the target first
                                                lptkFunc);       // Ptr to function token
-                            if (!lpSymTmp)
+                            if (lpSymTmp EQ NULL)
                                 goto ERROR_EXIT;
                         } // End FOR
 
@@ -2625,7 +2664,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                   MakeSymEntry_EM (IMMTYPE_BOOL,    // Immediate type
                                                   &aplVal,          // Ptr to immediate value
                                                    lptkFunc);       // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
 
                                 // Shift over the bit mask
@@ -2666,7 +2705,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                   MakeSymEntry_EM (IMMTYPE_INT,     // Immediate type
                                                   &aplVal,          // Ptr to immediate value
                                                    lptkFunc);       // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
                             } // End FOR
                         break;
@@ -2697,7 +2736,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                   MakeSymEntry_EM (IMMTYPE_FLOAT,   // Immediate type
                                                   &aplVal,          // Ptr to immediate value
                                                    lptkFunc);       // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
                             } // End FOR
                         break;
@@ -2728,7 +2767,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                   MakeSymEntry_EM (IMMTYPE_CHAR,    // Immediate type
                                                   &aplVal,          // Ptr to immediate value
                                                    lptkFunc);       // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
                             } // End FOR
                         break;
@@ -2747,7 +2786,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                               MakeSymEntry_EM (IMMTYPE_INT,         // Immediate type
                                               &aplVal,              // Ptr to immediate value
                                                lptkFunc);           // Ptr to function token
-                                if (!lpSymTmp)
+                                if (lpSymTmp EQ NULL)
                                     goto ERROR_EXIT;
                         } // End FOR
 
@@ -2792,7 +2831,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                    ((LPAPLRAT) lpMemRht)++,     // Ptr to the value
                                                TRUE,            // TRUE iff we should initialize the target first
                                                lptkFunc);       // Ptr to function token
-                            if (!lpSymTmp)
+                            if (lpSymTmp EQ NULL)
                                 goto ERROR_EXIT;
                         } // End FOR
 
@@ -2812,7 +2851,7 @@ LPPL_YYSTYPE PrimFnDydComma_EM_YY
                                    ((LPAPLVFP) lpMemRht)++,     // Ptr to the value
                                                TRUE,            // TRUE iff we should initialize the target first
                                                lptkFunc);       // Ptr to function token
-                            if (!lpSymTmp)
+                            if (lpSymTmp EQ NULL)
                                 goto ERROR_EXIT;
                         } // End FOR
 

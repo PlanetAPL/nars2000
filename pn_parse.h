@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,6 +34,23 @@ typedef enum tagPN_NUMTYPE
     PN_NUMTYPE_LENGTH               // 09:  Length
 } PNNUMTYPE, *LPPNNUMTYPE;
 
+// N.B.:  Whenever changing the above tagPN_NUMTYPE enum,
+//   be sure to make a corresponding change to
+//   <PN_MAT> in <pn_parse.y>,
+//   chComType++ in <PN_VectorRes> in <pn_proc.c>.
+
+
+#define IsPnNumTypeBool(a)          \
+    ((a) EQ PN_NUMTYPE_BOOL)
+
+#define IsPnNumTypeInt(a)           \
+    ((a) EQ PN_NUMTYPE_BOOL         \
+  || (a) EQ PN_NUMTYPE_INT          \
+/*|| (a) EQ PN_NUMTYPE_HC2I */      \
+/*|| (a) EQ PN_NUMTYPE_HC4I */      \
+/*|| (a) EQ PN_NUMTYPE_HC8I */      \
+    )
+
 #define IsPnNumTypeFlt(a)           \
     ((a) EQ PN_NUMTYPE_FLT          \
 /*|| (a) EQ PN_NUMTYPE_HC2F */      \
@@ -48,14 +65,23 @@ typedef enum tagPN_NUMTYPE
 /*|| (a) EQ PN_NUMTYPE_HC8R */      \
     )
 
+#define IsPnNumTypeVfp(a)           \
+    ((a) EQ PN_NUMTYPE_VFP          \
+/*|| (a) EQ PN_NUMTYPE_HC2V */      \
+/*|| (a) EQ PN_NUMTYPE_HC4V */      \
+/*|| (a) EQ PN_NUMTYPE_HC8V */      \
+    )
+
 typedef struct tagPN_YYSTYPE        // YYSTYPE for Point Notation parser
 {
     ALLTYPES  at;                   // 00:  All datatypes as a union (64 bytes)
-    UINT      uNumAcc;              // 40:  Starting offset into lpszNumAccum
+    UINT      uNumAcc:31,           // 40:  7FFFFFFF:  Starting offset into lpszNumAccum
+              bSigned:1;            //      80000000:  TRUE iff the value is negative
     PNNUMTYPE chType;               // 44:  The numeric type (see PNNUMTYPE)
-    UCHAR     chCur,                // 48:  A char for the accumulator
-              chAlign[3];           // 49:  For alignment
-                                    // 4C:  Length
+    UINT      uNumStart;            // 48:  Starting offset into lpszStart
+    UCHAR     chCur,                // 4C:  A char for the accumulator
+              chAlign[3];           // 4D:  For alignment
+                                    // 50:  Length
 } PN_YYSTYPE, *LPPN_YYSTYPE;        // Data type of yacc stack
 
 #define YYSTYPE_IS_DECLARED 1
@@ -67,7 +93,8 @@ typedef struct tagPN_VECTOR
     PNNUMTYPE chType;               // 44:  The numeric type (see PNNUMTYPE)
     LPCHAR    lpStart;              // 48:  Ptr to start of char stream
     UINT      uNumLen;              // 4C:  # chars in lpStart
-    UINT      bInteger:1;           // 50:  000000001:  TRUE iff the number is integral (no decimal point, no 'e' 'E')
+    UINT      bRatExp:1,            // 50:  00000001:  TRUE iff the number is expressible as a Rat
+              :31;                  //      FFFFFFFE:  Available bits
                                     // 54:  Length
 } PN_VECTOR, *LPPN_VECTOR;
 
@@ -97,8 +124,17 @@ typedef struct tagPNLOCALVARS       // Point Notation Local Vars
     LPPN_YYSTYPE  lpYYRes;          // 80:  Temp ptr
     struct tagTKLOCALVARS *
                   lptkLocalVars;    // 84:  Ptr to Tokenize_EM local vars
-                                    // 88:  Length
+    LPVARARRAY_HEADER lpMemHdrRes;  // 88:  Ptr to hGlbRes header
+    UINT          bRatSep:1,        // 8C:  00000001:  TRUE iff there is at least one Rat sep and no Vfp sep
+                  :31;              //      FFFFFFFE:  Available bits
+                                    // 90:  Length
 } PNLOCALVARS, *LPPNLOCALVARS;
+
+// Error messages
+#define PN_SYNTAX       "syntax error"
+#define PN_NONCE        "nonce error"
+#define PN_WSFULL       "memory exhausted"
+#define PN_DOMAIN       "domain error"
 
 
 //***************************************************************************

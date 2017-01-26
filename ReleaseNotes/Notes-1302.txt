@@ -1,0 +1,9 @@
+Build #1302 -- Version 0.4.9.xx
+-------------------------------
+
+* When Converting A String To A Rational Number, Allow Decimal Point Input
+
+Directory trunk:
+
+MPIFNS.C:
+  In <mpiq_set_str>, handle decimal point input such as "1.3" -> 13r10.

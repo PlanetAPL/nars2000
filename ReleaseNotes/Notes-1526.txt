@@ -1,0 +1,24 @@
+Build #1526 -- Version 0.4.15.xx
+--------------------------------
+
+* Rename Bitmaps To Be More Consistent
+
+Directory trunk:
+
+COMMON.C:
+CUSTOMIZE.C:
+  Rename <hBitMap> to <hBitmap> to be more consistent with other uses.
+
+EDITFCN.C:
+  In IF stmts always compare ptr against NULL.
+  Rename <hBitMap> to <hBitmap> to be more consistent with other uses.
+
+EXTERNS.H:
+  Rename <hBitMap> to <hBitmap> to be more consistent with other uses.
+
+MAIN.C:
+  In IF stmts always compare ptr against NULL.
+  Rename <hBitMap> to <hBitmap> to be more consistent with other uses.
+
+TOKENIZE.C:
+  More diamond aliases fixes.

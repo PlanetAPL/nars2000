@@ -1,0 +1,10 @@
+Build #1559 -- Version 0.4.17.xx
+--------------------------------
+
+* Apply Bandaid To Skip DEBUG Stmts
+
+Directory trunk:
+
+CS_PARSE.Y:
+CS_PROC.C:
+  Comment out code as bandaid to cover the fact that :if ... :end isn't handled by the parser inside a :case stmt.

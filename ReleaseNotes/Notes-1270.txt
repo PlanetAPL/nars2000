@@ -1,0 +1,11 @@
+Build #1270 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Timing Bug When Destroying Main Window
+
+Directory trunk:
+
+EDITFCN.C:
+MAIN.C:
+  Define and use bit flag to indicate that we're in the midst of destroying the main window.
+    Sometimes, we get to a point where not all window handles are usable and we need a way to avoid locking up upon exit.

@@ -1,0 +1,10 @@
+Build #1518 -- Version 0.4.15.xx
+--------------------------------
+
+* Implement )FOPS and Its Alias )FOP
+
+Directory trunk:
+
+SC_FNOV.C:
+SYSCMDS.C:
+  Implement )FOPS and its alias )FOP to display both functions and operators.

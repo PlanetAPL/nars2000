@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,6 +28,9 @@
   #define _USE_32BIT_TIME_T
 #endif
 #include <io.h>
+#include <string.h>             // For wcsspnp
+#define _NO_INLINING
+#include <tchar.h>
 #include "headers.h"
 #include "debug.h"              // For xxx_TEMP_OPEN macros
 
@@ -156,7 +159,7 @@ UBOOL CmdLoadCom_EM
             goto WSNOTFOUND_EXIT;
     } else
         // Copy the name to the expected var
-        lstrcpyW (wszTailDPFE, lpwszTail);
+        MyStrcpyW (wszTailDPFE, sizeof (wszTailDPFE), lpwszTail);
 
     // Get the tab index from which this command was issued
     iTabIndex = TranslateTabIDToIndex (lpMemPTD->CurTabID);
@@ -168,7 +171,7 @@ UBOOL CmdLoadCom_EM
                     bExecLX);           // TRUE iff execute []LX after successful load
 WSNOTFOUND_EXIT:
     // If we locked it, ...
-    if (lpwszLibDirs)
+    if (lpwszLibDirs NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (hGlbLibDirs); lpwszLibDirs = NULL;
@@ -200,7 +203,7 @@ UBOOL CmdLoadProcess
     MakeWorkspaceNameCanonical (lpwszTailDPFE, lpwszTail, lpwszDir);
 
     // Append the common workspace extension
-    lstrcatW (lpwszTailDPFE, WS_WKSEXT);
+    strcatW (lpwszTailDPFE, WS_WKSEXT);
 
     // Handle WS NOT FOUND messages here
     // Attempt to open the workspace
@@ -248,6 +251,7 @@ UBOOL LoadWorkspace_EM
                  wszSectName[15];       // ...                     section name (e.g., [Vars.nnn])
     UBOOL        bRet = FALSE,          // TRUE iff the result is valid
                  bImmed,                // TRUE iff the result of ParseSavedWsVar_EM is immediate
+                 bExecLX,               // TRUE iff execute []LX after successful load
                  bSuspended;            // TRUE iff the function is suspended
     LPPERTABDATA lpMemPTD;              // Ptr to PerTabData global memory
     APLSTYPE     aplTypeObj;            // Object storage type
@@ -263,13 +267,17 @@ UBOOL LoadWorkspace_EM
     APLI3264     hFile;                 // File handle
     WCHAR        wszDir  [_MAX_DIR],
                  wszDrive[_MAX_DRIVE],
-                 wszDPFE [_MAX_PATH] = {WC_EOS};
+                 wszDPFE [_MAX_PATH] = {WC_EOS},
+                 wszDPFE2[_MAX_PATH];
     LPDICTIONARY lpDict = NULL;         // Ptr to workspace dictionary
     LPWCHAR      lpwszProf;             // Ptr to profile string
     VARS_TEMP_OPEN
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
+
+    // Save the bExecLX flag
+    bExecLX = lpMemPTD->bExecLX;
 
     // Check for CLEAR WS
     if (hGlbDPFE EQ NULL)
@@ -281,7 +289,7 @@ UBOOL LoadWorkspace_EM
     } // End IF
 
     // Lock the memory to get a ptr to it
-    lpwszDPFE = MyGlobalLock (hGlbDPFE);
+    lpwszDPFE = MyGlobalLockWsz (hGlbDPFE);
 
     // Check for CLEAR WS
     if (lpwszDPFE[0] EQ WC_EOS)
@@ -291,7 +299,7 @@ UBOOL LoadWorkspace_EM
     if (lstrcmpiW (lpwszDPFE, L"1 CLEANSPACE") EQ 0)
     {
         // Display the workspace timestamp
-        DisplaySavedMsg (cleanspaceTime, FALSE);
+        DisplaySavedMsg (cleanspaceTime, FALSE, NULL);
 
         goto WSID_EXIT;
     } // End IF
@@ -326,7 +334,7 @@ UBOOL LoadWorkspace_EM
 
     // Initialize the iniparser
     lpDict = ProfileLoad_EM (wszDPFE, &lpwErrMsg);
-    if (!lpDict)
+    if (lpDict EQ NULL)
         goto ERRMSG_EXIT;
 
     // Get the version #
@@ -335,17 +343,25 @@ UBOOL LoadWorkspace_EM
                         KEYNAME_VERSION,    // Ptr to the key name
                         L"",                // Ptr to the default value
                         lpDict);            // Ptr to workspace dictionary
-    // Copy the string to a save area ("+ 1" to include the trailing zero)
+    // Copy the string to a save area
     // DO NOT USE lstrcpyW as it doesn't trigger a visible Page Fault
-    CopyMemoryW (wszVersion, lpwszProf, lstrlenW (lpwszProf) + 1);
+    MyStrcpyW (wszVersion, sizeof (wszVersion), lpwszProf);
 
     // Compare the version #s
     if (lstrcmpW (wszVersion, WS_VERSTR) > 0)
     {
+        WCHAR wszTemp[1024];
+
+        // Format the error message text
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                   L"The version of this workspace (%s) is later than the interpreter expects (%s)."
+                   L"  Please try loading the workspace with a later version of the interpreter.",
+                    wszVersion,
+                    WS_VERSTR);
         // Tell the user the bad news
         MessageBoxW (hWndMF,
-                     L"The version of this workspace is later than the interpreter expects." WS_CRLF
-                     L"Please try loading the workspace with a later version of the interpreter.",
+                     wszTemp,
                      WS_APPNAME,
                      MB_OK | MB_ICONSTOP);
         goto ERROR_EXIT;
@@ -391,8 +407,10 @@ UBOOL LoadWorkspace_EM
                                 FALSE,                  // Restartable
                                 TRUE);                  // LinkIntoChain
                 // Format the counter
-                wsprintfW (wszCount, L"%d", uSID - 1);
-
+                MySprintfW (wszCount,
+                            sizeof (wszCount),
+                           L"%d",
+                            uSID - 1);
                 // Read in the SI line
                 lpwFcnName =
                   ProfileGetString (SECTNAME_SI,        // Ptr to the section name
@@ -441,13 +459,13 @@ UBOOL LoadWorkspace_EM
                     lpSymEntry =
                       SymTabLookupName (lpwFcnName, &stFlags);
 
-////////////////////if (!lpSymEntry)            // ***FIXME***
+////////////////////if (lpSymEntry EQ NULL)            // ***FIXME***
 
                     // Get a ptr to the function header
                     hGlbDfnHdr = lpSymEntry->stData.stGlbData;
 
                     // Lock the memory to get a ptr to it
-                    lpMemDfnHdr = MyGlobalLock (hGlbDfnHdr);
+                    lpMemDfnHdr = MyGlobalLockDfn (hGlbDfnHdr);
 
                     // Get suspended state
                     bSuspended = strchrW (lpwFcnLine, L'*') NE NULL;
@@ -464,8 +482,8 @@ UBOOL LoadWorkspace_EM
                     lpMemPTD->lpSISNxt->hGlbDfnHdr   = hGlbDfnHdr;
                     lpMemPTD->lpSISNxt->hGlbFcnName  = lpMemDfnHdr->steFcnName->stHshEntry->htGlbName;
                     lpMemPTD->lpSISNxt->DfnAxis      = lpMemDfnHdr->DfnAxis;
-                    lpMemPTD->lpSISNxt->PermFn       = lpMemDfnHdr->PermFn;
                     lpMemPTD->lpSISNxt->bAFO         = lpMemDfnHdr->bAFO;
+                    lpMemPTD->lpSISNxt->bMFO         = lpMemDfnHdr->bMFO;
                     lpMemPTD->lpSISNxt->CurLineNum   = uLineNum;
                     lpMemPTD->lpSISNxt->NxtLineNum   = uLineNum + 1;
                     lpMemPTD->lpSISNxt->numLabels    = lpMemDfnHdr->numLblLines;
@@ -489,8 +507,10 @@ UBOOL LoadWorkspace_EM
             //***************************************************************
 
             // Format the section name
-            wsprintfW (wszSectName, SECTNAME_VARS L".%d", uSID);
-
+            MySprintfW (wszSectName,
+                        sizeof (wszSectName),
+                        SECTNAME_VARS L".%d",
+                        uSID);
             // Get the [Vars.nnn] count
             uSymVar =
               ProfileGetInt (wszSectName,   // Ptr to the section name
@@ -500,38 +520,40 @@ UBOOL LoadWorkspace_EM
             // Loop through the [Vars.sss] section where sss is the SI level
             for (uCnt = 0; uCnt < uSymVar; uCnt++)
             {
-                LPWCHAR lpwSrc,             // Ptr to incoming data
-                        lpwSrcStart;        // Ptr to starting point
-                UINT    uMaxSize;           // Maximum size of lpwSrc
+                LPWCHAR  lpwSrc,            // Ptr to incoming data
+                         lpwSrcStart;       // Ptr to starting point
+                APLI3264 iMaxSize;          // Maximum size of lpwSrc
 
                 // Save ptr & maximum size
                 lpwSrc   = lpMemPTD->lpwszTemp;
                 CHECK_TEMP_OPEN
-                uMaxSize = lpMemPTD->uTempMaxSize;
+                iMaxSize = lpMemPTD->iTempMaxSize;
 
                 // Save the starting point
                 lpwSrcStart = lpwSrc;
 
                 // Format the counter
-                wsprintfW (wszCount, L"%d", uCnt);
-
+                MySprintfW (wszCount,
+                            sizeof (wszCount),
+                           L"%d",
+                            uCnt);
                 // Read the next string
                 lpwszProf =
                   ProfileGetString (wszSectName,    // Ptr to the section name
                                     wszCount,       // Ptr to the key name
                                     L"",            // Ptr to the default value
                                     lpDict);        // Ptr to workspace dictionary
-                // Copy to save area ("+ 1" to include the trailing zero)
-                // DO NOT USE lstrcpyW as it doesn't trigger a visible Page Fault
-                CopyMemoryW (lpwSrc, lpwszProf, lstrlenW (lpwszProf) + 1);
-
                 // Check for empty or missing counter
-                if (*lpwSrc EQ WC_EOS)
+                if (*lpwszProf EQ WC_EOS)
                 {
                     EXIT_TEMP_OPEN
 
                     continue;
                 } // End IF
+
+                // Copy the string to a save area
+                // DO NOT USE lstrcpyW as it doesn't trigger a visible Page Fault
+                strcpyW (lpwSrc, lpwszProf);
 
                 // Look for the name separator (L'=')
                 lpwCharEnd = strchrW (lpwSrc, L'=');
@@ -567,7 +589,7 @@ UBOOL LoadWorkspace_EM
                 {
                     // Append the name as new to get a new LPSYMENTRY
                     lpSymEntry = SymTabAppendNewName_EM (lpwSrcStart, &stFlags);
-                    if (!lpSymEntry)
+                    if (lpSymEntry EQ NULL)
                         goto ETO_ERROR_EXIT;
 
                     // Set the common values
@@ -586,7 +608,7 @@ UBOOL LoadWorkspace_EM
                     {
                         // Append the name to get a new LPSYMENTRY
                         lpSymEntry = SymTabAppendName_EM (lpwSrcStart, &stFlags);
-                        if (!lpSymEntry)
+                        if (lpSymEntry EQ NULL)
                             goto ETO_ERROR_EXIT;
 
                         // Mark the SYMENTRY as immediate so we don't free the
@@ -609,9 +631,10 @@ UBOOL LoadWorkspace_EM
                         // Parse the value into aplLongestObj and aplTypeObj
                         lpwSrc =
                           ParseSavedWsVar_EM (lpwSrc,           // Ptr to input buffer
-                                              uMaxSize,         // Maximum size of lpwSrc
+                                               iMaxSize - (APLU3264) ((LPBYTE) lpwSrc - (LPBYTE) lpwSrcStart),  // Maximum size of lpwSrc
                                              &lpaplLongestObj,  // Ptr to ptr to output element
                                              &aplTypeObj,       // Ptr to storage type (may be NULL)
+                                              lpSymEntry,       // Ptr to SYMENTRY of the source (may be NULL)
                                              &bImmed,           // Ptr to immediate flag (TRUE iff result is immediate) (may be NULL)
                                               FALSE,            // TRUE iff to save SymTabAppend values, FALSE to save values directly
                                               FALSE,            // TRUE iff this is called from )COPY
@@ -644,15 +667,69 @@ UBOOL LoadWorkspace_EM
                         lpSymEntry->stFlags.stNameType = NAMETYPE_VAR;
                         lpSymEntry->stData.stLongest   = aplLongestObj;
 
-                        // If this var is []FPC, set the VFP constants and PTD vars
-                        if (lpSymEntry->stFlags.ObjName EQ OBJNAME_SYS
-                         && IsThisSysName (lpSymEntry, $QUAD_FPC))
+                        // If this is a sys var, ...
+                        if (lpSymEntry->stFlags.ObjName EQ OBJNAME_SYS)
                         {
-                            // Initialize the precision-specific VFP constants
-                            InitVfpPrecision (lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_FPC]->stData.stInteger);
+                            TOKEN        tkNam = {0};
+                            static WCHAR wszTemp[512];
+                            LPWCHAR      lpMemName;
 
-                            // Initialize PerTabData vars
-                            InitPTDVars (lpMemPTD);
+                            // Fill in the name token
+                            tkNam.tkFlags.TknType   = TKT_VARNAMED;
+////////////////////////////tkNam.tkFlags.ImmType   = IMMTYPE_ERROR;    // Unused
+////////////////////////////tkNam.tkFlags.NoDisplay = FALSE;            // Already zero from = {0}
+////////////////////////////tkNam.>tkCharIndex      =                   // Unused
+                            tkNam.tkData.tkSym      = lpSymEntry;
+
+                            // If the target is a user-defined function/operator system label, ...
+                            if (tkNam.tkData.tkSym->stFlags.DfnSysLabel)
+                            {
+                                // Lock the memory to get a ptr to it
+                                lpMemName = MyGlobalLockWsz (lpSymEntry->stHshEntry->htGlbName);
+
+                                // Format the error message text
+                                MySprintfW (wszTemp,
+                                            sizeof (wszTemp),
+                                           L"Error Assigning to SysLbl:  %s",
+                                            lpMemName);
+                                // We no longer need this ptr
+                                MyGlobalUnlock (lpSymEntry->stHshEntry->htGlbName); lpMemName = NULL;
+
+                                // Set the error message text
+                                lpwErrMsg = &wszTemp[0];
+
+                                goto ETO_ERRMSG_EXIT;
+                            } // End IF
+
+                            // If it's not []DM, ...
+                            if (!IsSymSysName (lpSymEntry, $QUAD_DM))
+                            {
+                                // Validate the value
+                                bRet = (*aSysVarValidSet[tkNam.tkData.tkSym->stFlags.SysVarValid]) (&tkNam, &tkNam);
+
+                                // If it validated, ...
+                                if (bRet)
+                                    // Execute the post-validation function
+                                    (*aSysVarValidPost[tkNam.tkData.tkSym->stFlags.SysVarValid]) (&tkNam);
+                                else
+                                {
+                                    // Lock the memory to get a ptr to it
+                                    lpMemName = MyGlobalLockWsz (lpSymEntry->stHshEntry->htGlbName);
+
+                                    // Format the error message text
+                                    MySprintfW (wszTemp,
+                                                sizeof (wszTemp),
+                                               L"Error validating SysVar:  %s",
+                                                lpMemName);
+                                    // We no longer need this ptr
+                                    MyGlobalUnlock (lpSymEntry->stHshEntry->htGlbName); lpMemName = NULL;
+
+                                    // Set the error message text
+                                    lpwErrMsg = &wszTemp[0];
+
+                                    goto ETO_ERRMSG_EXIT;
+                                } // End IF
+                            } // End IF
                         } // End IF
                     } // End IF
                 } // End IF/ELSE
@@ -668,8 +745,10 @@ UBOOL LoadWorkspace_EM
             //***************************************************************
 
             // Format the section name
-            wsprintfW (wszSectName, SECTNAME_FCNS L".%d", uSID);
-
+            MySprintfW (wszSectName,
+                        sizeof (wszSectName),
+                        SECTNAME_FCNS L".%d",
+                        uSID);
             // Get the [Fcns.nnn] count
             uSymFcn =
               ProfileGetInt (wszSectName,   // Ptr to the section name
@@ -679,39 +758,41 @@ UBOOL LoadWorkspace_EM
             // Loop through the [Fcns.sss] section where sss is the SI level
             for (uCnt = 0; uCnt < uSymFcn; uCnt++)
             {
-                LPWCHAR lpwSrc,             // Ptr to incoming data
-                        lpwSrcStart;        // Ptr to starting point
-                UINT    uMaxSize;           // Maximum size of lpwSrc
+                LPWCHAR    lpwSrc,          // Ptr to incoming data
+                           lpwSrcStart;     // Ptr to starting point
+                APLI3264   iMaxSize;        // Maximum size of lpwSrc
                 NAME_TYPES nameType;
 
                 // Save ptr & maximum size
                 lpwSrc   = lpMemPTD->lpwszTemp;
                 CHECK_TEMP_OPEN
-                uMaxSize = lpMemPTD->uTempMaxSize;
+                iMaxSize = lpMemPTD->iTempMaxSize;
 
                 // Save the starting point
                 lpwSrcStart = lpwSrc;
 
                 // Format the counter
-                wsprintfW (wszCount, L"%d", uCnt);
-
+                MySprintfW (wszCount,
+                            sizeof (wszCount),
+                           L"%d",
+                            uCnt);
                 // Read the next string
                 lpwszProf =
                   ProfileGetString (wszSectName,    // Ptr to the section name
                                     wszCount,       // Ptr to the key name
                                     L"",            // Ptr to the default value
                                     lpDict);        // Ptr to workspace dictionary
-                // Copy to save area ("+ 1" to include the trailing zero)
-                // DO NOT USE lstrcpyW as it doesn't trigger a visible Page Fault
-                CopyMemoryW (lpwSrc, lpwszProf, lstrlenW (lpwszProf) + 1);
-
                 // Check for empty or missing counter
-                if (*lpwSrc EQ WC_EOS)
+                if (*lpwszProf EQ WC_EOS)
                 {
                     EXIT_TEMP_OPEN
 
                     continue;
                 } // End IF
+
+                // Copy the string to a save area
+                // DO NOT USE lstrcpyW as it doesn't trigger a visible Page Fault
+                strcpyW (lpwSrc, lpwszProf);
 
                 // Look for the name separator (L'=')
                 lpwCharEnd = strchrW (lpwSrc, L'=');
@@ -748,7 +829,7 @@ UBOOL LoadWorkspace_EM
                 {
                     // Append the name to get a new LPSYMENTRY
                     lpSymEntry = SymTabAppendName_EM (lpwSrcStart, &stFlags);
-                    if (!lpSymEntry)
+                    if (lpSymEntry EQ NULL)
                         goto ETO_ERROR_EXIT;
 
                     // Set stFlags as appropriate
@@ -771,7 +852,7 @@ UBOOL LoadWorkspace_EM
 
                     // Parse the line into lpSymEntry->stData
                     bRet = ParseSavedWsFcn_EM (lpwSrc,          // Ptr to input buffer
-                                               uMaxSize - (APLU3264) ((LPBYTE) lpwSrc - (LPBYTE) lpwSrcStart),  // Maximum size of lpwSrc
+                                               iMaxSize - (APLU3264) ((LPBYTE) lpwSrc - (LPBYTE) lpwSrcStart),  // Maximum size of lpwSrc
                                                lpSymEntry,      // Ptr to STE for the object
                                                nameType,        // Function name type (see NAME_TYPES)
                                                hWndEC,          // Edit Ctrl window handle
@@ -807,10 +888,27 @@ UBOOL LoadWorkspace_EM
     // Delete the symbol table entries for vars/fcns we allocated of the form FMTSTR_GLBCNT
     DeleteGlobalLinks (lpSymLink);
 
+    // Convert the given workspace name into a canonical form (without WS_WKSEXT)
+    MakeWorkspaceNameCanonical (wszDPFE2, wszDPFE, NULL);
+
+    // Display the indent
+    AppendLine (wszIndent, FALSE, FALSE);
+
+    // If we are loaded via )XLOAD, ...
+    if (bExecLX)
+        // Display the )LOAD command
+        AppendLine (L")LOAD ", FALSE, FALSE);
+    else
+        // Display the )XLOAD command
+        AppendLine (L")XLOAD ", FALSE, FALSE);
+
+    // Display the workspace name
+    AppendLine (wszDPFE2, FALSE, TRUE);
+
     // Display the workspace timestamp
     DisplayWorkspaceStamp (lpDict);
 WSID_EXIT:
-    // Set the value of the new []WSID as wszDPFE
+    // Save wszDPFE as the value of the new []WSID
     bRet = SaveNewWsid_EM (wszDPFE);
 
     goto NORMAL_EXIT;
@@ -833,14 +931,14 @@ ETO_ERROR_EXIT:
     EXIT_TEMP_OPEN
 ERROR_EXIT:
 NORMAL_EXIT:
-    if (hGlbDPFE && lpwszDPFE)
+    if (hGlbDPFE NE NULL && lpwszDPFE NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (hGlbDPFE); lpwszDPFE = NULL;
     } // End IF
 
     // If there's a dictionary, ...
-    if (lpDict)
+    if (lpDict NE NULL)
     {
         // Free the dictionary
         ProfileUnload (lpDict); lpDict = NULL;
@@ -852,12 +950,12 @@ NORMAL_EXIT:
 
 
 //***************************************************************************
-//  $IsThisSysName
+//  $IsSymSysName
 //
 //  Is this SYMENTRY that of a particular SysName?
 //***************************************************************************
 
-UBOOL IsThisSysName
+UBOOL IsSymSysName
     (LPSYMENTRY lpSymEntry,
      LPWCHAR    wszSysName)
 
@@ -866,7 +964,7 @@ UBOOL IsThisSysName
     UBOOL   bRet;                       // TRUE iff the result is valid
 
     // Lock the memory to get a ptr to it
-    lpwGlbName = MyGlobalLock (lpSymEntry->stHshEntry->htGlbName);
+    lpwGlbName = MyGlobalLockWsz (lpSymEntry->stHshEntry->htGlbName);
 
     // Compare the names
     bRet = lstrcmpiW (lpwGlbName, wszSysName) EQ 0;
@@ -875,7 +973,7 @@ UBOOL IsThisSysName
     MyGlobalUnlock (lpSymEntry->stHshEntry->htGlbName); lpwGlbName = NULL;
 
     return bRet;
-} // End IsThisSysname
+} // End IsSymSysname
 
 
 //***************************************************************************
@@ -892,7 +990,7 @@ UBOOL IsThisSysName
 
 UBOOL ParseSavedWsFcn_EM
     (LPWCHAR       lpwSrc,              // Ptr to input buffer
-     APLU3264      uMaxSize,            // Maximum size of lpwSrc
+     APLI3264      iMaxSize,            // Maximum size of lpwSrc
      LPSYMENTRY    lpSymObj,            // Ptr to STE for the object
      NAME_TYPES    nameType,            // Function name type (see NAME_TYPES)
      HWND          hWndEC,              // Edit Ctrl window handle
@@ -924,10 +1022,10 @@ UBOOL ParseSavedWsFcn_EM
         hGlbOld = lpSymObj->stData.stGlbData;
 
         // If the old value is valid, ...
-        if (hGlbOld)
+        if (hGlbOld NE NULL)
             // Increment its reference count to keep it around
             //   in case it gets freed by LoadWorkspaceGlobal_EM
-            DbgIncrRefCntDir_PTB (hGlbOld);
+            DbgIncrRefCntDir_PTB (hGlbOld); // EXAMPLE:  )copy tests\64bit lx
 
         // Find the trailing L' '
         lpwCharEnd = SkipToCharW (lpwSrc, L' ');
@@ -943,14 +1041,15 @@ UBOOL ParseSavedWsFcn_EM
         // If it's not found or has no value, load it from the [Globals] section
         if (lpSymEntry EQ NULL || !lpSymEntry->stFlags.Value)
             hGlbObj =
-              LoadWorkspaceGlobal_EM (lpwSrc,       // Ptr to keyname (FMTSTR_GLBCNT)
-                                      lpwDataEnd,   // Ptr to next available byte
-                                      uMaxSize - (APLU3264) ((LPBYTE) lpwDataEnd - (LPBYTE) lpwSrc), // Maximum size of lpwDataEnd
-                                      hWndEC,       // Edit Ctrl window handle
-                                      lplpSymLink,  // Ptr to ptr to SYMENTRY link
-                                      lpwszVersion, // Ptr to workspace version text
-                                      lpDict,       // Ptr to workspace dictionary
-                                      lplpwErrMsg); // Ptr to ptr to (constant) error message text
+              LoadWorkspaceGlobal_EM (lpwSrc,           // Ptr to keyname (FMTSTR_GLBCNT)
+                                      lpwDataEnd,       // Ptr to next available byte
+                                      iMaxSize - (APLU3264) ((LPBYTE) lpwDataEnd - (LPBYTE) lpwSrc),  // Maximum size of lpwSrc
+                                      hWndEC,           // Edit Ctrl window handle
+                                      NULL,             // Ptr to SYMENTRY of the source (may be NULL)
+                                      lplpSymLink,      // Ptr to ptr to SYMENTRY link
+                                      lpwszVersion,     // Ptr to workspace version text
+                                      lpDict,           // Ptr to workspace dictionary
+                                      lplpwErrMsg);     // Ptr to ptr to (constant) error message text
         else
             hGlbObj = lpSymEntry->stData.stGlbData;
 
@@ -966,13 +1065,46 @@ UBOOL ParseSavedWsFcn_EM
         // Increment the reference count
         DbgIncrRefCntDir_PTB (hGlbObj);
 
+        // Transfer the STE values to the new STE
+
+        // Split cases based upon the signature
+        switch (GetSignatureGlb_PTB (hGlbObj))
+        {
+            LPDFN_HEADER lpMemDfnHdr;       // Ptr to user-defined function/operator header
+
+            case DFN_HEADER_SIGNATURE:
+                // Lock the memory to get a ptr to it
+                lpMemDfnHdr = MyGlobalLockDfn (hGlbObj);
+
+                // Mark as valued and user-defined function/operator
+                lpSymObj->stFlags.Value  =
+                lpSymObj->stFlags.UsrDfn = TRUE;
+
+                // Copy the "Accepts Axis Operator" flag
+                lpSymObj->stFlags.DfnAxis = lpMemDfnHdr->DfnAxis;
+
+                // We no longer need this ptr
+                MyGlobalUnlock (hGlbObj); lpMemDfnHdr = NULL;
+
+                break;
+
+            case FCNARRAY_HEADER_SIGNATURE:
+                // Mark as valued
+                lpSymObj->stFlags.Value  = TRUE;
+
+                break;
+
+            defstop
+                break;
+        } // End SWITCH
+
         // If there's an old value, ...
-        if (hGlbOld)
+        if (hGlbOld NE NULL)
         {
             LPDFN_HEADER lpMemDfnHdr;   // Ptr to DFN_HEADER global memory
 
             // Lock the memory to get a ptr to it
-            lpMemDfnHdr = MyGlobalLock (hGlbOld);
+            lpMemDfnHdr = MyGlobalLockDfn (hGlbOld);
 
             // Save the STE flags as the STE is still active
             lpMemDfnHdr->SaveSTEFlags = TRUE;
@@ -1031,9 +1163,10 @@ CORRUPTWS_EXIT:
 
 LPWCHAR ParseSavedWsVar_EM
     (LPWCHAR       lpwSrc,              // Ptr to input buffer
-     APLU3264      uMaxSize,            // Maximum size of lpwSrc
+     APLI3264      iMaxSize,            // Maximum size of lpwSrc
      LPVOID       *lplpMemObj,          // Ptr to ptr to output element
      LPAPLSTYPE    lpaplTypeObj,        // Ptr to storage type (may be NULL)
+     LPSYMENTRY    lpSymEntrySrc,       // Ptr to SYMENTRY of the source (may be NULL)
      LPUBOOL       lpbImmed,            // Ptr to immediate flag (TRUE iff result is immediate) (may be NULL)
      UBOOL         bSymTab,             // TRUE iff to save SymTabAppend values, FALSE to save values directly
      UBOOL         bCopyCmd,            // TRUE iff this is called from )COPY
@@ -1087,14 +1220,15 @@ LPWCHAR ParseSavedWsVar_EM
         if (bCopyCmd || lpSymEntry EQ NULL || !lpSymEntry->stFlags.Value)
         {
             hGlbObj =
-              LoadWorkspaceGlobal_EM (lpwSrc,       // Ptr to keyname (FMTSTR_GLBCNT)
-                                      lpwDataEnd,   // Ptr to next available byte
-                                      uMaxSize - (APLU3264) ((LPBYTE) lpwDataEnd - (LPBYTE) lpwSrc), // Maximum size of lpwDataEnd
-                                      hWndEC,       // Edit Ctrl window handle
-                                      lplpSymLink,  // Ptr to ptr to SYMENTRY link
-                                      lpwszVersion, // Ptr to workspace version text
-                                      lpDict,       // Ptr to workspace dictionary
-                                      lplpwErrMsg); // Ptr to ptr to (constant) error message text
+              LoadWorkspaceGlobal_EM (lpwSrc,           // Ptr to keyname (FMTSTR_GLBCNT)
+                                      lpwDataEnd,       // Ptr to next available byte
+                                      iMaxSize - (APLU3264) ((LPBYTE) lpwDataEnd - (LPBYTE) lpwSrc),  // Maximum size of lpwSrc
+                                      hWndEC,           // Edit Ctrl window handle
+                                      lpSymEntrySrc,    // Ptr to SYMENTRY of the source (may be NULL)
+                                      lplpSymLink,      // Ptr to ptr to SYMENTRY link
+                                      lpwszVersion,     // Ptr to workspace version text
+                                      lpDict,           // Ptr to workspace dictionary
+                                      lplpwErrMsg);     // Ptr to ptr to (constant) error message text
             if (hGlbObj EQ NULL)
                 goto ERROR_EXIT;
         } else
@@ -1117,27 +1251,27 @@ LPWCHAR ParseSavedWsVar_EM
         lpwSrc = &lpwCharEnd[1];
 
         // If the caller wants the storage type, ...
-        if (lpaplTypeObj)
+        if (lpaplTypeObj NE NULL)
         {
-            LPVOID  lpMemObj;           // Ptr to object global memory
+            LPVARARRAY_HEADER lpMemHdrObj = NULL;   // Ptr to object header
 
             // stData is a valid HGLOBAL variable array
             Assert (IsGlbTypeVarDir_PTB (hGlbObj));
 
             // Lock the memory to get a ptr to it
-            lpMemObj = MyGlobalLock (hGlbObj);
+            lpMemHdrObj = MyGlobalLockVar (hGlbObj);
 
             // Save the storage type
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemObj)
+#define lpHeader        lpMemHdrObj
             *lpaplTypeObj = lpHeader->ArrType;
 #undef  lpHeader
 
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbObj); lpMemObj = NULL;
+            MyGlobalUnlock (hGlbObj); lpMemHdrObj = NULL;
         } // End IF
 
         // If the caller wants the immediate flag, ...
-        if (lpbImmed)
+        if (lpbImmed NE NULL)
             // Save as not immediate
             *lpbImmed = FALSE;
     } else
@@ -1146,12 +1280,12 @@ LPWCHAR ParseSavedWsVar_EM
         aplTypeObj = TranslateCharToArrayType (*lpwSrc);
 
         // If the caller wants the storage type, ...
-        if (lpaplTypeObj)
+        if (lpaplTypeObj NE NULL)
             // Save the storage type
             *lpaplTypeObj = aplTypeObj;
 
         // If the caller wants the immediate flag, ...
-        if (lpbImmed)
+        if (lpbImmed NE NULL)
             // Save as immediate
             *lpbImmed = TRUE;
 
@@ -1186,7 +1320,7 @@ LPWCHAR ParseSavedWsVar_EM
                     *((LPAPLHETERO) *lplpMemObj)++ =
                     lpSymTmp =
                       SymTabAppendInteger_EM (aplInteger, TRUE);
-                    if (!lpSymTmp)
+                    if (lpSymTmp EQ NULL)
                         goto ERROR_EXIT;
                 } else
                     // Save the result directly
@@ -1225,7 +1359,7 @@ LPWCHAR ParseSavedWsVar_EM
                     *((LPAPLHETERO) *lplpMemObj)++ =
                     lpSymTmp =
                       SymTabAppendChar_EM (wcTmp, TRUE);
-                    if (!lpSymTmp)
+                    if (lpSymTmp EQ NULL)
                         goto ERROR_EXIT;
                 } else
                     // Save the result directly
@@ -1248,14 +1382,14 @@ LPWCHAR ParseSavedWsVar_EM
                 // Check for positive infinity
                 if (lstrcmp ((LPCHAR) lpwszFormat, TEXT_INFINITY) EQ 0)
                     // Save in the result and skip over it
-                    aplFloat = PosInfinity;
+                    aplFloat = fltPosInfinity;
                 else
                 // Check for negative infinity
                 if (lstrcmp ((LPCHAR) lpwszFormat, "-" TEXT_INFINITY) EQ 0)
                     // Save in the result and skip over it
-                    aplFloat = NegInfinity;
+                    aplFloat = fltNegInfinity;
                 else
-                    aplFloat = strtod ((LPCHAR) lpwszFormat, NULL);
+                    aplFloat = MyStrtod ((LPCHAR) lpwszFormat, NULL);
 
                 // If we're to save the SymTab, ...
                 if (bSymTab)
@@ -1264,7 +1398,7 @@ LPWCHAR ParseSavedWsVar_EM
                     *((LPAPLHETERO) *lplpMemObj)++ =
                     lpSymTmp =
                       SymTabAppendFloat_EM (aplFloat);
-                    if (!lpSymTmp)
+                    if (lpSymTmp EQ NULL)
                         goto ERROR_EXIT;
                 } else
                     // Save the result directly
@@ -1309,8 +1443,9 @@ ERROR_EXIT:
 HGLOBAL LoadWorkspaceGlobal_EM
     (LPWCHAR      lpwGlbName,               // Ptr to keyname (FMTSTR_GLBCNT)
      LPWCHAR      lpwSrc,                   // Ptr to next available byte
-     APLU3264     uMaxSize,                 // Maximum size of
+     APLI3264     iMaxSize,                 // Maximum size of lpwSrc
      HWND         hWndEC,                   // Edit Ctrl window handle
+     LPSYMENTRY   lpSymEntrySrc,            // Ptr to SYMENTRY of the source (may be NULL)
      LPSYMENTRY  *lplpSymLink,              // Ptr to ptr to SYMENTRY link
      LPWCHAR      lpwszVersion,             // Ptr to workspace version text
      LPDICTIONARY lpDict,                   // Ptr to workspace dictionary
@@ -1320,6 +1455,7 @@ HGLOBAL LoadWorkspaceGlobal_EM
     APLSTYPE          aplTypeObj;           // Object storage type
     APLNELM           aplNELMObj;           // Object NELM
     APLRANK           aplRankObj;           // Object rank
+    LPAPLDIM          lpMemDimObj;          // Ptr to object dimensions
     HGLOBAL           hGlbObj,              // Object global memory handle
                       hGlbDfnHdr,           // AFO global memory handle
                       hGlbChk;              // Result from CheckGlobals
@@ -1345,15 +1481,17 @@ HGLOBAL LoadWorkspaceGlobal_EM
                       ftLastMod;            // ...      last modification time
     SYSTEMTIME        systemTime;           // Current system (UTC) time
     UBOOL             bUserDefined = FALSE, // TRUE iff the current function is User-Defined
-                      bPermNdx     = FALSE, // ...          var is a permenent
-                      bAFO         = FALSE; // TRUE iff the current function is an AFO
+                      bPermNdx     = FALSE, // ...          var is a permanent
+                      bAFO         = FALSE, // TRUE iff the current function is an AFO
+                      bQuadFEATURE;         // TRUE iff the symbol is []FEATURE
+    LPVARARRAY_HEADER lpMemHdrObj = NULL;   // Ptr to the array header
     LPVOID            lpMemObj;             // Ptr to object global memory
     APLINT            aplInteger;           // Temporary integer
     LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    LPCHAR            lpFmt;                // Temporary ptr
     LPWCHAR           lpwszFormat,          // Ptr to formatting save area
                       lpwszProf,            // Ptr to profile string
                       lpwszOldTemp;         // Ptr to temporary save area
-    LPVARARRAY_HEADER lpHeader;             // Ptr to the array header
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
@@ -1370,54 +1508,62 @@ HGLOBAL LoadWorkspaceGlobal_EM
                         lpwGlbName,         // Ptr to the key name
                         L"",                // Ptr to the default value
                         lpDict);            // Ptr to workspace dictionary
-    // Copy to the save area ("+ 1" to include trailing zero)
-    // DO NOT USE lstrcpyW as it doesn't trigger a visible Page Fault
-    CopyMemoryW (lpwSrc, lpwszProf, lstrlenW (lpwszProf) + 1);
-
     // Parse the array attributes
-    // The result in lpwSrc is
+    // The result in lpwszProf is
     //   V T N R S value    for variables
     //   F nnn.Name         for functions
 
     // Ensure it's non-empty
-    if  (lpwSrc[0] EQ WC_EOS)
+    if  (lpwszProf[0] EQ WC_EOS)
         goto CORRUPTWS_EXIT;
 
     // Split cases based upon Variable vs. Function/Operator
-    switch (*lpwSrc++)
+    switch (*lpwszProf++)
     {
         case L'V':
-            Assert (*lpwSrc EQ L' '); lpwSrc++;
+            Assert (*lpwszProf EQ L' '); lpwszProf++;
 
             // Get the object storage type
-            aplTypeObj = TranslateCharToArrayType (*lpwSrc++);
+            aplTypeObj = TranslateCharToArrayType (*lpwszProf++);
 
             // Ensure there's a valid separator
-            if (*lpwSrc NE L' ')
+            if (*lpwszProf NE L' ')
                 goto CORRUPTWS_EXIT;
 
             // Skip over it
-            lpwSrc++;
+            lpwszProf++;
 
             // Get the object NELM
-            sscanfW (lpwSrc, SCANFSTR_APLUINT, &aplNELMObj); lpwSrc = SkipBlackW (lpwSrc);
+            sscanfW (lpwszProf, SCANFSTR_APLUINT, &aplNELMObj); lpwszProf = SkipBlackW (lpwszProf);
 
             // Ensure there's a valid separator
-            if (*lpwSrc NE L' ')
+            if (*lpwszProf NE L' ')
                 goto CORRUPTWS_EXIT;
 
             // Skip over it
-            lpwSrc++;
+            lpwszProf++;
 
             // Get the object rank
-            sscanfW (lpwSrc, SCANFSTR_APLUINT, &aplRankObj); lpwSrc = SkipBlackW (lpwSrc);
+            sscanfW (lpwszProf, SCANFSTR_APLUINT, &aplRankObj); lpwszProf = SkipBlackW (lpwszProf);
 
             // Ensure there's a valid separator
-            if (*lpwSrc NE L' ')
+            if (*lpwszProf NE L' ')
                 goto CORRUPTWS_EXIT;
 
             // Skip over it
-            lpwSrc++;
+            lpwszProf++;
+
+            //***************************************************************
+            // Check for []FEATURE too short
+            //***************************************************************
+            if (lpSymEntrySrc NE NULL)
+            {
+                bQuadFEATURE = IsSymSysName (lpSymEntrySrc, $QUAD_FEATURE);
+
+                if (bQuadFEATURE)
+                    aplNELMObj = max (aplNELMObj, FEATURENDX_LENGTH);
+            } else
+                bQuadFEATURE = FALSE;
 
             //***************************************************************
             // Calculate space needed for the object
@@ -1433,16 +1579,14 @@ HGLOBAL LoadWorkspaceGlobal_EM
             //***************************************************************
             // Now we can allocate the storage for the result
             //***************************************************************
-            hGlbObj = MyGlobalAlloc (GHND, (APLU3264) ByteObj);
-            if (!hGlbObj)
+            hGlbObj = DbgGlobalAlloc (GHND, (APLU3264) ByteObj);
+            if (hGlbObj EQ NULL)
                 goto WSFULL_EXIT;
 
             // Lock the memory to get a ptr to it
-            lpMemObj = MyGlobalLock (hGlbObj);
+            lpMemHdrObj = MyGlobalLock000 (hGlbObj);
 
-            // Save ptr to the array header
-            lpHeader = lpMemObj;
-
+#define lpHeader        lpMemHdrObj
             // Fill in the header
             lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
             lpHeader->ArrType    = aplTypeObj;
@@ -1453,20 +1597,26 @@ HGLOBAL LoadWorkspaceGlobal_EM
             lpHeader->Rank       = aplRankObj;
 
             // Skip over the header to the dimensions
-            lpMemObj = VarArrayBaseToDim (lpMemObj);
+            lpMemDimObj = lpMemObj = VarArrayBaseToDim (lpMemHdrObj);
 
             // Fill in the result's dimension
             for (uObj = 0; uObj < aplRankObj; uObj++)
             {
                 // Scan in the next dimension
-                sscanfW (lpwSrc, SCANFSTR_APLUINT, lpMemObj);
+                sscanfW (lpwszProf, SCANFSTR_APLUINT, (LPAPLINT) lpMemObj);
 
                 // Skip to the next field
-                lpwSrc = SkipPastCharW (lpwSrc, L' ');
+                lpwszProf = SkipPastCharW (lpwszProf, L' ');
 
                 // Skip over the dimension
                 ((LPAPLDIM) lpMemObj)++;
             } // End FOR
+
+            //***************************************************************
+            // Check for []FEATURE too short
+            //***************************************************************
+            if (bQuadFEATURE)
+                lpMemDimObj[0] = max (lpMemDimObj[0], FEATURENDX_LENGTH);
 
             // Clear all array properties
             lpHeader->PV0   =
@@ -1474,7 +1624,7 @@ HGLOBAL LoadWorkspaceGlobal_EM
             lpHeader->All2s = FALSE;
 
             // Check for array properties
-            if (*lpwSrc EQ L'(')
+            if (*lpwszProf EQ L'(')
             {
 #ifdef DEBUG
                 APLCHAR wcChar = L'(';
@@ -1482,33 +1632,37 @@ HGLOBAL LoadWorkspaceGlobal_EM
                 while (TRUE)
                 {
                     // Skip over the separator (initial left paren or trailing blank)
-                    Assert (*lpwSrc EQ wcChar); lpwSrc++;
+                    Assert (*lpwszProf EQ wcChar); lpwszProf++;
 
-                    if (strncmpW (lpwSrc, AP_PV0, strcountof (AP_PV0)) EQ 0)
+                    if (strncmpW (lpwszProf, AP_PV0, strcountof (AP_PV0)) EQ 0)
                     {
                         lpHeader->PV0 = TRUE;
-                        lpwSrc += strcountof (AP_PV0);
+                        lpwszProf += strcountof (AP_PV0);
                     } else
-                    if (strncmpW (lpwSrc, AP_PV1, strcountof (AP_PV1)) EQ 0)
+                    if (strncmpW (lpwszProf, AP_PV1, strcountof (AP_PV1)) EQ 0)
                     {
                         lpHeader->PV1 = TRUE;
-                        lpwSrc += strcountof (AP_PV1);
+                        lpwszProf += strcountof (AP_PV1);
                     } else
-                    if (strncmpW (lpwSrc, AP_ALL2S, strcountof (AP_ALL2S)) EQ 0)
+                    if (strncmpW (lpwszProf, AP_ALL2S, strcountof (AP_ALL2S)) EQ 0)
                     {
                         lpHeader->All2s = TRUE;
-                        lpwSrc += strcountof (AP_ALL2S);
+                        lpwszProf += strcountof (AP_ALL2S);
                     } else
-                    if (strncmpW (lpwSrc, AP_FPC, strcountof (AP_FPC)) EQ 0)
+                    if (strncmpW (lpwszProf, AP_FPC, strcountof (AP_FPC)) EQ 0)
                     {
-                        lpwSrc += strcountof (AP_FPC);
+                        lpwszProf += strcountof (AP_FPC);
 
-                        // Scan the common precision
-                        sscanfW (lpwSrc, L"%u", &uCommPrec);
+                        // If there's a common precision, ...
+                        if (isdigit ((char) *lpwszProf))
+                        {
+                            // Scan the common precision
+                            sscanfW (lpwszProf, L"%u", &uCommPrec);
 
-                        // Skip over the digits
-                        while (isdigit ((char) *lpwSrc))
-                            lpwSrc++;
+                            // Skip over the digits
+                            while (isdigit ((char) *lpwszProf))
+                                lpwszProf++;
+                        } // End IF
                     } else
                     {
                         MBC ("Unknown array property when loading workspace -- Load terminated.")
@@ -1517,7 +1671,7 @@ HGLOBAL LoadWorkspaceGlobal_EM
                     } // End IF/ELSE/...
 
                     // Check for the end
-                    if (*lpwSrc EQ L')')
+                    if (*lpwszProf EQ L')')
                         break;
 #ifdef DEBUG
                     // Set new char to test
@@ -1526,13 +1680,14 @@ HGLOBAL LoadWorkspaceGlobal_EM
                 } // End WHILE
 
                 // Skip over the trailing separator
-                Assert (*lpwSrc EQ L')'); lpwSrc++;
+                Assert (*lpwszProf EQ L')'); lpwszProf++;
 
                 // Skip over the trailing blank
-                Assert (*lpwSrc EQ L' '); lpwSrc++;
+                Assert (*lpwszProf EQ L' '); lpwszProf++;
             } // End IF
+#undef  lpHeader
 
-            // lpwSrc now points to the data
+            // lpwszProf now points to the data
 
             // Split cases based upon the object storage type
             switch (aplTypeObj)
@@ -1545,10 +1700,11 @@ HGLOBAL LoadWorkspaceGlobal_EM
                     for (uObj = 0; uObj < aplNELMObj; uObj++)
                     {
                         // Scan in the next value
-                        sscanfW (lpwSrc, SCANFSTR_APLUINT, &aplInteger);
+////////////////////////sscanfW (lpwszProf, SCANFSTR_APLUINT, &aplInteger);
+                        aplInteger = _wtoi64 (lpwszProf);
 
                         // Skip to the next field
-                        lpwSrc = SkipPastCharW (lpwSrc, L' ');
+                        lpwszProf = SkipPastCharW (lpwszProf, L' ');
 
                         // Save in the result
                         *((LPAPLBOOL) lpMemObj) |= aplInteger << uBitIndex;
@@ -1568,10 +1724,11 @@ HGLOBAL LoadWorkspaceGlobal_EM
                     for (uObj = 0; uObj < aplNELMObj; uObj++)
                     {
                         // Scan in the next value and skip over it
-                        sscanfW (lpwSrc, SCANFSTR_APLINT, ((LPAPLINT) lpMemObj)++);
+////////////////////////sscanfW (lpwszProf, SCANFSTR_APLINT, ((LPAPLINT) lpMemObj)++);
+                        *((LPAPLINT) lpMemObj)++ = _wtoi64 (lpwszProf);
 
                         // Skip to the next field
-                        lpwSrc = SkipPastCharW (lpwSrc, L' ');
+                        lpwszProf = SkipPastCharW (lpwszProf, L' ');
                     } // End FOR
 
                     break;
@@ -1581,13 +1738,13 @@ HGLOBAL LoadWorkspaceGlobal_EM
                     for (uObj = 0; uObj < aplNELMObj; uObj++)
                     {
                         // Find the trailing L' '
-                        lpwCharEnd = SkipToCharW (lpwSrc, L' ');
+                        lpwCharEnd = SkipToCharW (lpwszProf, L' ');
 
                         // Save old next char, zap to form zero-terminated name
                         wcTmp = *lpwCharEnd; *lpwCharEnd = WC_EOS;
 
                         // Convert the format string to ASCII
-                        W2A ((LPCHAR) lpwszFormat, lpwSrc, (DEF_WFORMAT_MAXNELM - 1) * sizeof (WCHAR));
+                        W2A ((LPCHAR) lpwszFormat, lpwszProf, (DEF_WFORMAT_MAXNELM - 1) * sizeof (WCHAR));
 
                         // Restore the original value
                         *lpwCharEnd = wcTmp;
@@ -1595,46 +1752,46 @@ HGLOBAL LoadWorkspaceGlobal_EM
                         // Check for positive infinity
                         if (lstrcmp ((LPCHAR) lpwszFormat, TEXT_INFINITY) EQ 0)
                             // Save in the result and skip over it
-                            *((LPAPLFLOAT) lpMemObj)++ = PosInfinity;
+                            *((LPAPLFLOAT) lpMemObj)++ = fltPosInfinity;
                         else
                         // Check for negative infinity
                         if (lstrcmp ((LPCHAR) lpwszFormat, "-" TEXT_INFINITY) EQ 0)
                             // Save in the result and skip over it
-                            *((LPAPLFLOAT) lpMemObj)++ = NegInfinity;
+                            *((LPAPLFLOAT) lpMemObj)++ = fltNegInfinity;
                         else
                             // Use David Gay's routines
                             // Save in the result and skip over it
-                            *((LPAPLFLOAT) lpMemObj)++ = strtod ((LPCHAR) lpwszFormat, NULL);
+                            *((LPAPLFLOAT) lpMemObj)++ = MyStrtod ((LPCHAR) lpwszFormat, NULL);
                         // Skip to the next field
-                        lpwSrc = &lpwCharEnd[1];
+                        lpwszProf = SkipPastCharW (lpwszProf, L' ');
                     } // End FOR
 
                     break;
 
                 case ARRAY_CHAR:
-                    Assert (WC_SQ EQ *lpwSrc); lpwSrc++;
+                    Assert (WC_SQ EQ *lpwszProf); lpwszProf++;
 
                     // Loop through the elements
                     for (uObj = 0; uObj < aplNELMObj; uObj++)
                     {
                         // Convert the single {name} or other char to UTF16_xxx
-                        if (L'{' EQ  *lpwSrc)
+                        if (L'{' EQ  *lpwszProf)
                         {
                             // Get the next char
                             // Because we created this name, we can expect it to be found
                             //   and so don't need to check for zero result
-                            wcTmp = SymbolNameToChar (lpwSrc);
+                            wcTmp = SymbolNameToChar (lpwszProf);
 
                             // Skip to the next field
-                            lpwSrc = SkipPastCharW (lpwSrc, L'}');
+                            lpwszProf = SkipPastCharW (lpwszProf, L'}');
                         } else
-                            wcTmp = *lpwSrc++;
+                            wcTmp = *lpwszProf++;
 
                         // Save in the result and skip over it
                         *((LPAPLCHAR) lpMemObj)++ = wcTmp;
                     } // End FOR
 
-                    Assert (WC_SQ EQ *lpwSrc); lpwSrc++;
+                    Assert (WC_SQ EQ *lpwszProf); lpwszProf++;
 
                     break;
 
@@ -1642,16 +1799,16 @@ HGLOBAL LoadWorkspaceGlobal_EM
                     // The next two values are the APA offset and multiplier
 
                     // Scan in the next value and skip over it
-                    sscanfW (lpwSrc, SCANFSTR_APLINT, ((LPAPLINT) lpMemObj)++);
+                    sscanfW (lpwszProf, SCANFSTR_APLINT, ((LPAPLINT) lpMemObj)++);
 
                     // Skip to the next field
-                    lpwSrc = SkipPastCharW (lpwSrc, L' ');
+                    lpwszProf = SkipPastCharW (lpwszProf, L' ');
 
                     // Scan in the next value and skip over it
-                    sscanfW (lpwSrc, SCANFSTR_APLINT, ((LPAPLINT) lpMemObj)++);
+                    sscanfW (lpwszProf, SCANFSTR_APLINT, ((LPAPLINT) lpMemObj)++);
 
                     // Skip to the next field
-                    lpwSrc = SkipPastCharW (lpwSrc, L' ');
+                    lpwszProf = SkipPastCharW (lpwszProf, L' ');
 
                     break;
 
@@ -1668,12 +1825,13 @@ HGLOBAL LoadWorkspaceGlobal_EM
 
                     // Loop through the elements
                     for (uObj = 0; uObj < aplNELMObj; uObj++)
-                        lpwSrc =
-                          ParseSavedWsVar_EM (lpwSrc,       // Ptr to input buffer
-                                              uMaxSize - (APLU3264) ((LPBYTE) lpwSrc - (LPBYTE) lpwSrcStart), // Maximum size of lpwSrc
+                        lpwszProf =
+                          ParseSavedWsVar_EM (lpwszProf,    // Ptr to input buffer
+                                              iMaxSize - (APLU3264) ((LPBYTE) lpwSrc - (LPBYTE) lpwSrcStart),  // Maximum size of lpwSrc
                                              &lpMemObj,     // Ptr to ptr to output element
                                               NULL,         // Ptr to storage type (may be NULL)
                                               NULL,         // Ptr to immediate flag (TRUE iff result is immediate) (may be NULL)
+                                              NULL,         // Ptr to SYMENTRY of the source (may be NULL)
                                               TRUE,         // TRUE iff to save SymTabAppend values, FALSE to save values directly
                                               FALSE,        // TRUE iff this is called from )COPY
                                               hWndEC,       // Edit Ctrl window handle
@@ -1690,36 +1848,38 @@ HGLOBAL LoadWorkspaceGlobal_EM
                         LPWCHAR lpwWS,
                                 lpwStr;
                         LPCHAR  lpStr;
-                        WCHAR   wc;
 
                         // Skip to the next white space
-                        lpwWS = SkipToCharW (lpwSrc, L' ');
+                        lpwWS = SkipToCharW (lpwszProf, L' ');
 
                         // Convert it to a WC_EOS
-                        wc = *lpwWS; *lpwWS = WC_EOS;
+                        wcTmp = *lpwWS; *lpwWS = WC_EOS;
 
                         // Initialize the save area
                         mpq_init ((LPAPLRAT) lpMemObj);
 
                         // Convert the string from WCHAR to char
-                        lpwStr = lpwSrc; lpStr = (LPCHAR) lpwStr;
+                        lpwStr = lpwszProf; lpStr = (LPCHAR) lpwStr;
                         while (*lpwStr)
                             *lpStr++ = (char) *lpwStr++;
                         *lpStr = AC_EOS;
 
+                        // Restore the original value
+                        *lpwWS = wcTmp;
+
                         // Check for positive infinity
-                        if (lstrcmp ((LPCHAR) lpwSrc, TEXT_INFINITY) EQ 0)
+                        if (lstrcmp ((LPCHAR) lpwszProf, TEXT_INFINITY) EQ 0)
                             mpq_set_inf (((LPAPLRAT) lpMemObj)++, 1);
                         else
                         // Check for negative infinity
-                        if (lstrcmp ((LPCHAR) lpwSrc, "-" TEXT_INFINITY) EQ 0)
+                        if (lstrcmp ((LPCHAR) lpwszProf, "-" TEXT_INFINITY) EQ 0)
                             mpq_set_inf (((LPAPLRAT) lpMemObj)++, -1);
                         else
                             // Convert the string to rational
-                            mpq_set_str (((LPAPLRAT) lpMemObj)++, (LPCHAR) lpwSrc, 10);
+                            mpq_set_str (((LPAPLRAT) lpMemObj)++, (LPCHAR) lpwszProf, 10);
 
                         // Skip to the next field
-                        lpwSrc = &lpwWS[wc EQ L' '];
+                        lpwszProf = SkipPastCharW (lpwWS, L' ');
                     } // End FOR
 
                     break;
@@ -1731,57 +1891,52 @@ HGLOBAL LoadWorkspaceGlobal_EM
                     // Loop through the elements
                     for (uObj = 0; uObj < aplNELMObj; uObj++)
                     {
-                        LPWCHAR lpwWS,
-                                lpwStr;
-                        LPCHAR  lpStr;
-                        WCHAR   wc;
-
                         // Skip to the next white space
-                        lpwWS = SkipToCharW (lpwSrc, L' ');
+                        lpwCharEnd = SkipToCharW (lpwszProf, L' ');
 
                         // Convert it to a WC_EOS
-                        wc = *lpwWS; *lpwWS = WC_EOS;
+                        wcTmp = *lpwCharEnd; *lpwCharEnd = WC_EOS;
 
-                        // Initialize the save area
-                        mpfr_init0 ((LPAPLVFP) lpMemObj);
-
-                        // If there's a preceding (FPC), ...
-                        if (*lpwSrc EQ L'(')
+                        // If there's a preceding FPC as (nnn), ...
+                        if (*lpwszProf EQ L'(')
                         {
                             // Skip over the leading paren
-                            Assert (*lpwSrc EQ L'('); lpwSrc++;
+                            Assert (*lpwszProf EQ L'('); lpwszProf++;
 
                             // Scan the new precision
-                            sscanfW (lpwSrc, L"%u", &uDefPrec);
+                            sscanfW (lpwszProf, L"%u", &uDefPrec);
 
                             // Set the default precision
                             mpfr_set_default_prec (uDefPrec);
 
                             // Skip past the trailing paren
-                            lpwSrc = SkipPastCharW (lpwSrc, L')');
+                            lpwszProf = SkipPastCharW (lpwszProf, L')');
                         } else
                             // Set the default precision
                             mpfr_set_default_prec ((uCommPrec EQ 0) ? uOldPrec : uCommPrec);
 
-                        // Convert the string from WCHAR to char
-                        lpwStr = lpwSrc; lpStr = (LPCHAR) lpwStr;
-                        while (*lpwStr)
-                            *lpStr++ = (char) *lpwStr++;
-                        *lpStr = AC_EOS;
+                        // Convert the format string to ASCII
+                        W2A (lpFmt = (LPCHAR) lpwszFormat, lpwszProf, (DEF_WFORMAT_MAXNELM - 1) * sizeof (WCHAR));
+
+                        // Restore the original value
+                        *lpwCharEnd = wcTmp;
+
+                        // Initialize the save area to 0 using the precision set above
+                        mpfr_init0 ((LPAPLVFP) lpMemObj);
 
                         // Check for positive infinity
-                        if (lstrcmp ((LPCHAR) lpwSrc, TEXT_INFINITY) EQ 0)
+                        if (lstrcmp (lpFmt, TEXT_INFINITY) EQ 0)
                             mpfr_set_inf (((LPAPLVFP) lpMemObj)++, 1);
                         else
                         // Check for negative infinity
-                        if (lstrcmp ((LPCHAR) lpwSrc, "-" TEXT_INFINITY) EQ 0)
+                        if (lstrcmp (lpFmt, "-" TEXT_INFINITY) EQ 0)
                             mpfr_set_inf (((LPAPLVFP) lpMemObj)++, -1);
                         else
                             // Convert the string to VFP
-                            mpfr_set_str (((LPAPLVFP) lpMemObj)++, (LPCHAR) lpwSrc, 10, MPFR_RNDN);
+                            mpfr_set_str (((LPAPLVFP) lpMemObj)++, lpFmt, 10, MPFR_RNDN);
 
                         // Skip to the next field
-                        lpwSrc = &lpwWS[wc EQ L' '];
+                        lpwszProf = SkipPastCharW (lpwszProf, L' ');
                     } // End FOR
 
                     // Restore the default precision
@@ -1794,14 +1949,14 @@ HGLOBAL LoadWorkspaceGlobal_EM
             } // End SWITCH
 
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbObj); lpMemObj = NULL;
+            MyGlobalUnlock (hGlbObj); lpMemHdrObj = NULL;
 
             // Check to see if this value duplicates one of the already
             //   allocated permanent globals
             hGlbChk = CheckGlobals (hGlbObj);
-            if (hGlbChk)
+            if (hGlbChk NE NULL)
             {
-                LPVARARRAY_HEADER lpMemChk;
+                LPVARARRAY_HEADER lpMemHdrChk = NULL;
 
                 // We no longer need this storage
                 FreeResultGlobalVar (hGlbObj); hGlbObj = NULL;
@@ -1810,13 +1965,13 @@ HGLOBAL LoadWorkspaceGlobal_EM
                 hGlbObj = CopySymGlbDirAsGlb (hGlbChk);
 
                 // Lock the memory to get a ptr to it
-                lpMemChk = MyGlobalLock (hGlbChk);
+                lpMemHdrChk = MyGlobalLockVar (hGlbChk);
 
                 // Mark if this is a PERMNDX_xxx value
-                bPermNdx = (lpMemChk->PermNdx NE PERMNDX_NONE);
+                bPermNdx = (lpMemHdrChk->PermNdx NE PERMNDX_NONE);
 
                 // We no longer need this ptr
-                MyGlobalUnlock (hGlbChk); lpMemChk = NULL;
+                MyGlobalUnlock (hGlbChk); lpMemHdrChk = NULL;
             } // End IF
 
             // Set the ptr type bits
@@ -1825,6 +1980,10 @@ HGLOBAL LoadWorkspaceGlobal_EM
             break;
 
         case L'F':
+            // Copy the string to a save area
+            // DO NOT USE lstrcpyW as it doesn't trigger a visible Page Fault
+            strcpyW (lpwSrc, lpwszProf);
+
             Assert (*lpwSrc EQ L' '); lpwSrc++;
 
             // Point to the section name of the form nnn.Name where nnn is the count
@@ -1837,7 +1996,7 @@ HGLOBAL LoadWorkspaceGlobal_EM
             lpwSrc = &lpwSectName[lstrlenW (lpwSectName) + 1];
 
             // Copy the function name past the end of the section name
-            lstrcpyW (lpwSrc, lpwFcnName);
+            strcpyW (lpwSrc, lpwFcnName);
 
             // Point to the function name
             lpwFcnName = lpwSrc;
@@ -1875,10 +2034,11 @@ HGLOBAL LoadWorkspaceGlobal_EM
             SystemTimeToFileTime (&systemTime, &ftCreation);
 
             // Format the CreationTime/LastModTime
-            wsprintfW (wszTimeStamp,
-                       FMTSTR_DATETIME,
-                       ftCreation.dwHighDateTime,
-                       ftCreation.dwLowDateTime);
+            MySprintfW (wszTimeStamp,
+                        sizeof (wszTimeStamp),
+                        FMTSTR_DATETIME,
+                        ftCreation.dwHighDateTime,
+                        ftCreation.dwLowDateTime);
             // Get the CreationTime string
             lpwszProf =
               ProfileGetString (lpwSectName,            // Ptr to the section name
@@ -1886,7 +2046,7 @@ HGLOBAL LoadWorkspaceGlobal_EM
                                 wszTimeStamp,           // Ptr to the default value
                                 lpDict);                // Ptr to workspace dictionary
             // Convert the CreationTime string to time
-            sscanfW (lpwszProf, SCANFSTR_TIMESTAMP, &ftCreation);
+            sscanfW (lpwszProf, SCANFSTR_TIMESTAMP, (LPAPLINT) &ftCreation);
 
             // Get the LastModTime string
             lpwszProf =
@@ -1895,7 +2055,7 @@ HGLOBAL LoadWorkspaceGlobal_EM
                                 wszTimeStamp,           // Ptr to the default value
                                 lpDict);                // Ptr to workspace dictionary
             // Convert the LastModTime string to time
-            sscanfW (lpwszProf, SCANFSTR_TIMESTAMP, &ftLastMod);
+            sscanfW (lpwszProf, SCANFSTR_TIMESTAMP, (LPAPLINT) &ftLastMod);
 
             // If it's a user-defined or AFO, ...
             if (bUserDefined
@@ -1919,20 +2079,23 @@ HGLOBAL LoadWorkspaceGlobal_EM
                 SF_Fcns.lptkFunc        = NULL;             // Ptr to function token ***FIXME*** -- Used on error
                 SF_Fcns.SF_LineLen      = SF_LineLenLW;     // Ptr to line length function
                 SF_Fcns.SF_ReadLine     = SF_ReadLineLW;    // Ptr to read line function
-                SF_Fcns.SF_NumLines     = SF_NumLinesLW;    // Ptr to get # lines function
+                SF_Fcns.SF_IsLineCont   = SF_IsLineContLW;  // Ptr to Is Line Continued function
+                SF_Fcns.SF_NumPhyLines  = SF_NumPhyLinesLW; // Ptr to get # physical lines function
+                SF_Fcns.SF_NumLogLines  = SF_NumLogLinesLW; // Ptr to get # logical  ...
                 SF_Fcns.SF_CreationTime = SF_CreationTimeLW;// Ptr to get function creation time
                 SF_Fcns.SF_LastModTime  = SF_LastModTimeLW; // Ptr to get function last modification time
                 SF_Fcns.SF_UndoBuffer   = SF_UndoBufferLW;  // Ptr to get function Undo Buffer global memory handle
 ////////////////SF_Fcns.numLocalsSTE    = 0;                // # locals in AFO (Already zero from = {0})
 ////////////////SF_Fcns.lplpLocalSTEs   = NULL;             // Ptr to save area for local STEs          (Already zero from = {0})
                 SF_Fcns.LclParams       = &LW_Params;       // Ptr to local parameters
+                SF_Fcns.sfTypes         = SFTYPES_LOAD;     // Ptr to local parameters
 
                 // Fill in local values
                 LW_Params.lpwSectName   = lpwSectName;      // Ptr to section name
                 LW_Params.lpDict        = lpDict;           // Ptr to workspace dictionary
                 LW_Params.lpwBuffer     = lpwSrc + 1;       // Ptr to buffer
                 LW_Params.lpMemUndoTxt  = lpwszProf;        // Ptr to Undo Buffer in text format
-                LW_Params.uMaxSize      = (UINT) (uMaxSize - ((LPBYTE) lpwSrc - (LPBYTE) lpwSrcStart)); // Maximum size of lpwSrc
+                LW_Params.iMaxSize      = iMaxSize - ((LPBYTE) lpwSrc - (LPBYTE) lpwSrcStart); // Maximum size of lpwSrc
                 LW_Params.ftCreation    = ftCreation;       // Function Creation Time
                 LW_Params.ftLastMod     = ftLastMod;        // Function Last Modification Time
                 LW_Params.lpwszVersion  = lpwszVersion;     // Workspace version #
@@ -1967,15 +2130,15 @@ HGLOBAL LoadWorkspaceGlobal_EM
                     LPINTMONINFO lpMemMonInfo;          // Ptr to function line monitoring info
 
                     // Lock the memory to get a ptr to it
-                    lpMemDfnHdr = MyGlobalLock (SF_Fcns.hGlbDfnHdr);
+                    lpMemDfnHdr = MyGlobalLockDfn (SF_Fcns.hGlbDfnHdr);
 
                     // Allocate space for the monitor info
                     lpMemDfnHdr->hGlbMonInfo =
-                      MyGlobalAlloc (GHND, (lpMemDfnHdr->numFcnLines + 1) * sizeof (INTMONINFO));
+                      DbgGlobalAlloc (GHND, (lpMemDfnHdr->numFcnLines + 1) * sizeof (INTMONINFO));
                     if (lpMemDfnHdr->hGlbMonInfo)
                     {
                         // Lock the memory to get a ptr to it
-                        lpMemMonInfo = MyGlobalLock (lpMemDfnHdr->hGlbMonInfo);
+                        lpMemMonInfo = MyGlobalLock000 (lpMemDfnHdr->hGlbMonInfo);
 
                         // Loop through the function header & lines
                         for (uCnt = 0; uCnt < uLineCnt; uCnt++, lpMemMonInfo++)
@@ -2015,7 +2178,7 @@ HGLOBAL LoadWorkspaceGlobal_EM
 #endif
                 // Append the variable name and an assignment arrow to the output buffer
                 lpwLine = lpwSrc;
-                lstrcpyW (lpwLine, lpwFcnName);
+                strcpyW (lpwLine, lpwFcnName);
                 lpwSrc += lstrlenW (lpwSrc);
                 *lpwSrc++ = UTF16_LEFTARROW;
 
@@ -2027,17 +2190,17 @@ HGLOBAL LoadWorkspaceGlobal_EM
                                     lpDict);        // Ptr to workspace dictionary
                 // Copy to the save area ("+ 1" to include the trailing zero)
                 // DO NOT USE lstrcpyW as it doesn't trigger a visible Page Fault
-                CopyMemoryW (lpwSrc, lpwszProf, lstrlenW (lpwszProf) + 1);
+                strcpyW (lpwSrc, lpwszProf);
 
-                // Convert in place
-                lpwSrcStart = lpwSrc;
+////////////////// Convert in place
+////////////////lpwSrcStart = lpwSrc;
 
                 // Convert the {name}s and other chars to UTF16_xxx
                 (void) ConvertNameInPlace (lpwSrc);
 
                 // Fill in the extra parms
                 LoadWsGlbVarParm.lpwSrc        = &lpwSrc[lstrlenW (lpwSrc) + 1];    // "+ 1" to skip over WC_EOS
-                LoadWsGlbVarParm.uMaxSize      = (UINT) (uMaxSize - ((LPBYTE) lpwSrc - (LPBYTE) lpwSrcStart)); // Maximum size of lpwSrc
+                LoadWsGlbVarParm.iMaxSize      = iMaxSize - ((LPBYTE) lpwSrc - (LPBYTE) lpwSrcStart); // Maximum size of lpwSrc
                 LoadWsGlbVarParm.hWndEC        = hWndEC;
                 LoadWsGlbVarParm.lplpSymLink   = lplpSymLink;
                 LoadWsGlbVarParm.lpwszVersion  = lpwszVersion;
@@ -2067,6 +2230,7 @@ HGLOBAL LoadWorkspaceGlobal_EM
                                              lstrlenW (lpwLine),    // Length of the line to execute
                                              TRUE,                  // TRUE iff we should act on errors
                                              FALSE,                 // TRUE iff we're to skip the depth check
+                                             DFNTYPE_EXEC,          // DfnType for FillSISNxt
                                              NULL);                 // Ptr to function token
                 Assert (exitType EQ EXITTYPE_NOVALUE);
 
@@ -2104,10 +2268,9 @@ HGLOBAL LoadWorkspaceGlobal_EM
                 // Copy the HGLOBAL
                 hGlbObj = lpSymEntry->stData.stGlbData;
 
-            // If it's not a function/operator/train/, ...
-            if (!IsNameTypeFnOp (lpSymEntry->stFlags.stNameType))
-                // Increment the reference count
-                DbgIncrRefCntDir_PTB (hGlbObj);
+            // Ensure it's a function/operator/train.
+            Assert (IsNameTypeFnOp (lpSymEntry->stFlags.stNameType));
+
             break;
 
         defstop
@@ -2123,7 +2286,7 @@ HGLOBAL LoadWorkspaceGlobal_EM
     // Create a symbol table entry for the )LOAD HGLOBAL
     lpSymEntry =
       SymTabAppendName_EM (lpwGlbName, &stFlags);
-    if (!lpSymEntry)
+    if (lpSymEntry EQ NULL)
         goto ERROR_EXIT;
 
     // Set the handle
@@ -2219,8 +2382,10 @@ UBOOL CompareGlobals
 
 {
     UBOOL             bRet = FALSE;     // TRUE iff the result is valid
-    LPVARARRAY_HEADER lpMemGlb1,        // Ptr to global memory #1
-                      lpMemGlb2;        // ...                   2
+    LPVARARRAY_HEADER lpMemHdrGlb1,     // Ptr to global memory #1 header
+                      lpMemHdrGlb2;     // ...                   2 ...
+    LPAPLDIM          lpMemGlb1,        // ...                  #1 dimensions
+                      lpMemGlb2;        //                      #2 ...
     APLSTYPE          aplType;          // Common storage type
     APLNELM           aplNELM;          // ...    NELM
     APLRANK           aplRank;          // ...    rank
@@ -2231,37 +2396,37 @@ UBOOL CompareGlobals
         return FALSE;
 
     // Lock the memory to get a ptr to it
-    lpMemGlb1 = MyGlobalLock (hGlb1);
-    lpMemGlb2 = MyGlobalLock (hGlb2);
+    lpMemHdrGlb1 = MyGlobalLockVar (hGlb1);
+    lpMemHdrGlb2 = MyGlobalLockVar (hGlb2);
 
     // Get the storage type and NELM
-    aplType = lpMemGlb1->ArrType;
-    aplNELM = lpMemGlb1->NELM;
-    aplRank = lpMemGlb1->Rank;
+    aplType = lpMemHdrGlb1->ArrType;
+    aplNELM = lpMemHdrGlb1->NELM;
+    aplRank = lpMemHdrGlb1->Rank;
 
     // Check the signature
-    if (lpMemGlb1->Sig.nature NE lpMemGlb2->Sig.nature)
+    if (lpMemHdrGlb1->Sig.nature NE lpMemHdrGlb2->Sig.nature)
         goto ERROR_EXIT;
 
     // Check the storage type
-    if (aplType NE lpMemGlb2->ArrType)
+    if (aplType NE lpMemHdrGlb2->ArrType)
         goto ERROR_EXIT;
 
     // Check the NELM
-    if (aplNELM NE lpMemGlb2->NELM   )
+    if (aplNELM NE lpMemHdrGlb2->NELM   )
         goto ERROR_EXIT;
 
     // Check the rank
-    if (aplRank NE lpMemGlb2->Rank   )
+    if (aplRank NE lpMemHdrGlb2->Rank   )
         goto ERROR_EXIT;
 
     // Skip over the header to the dimensions
-    (LPVOID) lpMemGlb1 = VarArrayBaseToDim (lpMemGlb1);
-    (LPVOID) lpMemGlb2 = VarArrayBaseToDim (lpMemGlb2);
+    lpMemGlb1 = VarArrayBaseToDim (lpMemHdrGlb1);
+    lpMemGlb2 = VarArrayBaseToDim (lpMemHdrGlb2);
 
     // Check the dimensions
     for (uCnt = 0; uCnt < aplRank; uCnt++)
-    if (*((LPAPLDIM) lpMemGlb1)++ NE *((LPAPLDIM) lpMemGlb2)++)
+    if (*lpMemGlb1++ NE *lpMemGlb2++)
         goto ERROR_EXIT;
 
     // At this point, both lpMemGlb1 & lpMemGlb2 point to
@@ -2271,8 +2436,8 @@ UBOOL CompareGlobals
                           CalcArraySize (aplType, aplNELM, aplRank) - CalcHeaderSize (aplRank));
 ERROR_EXIT:
     // We no longer need these ptrs
-    MyGlobalUnlock (hGlb2); lpMemGlb2 = NULL;
-    MyGlobalUnlock (hGlb1); lpMemGlb1 = NULL;
+    MyGlobalUnlock (hGlb2); lpMemHdrGlb2 = NULL;
+    MyGlobalUnlock (hGlb1); lpMemHdrGlb1 = NULL;
 
     return bRet;
 } // End CompareGlobals
@@ -2342,9 +2507,10 @@ HGLOBAL LoadWsGlbVarConv
     stFlags.ObjName = OBJNAME_LOD;
 
     // Format the global count
-    wsprintfW (wszGlbCnt,
-               FMTSTR_GLBCNT,
-               uGlbCnt);
+    MySprintfW (wszGlbCnt,
+                sizeof (wszGlbCnt),
+                FMTSTR_GLBCNT,
+                uGlbCnt);
     // Get the matching HGLOBAL
     lpSymEntry =
       SymTabLookupName (wszGlbCnt, &stFlags);
@@ -2354,8 +2520,9 @@ HGLOBAL LoadWsGlbVarConv
         return
           LoadWorkspaceGlobal_EM (wszGlbCnt,                        // Ptr to keyname (FMTSTR_GLBCNT)
                                   lpLoadWsGlbVarParm->lpwSrc,       // Ptr to next available byte
-                                  lpLoadWsGlbVarParm->uMaxSize,     // Maximum size of lpwSrc
+                                  lpLoadWsGlbVarParm->iMaxSize,     // Maximum size of lpwSrc
                                   lpLoadWsGlbVarParm->hWndEC,       // Edit Ctrl window handle
+                                  NULL,                             // Ptr to SYMENTRY of teh source (may be NULL)
                                   lpLoadWsGlbVarParm->lplpSymLink,  // Ptr to ptr to SYMENTRY link
                                   lpLoadWsGlbVarParm->lpwszVersion, // Ptr to workspace version text
                                   lpLoadWsGlbVarParm->lpDict,       // Ptr to workspace dictionary

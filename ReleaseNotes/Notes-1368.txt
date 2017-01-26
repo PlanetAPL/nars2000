@@ -1,0 +1,9 @@
+Build #1368 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Another Bug In VS2013 Solution File
+
+Directory trunk:
+
+NARS2000.SLN:
+  I forgot that without an old header, VS2013 won't upgrade an old .sln to a new one.

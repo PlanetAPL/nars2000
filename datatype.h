@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2012 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -110,16 +110,18 @@ typedef struct tagDTHC8
 
 typedef union tagALLTYPES
 {
-    APLINT    aplInteger;           // 00:  Integer or real number as an integer ( 8 bytes)
-    APLFLOAT  aplFloat;             // 00:  Real number as a float               ( 8 bytes)
-    APLCHAR   aplChar;              // 00:  Character
-    DTHC2     aplHC2;               // 00:  Complex number                       (16 bytes)
-    DTHC4     aplHC4;               // 00:  Quaternion number                    (32 bytes)
-    DTHC8     aplHC8;               // 00:  Octonion number                      (64 bytes)
-    APLHETERO aplHetero;            // 00:  Heterogeneous array                  ( 4 bytes)
-    APLNESTED aplNested;            // 00:  Nested array                         ( 4 bytes)
-    APLRAT    aplRat;               // 00:  RAT number, num and denom parts      (24 bytes)
-    APLVFP    aplVfp;               // 00:  VFP number                           (16 bytes)
+    APLBOOL    aplBoolean;          // 00:  Boolean
+    APLINT     aplInteger;          // 00:  Integer or real number as an integer ( 8 bytes)
+    APLFLOAT   aplFloat;            // 00:  Real number as a float               ( 8 bytes)
+    APLCHAR    aplChar;             // 00:  Character
+    DTHC2      aplHC2;              // 00:  Complex number                       (16 bytes)
+    DTHC4      aplHC4;              // 00:  Quaternion number                    (32 bytes)
+    DTHC8      aplHC8;              // 00:  Octonion number                      (64 bytes)
+    APLHETERO  aplHetero;           // 00:  Heterogeneous array                  ( 4 bytes)
+    APLNESTED  aplNested;           // 00:  Nested array                         ( 4 bytes)
+    APLRAT     aplRat;              // 00:  RAT number, num and denom parts      (24 bytes)
+    APLVFP     aplVfp;              // 00:  VFP number                           (16 bytes)
+    APLLONGEST aplLongest;          // 00:  tkLongest ot stLongest
 } ALLTYPES, *LPALLTYPES;
 
 // Array types -- used to identify array storage type in memory
@@ -141,15 +143,17 @@ typedef enum tagARRAY_TYPES
                                         // 0A-0F:  Available entries (4 bits)
  ARRAY_INIT  = ARRAY_LENGTH,
  ARRAY_ERROR = (APLSTYPE) -1,
+} ARRAY_TYPES;
 
 // Whenever changing this <enum>, be sure to make a
 //   corresponding change to <StorageType>  in <primfns.c>,
 //   <TypeDemote> in <typemote.c>
-//   <aTypePromote> and <uTypeMap> in <externs.h>,
+//   <aTypePromote> in <typemote.h>,
+//   <uTypeMap> in <externs.h>,
+//   <aTypeFree> in <typemote.h>,
 //   <IsSimpleNH> and <IsSimpleNum> macros in <macros.h>,
 //   ArrayTypeAsChar and BPE_VEC in <datatype.h>.
 
-} ARRAY_TYPES;
 
 // Translate an array type to a char
 // Note that the order of the chars in this #define
@@ -246,19 +250,20 @@ typedef enum tagPERM_NDX
     PERMNDX_NONE = 0    ,               // 00:  Not a permanent array
     PERMNDX_QUADA       ,               // 01:  []A
     PERMNDX_QUADAV      ,               // 02:  []AV
-    PERMNDX_QUADxLX     ,               // 03:  []xLX default
-    PERMNDX_QUADFC      ,               // 04:  []FC default
-    PERMNDX_QUADFEATURE ,               // 05:  []FEATURE default
-    PERMNDX_QUADIC      ,               // 06:  []IC default
-    PERMNDX_SACLEAR     ,               // 07:  'CLEAR'
-    PERMNDX_SAERROR     ,               // 08:  'ERROR'
-    PERMNDX_SAEXIT      ,               // 09:  'EXIT'
-    PERMNDX_SAOFF       ,               // 0A:  'OFF'
-    PERMNDX_V0CHAR      ,               // 0B:  ''
-    PERMNDX_ZILDE       ,               // 0C:  {zilde}
-    PERMNDX_0BY0        ,               // 0D:  0 0 {rho} 0 -- []EC[2] default
-    PERMNDX_3BY0        ,               // 0E:  3 0 {rho}'' -- []EM default
-                                        // 0F-0F:  Available entries (4 bits)
+    PERMNDX_QUADD       ,               // 03:  []D
+    PERMNDX_QUADxLX     ,               // 04:  []xLX default
+    PERMNDX_QUADFC      ,               // 05:  []FC default
+    PERMNDX_QUADFEATURE ,               // 06:  []FEATURE default
+    PERMNDX_QUADIC      ,               // 07:  []IC default
+    PERMNDX_SACLEAR     ,               // 08:  'CLEAR'
+    PERMNDX_SAERROR     ,               // 09:  'ERROR'
+    PERMNDX_SAEXIT      ,               // 0A:  'EXIT'
+    PERMNDX_SAOFF       ,               // 0B:  'OFF'
+    PERMNDX_V0CHAR      ,               // 0C:  ''
+    PERMNDX_ZILDE       ,               // 0D:  {zilde}
+    PERMNDX_0BY0        ,               // 0E:  0 0 {rho} 0 -- []EC[2] default
+    PERMNDX_3BY0        ,               // 0F:  3 0 {rho}'' -- []EM default
+                                        // ??-??:  Available entries (4 bits)
 } PERM_NDX;
 
 // Variable array header
@@ -273,13 +278,12 @@ typedef struct tagVARARRAY_HEADER
                      PV0:1,             //      00000200:  Permutation Vector in origin-0
                      PV1:1,             //      00000400:  ...                          1
                      bSelSpec:1,        //      00000800:  Select Specification array
-                     SkipRefCntIncr:1,  //      00001000:  Skip the next RefCnt increment
-                     All2s:1,           //      00002000:  Values are all 2s
+                     All2s:1,           //      00001000:  Values are all 2s
 #ifdef DEBUG
-                     bMFOvar:1,         //      00004000:  Magic Function/Operator var -- do not display
-                     :17;               //      FFFF8000:  Available bits
-#else
+                     bMFOvar:1,         //      00002000:  Magic Function/Operator var -- do not display
                      :18;               //      FFFFC000:  Available bits
+#else
+                     :19;               //      FFFFE000:  Available bits
 #endif
     UINT             RefCnt;            // 08:  Reference count
     APLNELM          NELM;              // 0C:  # elements in the array (8 bytes)
@@ -306,8 +310,7 @@ typedef struct tagFCNARRAY_HEADER
 {
     HEADER_SIGNATURE Sig;               // 00:  Array header signature
     UINT             fnNameType:4,      // 04:  0000000F:  The type of the array (see NAME_TYPES)
-                     SkipRefCntIncr:1,  //      00000010:  Skip the next RefCnt increment
-                     :27;               //      FFFFFFE0:  Available bits
+                     :28;               //      FFFFFFF0:  Available bits
     UINT             RefCnt,            // 08:  Reference count
                      tknNELM;           // 0C:  # tokens in the array (each of which may point to additional arrays)
     HGLOBAL          hGlbTxtLine;       // 10:  Line text global memory handle (may be NULL)
@@ -317,7 +320,7 @@ typedef struct tagFCNARRAY_HEADER
 } FCNARRAY_HEADER, *LPFCNARRAY_HEADER;
 
 // Named strand header
-#define VARNAMED_HEADER_SIGNATURE   'RTSN'
+#define VARNAMED_HEADER_SIGNATURE   ' MNV'
 
 typedef struct tagVARNAMED_HEADER
 {
@@ -334,6 +337,8 @@ typedef union tagVFOHDRPTRS
     LPFCNARRAY_HEADER lpMemFcn;         // 00:  ...      function array
     struct tagDFN_HEADER *
                       lpMemDfn;         // 00:  ...      UDFO
+    LPLSTARRAY_HEADER lpMemLst;         // 00:  ...      list
+    LPVARNAMED_HEADER lpMemNam;         // 00:  ...      named strand
 } VFOHDRPTRS, *LPVFOHDRPTRS;
 
 #define SYSFN_HEADER_SIGNATURE      'FSYS'      // Pseudo-signature
@@ -348,16 +353,8 @@ typedef enum tagPTR_TYPES
 } PTR_TYPES;
 
 #define PTRTYPE_MASK    BIT0            // This masks the one low-order bit
-#define PTRREUSE_MASK   0x0FFFFFFF      // This masks the PTR_REUSEx bits
-
-// For LPSYMENTRY and HGLOBAL values in a temporary array, sometimes
-//   those values can be re-used in another array without having
-//   to make a copy.  In that case, the original value is replaced
-//   by this which is checked for before trying to free it.
-#define PTR_REUSED  ((LPVOID) (HANDLE_PTR) 0x0FFFFFFF)
-#define PTR_REUSE1  ((LPVOID) (HANDLE_PTR) 0x1FFFFFFF)
-#define PTR_REUSE2  ((LPVOID) (HANDLE_PTR) 0x2FFFFFFF)
-#define PTR_REUSE3  ((LPVOID) (HANDLE_PTR) 0x3FFFFFFF)
+#define PTR_SUCCESS     ((LPVOID) (HANDLE_PTR) 0x0FFFFFFF)  // Used to indicate success on ArrayIndexSet only
+#define IsPtrSuccess(a) ((a) EQ PTR_SUCCESS)
 
 
 //***************************************************************************

@@ -1,0 +1,16 @@
+Build #1577 -- Version 0.4.18.xx
+--------------------------------
+
+* Use Macro To Detect Chars For Output Debugging
+
+Directory trunk:
+
+EDITFCN.C:
+MACROS.H:
+  Use macro to detect chars for Output Debugging.
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+LOCAL.H:
+  Use macro to detect chars for Output Debugging.

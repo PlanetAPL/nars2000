@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -194,6 +194,7 @@ LPPL_YYSTYPE SysFnDydES_EM_YY
             // Get the first value
             GetNextValueMem (lpMemRht,          // Ptr to right arg global memory
                              aplTypeRht,        // Right arg storage type
+                             aplNELMRht,        // Right arg NELM
                              0,                 // Right arg index
                             &lpSymGlbRht1,      // Right arg item LPSYMENTRY or HGLOBAL (may be NULL)
                             &aplLongestRht1,    // Ptr to right arg immediate value
@@ -201,6 +202,7 @@ LPPL_YYSTYPE SysFnDydES_EM_YY
             // Get the second value
             GetNextValueMem (lpMemRht,          // Ptr to right arg global memory
                              aplTypeRht,        // Right arg storage type
+                             aplNELMRht,        // Right arg NELM
                              1,                 // Right arg index
                             &lpSymGlbRht2,      // Right arg item LPSYMENTRY or HGLOBAL (may be NULL)
                             &aplLongestRht2,    // Ptr to right arg immediate value

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
   #include "bjhash.pro"
   #include "common.pro"
   #include "convert.pro"
+  #include "cr_proc.pro"
   #include "crash.pro"
 #ifndef DEBUG
   #include "crashserver.pro"
@@ -44,8 +45,6 @@
   #include "dtoa.pro"
   ////lude "editctrl.pro"
   #include "editfcn.pro"
-  #include "editmat.pro"
-  #include "editvec.pro"
   #include "errmsg.pro"
   #include "except.pro"
   #include "execdfn.pro"
@@ -72,6 +71,7 @@
   #include "malloc.pro"
   #include "mpfns.pro"
   #include "mpifns.pro"
+  #include "parseline.pro"
   #include "perfmon.pro"
   #include "pf_bar.pro"
   #include "pf_circle.pro"
@@ -129,7 +129,6 @@
   #include "pf_ustile.pro"
   #include "pf_utack.pro"
   #include "pf_utackjot.pro"
-  #include "pl_parse.pro"
   #include "pl_proc.pro"
   #include "pn_parse.pro"
   #include "pn_proc.pro"
@@ -154,6 +153,7 @@
   #include "qf_at.pro"
   #include "qf_av.pro"
   #include "qf_cr.pro"
+  #include "qf_d.pro"
   #include "qf_dl.pro"
   #include "qf_dr.pro"
   #include "qf_ea.pro"
@@ -170,8 +170,10 @@
   #include "qf_nc.pro"
   #include "qf_nfns.pro"
   #include "qf_nl.pro"
+  #include "qf_strace.pro"
   #include "qf_sysid.pro"
   #include "qf_sysver.pro"
+  #include "qf_t.pro"
   #include "qf_tc.pro"
   #include "qf_tf.pro"
   #include "qf_ts.pro"

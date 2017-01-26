@@ -1,0 +1,12 @@
+Build #1480 -- Version 0.4.14.xx
+--------------------------------
+
+* Check Certain Ptrs For NULL Before Using Them
+
+Directory trunk:
+
+PARSELINE.C:
+  In IF stmts always compare ptr against NULL.
+  When using certain SIS ptrs, check for NULL first.
+  In <plExecuteFn0>, don't Assert ptrs NE NULL as they are allowed
+    and handled elsewhere.

@@ -1,0 +1,74 @@
+Build #1414 -- Version 0.4.11.xx
+--------------------------------
+
+* Use String Safe Functions
+
+Directory trunk:
+
+COMMON.C:
+  Pass string length to <LclFileVersionStrW> so it can use it in a string safe function.
+  Define local versions of string functions as wrappers which call string safe functions.
+
+CS_PARSE.Y:
+CUSTOMIZE.C:
+DEBUG.C:
+DEBUG.H:
+EXCEPT.C:
+EXECMFN.C:
+FH_PARSE.Y:
+HUNGARIAN_SRC.H:
+IMMEXEC.C:
+INIFILE.C:
+MAIN.C:
+MPFNS.C:
+PARSELINE.C:
+PERFMON.C:
+PF_UTACKJOT.C:
+PN_PARSE.Y:
+PRIMSPEC.C:
+PROGBAR.C:
+QF_DR.C:
+REBAR.C:
+RESDEBUG.C:
+SAVEFCN.C:
+SC_COPY.C:
+SC_DROP.C:
+SC_IN.C:
+SC_INASCII.C:
+SC_LOAD.C:
+SYMTAB.C:
+TABCTRL.C:
+TOKENIZE.C:
+UPDATES.C:
+WEBCOLORS.C:
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+DISPDBG.C:
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+  In <DisplayGlobals>, if the item is a scalar omit the "Dim1=" display.
+
+DISPLAY.C:
+  In <FormatAplVfpFC>, comment out Assert stmt as it is no longer true.
+
+SC_COMMON.C:
+  In <MakeWorkspaceNameCanonical>, preface ptr names with "lp" as a convention.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+SC_LIB.C:
+  In <CmdLibProcess> and <CmdLibFiles>, preface ptr names with "lp" as a convention.
+
+SC_SAVE.C:
+  In <CmdSave_EM>, omit <wszTempDPFE> as it isn't needed (the global memory ptr does have a zero terminator).
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+SC_SI.C:
+  In <CmdSiSinlCom_EM>, preface WCHAR names with "w" as a convention.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+STATUSBAR.C:
+  In <SetStatusPos>, preface WCHAR names with "w" as a convention.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+VER.C:
+  In <LclFileVersionStrW>, pass dest buffer length so it can be used in string safe functions.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.

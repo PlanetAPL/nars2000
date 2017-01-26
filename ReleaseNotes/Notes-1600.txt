@@ -1,0 +1,19 @@
+Build #1600 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug With Storing INT_MIN As A VFPO Number
+
+Directory trunk:
+
+FREE.C:
+  Fix typo in comment.
+
+HEADERS.H:
+  Delete "#undef mpfr_set_sj" as we don't launder it ourselves.
+
+MACROS.H:
+  Use consistent naming convention for 64-bit integers with MPFR with a suffix of "_sx" and "_ux" instead of "_sj" and "uj".
+
+MPIFNS.C:
+  Delete our implementation of <mpfr_set_sx> in favor of calling <mpfr_set_sj> as ours has a bug with INT_MIN.
+  Redo our <mpfr_get_sx> to call <mpfr_get_sj>.

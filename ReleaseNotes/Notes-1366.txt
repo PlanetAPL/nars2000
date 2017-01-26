@@ -1,0 +1,52 @@
+Build #1366 -- Version 0.4.9.xx
+-------------------------------
+
+* Move Compilers To VS2013
+
+Directory trunk:
+
+DBGBRK.ASM:
+  Split this file in two, one for 32-bit code and one for 64-bit code.
+  Delete this file.
+
+DBGBRK32.ASM:
+DBGBRK64.ASM:
+  New files one for 32-bit and one for 64-bit code.
+
+MAIN.C:
+  Replace deprecated version information APIs with new ones.
+
+MAKEFILE.INC:
+  Make .asm files sensitive to 32- or 64-bit.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Remove L98 in favor of LIB as used in <makefile.inc>.
+  Rename path for Resource Compiler as it changed in VS2013.
+  Remove 32- and 64-bit specific flags as they are no longer needed.
+
+MASM64.RULES:
+  Change the path to the 64-bit assembler as it is different under VS2013.
+
+NARS2000.SLN:
+  New file merged from <NARS2000.32.sln> and <NARS2000.64.sln>
+
+NARS2000.VCPROJ:
+  New file merged from <NARS2000.32.vcproj> and <NARS2000.64.vcproj>
+
+WCOM.BAT:
+  Move local customizations from here to <<wcustomize.bat>.
+  Remove dependency on drive letters in favor of environment vars.
+  Use separate 32- and 64-bit PATH environment var.
+  Change LIB environment var to reflect new paths for VS2013 libraries.
+  Start VS2013 using new GUI name (WDExpress vs. VCExpress).
+  Start VS2013 using merged solution file <NARS2000.sln>.
+
+WCUSTOMIZE.BAT:
+  Move local customizations here.
+
+With these changes, this project no longer compiles under VS2008.  It now
+requires VS2013 and the Windows 8.1 SDK.
+
+Also, it no longer is dependent upon drive letters to map the 32- vs. 64-bit
+compiler and SDK paths.

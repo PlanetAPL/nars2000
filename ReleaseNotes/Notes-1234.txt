@@ -1,0 +1,13 @@
+Build #1234 -- Version 0.4.7.xx
+-------------------------------
+
+* Fix Bug In DEBUG Display Of Function Header
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFnHdr>, also display the axis value if present.
+
+MF_DYDSCAN.H:
+  Use correct name of the operator so it can be displayed via []VR, etc.
+  Simplify the APL code for re-arranging the axes when catenating the array of identity elements.

@@ -1,0 +1,251 @@
+Version 0.4.13.xx consists of the following Builds:
+
+
+Build #1460 -- Version 0.4.13.xx
+--------------------------------
+
+* Fix Memory Leak In []EC
+
+Directory trunk:
+
+QF_EC.C:
+  In <SysFnMonEC_EM_YY>, when saving the result of executing the right arg, do not increment its RefCnt as
+    that var isn't otherwise freed.
+
+
+Build #1459 -- Version 0.4.13.xx
+--------------------------------
+
+* Demote More Immediate Vars
+
+Directory trunk:
+
+TYPEMOTE.C:
+  In <TypeDemote> for immediate vars, demote Boolean-valued to Boolean and INT-like FLTs to INTs.
+
+
+Build #1458 -- Version 0.4.13.xx
+--------------------------------
+
+* Ensure The Result Of Primitive Monadic Function Has The PTB Bits Set
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Improve comments.
+  Remove <DBGENTER> and <DBGLEAVE> macros as they are no longer relevant.
+  In <PrimFnMonGlb_EM>, ensure valid results have the PTB set.
+
+
+Build #1457 -- Version 0.4.13.xx
+--------------------------------
+
+* Name Assignment of A Niladic AFO Is Saved As A Niladic AFO, Not Evaluated To A Variable
+* Fix Bug In Syntax Analyzer When Unwinding Left And Right Stacks
+
+Directory trunk:
+
+MAKEFILE.INC:
+  When producing a prototype file, don't bother to display the filename.
+
+PARSELINE.C:
+  In <plRedNAM_SPNF>, if the function is an AFO, assign it as a NF rather than evaluate it as a var.
+  After <PARSELINE_ERROR:> when unwinding the left and right stacks, do not free <soEOS> and <soSOS> tokens.
+
+
+Build #1456 -- Version 0.4.13.xx
+--------------------------------
+
+* When )LOADing Or )COPYing A Workspace, Display The Workspace Version # If DEBUGging
+
+Directory trunk:
+
+SC_COMMON.C:
+  In <DisplayWorkspaceStamp>, pass the workspace version # to <DisplaySavedMsg> for display if DEBUGging.
+  In <DisplaySavedMsg>, display the workspace version # if DEBUGging.
+
+SC_LOAD.C:
+  When calling <DisplaySavedMsg>, pass NULL as workspace version #.
+
+
+Build #1455 -- Version 0.4.13.xx
+--------------------------------
+
+* Fix Bug In []EC R If Error Executing R
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+QF_EC.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <SysFnMonEC_EM_YY>, after executing the right arg, clear the <ExitType> in the caller's <plLocalVars>.
+    Without this fix, the function that calls []EC suspends.
+
+
+Build #1454 -- Version 0.4.13.xx
+--------------------------------
+
+* Fix Bug In []AT When Calculating The Size Of An Immediate Function/Operator Or A System Function
+* Miscellaneous Minor Related Fixes
+
+Directory trunk:
+
+ASSIGN.C:
+  Improve comments.
+  In <AssignName_EM>, ensure the named result is marked as Inuse.
+
+FREE.C:
+  Include Assert to ensure the token is named.
+
+MACROS.H:
+  Change the definition of the <IsSymNoValue> to disallow Direct (System) Functions.
+
+QF_AT.C:
+  Fix bug not handling the SymEntry size of immediate functions and operators, and Direct (System) Functions.
+
+SYMTAB.H:
+  In <HSHENTRY> struc, widen the DEBUG entry to display the name to 16 WCHARs.
+
+YYFNS.C:
+  In <_YYFree> fix typo in DEBUG string for Permanent vars.
+
+
+Build #1453 -- Version 0.4.13.xx
+--------------------------------
+
+* Fix Bug In Determinant Operator For Certain Cases
+
+Directory trunk:
+
+MF_DOT.H:
+  Fix bug in general determinant magic operator which fails if the left operand
+    is an AFO and the right arg column dimension is empty or a singleton.
+
+PO_DOT.C:
+  Improve comments.
+  In <PrimOpMonDotCommon_EM_YY> for -.x on FLTs, fix bug which doesn't copy all of the right arg for GSL to work on.
+  In <PrimOpMonDotCommon_EM_YY> prior to calling <GaussJordanDet>, merge loops for efficiency.
+
+
+Build #1452 -- Version 0.4.13.xx
+--------------------------------
+
+* Use Macro When Reading From Token That Could Be Named Or Unnamed
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+DISPDBG.C:
+DISPLAY.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+TYPEMOTE.C:
+  Use macro when reading <tkLongest> or <tkGlbData> in case the token is named.
+
+EXECDFN.C:
+  Use macro when reading <tkLongest> or <tkGlbData> in case the token is named.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+
+GETFNS.C:
+  Use macro when reading <tkLongest> or <tkGlbData> in case the token is named.
+  In <GetNextHetero>, allow result args to be NULL.
+  Define <GetNextHetero2> as with <GetNextHetero> but ensuring that if the ptr to Sym/Glb is valid, that its value is set.
+
+PF_INDEX.C:
+PF_SQUAD.C:
+  Use macro when reading <tkLongest> or <tkGlbData> in case the token is named.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+
+
+Build #1451 -- Version 0.4.13.xx
+--------------------------------
+
+* Fix Bug When Assigning A Boolean Value Into []FEATURE Or []IC
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+SYSVARS.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix bug in <ValidateIntegerVector_EM> (used by []FEATURE and []IC) if the right arg is BOOL.
+
+
+Build #1450 -- Version 0.4.13.xx
+--------------------------------
+
+* Handle Decimal/Exponentiation Form In Denominator Of Rational Point Notation
+
+Directory trunk:
+
+CR_PROC.C:
+  Fix bug in FSA which mistakenly allows a '/' or 'x' after a negative sign.
+  Handle decimal/exponential form in denominator of rational point notation.
+
+MACROS.H:
+  Define macro to detect -0 as a FLT.
+
+MPIFNS.C:
+MPIFNS.H:
+  Use <mpfr_strtofr> instead of <mpfr_set_str> when the string isn't zero-terminated.
+
+PN_PARSE.H:
+PN_PARSE.Y:
+  Define and set flags to deal with rational numbers in strings.
+
+PN_PROC.C:
+  Use <mpfr_strtofr> instead of <mpfr_set_str> when the string isn't zero-terminated.
+  In <PN_NumCalc>, set FLT flag as appropriate.
+  In <PN_NumCalc>, call <mpq_init_set_str2> to convert string to a rational number and
+    deal with the return code.
+  In <PN_VectorAcc> and <PN_VectorRes>, set and test flags to deal with rational numbers in strings.
+
+
+Build #1449 -- Version 0.4.13.xx
+--------------------------------
+
+* Minor Build, DEBUG, And Documentation Changes
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Include previous CFLAGS in /GL line.
+
+VER.RC:
+  Increment version # to 0.4.13.xx.
+
+
+Directory trunk\ReleaseNotes:
+
+NOTES-1425.TXT:
+NOTES-1430.TXT:
+NOTES-1431.TXT:
+NOTES-1432.TXT:
+NOTES-1433.TXT:
+NOTES-1434.TXT:
+NOTES-1435.TXT:
+NOTES-1436.TXT:
+NOTES-1437.TXT:
+NOTES-1438.TXT:
+NOTES-1439.TXT:
+VERSION-0.4.12.XX.TXT:
+  Minor editing and format changes.
+
+
+Directory trunk\htdocs:
+
+FOOTER-MON.HTML:
+FOOTER.HTML:
+INDEX-BODY.AHTML:
+  Update copyright year.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+  Include .pdb files in the list of files available for download..
+  Fix typo in id="Beta_Versions" (Missing underbar).
+
+DOWNLOAD-LEFT.HTML:
+  Fix typo in id="Beta_Versions" (Missing underbar).

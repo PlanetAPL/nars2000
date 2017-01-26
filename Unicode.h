@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 
 // No keystroke equivalents for these as yet
 #define UTF16_PLUS_OR_MINUS       0x00B1        // Plus or minus symbol
+#define UTF16_GAMMA               0x03B3        // Gamma
 #define UTF16_LEFTSINGLEQUOTE     0x2018        // Left single quotation mark
 #define UTF16_RIGHTSINGLEQUOTE    0x2019        // Right ...
 #define UTF16_HORIZELLIPSIS       0x2026        // Horizontal ellipsis
@@ -47,7 +48,6 @@
 #define UTF16_LEFTRIGHTARROWS     0x2194        // Left-right arrows
 #define UTF16_UPDOWNARROWS        0x2195        // Up-down arrows
 #define UTF16_CIRCLESLASH         0x2205        //
-#define UTF16_CHECKMARK           0x221A        // Check mark
 #define UTF16_DIERESISDOT         0x2235        //
 #define UTF16_NAND                0x22BC        //
 #define UTF16_NOR                 0x22BD        //
@@ -113,7 +113,10 @@
 #define UTF16_LDC_DB_HORZ_D       0x2566        // LDC double horizontal and down
 #define UTF16_LDC_DB_HORZ_U       0x2569        // LDC double horizontal and up
 #define UTF16_LDC_DB_CROSS        0x256C        // LDC double horizontal and vertical
+#define UTF16_CHECKMARKLIGHT      0x2713        // Light check mark
+#define UTF16_CHECKMARKHEAVY      0x2714        // Heavy check mark
 #define UTF16_REPLACEMENTCHAR     0xFFFD        // Replacement char for unknown
+#define UTF16_REPLACEMENT0000     0xFFFF        // Replacement char for U+0000
 
 // The alphabet, unshifted
 #define UTF16_ALPHA               0x237A        // Alt-'a' - alpha
@@ -283,8 +286,9 @@
 #define UTF16_CIRCLE2             0x26AA        // Circle (a.k.a. 0x25CB)
 #define UTF16_LEFTCARETUNDERBAR2  0x2A7D        // Not more2 (a.k.a. 0x2264)
 #define UTF16_RIGHTCARETUNDERBAR2 0x2A7E        // Not less2 (a.k.a. 0x2265)
-#define UTF16_DIAMOND2            0x2B26        // Diamond2 (a.k.a. 0x22C4)
+#define UTF16_DIAMOND2            0x25C7        // Diamond2 (a.k.a. 0x22C4)
 #define UTF16_DIAMOND3            0x25CA        // Diamond3 (a.k.a. 0x22C4)
+#define UTF16_DIAMOND4            0x2B26        // Diamond4 (a.k.a. 0x22C4)
 
 #define UTF16_A_                  0xE036        // A underbar
 #define UTF16_B_                  0xE037        // B underbar
@@ -318,6 +322,7 @@
 
 // No keystroke equivalents for these as yet
 #define WS_UTF16_PLUS_OR_MINUS       L"\x00B1"  // Plus or minus symbol
+#define WS_UTF16_GAMMA               L"\x03B3"  // Gamma
 #define WS_UTF16_LEFTSINGLEQUOTE     L"\x2018"  // Left single quotation mark
 #define WS_UTF16_RIGHTSINGLEQUOTE    L"\x2019"  // Right ...
 #define WS_UTF16_HORIZELLIPSIS       L"\x2026"  // Horizontal ellipsis
@@ -325,7 +330,6 @@
 #define WS_UTF16_LEFTRIGHTARROWS     L"\x2194"  // Left-right arrows
 #define WS_UTF16_UPDOWNARROWS        L"\x2195"  // Up-down arrows
 #define WS_UTF16_CIRCLESLASH         L"\x2205"  //
-#define WS_UTF16_CHECKMARK           L"\x221A"  // Check mark
 #define WS_UTF16_DIERESISDOT         L"\x2235"  //
 #define WS_UTF16_NAND                l"\x22BC"  //
 #define WS_UTF16_NOR                 L"\x22BD"  //
@@ -391,7 +395,10 @@
 #define WS_UTF16_LDC_DB_HORZ_D       L"\x2566"  // LDC double horizontal and down
 #define WS_UTF16_LDC_DB_HORZ_U       L"\x2569"  // LDC double horizontal and up
 #define WS_UTF16_LDC_DB_CROSS        L"\x256C"  // LDC double horizontal and vertical
+#define WS_UTF16_CHECKMARKLIGHT      L"\x2713"  // Light check mark
+#define WS_UTF16_CHECKMARKHEAVY      L"\x2714"  // Heavy check mark
 #define WS_UTF16_REPLACEMENTCHAR     L"\xFFFD"  // Replacement char for unknown
+#define WS_UTF16_REPLACEMENT0000     L"\xFFFF"  // Replacement char for U+0000
 
 // The alphabet, unshifted
 #define WS_UTF16_ALPHA               L"\x237A"  // Alt-'a' - alpha
@@ -561,8 +568,9 @@
 #define WS_UTF16_CIRCLE2             L"\x26AA"  // Circle (a.k.a. 0x25CB)
 #define WS_UTF16_LEFTCARETUNDERBAR2  L"\x2A7D"  // Not more2 (a.k.a. 0x2264)
 #define WS_UTF16_RIGHTCARETUNDERBAR2 L"\x2A7E"  // Not less2 (a.k.a. 0x2265)
-#define WS_UTF16_DIAMOND2            L"\x2B26"  // Diamond2 (a.k.a. 0x22C4)
+#define WS_UTF16_DIAMOND2            L"\x25C7"  // Diamond2 (a.k.a. 0x22C4)
 #define WS_UTF16_DIAMOND3            L"\x25CA"  // Diamond3 (a.k.a. 0x22C4)
+#define WS_UTF16_DIAMOND4            L"\x2B26"  // Diamond4 (a.k.a. 0x22C4)
 
 #define WS_UTF16_A_                  L"\xE036"  // A underbar
 #define WS_UTF16_B_                  L"\xE037"  // B underbar

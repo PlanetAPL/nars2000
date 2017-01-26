@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2011 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,66 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***************************************************************************/
+
+/*
+This header defines several tables for information about APLSTYPE vs. APLSTYPE.
+
+typedef enum tagARRAY_TYPES APLSTYPE;
+APLSTYPE   aTypePromote        ARRAY_xxx Type Promotion result matrix
+                                Use this table whenever you need to determine a promoted
+                                  (but not demoted) APLSTYPE given two APLSTYPEs (say, a
+                                  left and right arg APLSTYPE).
+
+typedef void (*TPT_ACTION)   (LPTOKEN);
+TPT_ACTION aTypeTknPromote     Type Promotion Token matrix
+                                Use this table whenever you need to call a routine to
+                                  promote (but not demote) a single value in a token from
+                                  a given APLSTYPE to a given APLSTYPE storing the single
+                                  value result back into the same token.
+
+typedef void (*TP_ACTION)    (LPVOID, APLINT, LPALLTYPES);
+TP_ACTION  aTypeActPromote     Type Promotion Action matrix
+                                Use this table whenever you need to call a routine to
+                                  promote (but not demote) a value from the first arg
+                                  indexed by the second arg from a given APLSTYPE to
+                                  a given APLSTYPE with the result stored in the third arg.
+
+typedef void (*TC_ACTION)    (LPVOID, APLINT, LPALLTYPES);
+TC_ACTION  aTypeActConvert     Type Conversion Action matrix allowing for type demotion
+                                Use this table whenever you need to call a routine to
+                                  promote or demote a value from the first arg indexed
+                                  by the second arg from a given APLSTYPE to
+                                  a given APLSTYPE with the result stored in the third arg.
+ */
+
+#ifndef DEFINE_VALUES
+#define DEFINE_VALUES       // ***FIXME*** -- Why isn't this defined by the file in which it is <#include>d?
+#endif
+
+
+//***************************************************************************
+//      TPF Definitions
+//***************************************************************************
+
+TPF_ACTION aTypeFree[ARRAY_LENGTH + 1]
+#ifdef DEFINE_VALUES
+= {TPF_IDENT,                       // 00:  Boolean
+   TPF_IDENT,                       // 01:  Integer
+   TPF_IDENT,                       // 02:  Floating point
+   TPF_IDENT,                       // 03:  Character
+   TPF_HETERO,                      // 04:  Simple heterogeneous (mixed numeric and character scalars)
+   TPF_HETERO,                      // 05:  Nested
+   TPF_IDENT,                       // 06:  List
+   TPF_IDENT,                       // 07:  Arithmetic Progression Array
+   TPF_RAT  ,                       // 08:  Multiprecision Rational Number
+   TPF_VFP  ,                       // 09:  Variable-precision Float
+  }
+#endif
+;
+
+//***************************************************************************
+//      TP Definitions
+//***************************************************************************
 
 #define TP_MAT                                                                                                                                                     \
 {/*     BOOL          INT          FLT         CHAR         HETERO       NESTED       LIST          APA          RAT          VFP         INIT     */              \
@@ -36,7 +96,6 @@
 }
 
 // ARRAY_xxx Type Promotion result matrix
-EXTERN
 APLSTYPE aTypePromote[ARRAY_LENGTH + 1][ARRAY_LENGTH + 1]
 #ifdef DEFINE_VALUES
 
@@ -130,7 +189,6 @@ void           TPT_RAT2VFP  (LPTOKEN);
 #define TPT_APA2INT     TPT_IDENT
 
 // Type Promotion Token matrix
-EXTERN
 TPT_ACTION aTypeTknPromote[ARRAY_LENGTH + 1][ARRAY_LENGTH + 1]
 #ifdef DEFINE_VALUES
 
@@ -308,8 +366,6 @@ TP_ACTION aTypeActPromote[ARRAY_LENGTH + 1][ARRAY_LENGTH + 1]
    {M(RAT ,BOOL),M(RAT ,INT ),M(RAT ,FLT ),M(RAT ,ERR ),M(RAT ,ERR ),M(RAT ,ERR ),M(RAT ,ERR ),M(RAT ,ERR ),M(RAT ,RAT ),M(RAT ,VFP )},   /* RAT  */  \
    {M(VFP ,BOOL),M(VFP ,INT ),M(VFP ,FLT ),M(VFP ,ERR ),M(VFP ,ERR ),M(VFP ,ERR ),M(VFP ,ERR ),M(VFP ,ERR ),M(VFP ,RAT ),M(VFP ,VFP )},   /* VFP  */  \
 }
-
-typedef void (*TC_ACTION)    (LPVOID, APLINT, LPALLTYPES);
 
 #ifdef DEFINE_VALUES
 void           TCA_FLT2BOOL  (LPAPLFLOAT  , APLINT, LPALLTYPES);

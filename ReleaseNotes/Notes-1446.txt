@@ -1,0 +1,15 @@
+Build #1446 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Memory Leak In L{downtack}R
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+GETFNS.C:
+  Remove no longer relevant comments.
+
+PF_COLONBAR.C:
+  Include inactive debugging stmts.
+
+PF_DTACK.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix memory leak in <PrimFnDydDownTack_EM_YY> where we fail to values before they are re-used.

@@ -1,0 +1,9 @@
+Build #1427 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  After <PARSELINE_SCAN1>, check for VALUE and SYNTAX ERRORs and avoid reducing if present.

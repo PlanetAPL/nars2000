@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 #define TABNUMBER_START     L'\x2460'
 
 CNT_THREAD cntThread;           // Temporary storage for CreateNewTabInThread
+CR_THREAD  crThread;            // Temporary storage for CreateResetInThread
 
 // 1s mark the indices in use
 UCHAR crIndices[32] = {0};      // This supports 256 (=32x8) open WSs
@@ -191,12 +192,12 @@ UBOOL CreateNewTab
 
     // Allocate space for the workspace name ("+ 1" for trailing zero)
     // The storage for this handle is freed in <CreateNewTabInThread>.
-    hGlbDPFE = MyGlobalAlloc (GHND, (uLen + 1) * sizeof (lpwsz[0]));
-    if (!hGlbDPFE)
+    hGlbDPFE = DbgGlobalAlloc (GHND, (uLen + 1) * sizeof (lpwsz[0]));
+    if (hGlbDPFE EQ NULL)
         return FALSE;
 
     // Lock the memory to get a ptr to it
-    lpwszDPFE = MyGlobalLock (hGlbDPFE);
+    lpwszDPFE = MyGlobalLock100 (hGlbDPFE);
 
     // Copy the workspace name to global memory
     CopyMemoryW (lpwszDPFE, lpwsz, uLen);
@@ -270,22 +271,22 @@ UBOOL WINAPI CreateNewTabInThread
     (LPCNT_THREAD lpcntThread)
 
 {
-    int          iCurTabIndex = -1; // Index of the current tab
-    TC_ITEMW     tcItem = {0};      // TabCtrl item struc
-    LPPERTABDATA lpMemPTD = NULL;   // Ptr to PerTabData global memory
-    UBOOL        bRet = FALSE;      // TR$UE iff the result is valid
-    RECT         rc;                // Rectangle for setting size of window
-    CLIENTCREATESTRUCT ccs;         // For MDI Client window
-    SM_CREATESTRUCTW csSM;          // For Session Manager window
-    HANDLE       hThread;           // Handle to this thread
-    HWND         hWndMC,            // Window handle of MDI Client
-                 hWndParent,        // Window handle of the parent
-                 hWndTmp;           // Temporary window handle
-    int          iTabIndex;         // Insert the new tab to the left of this one
-    MSG          Msg;               // Message for GetMessageW loop
+    int          iCurTabIndex = -1;     // Index of the current tab
+    TC_ITEMW     tcItem = {0};          // TabCtrl item struc
+    LPPERTABDATA lpMemPTD = NULL,       // Ptr to PerTabData global memory
+                 lpMemPTDOld = NULL;    // Outgoing lpMemPTD
+    UBOOL        bRet = FALSE;          // TR$UE iff the result is valid
+    RECT         rc;                    // Rectangle for setting size of window
+    CLIENTCREATESTRUCT ccs;             // For MDI Client window
+    SM_CREATESTRUCTW csSM;              // For Session Manager window
+    HANDLE       hThread;               // Handle to this thread
+    HWND         hWndMC,                // Window handle of MDI Client
+                 hWndParent,            // Window handle of the parent
+                 hWndTmp;               // Temporary window handle
+    int          iTabIndex;             // Insert the new tab to the left of this one
+    MSG          Msg;                   // Message for GetMessageW loop
     int          nThreads;
-    WCHAR        wszTemp[32];       // Temporary storage
-    UBOOL        bExecLX;           // TRUE iff execute []LX after successful load
+    WCHAR        wszTemp[32];           // Temporary storage
 
     // Store the thread type ('TC')
     TlsSetValue (dwTlsType, TLSTYPE_TC);
@@ -294,16 +295,16 @@ UBOOL WINAPI CreateNewTabInThread
     hWndParent    = lpcntThread->hWndParent;
     csSM.hGlbDPFE = lpcntThread->hGlbDPFE;      // Freed in sessman.c/WM_CREATE
     iTabIndex     = lpcntThread->iTabIndex;
-    bExecLX       = lpcntThread->bExecLX;
+    csSM.bExecLX  = lpcntThread->bExecLX;
     hThread       = lpcntThread->hThread;
 
     if (gCurTabID NE -1)
     {
         // Get ptr to PerTabData global memory
-        lpMemPTD = GetPerTabPtr (TranslateTabIDToIndex (gCurTabID)); Assert (IsValidPtr (lpMemPTD, sizeof (lpMemPTD)));
+        lpMemPTDOld = GetPerTabPtr (TranslateTabIDToIndex (gCurTabID)); Assert (IsValidPtr (lpMemPTDOld, sizeof (lpMemPTDOld)));
 
         // Hide the child windows of the outgoing tab
-        ShowHideChildWindows (lpMemPTD->hWndMC, FALSE);
+        ShowHideChildWindows (lpMemPTDOld->hWndMC, FALSE);
     } // End IF
 
     // Allocate PerTabData
@@ -402,9 +403,6 @@ UBOOL WINAPI CreateNewTabInThread
     CreateDebuggerWindow (lpMemPTD);
 #endif
 
-    // Fill in the SM WM_CREATE data struct
-    csSM.bExecLX  = bExecLX;
-
     // Save hWndMC for use inside message loop
     //   so we can unlock the per-tab data memory
     hWndMC = lpMemPTD->hWndMC;
@@ -435,8 +433,10 @@ UBOOL WINAPI CreateNewTabInThread
     nThreads = 1 + HandleToULong (GetPropW (lpMemPTD->hWndSM, PROP_NTHREADS));
 
     // Format the next property name
-    wsprintfW (wszTemp, L"Thread%d", hThread);
-
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"Thread%d",
+                hThread);
     // Set the property to the current thread handle
     SetPropW (hWndParent, wszTemp, hThread);
 
@@ -487,19 +487,30 @@ UBOOL WINAPI CreateNewTabInThread
     goto NORMAL_EXIT;
 
 ERROR_EXIT:
-    // If there's a current tab index, delete it
+    // If there's a current tab index, ...
     if (iCurTabIndex NE -1)
+    {
+        // Delete the failed tab ctrl
         TabCtrl_DeleteItem (hWndTC, iCurTabIndex);
+
+        // Restore the focus to the previous tab
+        TabCtrl_SetCurFocus (hWndTC, iTabIndex - 1);
+
+        // If there was an outgoing tab, ...
+        if (lpMemPTDOld NE NULL)
+            // Show the child windows of the outgoing tab
+            ShowHideChildWindows (lpMemPTDOld->hWndMC, TRUE);
+    } // End IF
 NORMAL_EXIT:
     // Destroy any windows we might have created
-    if (lpMemPTD && lpMemPTD->hWndMC)
+    if (lpMemPTD NE NULL && lpMemPTD->hWndMC NE NULL)
     {
-        if (lpMemPTD->hWndDB)
+        if (lpMemPTD->hWndDB NE NULL)
         {
             SendMessageW (lpMemPTD->hWndMC, WM_MDIDESTROY, (WPARAM) (lpMemPTD->hWndDB), 0); lpMemPTD->hWndDB = NULL;
         } // End IF
 
-        if (lpMemPTD->hWndSM)
+        if (lpMemPTD->hWndSM NE NULL)
         {
             SendMessageW (lpMemPTD->hWndMC, WM_MDIDESTROY, (WPARAM) (lpMemPTD->hWndSM), 0); lpMemPTD->hWndSM = NULL;
         } // End IF
@@ -507,13 +518,13 @@ NORMAL_EXIT:
         DestroyWindow (lpMemPTD->hWndMC); lpMemPTD->hWndMC = NULL;
     } // End IF
 
-    if (csSM.hGlbDPFE)
+    if (csSM.hGlbDPFE NE NULL)
     {
         // Free the storage for the workspace DPFE global memory
-        MyGlobalFree (csSM.hGlbDPFE); csSM.hGlbDPFE = NULL;
+        DbgGlobalFree (csSM.hGlbDPFE); csSM.hGlbDPFE = NULL;
     } // End IF
 
-    if (lpMemPTD)
+    if (lpMemPTD NE NULL)
     {
         // Destroy the PerTabData vars
         DESTROY_PERTABVARS
@@ -772,6 +783,7 @@ LRESULT WINAPI LclTabCtrlWndProc
                     iDelTabIndex;               // Index of tab to delete
             LRESULT lResult;                    // Result from CallWindowProcW
             DWORD   dwThreadId;                 // Outgoing thread ID
+            HWND    hWndFENxt;                  // Next Function Editing window handle
 
             // Save the tab index to delete
             iDelTabIndex = (int) wParam;
@@ -783,9 +795,25 @@ LRESULT WINAPI LclTabCtrlWndProc
             if (!IsValidPtr (lpMemPTD, sizeof (lpMemPTD)))
                 break;
 
-            // If this tab is still executing, ignore this action
+            // If this tab is still executing, ...
             if (lpMemPTD->bExecuting)
-                break;
+            {
+                MBW (L"Can't close tab -- still executing.  First, use Ctrl-Break to stop execution.");
+
+                // Ignore this action
+                return FALSE;
+            } // End IF
+
+            // While there are open FE windows, ...
+            while (hWndFENxt = lpMemPTD->hWndFENxt)
+            {
+                // If the user doesn't want the window to close, ...
+                if (!CloseFunction (hWndFENxt))
+                    // Ignore this action
+                    return FALSE;
+
+                Assert (hWndFENxt NE lpMemPTD->hWndFENxt);
+            } // End WHILE
 
             // If gOverTabIndex is this tab or to the right of it, ...
             if (gOverTabIndex && gOverTabIndex >= iDelTabIndex)
@@ -795,7 +823,7 @@ LRESULT WINAPI LclTabCtrlWndProc
             // Reset this tab's color index bit
             ResetTabColorIndex (lpMemPTD->crIndex);
 
-            // Save the outgoing MDI Child window handle
+            // Save the outgoing thread ID
             dwThreadId = lpMemPTD->dwThreadId;
 
             // The storage for lpMemPTD is freed in CreateNewTabInThread
@@ -883,7 +911,7 @@ void FreeGlobalStorage
         UINT         uCnt;              // Loop counter
 
         // Lock the memory to get a ptr to it
-        lpNfnsHdr = MyGlobalLock (lpMemPTD->hGlbNfns);
+        lpNfnsHdr = MyGlobalLockNfn (lpMemPTD->hGlbNfns);
 
         // Point to the first entry in use
         lpNfnsMem = &lpNfnsHdr->aNfnsData[lpNfnsHdr->offFirstInuse];
@@ -902,7 +930,7 @@ void FreeGlobalStorage
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
 
         // We no longer need this storage
-        MyGlobalFree (lpMemPTD->hGlbNfns); lpMemPTD->hGlbNfns = NULL;
+        DbgGlobalFree (lpMemPTD->hGlbNfns); lpMemPTD->hGlbNfns = NULL;
     } // End IF
 
     // Free global storage if the SymTab is valid
@@ -911,33 +939,8 @@ void FreeGlobalStorage
     {
         // If there's something suspended, ...
         if (lpMemPTD->lpSISCur)
-        {
-            // Reset the SI stack
-
-            // If the current thread's lpMemPTD is NULL, ...
-            if (TlsGetValue (dwTlsPerTabData) EQ NULL)
-                TlsSetValue (dwTlsPerTabData, lpMemPTD);
-
-            // Create a semaphore for ourselves
-            lpMemPTD->hExitphore =
-              MyCreateSemaphoreW (NULL,         // No security attrs
-                                  0,            // Initial count (non-signalled)
-                                  64*1024,      // Maximum count
-                                  NULL);        // No name
-            // Call )RESET
-            CmdReset_EM (L"");
-
-            dprintfWL9 (L"~~WaitForSingleObject (ENTRY):  %s (%S#%d)", L"TCM_DELETEITEM", FNLN);
-
-            // Wait for the semaphore to trigger
-            WaitForSingleObject (lpMemPTD->hExitphore,  // Ptr to handle to wait for
-                                 INFINITE);             // Timeout value in milliseconds
-
-            dprintfWL9 (L"~~WaitForSingleObject (EXIT):  %s (%S#%d)", L"TCM_DELETEITEM", FNLN);
-
-            // Close the semaphore handle as it isn't used anymore
-            MyCloseSemaphore (lpMemPTD->hExitphore); lpMemPTD->hExitphore = NULL;
-        } // End IF
+            // Create a new thread
+            CreateResetThread (lpMemPTD);
 
         // Get a ptr to the HTS
         lphtsPTD = lpMemPTD->lphtsPTD;
@@ -948,7 +951,7 @@ void FreeGlobalStorage
              lpSymEntry++)
         if (lpSymEntry->stFlags.Inuse
          && lpSymEntry->stFlags.Value
-         && lpSymEntry->stFlags.Imm  EQ FALSE)
+         && lpSymEntry->stFlags.Imm EQ FALSE)
         {
             HGLOBAL hGlbData;               // User-defined function/operator global memory handle
 
@@ -964,7 +967,7 @@ void FreeGlobalStorage
                 if (hGlbData)
                 {
                     // Lock the memory to get a ptr to it
-                    lpMemDfnHdr = MyGlobalLock (hGlbData);
+                    lpMemDfnHdr = MyGlobalLockDfn (hGlbData);
 
                     // Free the globals in the struc
                     FreeResultGlobalDfnStruc (lpMemDfnHdr, TRUE);
@@ -972,11 +975,8 @@ void FreeGlobalStorage
                     // Free the HshTab & SymTab
                     FreeHshSymTabs (&lpMemDfnHdr->htsDFN, FALSE);
 
-                    // We no longer need this ptr
-                    MyGlobalUnlock (hGlbData); lpMemDfnHdr = NULL;
-
-                    // We no longer need this storage
-                    DbgGlobalFree (hGlbData); hGlbData = NULL;
+                    // Unlock and free (and set to NULL) a global name and ptr
+                    UnlFreeGlbName (hGlbData, lpMemDfnHdr);
                 }// End IF
             } else
             // Free all global fns and vars in the workspace
@@ -992,7 +992,7 @@ void FreeGlobalStorage
              lpHshEntry++)
         if (lpHshEntry->htFlags.Inuse
          && lpHshEntry->htGlbName NE NULL)
-            MyGlobalFree (lpHshEntry->htGlbName);
+            DbgGlobalFree (lpHshEntry->htGlbName);
 
         // Zap the SymTab ptr so we don't re-execute this code
         lpMemPTD->lphtsPTD->lpSymTab = NULL;
@@ -1005,6 +1005,82 @@ void FreeGlobalStorage
         FreeResultGlobalVar (lpMemPTD->hGlbQuadEM); lpMemPTD->hGlbQuadEM = NULL;
     } // End IF
 } // End FreeGlobalStorage
+#undef  APPEND_NAME
+
+
+//***************************************************************************
+//  $CreateResetThread
+//
+//  Create a Reset thread
+//***************************************************************************
+
+void CreateResetThread
+    (LPPERTABDATA lpMemPTD)         // Ptr to PerTabData global memory
+
+{
+    // Create a new thread
+    crThread.hThread =
+      CreateThread (NULL,                   // No security attrs
+                    0,                      // Use default stack size
+                   &CreateResetInThread,    // Starting routine
+                   &crThread,               // Param to thread func
+                    CREATE_SUSPENDED,       // Creation flag
+                   &crThread.dwThreadId);   // Returns thread id
+    // Save the thread struc values
+    crThread.lpMemPTD = lpMemPTD;
+
+    if (crThread.hThread)
+        ResumeThread (crThread.hThread);
+} // End CreateResetThread
+
+
+//***************************************************************************
+//  $CreateResetInThread
+//
+//  Create a )RESET within a thread
+//***************************************************************************
+
+#ifdef DEBUG
+#define APPEND_NAME     L" -- CreateResetInThread"
+#else
+#define APPEND_NAME
+#endif
+
+UBOOL WINAPI CreateResetInThread
+    (LPCR_THREAD lpcrThread)
+
+{
+////HANDLE       hThread;           // Handle to this thread
+    LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
+
+    // Extract values from the arg struc
+////hThread  = lpcrThread->hThread;
+    lpMemPTD = lpcrThread->lpMemPTD;
+
+    // Reset the SI stack
+
+    // If the current thread's lpMemPTD is NULL, ...
+    if (TlsGetValue (dwTlsPerTabData) EQ NULL)
+        TlsSetValue (dwTlsPerTabData, lpMemPTD);
+
+    // Create a semaphore for ourselves
+    lpMemPTD->hExitphore =
+      MyCreateSemaphoreW (NULL,         // No security attrs
+                          0,            // Initial count (non-signalled)
+                          64*1024,      // Maximum count
+                          NULL);        // No name
+    // Call )RESET
+    CmdReset_EM (L"");
+
+    // Wait for the semaphore to trigger
+    MyWaitForSemaphore (lpMemPTD->hExitphore,   // Ptr to handle to wait for
+                        INFINITE,               // Timeout value in milliseconds
+                       L"CreateResetInThread"); // Caller identification
+    // Close the semaphore handle as it isn't used anymore
+    MyCloseSemaphore (lpMemPTD->hExitphore); lpMemPTD->hExitphore = NULL;
+
+    return TRUE;
+} // End CreateResetInThread
 #undef  APPEND_NAME
 
 
@@ -1317,9 +1393,10 @@ void DrawTab
     tabNum = 1 + lpMemWSID[0] - TABNUMBER_START;
 
     // Format the tab # as text
-    wsprintfW (wszTabNum,
+    MySprintfW (wszTabNum,
+                sizeof (wszTabNum),
                L"%d",
-               tabNum);
+                tabNum);
     // Create the bounding rectangle for the tab #
     rcTabNum.top    = lpRect->top + 1;
     rcTabNum.left   = lpRect->left;
@@ -1479,7 +1556,7 @@ LPAPLCHAR PointToWsName
     lpMemPTD = GetPerTabPtr (iTabIndex); Assert (IsValidPtr (lpMemPTD, sizeof (lpMemPTD)));
 
     // Initialize with default value
-    lstrcpyW (lpwszGlbTemp, L"  CLEAR WS");
+    strcpyW (lpwszGlbTemp, L"  CLEAR WS");
 
     // If the []WSID STE has been setup, ...
     if (lpMemPTD->lphtsPTD
@@ -1496,7 +1573,7 @@ LPAPLCHAR PointToWsName
         if (hGlbWSID)
         {
             // Lock the memory to get a ptr to it
-            lpMemWSID = MyGlobalLock (hGlbWSID);
+            lpMemWSID = MyGlobalLockVar (hGlbWSID);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemWSID)
             // Get the NELM and rank
@@ -1510,7 +1587,7 @@ LPAPLCHAR PointToWsName
                 LPAPLCHAR p, q;             // Temporary ptrs
 
                 // Skip over the header to the data
-                lpMemWSID = VarArrayBaseToData (lpMemWSID, aplRankWSID);
+                lpMemWSID = VarArrayDataFmBase (lpMemWSID);
 
                 // Skip over the path
                 q = lpMemWSID;
@@ -1518,7 +1595,7 @@ LPAPLCHAR PointToWsName
                     q = p + 1;
 
                 // Copy to global temporary storage
-                lstrcpynW (&lpwszGlbTemp[2], q, (UINT) ((lpMemWSID + aplNELMWSID + 1) - q));
+                strcpynW (&lpwszGlbTemp[2], q, (UINT) ((lpMemWSID + aplNELMWSID + 1) - q));
 
                 // Include the separator
                 lpwszGlbTemp[1] = L' ';

@@ -1,0 +1,37 @@
+Build #1231 -- Version 0.4.7.xx
+-------------------------------
+
+* Implement []D  As Shorthand for '0123456789'
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype file.
+
+DATATYPE.H:
+  Update copyright year.
+  Define PERMNDX_xxx for new permanent array.
+
+EXTERNS.H:
+  Update copyright year.
+  Define global memory handle for new permanent array.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include makefile dependency for new file.
+
+QF_D.C:
+  Create new source file for []D.
+
+QF_EC.C:
+  Miscellaneous define to avoid duplicate constants.
+
+SYSVARS.C:
+  Update copyright year.
+  Include table entry for []D in <aSystemNames>.
+  Create the global memory for []D.
+
+VER.RC:
+  Increment version # to 0.4.7.xx.

@@ -1,0 +1,17 @@
+Build #1435 -- Version 0.4.12.xx
+--------------------------------
+
+* Miscellaneous Build Fixes
+
+Directory trunk:
+
+NARS2000.32.SLN:
+NARS2000.32.VCPROJ:
+NARS2000.64.SLN:
+NARS2000.64.VCPROJ:
+NARS2000.VCPROJ:
+  Delete the old 32- and 64-bit build files.
+
+NARS2000.SLN:
+NARS2000.VCXPROJ:
+  Integrate the 32- and 64-bit build files into one.

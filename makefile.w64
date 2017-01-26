@@ -2,7 +2,7 @@
 
 # /***************************************************************************
 #     NARS2000 -- An Experimental APL Interpreter
-#     Copyright (C) 2006-2011 Sudley Place Software
+#     Copyright (C) 2006-2015 Sudley Place Software
 #
 #     This program is free software: you can redistribute it and/or modify
 #     it under the terms of the GNU General Public License as published by
@@ -19,13 +19,12 @@
 # ***************************************************************************/
 
 WIN=64
+XWIN=x64
 
-L98=$(SDK)Lib\x64;$(MSVC)lib\amd64
-
-LD="$(MSVC)bin\amd64\link.exe"
-CC="$(MSVC)bin\amd64\cl.exe"
+LD="$(MSVC)bin\x86_amd64\link.exe"
+CC="$(MSVC)bin\x86_amd64\cl.exe"
 RC="$(SDK)Bin\x64\rc.exe"
-ML="$(MSVC)bin\amd64\ml64.exe"
+ML="$(MSVC)bin\x86_amd64\ml64.exe"
 
 ASMOPTS=/DIS_64
 

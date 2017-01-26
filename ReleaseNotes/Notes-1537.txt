@@ -1,0 +1,10 @@
+Build #1537 -- Version 0.4.15.xx
+--------------------------------
+
+* Copy More SysVars For Use Within AFOs Often Indirectly
+
+Directory trunk:
+
+SYSVARS.C:
+  In IF stmts always compare ptr against NULL and value against 0.
+  In <CopySysVars> and <DeleSysVars> copy more sys vars so they may be referenced from AFOs, often indirectly.

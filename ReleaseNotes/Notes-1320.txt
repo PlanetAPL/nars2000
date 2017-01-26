@@ -1,0 +1,186 @@
+Build #1320 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Empty RAT/VFPs
+
+Directory trunk:
+
+DISPDBG.C:
+  Update copyright notice.
+  In <DisplayGlobals>, handle empty RAT/VFPs.
+
+DISPLAY.C:
+  Update copyright notice.
+  In call to <GetNextItem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+EXTERNS.H:
+  Update copyright notice.
+  Define new globals of <mpqZero> and <mpfZero> so as to handle empty RAT/VFPs.
+
+GETFNS.C:
+  Update copyright notice.
+  In <GetFirstValueGlb>, handle empty RAT/VFPs.
+  In numerous <GetNextXXX> functions, pass arg of NELM so as to handle empty RAT/VFPs.
+
+GOTO.C:
+  Update copyright notice.
+  In <GotoLine_EM>, handle empty RAT/VFPs.
+
+INITDATA.C:
+  Update copyright notice.
+  In <InitGlbNumConstants>, initialize more global numeric constants.
+  In <UninitGlbNumConstants>, uninitialize global numeric constants.
+
+PF_CIRCLE.C:
+  Update copyright notice.
+  In <PrimSpecCircleStorageTypeMon> and <PrimSpecCircleStorageTypeDyd>, handle empty RAT/VFPs.
+
+PF_COMMA.C:
+  Update copyright notice.
+  In <PrimFnDydComma_EM_YY>, handle empty RAT/VFPs.
+
+PF_CSTAR.C:
+  Update copyright notice.
+  In <PrimSpecCircleStarStorageTypeMon> and <PrimSpecCircleStarStorageTypeDyd>, handle empty RAT/VFPs.
+
+PF_DOMINO.C:
+  Update copyright notice.
+  In <PrimFnMonDomino_EM_YY> and <PrimFnDydDomino_EM_YY>, handle empty RAT/VFPs.
+
+PF_DSTILE.C:
+  Update copyright notice.
+  In <PrimSpecDownStileStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_DTACK.C:
+  Update copyright notice.
+  In <PrimFnDydDownTack_EM_YY>, handle empty RAT/VFPs.
+
+PF_DTACKJOT.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_EPSILON.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_INDEX.C:
+  Update copyright notice.
+  In <ArrayIndexValidZilde_EM>, allow empty RAT/VFPs.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <ArrayIndexSetVector_EM>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_IOTA.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_LSHOE.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <PrimFnDydLeftShoeAppend_EM>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_QDOT.C:
+  Update copyright notice.
+  In <PrimSpecQuoteDotStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_RHO.C:
+  Update copyright notice.
+  In <PrimFnDydRho_EM_YY> and <PrimFnDydRhoRhtGlbCopyData_EM> , handle empty RAT/VFPs.
+
+PF_ROOT.C:
+  Update copyright notice.
+  In <PrimSpecRootStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_SLASH.C:
+  Update copyright notice.
+  In <PrimFnDydSlash_EM_YY>, handle empty RAT/VFPs.
+
+PF_SQUAD.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PF_STAR.C:
+  Update copyright notice.
+  In <PrimSpecStarStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_STILE.C:
+  Update copyright notice.
+  In <PrimSpecStileStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_TILDE.C:
+  Update copyright notice.
+  In <PrimSpecTildeStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_USTILE.C:
+  Update copyright notice.
+  In <PrimSpecUpStileStorageTypeMon>, handle empty RAT/VFPs.
+
+PF_UTACK.C:
+  Update copyright notice.
+  In <PrimFnDydUpTack_EM_YY>, handle empty RAT/VFPs.
+
+PO_DIERESIS.C:
+  Update copyright notice.
+  In call to <GetNextValueMemIntoToken>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PO_DOT.C:
+  Update copyright notice.
+  In <PrimOpDydDotCommon_EM_YY>, handle empty RAT/VFPs.
+
+PO_JOTDOT.C:
+  Update copyright notice.
+  In call to <GetNextValueMemIntoToken>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PO_SLASH.C:
+  Update copyright notice.
+  In call to <GetNextValueMemIntoToken>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PO_SLOPE.C:
+  Update copyright notice.
+  In call to <GetNextValueMemIntoToken>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In <PrimOpMonSlopeCommon_EM_YY>, handle empty RAT/VFPs.
+
+PO_VARIANT.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+PRIMFNS.C:
+  Update copyright notice.
+  In <MakeMonPrototype_EM_PTB> and <MakeDydPrototype_EM_PTB>, handle empty RAT/VFPs.
+
+PRIMSPEC.C:
+  Update copyright notice.
+  In <PrimProtoFnScalar_EM_YY>, omit call to <MakePtrTypeGlb> as it is unnecessary.
+  In <PrimIdentFnScalar_EM_YY>, handle empty RAT/VFPs.
+  In call to <GetNextSimple>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_DR.C:
+  Update copyright notice.
+  In <SysFnDR_Show_EM_YY>, handle empty RAT/VFPs.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_ES.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_FMT.C:
+  Update copyright notice.
+  In call to <SysFnDydFMTSimp>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <QFMT_CommonG>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <QFMT_CommonEFIR>, pass arg of NELM so as to handle empty RAT/VFPs.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_FX.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+QF_TF.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.
+
+SC_SAVE.C:
+  Update copyright notice.
+  In <AppendArrayHeader>, handle empty RAT/VFPs.
+
+STRAND.C:
+  Update copyright notice.
+  In call to <GetNextValueMem>, pass arg of NELM so as to handle empty RAT/VFPs.

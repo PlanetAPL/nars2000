@@ -1,0 +1,22 @@
+Build #1372 -- Version 0.4.10.xx
+-------------------------------
+
+* Fix Bug In Multiset Dyadic Iota Underbar (MDIU)
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define entry for MDIU magic function.
+
+MAIN.RC:
+  Update copyright year.
+
+MF_MULTISET.H:
+  Define MDIU magic function.
+
+PO_MULTISET.C:
+  Fix bug of calling the wrong magic function for MDIU.
+
+VER.RC:
+  Increment version # to 0.4.10.xx.

@@ -1,0 +1,9 @@
+Build #1259 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Loading A Workspace With a VFP Number Not At Default Precision
+
+Directory trunk:
+
+SC_LOAD.C:
+  In <LoadWorkspaceGlobal_EM>, initialize the VFP number after the default precision is set or it won't be effective.

@@ -1,5 +1,5 @@
 int fh_yyparse (LPFHLOCALVARS lpfhLocalVars);
 UBOOL ParseFcnHeader (HWND hWndEC, HGLOBAL hGlbTknHdr, LPFHLOCALVARS lpfhLocalVars, UBOOL bDisplayErr);
 int  fh_yylex     (LPFH_YYSTYPE lpYYLval, LPFHLOCALVARS lpfhLocalVars);
-void fh_yyerror   (LPFHLOCALVARS lpfhLocalVars, LPCHAR s);
+void fh_yyerror   (LPFHLOCALVARS lpfhLocalVars, const char *s);
 void fh_yyfprintf (FILE  *hfile, LPCHAR lpszFmt, ...);

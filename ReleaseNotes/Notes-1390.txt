@@ -1,0 +1,12 @@
+Build #1390 -- Version 0.4.11.xx
+--------------------------------
+
+* Define New Magic Function To Handle N-Wise Reduction With Left Argument Of 1
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+MF_ROS.H:
+PO_SLASH.C:
+  Define new magic function to handle N-wise reduction with left argument of 1.

@@ -1,0 +1,27 @@
+Build #1574--Version0.4.18.xx
+--------------------------------
+
+* Fix Bug When Editing A Logical Line In A Function Header
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LftMarginsFE>, omit the small indent of 2 as we no longer need it
+  In <FEWndProc/WM_COMMAND/EN_CHANGE>, handle the case where the change is in the function header not on the first physical line.
+  In <GetFunctionName?, handle the case where the function name continues to the next physical line.
+  In <RespecifyNewQuadPW>, fix bug calculating the new width by taking into account the left margin in the SM.
+
+IMMEXEC.C:
+  In <CopyBlockLines>, return the number of chars copied.
+  Improve comments.
+
+SAVEFCN.C:
+  Improve comments.
+
+SESSMAN.C:
+  Define new function to return the left margin of a SM window.
+  In <SetMarginsSM>, use the new function.
+  Improve comments.
+
+TOKENIZE.C:
+  In <IsLocalName>, use the result of <CopyBlockLines> as opposed to calling a separate function.

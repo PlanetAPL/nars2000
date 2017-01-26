@@ -1,0 +1,9 @@
+Build #1521 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug When Passing A System Function To An Operator
+
+Directory trunk:
+
+EXECDFN.C:
+  In <UnlocalizeSTEs>, don't free a system function (duh!).

@@ -1,0 +1,9 @@
+Build #1553 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug When Deleting Sys Vars
+
+Directory trunk:
+
+SYSVARS.C:
+  In <DeleteSysVars>, clear the global memory handle after deleting it so we don't try to delete it twice.

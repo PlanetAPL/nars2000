@@ -1,0 +1,16 @@
+Build #1246 -- Version 0.4.9.xx
+-------------------------------
+
+* Miscellaneous Fixes Omitted From Last Build
+
+Directory trunk:
+
+CUSTOMIZE.C
+  Update copyright year.
+  Update comment for "{div} 0"
+
+EXTERNS.H:
+  Update comment for "{div} 0"
+
+VER.RC:
+  Increment version # to 0.4.9.xx.

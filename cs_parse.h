@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,16 +54,16 @@ typedef struct tagCSLOCALVARS       // Control Structure Local Vars
     LPTOKEN      lptkCSBeg,         // 08:  First available entry after the header
                  lptkCSNxt,         // 0C:  Next  ...
                  lptkCSLink;        // 10:  Ptr to CS stack Stmt link (NULL = none)
-    TOKEN        tkCSErr;           // 14:  Error token (24 bytes)
-    UINT         bDisplayErr:1,     // 2C:  00000001:  TRUE iff we should display error messages
+    TOKEN        tkCSErr;           // 14:  Error token (28 bytes)
+    UINT         bDisplayErr:1,     // 30:  00000001:  TRUE iff we should display error messages
                  bMainStmt:1,       //      00000002:  TRUE iff we encountered a CS main stmt (FOR, FORLCL, IF, REPEAT, SELECT, WHILE)
                  :30;               //      FFFFFFFC:  Available bits
-    HGLOBAL      hGlbDfnHdr,        // 30:  Defined function/operator global memory handle
+    HGLOBAL      hGlbDfnHdr,        // 34:  Defined function/operator global memory handle
                                     //      (NULL = hGlbImmExec is valid)
-                 hGlbImmExec;       // 34:  Immediate execution tokenized line global memory habndle
+                 hGlbImmExec;       // 38:  Immediate execution tokenized line global memory habndle
                                     //      (NULL = hGlbDfnHdr is valid)
-    LPWCHAR      lpwszErrMsg;       // 38:  Ptr to error message (e.g. L"CS_SYNTAX ERROR")
-                                    // 3C:  Length
+    LPWCHAR      lpwszErrMsg;       // 3C:  Ptr to error message (e.g. L"CS_SYNTAX ERROR")
+                                    // 40:  Length
 } CSLOCALVARS, *LPCSLOCALVARS;
 
 

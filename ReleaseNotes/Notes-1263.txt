@@ -1,0 +1,11 @@
+Build #1263 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Treatment of Name In For Statement
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix comment about reloading <lstSynObj>.
+  In <_pl_yylex>, don't substitute content for named var if it's in a For Stmt.
+  In <_pl_yylex>, use consistent code and comments when testing for a For Stmt.

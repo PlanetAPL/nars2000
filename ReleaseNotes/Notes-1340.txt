@@ -1,0 +1,14 @@
+Build #1340 -- Version 0.4.9.xx
+-------------------------------
+
+* Minor Improvements For Reference Counts
+
+Directory trunk:
+
+REFCNT.C:
+  Update copyright year.
+  In <IncrRefCntTkn> and <DecrRefCntTkn>, check for named direct fcn/opr.
+  Implement <IncrRefCntFcnArray> to increment all items of the Function Array.
+  In <GetRefCntGlb>, use Union of DFN/FCN/VAR headers.
+  Implement <SetRefCntGlb> to set the RefCnt of a global memory handle.
+  Implement <DbgIncrRefCntFcnArray> to handle debug version.

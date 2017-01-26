@@ -1,0 +1,12 @@
+Build #1610 -- Version 0.4.19.xx
+--------------------------------
+
+* In New Tab Show )XLOAD or )LOAD As Appropriate
+
+Directory trunk:
+
+SC_LOAD.C:
+  In <LoadWorkspace_EM>, save the incoming []LX flag and use to display the proper load command in the new workspace.
+
+TABCTRL.C:
+  Delete the separate []LX flag in favor of the one already in <SM_CREATESTRUCTW>.

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,10 +66,11 @@ LPVOID mp_alloc
         {
             WCHAR wszTemp[256];
 
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"MPFNS(Alloc):    %p (%u)",
-                       lpMemRes,
-                       size);
+                        lpMemRes,
+                        size);
             DbgMsgW (wszTemp);
         } // End IF
 #endif
@@ -122,12 +123,13 @@ LPVOID mp_realloc
         {
             WCHAR wszTemp[256];
 
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"MPFNS(ReAlloc):  %p (%u) to %p (%u)",
-                       lpMem,
-                       old_size,
-                       lpMemRes,
-                       new_size);
+                        lpMem,
+                        old_size,
+                        lpMemRes,
+                        new_size);
             DbgMsgW (wszTemp);
         } // End IF
 #endif
@@ -160,10 +162,11 @@ void mp_free
     {
         WCHAR wszTemp[256];
 
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"MPFNS(Free):     %p (%u)",
-                   lpMem,
-                   size);
+                    lpMem,
+                    size);
         DbgMsgW (wszTemp);
     } // End IF
 #endif
@@ -194,7 +197,8 @@ mpir_ui mpz_invalid
             mpz_QuadICValue (op1,
                              ICNDX_InfSUBInf,
                              op2,
-                             rop);
+                             rop,
+                             FALSE);
             break;
 
         case MP_DIV:        // op1 and op2 are infinite
@@ -204,7 +208,8 @@ mpir_ui mpz_invalid
                              bSameSign ? ICNDX_PiDIVPi
                                        : ICNDX_NiDIVPi,
                              op2,
-                             rop);
+                             rop,
+                             FALSE);
             break;
 
         case MP_MUL             :
@@ -249,7 +254,7 @@ mpir_ui mpz_invalid
         case MP_DIVISIBLE_P     :
         case MP_DIVISIBLE_UI_P  :
         case MP_DIVISIBLE_2EXP_P:
-            DbgBrk ();              // ***FIXME***
+            DbgStop ();             // ***FIXME***
 
             break;
 
@@ -284,7 +289,8 @@ mpir_ui mpq_invalid
             mpq_QuadICValue (op1,
                              ICNDX_InfSUBInf,
                              op2,
-                             rop);
+                             rop,
+                             FALSE);
             break;
 
         case MP_DIV:        // op1 and op2 are infinite
@@ -294,7 +300,8 @@ mpir_ui mpq_invalid
                              bSameSign ? ICNDX_PiDIVPi
                                        : ICNDX_NiDIVPi,
                              op2,
-                             rop);
+                             rop,
+                             FALSE);
             break;
 
         defstop
@@ -328,7 +335,8 @@ mpir_ui mpfr_invalid
             mpfr_QuadICValue (op1,
                               ICNDX_InfSUBInf,
                               op2,
-                              rop);
+                              rop,
+                              FALSE);
             break;
 
         case MP_DIV:        // op1 and op2 are infinite
@@ -338,7 +346,8 @@ mpir_ui mpfr_invalid
                               bSameSign ? ICNDX_PiDIVPi
                                         : ICNDX_NiDIVPi,
                               op2,
-                              rop);
+                              rop,
+                              FALSE);
             break;
 
         case MP_RELDIFF:    // op1 is infinite and op2 might be, too
@@ -352,6 +361,12 @@ mpir_ui mpfr_invalid
         case MP_SQRT:       // op1 is negative infinity
                             // Handled in <PrimFnMonRootVisV> and
                             //            <PrimFnMonRootVisVvV>
+            Myf_clear (op1);
+
+            RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
+
+            break;
+
         defstop
             break;
     } // End SWITCH
@@ -371,54 +386,65 @@ mpir_ui mpfr_invalid
 //***************************************************************************
 
 LPAPLMPI mpz_QuadICValue
-    (LPAPLMPI   aplMpiLft,
-     IC_INDICES icNdx,
-     LPAPLMPI   aplMpiRht,
-     LPAPLMPI   mpzRes)
+    (LPAPLMPI   aplMpiLft,          // Left arg
+     IC_INDICES icIndex,            // []IC index
+     LPAPLMPI   aplMpiRht,          // Right arg
+     LPAPLMPI   mpzRes,             // Result
+     UBOOL      bNegate)            // TRUE iff we should negate result
 
 {
-    switch (GetQuadICValue (icNdx))
+    switch (GetQuadICValue (icIndex))
     {
         case ICVAL_NEG1:
             // Initialize the result to -1
             mpz_init_set_si (mpzRes, -1);
 
-            return mpzRes;
+            break;
 
         case ICVAL_ZERO:
             // Initialize the result to 0
             mpz_init (mpzRes);
 
-            return mpzRes;
+            break;
 
         case ICVAL_ONE:
             // Initialize the result to 1
             mpz_init_set_si (mpzRes,  1);
 
-            return mpzRes;
+            break;
 
         case ICVAL_DOMAIN_ERROR:
             RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
 
         case ICVAL_POS_INFINITY:
-            return &mpzPosInfinity;
+            mpz_init_set (mpzRes, &mpzPosInfinity);
+
+            break;
 
         case ICVAL_NEG_INFINITY:
-            return &mpzNegInfinity;
+            mpz_init_set (mpzRes, &mpzNegInfinity);
+
+            break;
 
         case ICVAL_LEFT:
             mpz_init_set (mpzRes, aplMpiLft);
 
-            return mpzRes;
+            break;
 
         case ICVAL_RIGHT:
             mpz_init_set (mpzRes, aplMpiRht);
 
-            return mpzRes;
+            break;
 
         defstop
-            return mpzRes;
+            break;
     } // End SWITCH
+
+    // If we should negate, ...
+    if (bNegate)
+        mpz_neg (mpzRes, mpzRes);
+
+    return mpzRes;
 } // End mpz_QuadICValue
 
 
@@ -583,8 +609,11 @@ void Myz_init
     (LPAPLMPI mpzVal)
 
 {
-    if (mpzVal->_mp_d EQ NULL)
-        mpz_init (mpzVal);
+#ifdef DEBUG
+    if (mpzVal->_mp_d NE NULL)
+        DbgStop ();
+#endif
+    mpz_init (mpzVal);
 } // End Myz_init
 
 
@@ -596,7 +625,7 @@ void Myz_clear
     (MP_INT *mpzVal)
 
 {
-    if (mpzVal->_mp_d)
+    if (mpzVal->_mp_d NE NULL)
     {
         mpz_clear (mpzVal);
         mpzVal->_mp_d = NULL;
@@ -615,54 +644,65 @@ void Myz_clear
 //***************************************************************************
 
 LPAPLRAT mpq_QuadICValue
-    (LPAPLRAT   aplRatLft,
-     IC_INDICES icNdx,
-     LPAPLRAT   aplRatRht,
-     LPAPLRAT   mpqRes)
+    (LPAPLRAT   aplRatLft,          // Left arg
+     IC_INDICES icIndex,            // []IC index
+     LPAPLRAT   aplRatRht,          // Right arg
+     LPAPLRAT   mpqRes,             // Result
+     UBOOL      bNegate)            // TRUE iff we should negate result
 
 {
-    switch (GetQuadICValue (icNdx))
+    switch (GetQuadICValue (icIndex))
     {
         case ICVAL_NEG1:
             // Initialize the result to -1
             mpq_init_set_si (mpqRes, -1, 1);
 
-            return mpqRes;
+            break;
 
         case ICVAL_ZERO:
             // Initialize the result to 0
             mpq_init (mpqRes);
 
-            return mpqRes;
+            break;
 
         case ICVAL_ONE:
             // Initialize the result to 1
             mpq_init_set_si (mpqRes,  1, 1);
 
-            return mpqRes;
+            break;
 
         case ICVAL_DOMAIN_ERROR:
             RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
 
         case ICVAL_POS_INFINITY:
-            return &mpqPosInfinity;
+            mpq_init_set (mpqRes, &mpqPosInfinity);
+
+            break;
 
         case ICVAL_NEG_INFINITY:
-            return &mpqNegInfinity;
+            mpq_init_set (mpqRes, &mpqNegInfinity);
+
+            break;
 
         case ICVAL_LEFT:
             mpq_init_set (mpqRes, aplRatLft);
 
-            return mpqRes;
+            break;
 
         case ICVAL_RIGHT:
             mpq_init_set (mpqRes, aplRatRht);
 
-            return mpqRes;
+            break;
 
         defstop
-            return mpqRes;
+            break;
     } // End SWITCH
+
+    // If we should negate, ...
+    if (bNegate)
+        mpq_neg (mpqRes, mpqRes);
+
+    return mpqRes;
 } // End mpq_QuadICValue
 
 
@@ -848,38 +888,7 @@ APLINT mpq_get_sx
 
 
 //***************************************************************************
-//  $mpq_get_sctsx
-//
-//  Convert an APLRAT to an APLINT within system []CT
-//***************************************************************************
-
-APLINT mpq_get_sctsx
-    (mpq_ptr  src,          // Ptr to source value
-     LPUBOOL  lpbRet)       // TRUE iff the result is valid (may be NULL)
-
-{
-    return _mpq_get_ctsx (src, SYS_CT, lpbRet, TRUE);
-} // End mpq_get_sctsx
-
-
-//***************************************************************************
 //  $mpq_get_ctsx
-//
-//  Convert an APLRAT to an APLINT within []CT
-//***************************************************************************
-
-APLINT mpq_get_ctsx
-    (mpq_ptr  src,          // Ptr to source value
-     APLFLOAT fQuadCT,      // []CT
-     LPUBOOL  lpbRet)       // TRUE iff the result is valid (may be NULL)
-
-{
-    return _mpq_get_ctsx (src, fQuadCT, lpbRet, FALSE);
-} // End mpq_get_ctsx
-
-
-//***************************************************************************
-//  $_mpq_get_ctsx
 //
 //  Convert an APLRAT to an APLINT within []CT
 //***************************************************************************
@@ -1005,13 +1014,13 @@ void mpq_ceil
 //***************************************************************************
 //  $mpq_mod
 //
-//  Calculate aplLft % aplRht
+//  Calculate aplOpr mod (aplMod)
 //***************************************************************************
 
 void mpq_mod
-    (mpq_ptr dest,
-     mpq_ptr aplLft,
-     mpq_ptr aplRht)
+    (mpq_ptr dest,          // Destination
+     mpq_ptr aplOpr,        // Operand
+     mpq_ptr aplMod)        // Modulus
 
 {
     APLRAT aplTmp = {0};
@@ -1019,10 +1028,10 @@ void mpq_mod
     // Initialize the temp
     mpq_init (&aplTmp);
 
-    mpq_div   (&aplTmp,  aplLft,  aplRht);      // T = L / R
+    mpq_div   (&aplTmp,  aplOpr,  aplMod);      // T = L / R
     mpq_floor (&aplTmp, &aplTmp);               // T = floor (T)
-    mpq_mul   (&aplTmp,  aplRht, &aplTmp);      // T = R * T
-    mpq_sub   (dest   ,  aplLft, &aplTmp);      // Z = L - T
+    mpq_mul   (&aplTmp,  aplMod, &aplTmp);      // T = R * T
+    mpq_sub   (dest   ,  aplOpr, &aplTmp);      // Z = L - T
 
     // We no longer need this storage
     Myq_clear (&aplTmp);
@@ -1049,11 +1058,11 @@ int mpq_cmp_ct
            mpfRht = {0};
     UBOOL  bRet;
 
-    // So as to avoid dividing by zero, if either arg is zero, ...
+    // So as to avoid dividing by zero, if neither arg is zero, ...
     if (!IsMpq0 (&aplRatLft)
      && !IsMpq0 (&aplRatRht))
     {
-        // Initialize the temps
+        // Initialize the temps to 0
         mpfr_init0 (&mpfLft);
         mpfr_init0 (&mpfRht);
 
@@ -1084,23 +1093,33 @@ void Myq_init
     (LPAPLRAT mpqVal)
 
 {
-    if (mpqVal->_mp_num._mp_d EQ NULL)
-        mpq_init (mpqVal);
+#ifdef DEBUG
+    if (mpqVal->_mp_num._mp_d NE NULL)
+        DbgStop ();
+#endif
+    mpq_init (mpqVal);
 } // End Myq_init
 
 
 //***************************************************************************
 //  $Myq_clear
+//
+//  Free a RAT unless already clear
 //***************************************************************************
 
 void Myq_clear
     (LPAPLRAT mpqVal)
 
 {
-    if (mpqVal->_mp_num._mp_d)
+    if (mpq_numref (mpqVal)->_mp_d NE NULL)
     {
-        mpq_clear (mpqVal);
-        mpqVal->_mp_num._mp_d =
+        mpz_clear (mpq_numref (mpqVal));
+        mpqVal->_mp_num._mp_d = NULL;
+    } // End IF
+
+    if (mpq_denref (mpqVal)->_mp_d NE NULL)
+    {
+        mpz_clear (mpq_denref (mpqVal));
         mpqVal->_mp_den._mp_d = NULL;
     } // End IF
 } // End Myq_clear
@@ -1134,54 +1153,65 @@ int mpq_integer_p
 //***************************************************************************
 
 LPAPLVFP mpfr_QuadICValue
-    (LPAPLVFP   aplVfpLft,
-     IC_INDICES icNdx,
-     LPAPLVFP   aplVfpRht,
-     LPAPLVFP   mpfRes)
+    (LPAPLVFP   aplVfpLft,          // Left arg
+     IC_INDICES icIndex,            // []IC index
+     LPAPLVFP   aplVfpRht,          // Right arg
+     LPAPLVFP   mpfRes,             // Result
+     UBOOL      bNegate)            // TRUE iff we should negate result
 
 {
-    switch (GetQuadICValue (icNdx))
+    switch (GetQuadICValue (icIndex))
     {
         case ICVAL_NEG1:
             // Initialize the result to -1
             mpfr_init_set_si (mpfRes, -1, MPFR_RNDN);
 
-            return mpfRes;
+            break;
 
         case ICVAL_ZERO:
             // Initialize the result to 0
             mpfr_init0 (mpfRes);
 
-            return mpfRes;
+            break;
 
         case ICVAL_ONE:
             // Initialize the result to 1
             mpfr_init_set_si (mpfRes,  1, MPFR_RNDN);
 
-            return mpfRes;
+            break;
 
         case ICVAL_DOMAIN_ERROR:
             RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
 
         case ICVAL_POS_INFINITY:
-            return &mpfPosInfinity;
+            mpfr_init_set (mpfRes, &mpfPosInfinity, MPFR_RNDN);
+
+            break;
 
         case ICVAL_NEG_INFINITY:
-            return &mpfNegInfinity;
+            mpfr_init_set (mpfRes, &mpfNegInfinity, MPFR_RNDN);
+
+            break;
 
         case ICVAL_LEFT:
             mpfr_init_copy (mpfRes, aplVfpLft);
 
-            return mpfRes;
+            break;
 
         case ICVAL_RIGHT:
             mpfr_init_copy (mpfRes, aplVfpRht);
 
-            return mpfRes;
+            break;
 
         defstop
-            return mpfRes;
+            break;
     } // End SWITCH
+
+    // If we should negate, ...
+    if (bNegate)
+        mpfr_neg (mpfRes, mpfRes, MPFR_RNDN);
+
+    return mpfRes;
 } // End mpfr_QuadICValue
 
 
@@ -1337,38 +1367,6 @@ void mpfr_init_set_q
 
 
 //***************************************************************************
-//  $mpfr_set_sx
-//
-//  Save an APLINT value as a Variable FP
-//***************************************************************************
-
-void mpfr_set_sx
-    (mpfr_ptr   dest,
-     APLINT     val,
-     mpfr_rnd_t rnd)
-
-{
-    ISPLIT apliSplit;
-
-    // Save the (non-negative) value to split
-    apliSplit.aplInt = abs64 (val);
-
-    // Set the upper-DWORD of the arg into the lower-DWORD of the result
-    mpfr_set_ui (dest, apliSplit.hi, rnd);
-
-    // Shift to the upper DWORD of the result
-    mpfr_mul_2ui (dest, dest, 32, MPFR_RNDN);
-
-    // Add in the low-order DWORD of the arg
-    mpfr_add_ui (dest, dest, apliSplit.lo, MPFR_RNDN);
-
-    // Adjust the sign
-    if (signum (val) < 0)
-        mpfr_neg0 (dest, dest, MPFR_RNDN);
-} // End mpfr_set_sx
-
-
-//***************************************************************************
 //  $mpfr_get_sx
 //
 //  Convert a VFP to an APLINT
@@ -1379,19 +1377,19 @@ APLINT mpfr_get_sx
      LPUBOOL lpbRet)        // TRUE iff the result is valid (may be NULL)
 
 {
-    APLRAT mpqTmp = {0};
-    APLINT aplInteger;
+     UBOOL bRet;
 
-    // Convert the number to RAT
-    mpq_init_set_fr (&mpqTmp, src);
+     if (lpbRet EQ NULL)
+         lpbRet = &bRet;
+     // See if it fits
+     *lpbRet = mpfr_fits_intmax_p (src, MPFR_RNDN);
 
-    // Get the integer within
-    aplInteger = mpq_get_sx (&mpqTmp, lpbRet);
-
-    // We no longer need this storage
-    Myq_clear (&mpqTmp);
-
-    return aplInteger;
+     // If the fractional part is zero and the integer part is in range, ...
+     if (*lpbRet)
+         return mpfr_get_sj (src, MPFR_RNDN);
+     else
+         // Return a known value
+         return 0;
 } // End mpfr_get_sx
 
 
@@ -1416,22 +1414,6 @@ APLINT mpfr_get_sctsx
 //  Convert an APLVFP to an APLINT within []CT
 //***************************************************************************
 
-APLINT mpfr_get_ctsx
-    (mpfr_ptr src,          // Ptr to source value
-     APLFLOAT fQuadCT,      // []CT
-     LPUBOOL  lpbRet)       // TRUE iff the result is valid (may be NULL)
-
-{
-    return _mpfr_get_ctsx (src, fQuadCT, lpbRet, FALSE);
-} // End mpfr_get_ctsx
-
-
-//***************************************************************************
-//  $_mpfr_get_ctsx
-//
-//  Convert an APLVFP to an APLINT within []CT
-//***************************************************************************
-
 APLINT _mpfr_get_ctsx
     (mpfr_ptr src,          // Ptr to source value
      APLFLOAT fQuadCT,      // []CT
@@ -1443,7 +1425,7 @@ APLINT _mpfr_get_ctsx
            mpfTmp2 = {0},
            mpfSrc  = {0};
     APLINT aplInt = 0;
-    UBOOL  bRet;
+    UBOOL  bRet = TRUE;
 
     if (lpbRet EQ NULL)
         lpbRet = &bRet;
@@ -1457,7 +1439,7 @@ APLINT _mpfr_get_ctsx
         longjmp (heapFull, 3);
     else
     {
-        // Initialize the temps
+        // Initialize the temps to 0
         mpfr_init0 (&mpfTmp1);
         mpfr_init0 (&mpfTmp2);
         mpfr_init0 (&mpfSrc);
@@ -1473,22 +1455,14 @@ APLINT _mpfr_get_ctsx
 
         // Compare the number and its floor
         if (_mpfr_cmp_ct (&mpfSrc, &mpfTmp1, fQuadCT, bIntegerTest) EQ 0)
-        {
             // Return the floor
             aplInt = mpfr_get_sx (&mpfTmp1, lpbRet);
-
-            // Mark as within []CT
-            *lpbRet = TRUE;
-        } else
+        else
         // Compare the number and its ceiling
         if (_mpfr_cmp_ct (&mpfSrc, &mpfTmp2, fQuadCT, bIntegerTest) EQ 0)
-        {
             // Return the ceiling
             aplInt = mpfr_get_sx (&mpfTmp2, lpbRet);
-
-            // Mark as within []CT
-            *lpbRet = TRUE;
-        } else
+        else
         {
             // Return the floor even though it isn't within []CT
             aplInt = mpfr_get_sx (&mpfTmp1, lpbRet);
@@ -1541,9 +1515,9 @@ APLINT _mpfr_get_ctsx
 //***************************************************************************
 
 void mpfr_mod
-    (mpfr_ptr dest,          // Destination
-     mpfr_ptr aplOpr,        // Operand
-     mpfr_ptr aplMod)        // Modulus
+    (mpfr_ptr dest,         // Destination
+     mpfr_ptr aplOpr,       // Operand
+     mpfr_ptr aplMod)       // Modulus
 
 {
 #if FALSE                   // ***FIXME*** -- Check rounding
@@ -1555,9 +1529,9 @@ void mpfr_mod
     mpfr_init_copy (mpfrMod, aplMod);
 
     if (mpfr_sgn (mpfrOpr) < 0)
-        mpfr_neg0 (mpfrOpr, mpfrOpr, MPFR_RNDZ);
+        mpfr_neg (mpfrOpr, mpfrOpr, MPFR_RNDZ);
     if (mpfr_sgn (mpfrMod) < 0)
-        mpfr_neg0 (mpfrMod, mpfrMod, MPFR_RNDZ);
+        mpfr_neg (mpfrMod, mpfrMod, MPFR_RNDZ);
 
     // Compute the modulus
     mpfr_fmod (dest, mpfrOpr, mpfrMod, MPFR_RNDZ);
@@ -1572,7 +1546,7 @@ void mpfr_mod
 
     // The sign of the result is the sign of the left arg
     if (mpfr_sgn (aplMod) < 0)
-        mpfr_neg0 (dest, dest, MPFR_RNDZ);
+        mpfr_neg (dest, dest, MPFR_RNDZ);
 #else
     // Due to precision limitations, the result of <mpfr_mod_sub>
     //   might not be less than the modulus, so we iterate until it is
@@ -1590,9 +1564,9 @@ void mpfr_mod
 //***************************************************************************
 
 void mpfr_mod_sub
-    (mpfr_ptr dest,          // Destination
-     mpfr_ptr aplOpr,        // Operand
-     mpfr_ptr aplMod)        // Modulus
+    (mpfr_ptr dest,         // Destination
+     mpfr_ptr aplOpr,       // Operand
+     mpfr_ptr aplMod)       // Modulus
 
 {
 ////#define MOD_DEBUG
@@ -1605,7 +1579,7 @@ void mpfr_mod_sub
          expptr2;
 #endif
 
-    // Initialize the temp
+    // Initialize the temp to 0
     mpfr_init0 (&aplTmp);
 
 #if defined (DEBUG) && defined (MOD_DEBUG)
@@ -1644,26 +1618,6 @@ void mpfr_mod_sub
 //         -1 if Lft <  Rht
 //***************************************************************************
 
-int mpfr_cmp_ct
-    (APLVFP   aplVfpLft,
-     APLVFP   aplVfpRht,
-     APLFLOAT fQuadCT)
-
-{
-    return _mpfr_cmp_ct (&aplVfpLft, &aplVfpRht, fQuadCT, FALSE);
-} // End mpfr_cmp_ct
-
-
-//***************************************************************************
-//  $_mpfr_cmp_ct
-//
-//  Compare two VFPs relative to a given comparison tolerance
-//
-//  Return +1 if Lft >  Rht
-//          0 if Lft EQ Rht
-//         -1 if Lft <  Rht
-//***************************************************************************
-
 int _mpfr_cmp_ct
     (LPAPLVFP lpaplVfpLft,          // Ptr to left arg
      LPAPLVFP lpaplVfpRht,          // ...    right ...
@@ -1679,15 +1633,19 @@ int _mpfr_cmp_ct
     WCHAR  wszTemp[1024];
     APLVFP mpfFmt = {0};
 
-////*FormatAplVfp (wszTemp, aplVfpLft, 0) = WC_EOS; DbgMsgW (wszTemp);
-////*FormatAplVfp (wszTemp, aplVfpRht, 0) = WC_EOS; DbgMsgW (wszTemp);
+    strcpyW (wszTemp, L"Lft: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], *lpaplVfpLft, 0) = WC_EOS; DbgMsgW (wszTemp);
+    strcpyW (wszTemp, L"Rht: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], *lpaplVfpRht, 0) = WC_EOS; DbgMsgW (wszTemp);
 #endif
     // Compare 'em without tolerance
     iRet = mpfr_cmp (lpaplVfpLft, lpaplVfpRht);
 
-    // Ensure args are unequal and []CT is non-zero
+    // If args are unequal,
+    //   and []CT is non-zero,
+    //   and neither arg is either infinity, ...
     if (iRet NE 0                               // Lft NE Rht
-     && fQuadCT NE 0)                           // []CT NE 0
+     && fQuadCT NE 0                            // []CT NE 0
+     && !IsMpfInfinity (lpaplVfpLft)
+     && !IsMpfInfinity (lpaplVfpRht))
     {
         APLVFP mpfLftAbs = {0},     // Absolute value of left arg
                mpfRhtAbs = {0};     // ...               right ...
@@ -1696,13 +1654,13 @@ int _mpfr_cmp_ct
 
         // Use an algorithm similar to the one in _CompareCT
 
-        // Initialize the temps
+        // Initialize the temps to 0
         mpfr_init0 (&mpfLftAbs);
         mpfr_init0 (&mpfRhtAbs);
 
         // Get the signs
-        sgnLft = signum (mpfr_sgn (lpaplVfpLft));
-        sgnRht = signum (mpfr_sgn (lpaplVfpRht));
+        sgnLft = signumvfp (lpaplVfpLft);
+        sgnRht = signumvfp (lpaplVfpRht);
 
         // Get the absolute values
         mpfr_abs (&mpfLftAbs, lpaplVfpLft, MPFR_RNDN);
@@ -1726,21 +1684,23 @@ int _mpfr_cmp_ct
             APLVFP mpfCT     = {0},
                    mpfHoodLo = {0};
 
-            // Initialize the temps
+            // Initialize the temps to 0
             mpfr_init0 (&mpfCT);
             mpfr_init0 (&mpfHoodLo);
 
             // Convert the comparison tolerance
             mpfr_set_d (&mpfCT, fQuadCT, MPFR_RNDN);
-
+#if defined (DEBUG) && defined (CT_DEBUG)
+            strcpyW (wszTemp, L"CT:  "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfCT, 0) = WC_EOS; DbgMsgW (wszTemp);
+#endif
             // Calculate the low end of the left neighborhood of (|Rht)
 ////////////aplHoodLo = aplRhtAbs - aplRhtAbs * fQuadCT;
             mpfr_mul (&mpfHoodLo, &mpfRhtAbs, &mpfCT    , MPFR_RNDN);
             mpfr_sub (&mpfHoodLo, &mpfRhtAbs, &mpfHoodLo, MPFR_RNDN);
 #if defined (DEBUG) && defined (CT_DEBUG)
-            lstrcpyW (wszTemp, L"Lo1: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfHoodLo, 0) = WC_EOS; DbgMsgW (wszTemp);
-            lstrcpyW (wszTemp, L"L1 : "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfLftAbs, 0) = WC_EOS; DbgMsgW (wszTemp);
-            lstrcpyW (wszTemp, L"R1 : "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfRhtAbs, 0) = WC_EOS; DbgMsgW (wszTemp);
+            strcpyW (wszTemp, L"Lo1: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfHoodLo, 0) = WC_EOS; DbgMsgW (wszTemp);
+            strcpyW (wszTemp, L"L1 : "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfLftAbs, 0) = WC_EOS; DbgMsgW (wszTemp);
+            strcpyW (wszTemp, L"R1 : "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfRhtAbs, 0) = WC_EOS; DbgMsgW (wszTemp);
 #endif
             // If (|Rht) is greater than (|Lft),
             // and (|Lft) is in the
@@ -1758,9 +1718,9 @@ int _mpfr_cmp_ct
                 mpfr_mul (&mpfHoodLo, &mpfLftAbs, &mpfCT    , MPFR_RNDN);
                 mpfr_sub (&mpfHoodLo, &mpfLftAbs, &mpfHoodLo, MPFR_RNDN);
 #if defined (DEBUG) && defined (CT_DEBUG)
-            lstrcpyW (wszTemp, L"Lo2: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfHoodLo, 0) = WC_EOS; DbgMsgW (wszTemp);
-            lstrcpyW (wszTemp, L"R2 : "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfRhtAbs, 0) = WC_EOS; DbgMsgW (wszTemp);
-            lstrcpyW (wszTemp, L"L2 : "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfLftAbs, 0) = WC_EOS; DbgMsgW (wszTemp);
+            strcpyW (wszTemp, L"Lo2: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfHoodLo, 0) = WC_EOS; DbgMsgW (wszTemp);
+            strcpyW (wszTemp, L"R2 : "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfRhtAbs, 0) = WC_EOS; DbgMsgW (wszTemp);
+            strcpyW (wszTemp, L"L2 : "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfLftAbs, 0) = WC_EOS; DbgMsgW (wszTemp);
 #endif
                 // If (|Lft) is greater than (|Rht),
                 // and (|Rht) is in the
@@ -1773,15 +1733,6 @@ int _mpfr_cmp_ct
                     iRet = 0;
             } // End IF/ELSE
 
-#if defined (DEBUG) && defined (CT_DEBUG)
-////        mpfr_init0 (mpfFmt);
-////        *FormatAplVfp (wszTemp, mpfFmt, 0) = WC_EOS;
-////        DbgMsgW (wszTemp);
-////        mpfr_init_set_d (&mpfFmt, fQuadCT, MPFR_RNDN);
-////        *FormatAplVfp (wszTemp, mpfFmt, 0) = WC_EOS;
-////        DbgMsgW (wszTemp);
-////        Myf_clear (&mpfFmt);
-#endif
             // We no longer need this storage
             Myf_clear (&mpfHoodLo);
             Myf_clear (&mpfCT    );
@@ -1833,22 +1784,25 @@ void Myf_init
     (LPAPLVFP mpfVal)
 
 {
-    if (mpfVal->_mpfr_d EQ NULL)
-        mpfr_init0 (mpfVal);
-    else
-        mpfr_set_prec (mpfVal, mpfr_get_default_prec ());
+#ifdef DEBUG
+    if (mpfVal->_mpfr_d NE NULL)
+        DbgStop ();
+#endif
+    mpfr_init0 (mpfVal);
 } // End Myf_init
 
 
 //***************************************************************************
 //  $Myf_clear
+//
+//  Free a VFP unless already clear
 //***************************************************************************
 
 void Myf_clear
     (LPAPLVFP mpfVal)
 
 {
-    if (mpfVal->_mpfr_d)
+    if (mpfVal->_mpfr_d NE NULL)
     {
         mpfr_clear (mpfVal);
         mpfVal->_mpfr_d = NULL;

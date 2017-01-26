@@ -1,0 +1,9 @@
+Build #1327 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In )COPY When Copying Uppercase System Var Names
+
+Directory trunk:
+
+SC_COPY.C:
+  Fix bug in <CopyWsVars>:  if the name of a system var is in uppercase, convert it to lowercase.

@@ -1,0 +1,10 @@
+Build #1587 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement Precision Specifier For VFP Constants
+
+Directory trunk:
+
+PN_PARSE.Y:
+PN_PROC.C:
+  Implement precision specifier for VFP constants

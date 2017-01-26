@@ -1,0 +1,10 @@
+Build #1604 -- Version 0.4.18.xx
+--------------------------------
+
+* When Executing An Immediate Execution Mode Thread, Initialize The Per Thread Vars
+
+Directory trunk:
+
+IMMEXEC.C:
+  In <WaitForImmExecStmt>, free the MPFR cache at the end of the immediate mode execution.
+  In <ImmExecStmtInThread>, initialize per thread vars such as the MPFR default precision and rounding mode.

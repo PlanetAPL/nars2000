@@ -1,0 +1,13 @@
+Build #1365 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In MemberOf
+
+Directory trunk:
+
+PF_EPSILON.C:
+  In <PrimFnDydEpsilonOther_EM> (formerly names <PrimFnDydEpsilonOther>,
+    fix bug when computing Hetero vs. GlobalNumeric, e.g. 0 ' '{epsilon}0 1x.
+
+TRANSLATE.C:
+  Define new function to translate from an array type to sizeof ().

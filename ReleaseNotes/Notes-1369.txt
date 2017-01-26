@@ -1,0 +1,10 @@
+Build #1369 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix A Bug In Multi-line Display Of Long Hetero Vector
+
+Directory trunk:
+
+DISPLAY.C:
+  When calculating the # rows of a display, I forgot to include the fact that
+    the six-space indent will shorten the second and subsequent lines.

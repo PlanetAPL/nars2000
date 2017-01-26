@@ -1,0 +1,9 @@
+Build #1523 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Rank Operator With Nested Result
+
+Directory trunk:
+
+PO_DIJOT.C:
+  Fix bug in <PrimOpDieresisJotCommon_EM_YY> with a nested result.

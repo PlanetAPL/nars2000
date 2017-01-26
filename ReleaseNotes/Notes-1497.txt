@@ -1,0 +1,14 @@
+Build #1497 -- Version 0.4.15.xx
+--------------------------------
+
+* Handle A[;][;]{is}B More Cleanly
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+  Define and use new reduction routine <plRedIDX_IDX> to handle multiple indexed assignment parts.
+
+PF_INDEX.C:
+STARTADDR.H:
+  Delete unused routine <ListIndexRef_EM_YY>.

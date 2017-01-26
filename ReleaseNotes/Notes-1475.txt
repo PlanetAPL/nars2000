@@ -1,0 +1,14 @@
+Build #1475 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bugs In Rational Point Notation In Strands
+
+Directory trunk:
+
+MACROS.H:
+  Define macro to test for VFP Negative 0.
+
+PN_PARSE.Y:
+PN_PROC.C:
+  Fix bug in Rational Point Notation in strands where the code might fail to recognize
+    that the constant can be represented as a Rational number.

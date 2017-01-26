@@ -1,0 +1,14 @@
+Build #1290 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix ParseLine Bugs Of Freeing Temps Already Freed
+
+Directory trunk:
+
+PARSELINE.C:
+  In <plRedMF_ARBK>, don't free temps that have already been freed.
+  In <ParseLine/PARSELINE_MP_DONE>, if there's been an error, check for Stop Execution of the line which is not an error.
+  In <ExecuteCS0/TKT_CS_RETURN>, don't free temps that have already been freed.
+
+QF_EX.C:
+  In <IzitSusPendent>, handle more <DFNTYPE_xxx>s (should have been in Build #1282).

@@ -1,0 +1,9 @@
+Build #1472 -- Version 0.4.14.xx
+--------------------------------
+
+* Allow a Wider Margin In Function Editor If Line Numbering Is Off
+
+Directory trunk:
+
+EDITFCN.C:
+  In <SetMarginsFE>, allow a wider margin in the function editor if line numbering is off.

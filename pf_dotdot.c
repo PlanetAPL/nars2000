@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -147,31 +147,34 @@ LPPL_YYSTYPE PrimFnDydDotDot_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE     aplTypeLft,        // Left arg storage type
-                 aplTypeRht,        // Right ...
-                 aplTypeRes;        // Result ...
-    APLNELM      aplNELMLft,        // Left arg NELM
-                 aplNELMRht,        // Right ...
-                 aplNELMRes;        // Result ...
-    APLRANK      aplRankLft,        // Left arg rank
-                 aplRankRht;        // Right ...
-    APLLONGEST   aplLongestLft,     // left arg immediate value
-                 aplLongestRht;     // Right ...
-    APLUINT      uCnt;              // Loop counter
-    APLRAT       aplRatTmp = {0};   // Temporary RAT
-    APLVFP       aplVfpTmp = {0};   // Temporary VFP
-    APLUINT      ByteRes;           // # bytes in the result
-    HGLOBAL      hGlbLft = NULL,    // Left arg global memory handle
-                 hGlbRht = NULL,    // Right ...
-                 hGlbRes = NULL;    // Result ...
-    LPVOID       lpMemLft = NULL,   // Ptr to left arg global memory
-                 lpMemRht = NULL,   // ...    right ...
-                 lpMemRes = NULL;   // ...    result ...
-    UBOOL        bRet = TRUE;       // TRUE iff the result is valid
-    LPPL_YYSTYPE lpYYRes = NULL;    // Ptr to the result
-    ALLTYPES     atLft = {0},       // Left arg as ALLTYPES
-                 atStp = {0},       // Step  ...
-                 atRht = {0};       // Right ...
+    APLSTYPE          aplTypeLft,           // Left arg storage type
+                      aplTypeRht,           // Right ...
+                      aplTypeRes;           // Result ...
+    APLNELM           aplNELMLft,           // Left arg NELM
+                      aplNELMRht,           // Right ...
+                      aplNELMRes;           // Result ...
+    APLRANK           aplRankLft,           // Left arg rank
+                      aplRankRht;           // Right ...
+    APLLONGEST        aplLongestLft,        // left arg immediate value
+                      aplLongestRht;        // Right ...
+    APLUINT           uCnt;                 // Loop counter
+    APLRAT            aplRatTmp = {0};      // Temporary RAT
+    APLVFP            aplVfpTmp = {0};      // Temporary VFP
+    APLUINT           ByteRes;              // # bytes in the result
+    HGLOBAL           hGlbLft = NULL,       // Left arg global memory handle
+                      hGlbRht = NULL,       // Right ...
+                      hGlbRes = NULL;       // Result ...
+    LPVARARRAY_HEADER lpMemHdrLft = NULL,   // Ptr to left arg header
+                      lpMemHdrRht = NULL,   // ...    right ...
+                      lpMemHdrRes = NULL;   // ...    result   ...
+    LPVOID            lpMemLft,             // Ptr to left arg global memory
+                      lpMemRht,             // ...    right ...
+                      lpMemRes;             // ...    result ...
+    UBOOL             bRet = TRUE;          // TRUE iff the result is valid
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+    ALLTYPES          atLft = {0},          // Left arg as ALLTYPES
+                      atStp = {0},          // Step  ...
+                      atRht = {0};          // Right ...
 
     // 2..7   == 2 3 4 5 6 7
     // 2 2..7 == 2 4 6
@@ -207,28 +210,28 @@ LPPL_YYSTYPE PrimFnDydDotDot_EM_YY
                                             lptkRhtArg, // Ptr to right arg token
                                             lptkAxis);  // Ptr to axis token (may be NULL)
     // Get Left & right arg global ptrs
-    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemLft);
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemHdrLft);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the left arg is a global, ...
-    if (hGlbLft)
+    if (hGlbLft NE NULL)
     {
         // Lock the memory to get a ptr to it
-        lpMemLft = MyGlobalLock (hGlbLft);
+        lpMemHdrLft = MyGlobalLockVar (hGlbLft);
 
         // Skip over the header and dimension
-        lpMemLft = VarArrayDataFmBase (lpMemLft);
+        lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
     } else
         lpMemLft = &aplLongestLft;
 
     // If the right arg is a global, ...
-    if (hGlbRht)
+    if (hGlbRht NE NULL)
     {
         // Lock the memory to get a ptr to it
-        lpMemRht = MyGlobalLock (hGlbRht);
+        lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
         // Skip over the header and dimension
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     } else
         lpMemRht = &aplLongestRht;
 
@@ -244,24 +247,8 @@ LPPL_YYSTYPE PrimFnDydDotDot_EM_YY
             break;
 
         case ARRAY_FLOAT:
-            break;
-
         case ARRAY_RAT:
-            // Initialize temp vars
-            mpq_init (&atLft.aplRat);
-            mpq_init (&atStp.aplRat);
-            mpq_init (&atRht.aplRat);
-            mpq_init (&aplRatTmp);
-
-            break;
-
         case ARRAY_VFP:
-            // Initialize temp vars
-            mpfr_init0 (&atLft.aplVfp);
-            mpfr_init0 (&atStp.aplVfp);
-            mpfr_init0 (&atRht.aplVfp);
-            mpfr_init0 (&aplVfpTmp);
-
             break;
 
         case ARRAY_CHAR:
@@ -298,12 +285,12 @@ LPPL_YYSTYPE PrimFnDydDotDot_EM_YY
                 break;
 
             case ARRAY_RAT:
-                mpq_set_ui (&atStp.aplRat, 1, 1);
+                mpq_init_set_ui (&atStp.aplRat, 1, 1);
 
                 break;
 
             case ARRAY_VFP:
-                mpfr_set_ui (&atStp.aplVfp, 1, MPFR_RNDN);
+                mpfr_init_set_ui (&atStp.aplVfp, 1, MPFR_RNDN);
 
                 break;
 
@@ -393,6 +380,9 @@ LPPL_YYSTYPE PrimFnDydDotDot_EM_YY
                 mpq_neg (&atStp.aplRat, &atStp.aplRat);
             } // End IF/ELSE
 
+            // Initialize to 0/1
+            mpq_init (&aplRatTmp);
+
             // The NELM of the result is
             mpq_sub (&aplRatTmp, &atRht.aplRat, &atLft.aplRat);
             mpq_div (&aplRatTmp, &aplRatTmp, &atStp.aplRat);
@@ -416,8 +406,11 @@ LPPL_YYSTYPE PrimFnDydDotDot_EM_YY
             else
             {
                 mpfr_abs (&atStp.aplVfp, &atStp.aplVfp, MPFR_RNDN);
-                mpfr_neg0 (&atStp.aplVfp, &atStp.aplVfp, MPFR_RNDN);
+                mpfr_neg (&atStp.aplVfp, &atStp.aplVfp, MPFR_RNDN);
             } // End IF/ELSE
+
+            // Initialize to 0
+            mpfr_init0 (&aplVfpTmp);
 
             // The NELM of the result is
             mpfr_sub (&aplVfpTmp, &atRht.aplVfp, &atLft.aplVfp, MPFR_RNDN);
@@ -440,13 +433,13 @@ LPPL_YYSTYPE PrimFnDydDotDot_EM_YY
 
     // Now we can allocate the storage for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader        lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = aplTypeRes;
@@ -458,10 +451,10 @@ LPPL_YYSTYPE PrimFnDydDotDot_EM_YY
 #undef  lpHeader
 
     // Fill in the result's dimension
-    *VarArrayBaseToDim (lpMemRes) = aplNELMRes;
+    *VarArrayBaseToDim (lpMemHdrRes) = aplNELMRes;
 
     // Skip over the header and dimension
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // Split cases based upon the result storage type
     switch (aplTypeRes)
@@ -552,34 +545,34 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes  = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes  = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes  = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes  = NULL;
     } // End IF
 
-    if (hGlbLft && lpMemLft)
+    if (hGlbLft NE NULL && lpMemHdrLft NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbLft); lpMemLft  = NULL;
+        MyGlobalUnlock (hGlbLft); lpMemHdrLft  = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht  = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht  = NULL;
     } // End IF
 
     // Split cases based upon the result storage type

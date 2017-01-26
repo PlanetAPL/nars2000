@@ -1,0 +1,9 @@
+Build #1489 -- Version 0.4.14.xx
+--------------------------------
+
+* When Saving A Workspace, Move The Test For And Message About A Non-empty SI Message To Earlier
+
+Directory trunk:
+
+SC_SAVE.C:
+  In <CmdSave_EM>, move the test for and message about a non-empty SI to precede the creation of the workspace.

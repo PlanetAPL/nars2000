@@ -1,0 +1,18 @@
+Build #1561 -- Version 0.4.17.xx
+--------------------------------
+
+* Rename Internal Function For Consistency
+* Make Dependencies Earlier
+* Fix Comment Bug
+
+Directory trunk:
+
+MAKEFILE.DEP:
+  Make LALR parse file dependencies at this stage instead of later.
+
+PARSELINE.C:
+STRAND.C:
+  Rename <UnStrand> to <UnVarStrand> to parallel <UnFcnStrand>.
+
+SAVEFCN.H:
+  Fix comment bug.

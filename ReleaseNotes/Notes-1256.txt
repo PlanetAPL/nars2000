@@ -1,0 +1,9 @@
+Build #1256 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Session Manager
+
+Directory trunk:
+
+SESSMAN.C:
+  In <SMWndProc>/MYWM_KEYDOWN/VK_RETURN, sometimes the CR is handled before the current line has been saved.

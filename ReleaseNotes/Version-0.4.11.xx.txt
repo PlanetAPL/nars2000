@@ -1,0 +1,896 @@
+Version 0.4.11.xx consists of the following Builds:
+
+
+Build #1423 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Matrix Divide With Multiple-Precision Scalar Result
+
+Directory trunk:
+
+PF_DOMINO.C:
+  In <PrimFnDydDomino_EM_YY>, at the end handle multiple-precision scalar result.
+
+
+Build #1422 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Matrix Divide With Boolean Left Arg And FP Result
+* Include "Hdr" In Name Of Result Of MyGlobalLock
+
+Directory trunk:
+
+PF_DOMINO.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <PrimFnMonDomino_EM_YY> case ARRAY_FLOAT, simplify code by calling <GetNextFloat> for all cases.
+  Improve comments.
+  In <PrimFnDydDomino_EM_YY> with Boolean left arg and FP result, the left arg is
+    mishandled such that the first row is reused over and over.
+  In <PrimFnDydDomino_EM_YY> case ARRAY_FLOAT, simplify code by calling <GetNextFloat> for all cases.
+  In <GaussJordan>, if called from Matrix Divide, return the result in <lpMemLft>.
+
+
+Build #1421 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In )LOAD On Certain Rational And Variable Precision Numbers
+* Include "Hdr" In Name Of Result Of MyGlobalLock
+
+Directory trunk:
+
+SC_LOAD.C:
+  Improve comments.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <LoadWorkspaceGlobal_EM> case 'V' case ARRAY_RAT/ARRAY_VFP, skip to
+    next field using previous calculation.
+
+
+Build #1420 -- Version 0.4.11.xx
+--------------------------------
+
+* Mark The Non-Error Result Of []FX As NoDisplay
+
+Directory trunk:
+
+QF_FX.C:
+  If the result of []FX is not an error, mark the result as NoDisplay.
+
+
+Build #1419 -- Version 0.4.11.xx
+--------------------------------
+
+* Improve The Description Of The Right Operand To Two Identity Element Functions
+
+Directory trunk:
+
+EXECFNS.C:
+  Remove Assert stmt as it's no longer needed (because it's no longer TRUE!).
+
+IDENTFNS.C:
+PO_DOT.C:
+PO_SLASH.C:
+  Note that the right operand to <GetIdentityElement_EM> and <FillIdentityElement_EM>,
+    may be NULL if Scan; otherwise it's Inner Product.
+
+
+Build #1418 -- Version 0.4.11.xx
+--------------------------------
+
+* Display Workspace Version # In About Box
+* Display Workspace Version # On )SAVE line If DEBUG
+
+Directory trunk:
+
+MAIN.RC:
+  Make room for workspace version # in the About box.
+
+SC_SAVE.C:
+  In <CmdSave_EM> if we're in DEBUG mode, display the workspace version # at the end of the
+    current time and date if the command is successful.
+
+VER.C:
+  Append the workspace version # to the text displayed in the About box.
+
+
+Build #1417 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Inner Product on Certain Empties
+
+Directory trunk:
+
+PO_DOT.C:
+  In <PrimOpDydDotCommon_EM_YY>, if the result is empty or the axis dimension is zero,
+    use the normal identity case only if both operands are PSDFs.  This change affects
+    the prototype of the result only.
+
+
+Build #1416 -- Version 0.4.11.xx
+--------------------------------
+
+* Append An Asterisk To []STOP Display
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, when displaying a []STOP line, append an asterisk to mimic the display of )SI.
+
+
+Build #1415 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Empty Indexing
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY>, (1 1{rho}2)[0{rho}{enclose}0 0] is mishandled by not
+    exiting after the index is validated vs. the array to be indexed.
+
+
+Build #1414 -- Version 0.4.11.xx
+--------------------------------
+
+* Use String Safe Functions
+
+Directory trunk:
+
+COMMON.C:
+  Pass string length to <LclFileVersionStrW> so it can use it in a string safe function.
+  Define local versions of string functions as wrappers which call string safe functions.
+
+CS_PARSE.Y:
+CUSTOMIZE.C:
+DEBUG.C:
+DEBUG.H:
+EXCEPT.C:
+EXECMFN.C:
+FH_PARSE.Y:
+HUNGARIAN_SRC.H:
+IMMEXEC.C:
+INIFILE.C:
+MAIN.C:
+MPFNS.C:
+PARSELINE.C:
+PERFMON.C:
+PF_UTACKJOT.C:
+PN_PARSE.Y:
+PRIMSPEC.C:
+PROGBAR.C:
+QF_DR.C:
+REBAR.C:
+RESDEBUG.C:
+SAVEFCN.C:
+SC_COPY.C:
+SC_DROP.C:
+SC_IN.C:
+SC_INASCII.C:
+SC_LOAD.C:
+SYMTAB.C:
+TABCTRL.C:
+TOKENIZE.C:
+UPDATES.C:
+WEBCOLORS.C:
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+DISPDBG.C:
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+  In <DisplayGlobals>, if the item is a scalar omit the "Dim1=" display.
+
+DISPLAY.C:
+  In <FormatAplVfpFC>, comment out Assert stmt as it is no longer true.
+
+SC_COMMON.C:
+  In <MakeWorkspaceNameCanonical>, preface ptr names with "lp" as a convention.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+SC_LIB.C:
+  In <CmdLibProcess> and <CmdLibFiles>, preface ptr names with "lp" as a convention.
+
+SC_SAVE.C:
+  In <CmdSave_EM>, omit <wszTempDPFE> as it isn't needed (the global memory ptr does have a zero terminator).
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+SC_SI.C:
+  In <CmdSiSinlCom_EM>, preface WCHAR names with "w" as a convention.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+STATUSBAR.C:
+  In <SetStatusPos>, preface WCHAR names with "w" as a convention.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+VER.C:
+  In <LclFileVersionStrW>, pass dest buffer length so it can be used in string safe functions.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+
+Build #1413 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Another Bug In []STOP & []TRACE
+
+Directory trunk:
+
+QF_STRACE.C:
+  In <SysFnDydSTRACE_EM_YY>, be sure to clear all []STOP or []TRACE flags first (duh!).
+  In <TraceLine>, if the current object is invalid or the display of the trace result fails for any reason,
+    prepend a blank before the function name/line # so as to align with other trace displays
+    and end the line with a CR.
+  In <TraceLine>, if we are to free the trace arg, do that first before clearing it (duh!).
+
+
+Build #1412 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Memory Leak In Name Assignment On Error
+
+Directory trunk:
+
+PARSELINE.C:
+  In <plRedNAM_SPCom>, if the assignment ends in error, be sure to free the right arg.
+
+
+Build #1411 -- Version 0.4.11.xx
+--------------------------------
+
+* Use Actual Function Name For AFOs In []STOP And []TRACE
+
+Directory trunk:
+
+EXECDFN.C:
+  Pass function token to <ParseLine> in order to get AFO function name for []TRACE & []STOP display purposes.
+  In <ExecuteFunction_EM_YY>, if AFO, use actual function name, instead of {del} for []TRACE & []STOP display purposes.
+  In <TraceExit>, pass ptr to function token in order to get AFO function name for []TRACE & []STOP display purposes.
+
+EXECMFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+  Pass function token to <ParseLine> in order to get AFO function name for []TRACE & []STOP display purposes.
+
+PARSELINE.C:
+  Pass function token to <ParseLine> in order to get AFO function name for []TRACE & []STOP display purposes.
+  In <TraceLine>, pass ptr to function token in order to get AFO function name for []TRACE & []STOP display purposes.
+
+QF_STRACE.C:
+  In <TraceLine> and <TraceExit>, pass ptr to function token in order to get AFO function name for []TRACE & []STOP display purposes.
+  In <TraceLine> and <TraceExit>, if AFO, use actual function name, instead of {del} for []TRACE & []STOP display purposes.
+
+
+Build #1410 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix More Bugs In []STOP And []TRACE
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, handle {goto} w/o target as not suspending on []STOP.
+  In calls to <TraceExit> note that the ptr to the result may be NoValue.
+
+QF_STRACE.C:
+  In both <TraceLine> and <TraceExit>, exit from TEMP_OPEN checks before calling
+    <DisplayTraceResult> as we can't pass the TEMP_OPEN state across into that fcn.
+  Move common code from <TraceLine> and <TraceExit> to <DisplayTraceResult>.
+  In <TraceExit>, handle immediate results.
+  In <DisplayTraceResult>, handle ptr to result of NoValue.
+
+
+Build #1409 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bugs In []STOP And []TRACE
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, note that the argument <lptkFunc> may be NULL.
+
+PRIMFNS.C:
+  In <MakeNoValue_YY>, note that the argument <lptkFunc> may be NULL.
+  In <MakeNoValue_YY>, if <lptkFunc> is NULL, use -1 as the character index.
+  In <IsTknTrain>, ensure that the argument is a function array before processing it as one.
+
+QF_STRACE.C:
+  Remove DEBUG requirement from named MFO in monadic and dyadic []STOP and []TRACE.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document that []STOP and []TRACE are implemented as optional facilities of the EAS.
+
+
+Build #1408 -- Version 0.4.11.xx
+--------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+ERRMSG.C:
+  Improve comments.
+
+MPFNS.C:
+  In DEBUG mode, display argument and intermediate result VFP numbers.
+
+SC_LOAD.C:
+  Use <_wtoi64> in favor of <sscanfW> as the former is much faster.
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Use special Bitcoin font to display official Unicode Bitcoin currency symbol.
+
+
+Build #1407 -- Version 0.4.11.xx
+--------------------------------
+
+* If Syntax Coloring Is Turned Off, Use Default Tex And Background Colors For Session
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclECPaintHook>, if we're not syntax coloring the line, use the default
+    text and background colors for session coloring.
+
+
+Build #1406 -- Version 0.4.11.xx
+--------------------------------
+
+* Display VFP Numbers In E-Format If Too Small Or Too Large
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplVfpFC>, display VFP numbers in E-format if too small or too large.
+
+
+Build #1405 -- Version 0.4.11.xx
+--------------------------------
+
+* Switch To New GSL Binary And Directory
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Require macro <XWIN> for use with new GSL directory.
+  Switch to binary download of GSL into new directory so as to update to
+    the most recent version.
+
+MAKEFILE.PRO.PARSE:
+  Improve comments.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Define <XWIN> macro for use with new GSL directory.
+
+
+Build #1404 -- Version 0.4.11.xx
+--------------------------------
+
+* Implement []STOP and []TRACE
+
+Directory trunk:
+
+COMMON.C:
+  Define <AllocateGlobalArray> as handy function for widespread use as
+    suggested by Rob Wallick.
+
+COMPRO.H:
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Include <qf_strace.*> in the build.
+
+CONVERT.C:
+  Define <ConvertToInteger_SCT> for use in many places.
+
+EXECDFN.C:
+  Include Trace line flag in all calls to <ParseLine>.
+  In <ExecuteFunction_EM_YY>, handle Stop & Trace.
+
+EXECMFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+  Include Trace line flag in all calls to <ParseLine>.
+
+FH_PARSE.H:
+  In <DFN_HEADER> struc, define Stop & Trace exit flags for line 0.
+
+PARSELINE.C:
+  In <plRedGO_A> and <ParseLine>, handle Stop & Trace.
+
+PL_PARSE.H:
+  In <PLLOCLAVARS> struc, define Stop & Trace exit flags and Stmt number.
+
+QF_STRACE.C:
+  Define file to handle calls to []STOP & []TRACE.
+
+SYSVARS.C:
+  Include []STOP & []TRACE in system vars & functions table.
+
+
+Build #1403 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in syntax analyzer missing case of "{is})", "{is}]", "{is}{rbrace}", and "{is}EOS"
+  Define the above cases as returning soSYNR.
+  In <PARSELINE_ERROR>, if the current object is valid and in use, free it only
+    if it's a function or var.  This code can fail with the above cases.
+  Improve comments.
+
+PARSELINE.H:
+  Fix bug in syntax analyzer missing case of "{is})", "{is}]", "{is}{rbrace}", and "{is}EOS"
+  Define the above cases as returning soSYNR.
+
+
+Build #1402 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Domino Preventing Clean Up After Calling Magic Function
+
+Directory trunk:
+
+PF_DOMINO.C:
+  In <PrimFnMonDomino_EM_YY> when calling the magic function, the code returns
+    immediately instead of saving the result and jumping to the function tail which
+    allows it to clean up.
+
+
+Build #1401 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Tokenization
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <fnDiaDone>, catch trailing diamonds after a control structure at the end of a
+    line.  We don't handle them correctly elsewhere.
+
+
+Build #1400 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in syntax analyzer when assigning a name inside brackets such as with
+    z{is}1 2 3 {diamond} z[f z{is}...]
+
+
+Build #1399 -- Version 0.4.11.xx
+--------------------------------
+
+* Optionally Display MP Suffix of 'x' or 'v'
+
+Directory trunk:
+
+CUSTOMIZE.C:
+DEFINES.H:
+DISPLAY.C:
+EXTERNS.H:
+INIFILE.C:
+MAIN.RC:
+QF_FMT.C
+RESOURCE.H:
+SC_LOAD.C
+SC_SAVE.C:
+  Optionally display multi-precision numbers with a suffix of 'x' or 'v' as appropriate.
+
+
+Build #1398 -- Version 0.4.11.xx
+--------------------------------
+
+* More DEBUG Code
+
+Directory trunk:
+
+MACROS.H:
+RESDEBUG.C:
+RESDEBUG.H:
+  More DEBUG code.
+
+
+Build #1397 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bugs In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+SYNOBJ.H:
+  Fix bugs in syntax analyzer.
+
+
+Build #1396 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bugs In Helper Functions From Previous Build
+
+Directory trunk:
+
+COMMON.C:
+  Fix bugs in <strcpyn> and <strcpynW> w.r.t. # bytes to copy.
+
+
+Build #1395 -- Version 0.4.11.xx
+--------------------------------
+
+* Change Rational Comparisons From Exact (No []CT) To Inexact (Use []CT)
+
+Directory trunk:
+
+DEFINES.H:
+  Increase default sizes of static virtual alloc vars.
+  Improve comments.
+  Define more library function aliases.
+  Change rational comparisons from exact (no []CT) to inexact (use []CT).
+
+PF_EPSILON.C:
+  Change rational comparisons from exact (no []CT) to inexact (use []CT).
+
+PF_EQUALUND.C:
+  Update copyright notice.
+  Change rational comparisons from exact (no []CT) to inexact (use []CT).
+
+PF_IOTA.C:
+  Change rational comparisons from exact (no []CT) to inexact (use []CT).
+
+
+Build #1394 -- Version 0.4.11.xx
+--------------------------------
+
+* Include "Hdr" In Name Of Result Of MyGlobalLock
+* In IF Stmts Always Compare Ptr Against NULL
+* Mark Argument To <CalcNumIDs> As Pointer To Var Header
+
+Directory trunk:
+
+ERRMSG.C:
+  Include "Hdr" in name of result of MyGlobalLock.
+  In IF stmts always compare ptr against NULL.
+
+QF_AT.C:
+QF_EX.C:
+QF_MF.C:
+QF_NC.C:
+  Include "Hdr" in name of result of MyGlobalLock.
+  Mark argument to <CalcNumIDs> as pointer to var header.
+  In IF stmts always compare ptr against NULL.
+
+QF_SYSID.C:
+  Include "Hdr" in name of result of MyGlobalLock.
+  In IF stmts always compare ptr against NULL.
+  Define and use new function to handle filling in result token for globals.
+
+YYFNS.C:
+  Define and use new function to handle filling in result token for globals.
+
+
+Build #1393 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Typo In Magic Function
+* Catch Errors When Initializing Magic Functions
+
+Directory trunk:
+
+EXECMFN.C:
+  Catch errors when initializing magic functions.
+
+MF_MULTISET.H:
+  Fix typo in magic function for Multiset Match.
+
+
+Build #1392 -- Version 0.4.11.xx
+--------------------------------
+
+* Handle MOPN A And MOPN A Syntax
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+  Handle MOPN A and MOPN A syntax which previously signaled a SYNTAX ERROR.
+
+
+Build #1391 -- Version 0.4.11.xx
+--------------------------------
+
+* Clean Up Code For []NL
+
+Directory trunk:
+
+QF_NL.C:
+  Clean up code for []NL.
+
+
+Build #1390 -- Version 0.4.11.xx
+--------------------------------
+
+* Define New Magic Function To Handle N-Wise Reduction With Left Argument Of 1
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+MF_ROS.H:
+PO_SLASH.C:
+  Define new magic function to handle N-wise reduction with left argument of 1.
+
+
+Build #1389 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In -4 Circle Assembler Function
+
+Directory trunk:
+
+DBGBRK32.ASM:
+DBGBRK64.ASM:
+  In <iAsmCircleN4Int> and <iAsmCircleN4Flt>, change the assembler code to conform to the EAS definition of that function.
+
+
+Build #1388 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Crash Message Box
+
+Directory trunk:
+
+CRASH.C:
+  In <CCWndProc>, pass NULL handle to MessageBox so as to allow the user to copy data from the session.
+
+
+Build #1387 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In lstrcpy/lstrcpyn/lstrcat Functions
+
+Directory trunk:
+
+COMMON.C:
+  Define additional helper functions.
+  Fix typo in comment.
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.
+
+CS_PARSE.Y:
+CUSTOMIZE.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C:
+EXCEPT.C:
+FH_PARSE.Y:
+INIFILE.C:
+MAIN.C:
+MPFNS.C:
+PARSELINE.C:
+PF_CSTAR.C:
+PF_DSTILE.C:
+PN_PARSE.Y:
+PN_PROC.C:
+PRIMSPEC.C:
+QF_DR.C:
+QF_FMT.C:
+QF_SYSVER.C:
+SC_COMMON.C:
+SC_COPY.C:
+SC_DROP.C:
+SC_IN.C:
+SC_INASCII.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+SESSMAN.C:
+SYMTAB.C:
+TABCTRL.C:
+TOKENIZE.C:
+UPDATES.C:
+VER.C:
+WEBCOLORS.C:
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.
+
+ERRMSG.C:
+  Update copyright notice.
+  In <BreakMessage>, ensure that the SIS layer and the function name is valid before using.
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.
+
+SAVEFCN.C:
+  Update copyright notice.
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.
+  In <SaveFunctionCom>, check for valid ptr before using.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+LOCAL.H:
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.
+
+
+Build #1386 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Syntax Coloring When Selecting Black
+
+Directory trunk:
+
+WEBCOLORS.C:
+  Fix bug in syntax coloring when selecting black.
+
+
+Build #1385 -- Version 0.4.11.xx
+--------------------------------
+
+* Optimize Display Of Vector-Like Arrays
+
+Directory trunk:
+
+DISPLAY.C:
+  In <DisplayGlbArr_EM>, use array header names for vars, etc.
+  Check for non-empty non-nested vector-like arrays and display via subfunction.
+  Define <FormatImmedPtr> to more easily display single values via a ptr.
+  Define function to display non-empty non-nested vector-like arrays, without
+    running into a LIMIT ERROR on a guard page in case the vector is too long.
+  Define function to check for Terminal Codes when displaying char arrays.
+
+
+Build #1384 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In )COPY With No Arguments
+
+Directory trunk:
+
+SC_COPY.C:
+  In <CopyWsVars>, a recent change to convert to lowercase system variable names
+    introduced a bug when there are no arguments to the )COPY command.
+
+
+Build #1383 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix SYNTAX ERROR In '] MOP' And '} MOP'
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+  The cases '] MOP/MOPN/HY' and '} MOP/MOPN/HY' signal a SYNTAX ERROR and shouldn't.
+
+
+Build #1382 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In []EC '{goto}1'
+
+Directory trunk:
+
+PRIMFNS.C::
+  In <GetSISLayer>, don't skip over ErrCtrl SIS layers as {goto} needs to modify the []EC layer, not the calling layer.
+
+
+Build #1381 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In 1 f/ X Where X Is A Nested or Global Numeric Scalar
+
+Directory trunk:
+
+MF_ROS.H:
+  Change code so as to always return a vector.
+
+PO_SLASH.C:
+  Improve comments.
+
+
+Build #1380 -- Version 0.4.11.xx
+--------------------------------
+
+* Include File Omitted From Last Build
+* Fix Bug In <makefile.inc> Missing Crash Server File
+
+Directory trunk:
+
+DATATYPE.H:
+  Define new ALLTYPES entry.
+
+MAKEFILE.INC:
+  Update copyright notice.
+  Include compiler flags for new optimizations.
+  Include additional CrashServer file in .zip file.
+
+
+Build #1379 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Index Set With Type Promotion Of Immediate
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexSetSingLst_EM>, promote the right arg to result type before storing in result.
+
+
+Build #1378 -- Version 0.4.11.xx
+--------------------------------
+
+* Allow Double Quotes In )IN and )OUT
+* Allow )DROP to Drop ATF Files
+
+Directory trunk:
+
+COMMON.C:
+  Improve comments.
+  Define common function to strip off double quotes from a string, also handling leading/trailing white space.
+
+SC_DROP.C:
+  Update copyright notice.
+  Improve comments.
+  Check for .atf files and drop them if the extension is explicit.
+
+SC_IN.C:
+SC_OUT.C:
+  Update copyright notice.
+  Strip off double quotes from the filename.
+
+
+Build #1377 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In )LIB Producing Duplicate Values
+
+Directory trunk:
+
+SC_LIB.C:
+  Update copyright notice.
+  Fix bug in )LIB producing duplicate values due to not taking into account a leading double quote.
+
+
+Build #1376 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Primitive Function Encode
+
+Directory trunk:
+
+PF_DTACK.C:
+  Fix bug introduced in an earlier Build where the right arg is not reloaded for a new column in the left arg.
+
+
+Build #1375 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+  Fix bug where stmts such as A[NAM{is}+/A] don't parse correctly because the binding strength of
+    "HY A" and others is zero which then binds "A]" too soon.
+
+
+Build #1374 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug Which Crashes When Editing A Function After Typing A Tab
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix bug in <LclEditCtrlWndProc/WM_KEYDOWN/VK_TAB> which miscalculates (off by 1)
+    the # spaces to insert.
+
+VER.RC:
+  Increment version # to 0.4.11.xx.

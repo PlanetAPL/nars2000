@@ -1,0 +1,18 @@
+Build #1405 -- Version 0.4.11.xx
+--------------------------------
+
+* Switch To New GSL Binary And Directory
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Require macro <XWIN> for use with new GSL directory.
+  Switch to binary download of GSL into new directory so as to update to
+    the most recent version.
+
+MAKEFILE.PRO.PARSE:
+  Improve comments.
+
+MAKEFILE.W32:
+MAKEFILE.W64:
+  Define <XWIN> macro for use with new GSL directory.

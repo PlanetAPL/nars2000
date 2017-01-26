@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2008 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -116,7 +116,7 @@ int PASCAL WinMain
     // Write it out to a standard file
     fp = fopen ("nars2000.ver", "w");
     fprintf (fp, "%s", szFileVer);
-    fclose (fp);
+    fclose (fp); fp = NULL;
 
     return 0;
 } // End WinMain

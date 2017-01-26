@@ -1,0 +1,12 @@
+Build #1361 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Ctrl-Break vs Ctrl-C Handling
+
+Directory trunk:
+
+EDITFCN.C:
+  Define global value to hold the scan code for VK_CANCEL (Ctrl-Break).
+  Make explicit tests of ptr against "NE NULL".
+  In <LclEditCtrlWndProc>/WM_KEYDOWN/VK_CANCEL, save the scan code for VK_CANCEL so it mat be used later.
+  In <LclEditCtrlWndProc>/WM_CHAR/Ctrl-C, if the scan code is that of VK_CANCEL, do not signal WM_COPY as this call to WM_CHAR is bogus.

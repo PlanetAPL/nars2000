@@ -1,0 +1,60 @@
+Build #1362 -- Version 0.4.9.xx
+-------------------------------
+
+* Prepare For VS2013
+
+Directory trunk:
+
+BISON.RULES:
+PROTOTYPE.RULES:
+  Change name from "... Rule" to "..._Rule".
+
+CUSTOMIZE.C:
+  Change name from deprecated <tmschema.h> to <vssym32.h>.
+
+DBGBRK.ASM:
+DBGBRK.PRO:
+DEFINES.H:
+  Remove <DbgBrk> assembly code and use <__debugbreak> built into Windows.
+
+DTOA.C:
+  Undefine <strtod> before redefining it (it wasn't defined before VS2013).
+
+ENUMS.H:
+EXCEPT.C:
+REBAR.C:
+  VS2013 picks a nit that wasn't in previous versions in that now a "typedef"
+    must have name defined by it.  The solution is remove the keyword "typedef".
+
+MAKEFILE.INC:
+  Various minor internal name changes to make more readable.
+  Remove </NODEFAULTLIB> as it's not worth the trouble to find where they
+    put all the functions we need to have in a few libraries.
+  Tell the linker not to load the wrong <libcmt[d].lib> file, or it will.
+
+MAKEFILE.PRO:
+  Minor changes.
+
+MAKEFILE.PRO.PARSE:
+  Remove reference to <pl_parse.*> which is no longer used thanks to 2by2.
+
+MKD64.BAT:
+  Call <w32> after finishing so as to return the subst drives to their 32-bit versions.
+
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Change name from "... Rule" to "..._Rule".
+  Delete "VCWebServiceProxyGeneratorTool"
+  Delete "Detect64BitPortabilityProblems"
+  Redundant library references are removed, others are re-ordered.
+  "Use of macros in file paths no longer supported" is a minor PITA.
+  In a "RelativePath" replace all macros with an explicit path.  This applies to the three instances of $(OutDir)\??_parse.c, and the five instances of $(MS_DIR).  All other macros stay the same.
+  A consequence of this change is that the $(OutDir) is sometimes hard-coded as "Debug32" or "Debug64".
+  A consequence of this change is that the "msieve" directory can no longer be placed anywhere the environment variable %MS_DIR% says; now it must be directly under %NARSROOT% (and referenced as "..\msieve\")
+  Include the GSL headers only in those files that need them, rather than globally.
+
+WCOM.BAT:
+  Use a different technique to delete an already subst'ed drive even if it's not already subst'ed.
+  Define and use LIB environment variable separately for 32- and 64-bit compiles.
+  Define new environment variable _NT_SYMBOL_PATH for where to get MS Windows symbols.
+  Remove GSL include path from the global INCLUDE as it causes trouble.

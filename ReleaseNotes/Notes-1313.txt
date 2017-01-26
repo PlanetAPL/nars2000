@@ -1,0 +1,15 @@
+Build #1313 -- Version 0.4.9.xx
+-------------------------------
+
+* Miscellanous DEBUG Changes
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayHeap>, include the random state's seed as a value not to be displayed.
+
+QF_DR.C:
+  In <SysFnDR_Show_EM_YY>, shorten the displayed name for VFP vars so it doesn't wrap on small screens.
+
+RESDEBUG.C:
+  In <_MyHeapAlloc>, don't put DEBUG_HEAP into effect unless DEBUG is also.

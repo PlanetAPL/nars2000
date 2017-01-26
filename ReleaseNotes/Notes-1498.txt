@@ -1,0 +1,9 @@
+Build #1498 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Datatype Bug In Rational Exponentiation With Negative Integer Exponent
+
+Directory trunk:
+
+PF_STAR.C:
+  Fix bug in <PrimFnDydStarRisRvR> where we used unsigned rather than signed and thus didn't retain the Rational datatype for 2x*-3x.

@@ -1,0 +1,11 @@
+Build #1451 -- Version 0.4.13.xx
+--------------------------------
+
+* Fix Bug When Assigning A Boolean Value Into []FEATURE Or []IC
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+SYSVARS.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix bug in <ValidateIntegerVector_EM> (used by []FEATURE and []IC) if the right arg is BOOL.

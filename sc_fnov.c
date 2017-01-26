@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -113,6 +113,34 @@ UBOOL IzitOPS
 {
     return IsNameTypeOp (stNameType);
 } // End IzitOPS
+
+
+//***************************************************************************
+//  $CmdFops_EM
+//
+//  Execute the system command:  )FOPS  [first][-][last]
+//***************************************************************************
+
+UBOOL CmdFops_EM
+    (LPWCHAR lpwszTail)             // Ptr to command line tail
+
+{
+    return CmdFNOV_EM (lpwszTail, IzitFOPS, FALSE);
+} // End CmdOps_EM
+
+
+//***************************************************************************
+//  $IzitFOPS
+//
+//  Return TRUE iff the object type is that of a fucntion/operator
+//***************************************************************************
+
+UBOOL IzitFOPS
+    (NAME_TYPES stNameType)
+
+{
+    return IsNameTypeFnOp (stNameType);
+} // End IzitFOPS
 
 
 //***************************************************************************
@@ -225,7 +253,7 @@ UBOOL CmdFNOV_EM
             ;
 
         // Lock the memory to get a ptr to it
-        lpMemName = MyGlobalLock (lpGlbEntry->stHshEntry->htGlbName);
+        lpMemName = MyGlobalLockWsz (lpGlbEntry->stHshEntry->htGlbName);
 
         // Check against leading and trailing ranges
         if ((lpwszLeadRange[0] EQ WC_EOS
@@ -268,7 +296,7 @@ UBOOL CmdFNOV_EM
          uSymNum++)
     {
         // Lock the memory to get a ptr to it
-        lpMemName = MyGlobalLock (lpSymSort[uSymNum]->stHshEntry->htGlbName);
+        lpMemName = MyGlobalLockWsz (lpSymSort[uSymNum]->stHshEntry->htGlbName);
 
         // Get the name length
         uNameLen = lstrlenW (lpMemName);

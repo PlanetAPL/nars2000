@@ -1,0 +1,17 @@
+Build #1592 -- Version 0.4.18.xx
+--------------------------------
+
+* Change Meaning Of Specified Precision (e.g., 1v64)
+* Implement Get Precision Function In []DR
+
+Directory trunk:
+
+MACROS.H:
+  Define <CopyAll> macro omitted from previous build.
+
+PN_PROC.C:
+  Change meaning of specified precision (e.g., 1v64) to exactly that precision.
+
+QF_DR.C:
+QF_DR.H:
+  Implement 3 []DR to return the (lowest) precision of the argument.

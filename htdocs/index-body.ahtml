@@ -81,12 +81,18 @@ Welcome to NARS2000</h1>
               <span class="APL">R[L]</span>,
               <span class="APL">R[L]{is}A</span>,
           and <span class="APL">R[L]<i>f</i>{is}A</span>
-          allow both Reach and Scatter indexing &mdash; that is, if
-          <span class="APL">L{pick}R</span> is valid, it is equivalent to
-          <span class="APL">{disclose}R[{enclose}L]</span>, and if
-          <span class="APL">L{squad}R</span> is valid, it is equivalent to
-          <span class="APL">R[{disclose}{jot}.,/L]</span> &mdash; Reach
-          and Scatter indexing may appear together within a single instance of
+          allow both Reach and Scatter indexing &mdash; that is,
+          <ul>
+            <li>if <span class="APL">L{pick}R</span> is valid, it is equivalent to
+                   <span class="APL">{disclose}R[{enclose}L]</span>, and</li>
+            <li>if <span class="APL">L{pick}{each}{enclose}R</span> is valid, it is equivalent to
+                   <span class="APL">R[L]</span>, and</li>
+            <li>if <span class="APL">L{squad}R</span> is valid, it is equivalent to
+                   <span class="APL">R[{disclose}{jot}.,/L]</span>, and</li>
+            <li>if <span class="APL">L{squad}{each}{enclose}R</span> is valid, it is equivalent to
+                   <span class="APL">{enclose}{each}R[{enclose}{each}L]</span></li>
+          </ul>
+          Reach and Scatter indexing may appear together within a single instance of
               <span class="APL">R[L]</span>,
               <span class="APL">R[L]{is}A</span>,
           and <span class="APL">R[L]<i>f</i>{is}A</span></li>
@@ -260,13 +266,13 @@ Welcome to NARS2000</h1>
     <li>Optional Facilities Included
       <ul>
         <li>Statement Separator (<span class="APL">{diamond}</span>)</li>
+        <li>Trace and Stop Control</li>
       </ul>
     </li>
 
     <li>Optional Facilities Not Included (as yet)
       <ul>
         <li>Shared Variables</li>
-        <li>Trace and Stop Control</li>
         <li>Complex Arithmetic</li>
       </ul>
     </li>
@@ -290,7 +296,7 @@ Welcome to NARS2000</h1>
      (<span class="APL"><i>f</i>{stardieresis}<i>g</i></span>,
       <span class="APL"><i>f</i>{stardieresis}<i>N</i></span>, and
       <span class="APL"><i>f</i>{stardieresis}{jot}</span>) (Power)</li>
-    <li>Primitive dyadic operator stile-tilde (<span class="APL"><i>f</i>{stiletilde}</span>) (Partition)</li>
+    <li>Primitive monadic operator stile-tilde (<span class="APL"><i>f</i>{stiletilde}[X]</span>) (Partition)</li>
     <li>Selective assignment (e.g., <span class="APL">(1 1{transpose}M){is}0</span>)</li>
   </ul>
 </div>
@@ -471,13 +477,13 @@ Welcome to NARS2000</h1>
       <li><b>Source Code Under Version Control:</b>
         <ul>
           <li>The source may be
-            <a class="linkleft" href="http://code.google.com/p/nars2000/source/browse/trunk">viewed</a>,
+            <a class="linkleft" href="http://sourceforge.net/p/nars2000/code/HEAD/tree/trunk">viewed</a>,
             as well as downloaded, one file at a time, from your browser.
           </li>
 
           <li>Or, using a version control program, the source may be
             downloaded, one file at a time or the whole lot.  In
-            particular, the source code is maintained on the Google Code site using
+            particular, the source code is maintained on the SourceForge site using
             <a class="linkleft" href="http://subversion.tigris.org/">Subversion</a>.
             There are various clients which may commmunicate with a Subversion
             server depending upon the operating system running on your computer.
@@ -486,7 +492,7 @@ Welcome to NARS2000</h1>
             This is one means by which developers may checkout and commit changes to
             the code.
             Using a version control program, the source code may be viewed using the URL
-            <a class="linkleft" href="http://code.google.com/p/nars2000/source/browse/trunk">http://code.google.com/p/nars2000/source/browse/trunk</a>.
+            <a class="linkleft" href="https://svn.code.sf.net/p/nars2000/code/trunk">https://svn.code.sf.net/p/nars2000/code/trunk</a>.
           </li>
         </ul>
       </li>
@@ -546,7 +552,7 @@ Welcome to NARS2000</h1>
        title="If the APL characters on this page don't display correctly, ..."
        href="http://archive.vector.org.uk/resource/apl385.ttf">APL385 Unicode</a>,
     or any of the other Unicode APL fonts (assuming they have all of the
-    <a class="linkleft" href="http://wiki.nars2000.org/index.php/APL_Font">extra
+    <a class="linkleft" href="http://wiki.nars2000.org/index.php/APL_Font#Extra_APL_Glyphs">extra
     APL glyphs</a> used on this site).
     Moreover, your choice of browser can materially affect how the APL
     characters appear.  Either <a class="linkleft"
@@ -571,8 +577,64 @@ Welcome to NARS2000</h1>
   <p>This project was started by
   <script type="text/javascript"
           src="/email.cgi?n=bsmith&amp;d=sudleyplace.com&amp;t=Bob%20Smith&amp;class=mailright"></script>
-  and is &copy; 2006-2014, Sudley Place Software.  Here's a link to some of my other
+  and is &copy; 2006-2016, Sudley Place Software.  Here's a link to some of my other
   <a class="linkleft" href="http://www.sudleyplace.com/APL/projects.html">APL-related pages</a>.</p>
+</div>
+
+<div class="section">
+  <h2 id="Donations">Donations</h2>
+
+<!--
+  <form action="https://bitpay.com/checkout" method="post" >
+    <input type="hidden" name="action" value="checkout" />
+    <input type="hidden" name="posData" value="" />
+    <input type="hidden" name="data"
+     value="6BgWqmkNeR/MMdItLcYsvSd27v0JmVhmPMAfTxXMfIFujRcvCKunJsd4ExOBiYozZALHJlefdmfzwVhHh27Gcm1jK9+UaFLMkU3WNEd2JS4KYR0ybphLYzYdcr9mrPQF7TJKsncReInyN3PbHUJsmGXJfFwkLPXo24bzDuVfnWP37aGziD814TLtXcEPf4ubCWqQnb1GZa07uUIIuKba2ws4v86IARE9cZDBXchx2PgayNQA9YxIW3uBQJdwxgPi" />
+    <input type="image" src="https://bitpay.com/img/donate-lg.png" border="0" name="submit" alt="BitPay, the easy way to pay with bitcoins." >
+  </form>
+-->
+<!--
+  <a class="coinbase-button"
+     data-code="da825972750d46f41b0adc2ad1418e02"
+     data-button-style="none"
+     href="https://www.coinbase.com/checkouts/da825972750d46f41b0adc2ad1418e02">
+  <script src="https://www.coinbase.com/assets/button.js" type="text/javascript"></script>
+-->
+
+  <a href="https://www.coinbase.com/checkouts/9b3ff639ed735aa5fa62b00383d36040" target="_blank">
+  <img src="http://www.nars2000.org/art/NARS2000 Donation.jpg"
+          height="120"
+          width="120"
+          alt="Donate Bitcoins to NARS2000"
+          style="float: left; border: 10px inset transparent;"
+          /></a>
+  <p>This Open Source project is a labor of love &mdash; promoting APL since 1969 has been very personally rewarding.
+    Although I have no interest in making any money on this effort, another of my interests is promoting
+      <a class="linkleft" href="http://en.wikipedia.org/wiki/Bitcoin">Bitcoin</a>, so here's your
+      opportunity to make a micro-payment to express your support.
+    The <a class="linkleft" href="http://en.wikipedia.org/wiki/QR_code">QR Code</a> to the left
+      allows you to send a tiny bit of money to my Bitcoin wallet, and by tiny bit, I mean
+      <span style="font-family: BTCFont">B</span>0.0005 (Bitcoins) which at the current rate is between 10 and 50 cents.
+    This amount is the minimum some Bitcoin wallets allow you to transfer, below which the
+      transaction might be delayed indefinitely, or ignored entirely.</p>
+
+    <p>You may use either of two methods to donate:</p>
+    <ul>
+      <li>Open the Bitcoin wallet on your smartphone, scan the QR Code above, and press send.
+        <br />OR</li>
+      <li>Click on the QR Code and follow the prompts.</li>
+    </ul>
+
+    <p>Of course, you must have a Bitcoin account for this to work.
+       If you don't already have a Bitcoin account, click
+       <a class="linkleft" href="https://www.coinbase.com/join/bsmith_oXXPTQ?src=email-invite">to get started</a>.</p>
+
+    <p>Otherwise, if you have a problem using either of the above methods, please
+      <script type="text/javascript"
+              src="/email.cgi?n=sitemaster&amp;t=contact me&amp;class=mailright"></script>
+       so I can fix it.</p>
+
+    <p>Thank you very much for supporting this project with Bitcoins!</p>
 </div>
 
 <!--#include virtual="/ValidXHTML-CSS.html" -->

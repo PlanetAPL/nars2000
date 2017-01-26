@@ -1,0 +1,10 @@
+Build #1371 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Encode In Case Of Blowup Due To Negative Zero In Result
+
+Directory trunk:
+
+PF_DTACK.C:
+  Handle restart after blowing up from INT->FLT, RAT->VFP, etc.
+    due to an element of the result being negative zero.

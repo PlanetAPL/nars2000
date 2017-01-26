@@ -1,0 +1,11 @@
+Build #1510 -- Version 0.4.15.xx
+--------------------------------
+
+* Allow More SysVars To Be Used With Variant Operator In Long Form Notation
+
+Directory trunk:
+
+EXTERNS.H:
+PO_VARIANT.C:
+SYSVARS.C:
+  Allow more SysVars to be used with the variant operator in the long form notation, e.g. ('FPC' 60).

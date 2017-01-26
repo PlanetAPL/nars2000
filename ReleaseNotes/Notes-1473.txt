@@ -1,0 +1,9 @@
+Build #1473 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In CS Parsing To Handle Missing Case of ElseIf ElseIf
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Fix bug in CS parsing to handle missing case of consecutive ElseIf ElseIf.

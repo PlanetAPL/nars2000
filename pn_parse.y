@@ -8,7 +8,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -92,7 +92,7 @@ void pn_yyprint     (FILE *yyoutput, unsigned short int yytoknum, PN_YYSTYPE con
 %}
 
 %pure-parser
-%name-prefix="pn_yy"
+%name-prefix "pn_yy"
 %parse-param {LPPNLOCALVARS lppnLocalVars}
 %lex-param   {LPPNLOCALVARS lppnLocalVars}
 %token EXT INF OVR
@@ -151,11 +151,30 @@ Integer:
                                     }
     ;
 
+// Unsigned integer
+UnInteger:
+              Digit                 {DbgMsgWP (L"%%UnInteger:  Digit");
+                                     // Mark starting offset
+                                     $1.uNumAcc = lppnLocalVars->uNumAcc;
+
+                                     // Accumulate the digit
+                                     PN_NumAcc (lppnLocalVars, $1.chCur);
+
+                                     $$ = $1;
+                                    }
+    | Integer Digit                 {DbgMsgWP (L"%%UnInteger:  Integer Digit");
+                                     // Accumulate the digit
+                                     PN_NumAcc (lppnLocalVars, $2.chCur);
+                                    }
+    ;
+
 AlphaInt:
                Alphabet             {DbgMsgWP (L"%%AlphaInt:  Alphabet");
+                                     lppnLocalVars->uAlpAcc = 0;
                                      PN_ChrAcc (lppnLocalVars, $1.chCur);
                                     }
     |          Digit                {DbgMsgWP (L"%%AlphaInt:  Digit");
+                                     lppnLocalVars->uAlpAcc = 0;
                                      PN_ChrAcc (lppnLocalVars, $1.chCur);
                                     }
     | AlphaInt Alphabet             {DbgMsgWP (L"%%AlphaInt:  Alphaint Alphabet");
@@ -207,6 +226,15 @@ Decimal:
                                     }
     ;
 
+UnIntPoint:
+      UnInteger                     {DbgMsgWP (L"%%UnIntPoint:  UnInteger");
+                                     // Calculate the number
+                                     PN_NumCalc (lppnLocalVars, &$1, FALSE);
+
+                                     $$ = $1;
+                                    }
+    ;
+
 DecPoint:
       Integer                       {DbgMsgWP (L"%%DecPoint:  Integer");
                                      // Terminate the argument
@@ -224,8 +252,8 @@ DecPoint:
                                      // Terminate the argument
                                      PN_NumAcc (lppnLocalVars, '\0');
 
-                                     // Mark the result as integer
-                                     $1.chType = PN_NUMTYPE_INT;
+                                     // Mark the result as float
+                                     $1.chType = PN_NUMTYPE_FLT;
 
                                      // Calculate the number
                                      PN_NumCalc (lppnLocalVars, &$1, FALSE);
@@ -249,368 +277,165 @@ DecPoint:
 DecConstants:
           INF                       {DbgMsgWP (L"%%DecConstants:  INF");
                                      // Set constant infinity
-                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_FLT,  1);
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_FLT, $1.uNumStart,  1, NULL);
                                     }
     | OVR INF                       {DbgMsgWP (L"%%DecConstants:  OVR INF");
                                      // Set constant infinity
-                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_FLT, -1);
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_FLT, $1.uNumStart, -1, NULL);
                                     }
     ;
 
 VfpConstants:
           INF DEF_VFPSEP            {DbgMsgWP (L"%%VfpConstants:  INF 'v'");
                                      // Set constant infinity
-                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_VFP,  1);
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_VFP, $1.uNumStart,  1, NULL);
+                                    }
+    |     INF DEF_VFPSEP UnIntPoint {DbgMsgWP (L"%%VfpConstants:  INF 'v' UnIntPoint");
+                                     // Set constant infinity
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_VFP, $1.uNumStart,  1, &$3.at.aplInteger);
                                     }
     | OVR INF DEF_VFPSEP            {DbgMsgWP (L"%%VfpConstants:  OVR INF 'v'");
                                      // Set constant infinity
-                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_VFP, -1);
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_VFP, $1.uNumStart, -1, NULL);
+                                     if (lppnLocalVars->bYYERROR)
+                                        YYERROR;
+                                    }
+    | OVR INF DEF_VFPSEP UnIntPoint {DbgMsgWP (L"%%VfpConstants:  OVR INF 'v' UnIntPoint");
+                                     // Set constant infinity
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_VFP, $1.uNumStart, -1, &$4.at.aplInteger);
+                                     if (lppnLocalVars->bYYERROR)
+                                        YYERROR;
                                     }
     ;
 
-// Complex Point
-/// Hc2Point:
-///       DecPoint 'i' DecPoint         {DbgMsgWP (L"%%Hc2Point:  DecPoint 'i' DecPoint");
-///                                      // If the real part is integer, ...
-///                                      if (IsIntegerType ($1.chType))
-///                                          // Convert it to float
-///                                          $1.at.aplFloat = (APLFLOAT) $1.at.aplInteger;
-///                                      // If the imaginary part is integer, ...
-///                                      if (IsIntegerType ($3.chType))
-///                                          // Convert it to float
-///                                          $3.at.aplFloat = (APLFLOAT) $3.at.aplInteger;
-///
-///                                      // Save the real & imaginary parts
-///                                      $1.at.aplHC2.Real = $1.at.aplFloat;
-///                                      $1.at.aplHC2.Imag = $3.at.aplFloat;
-///
-///                                      // Mark the result as Complex
-///                                      $1.chType = PN_NUMTYPE_HC2;
-///
-///                                      $$ = $1;
-///                                     }
-///     | DecPoint 'J' DecPoint         {DbgMsgWP (L"%%Hc2Point:  DecPoint 'J' DecPoint");
-///                                      // If the real part is integer, ...
-///                                      if (IsIntegerType ($1.chType))
-///                                          // Convert it to float
-///                                          $1.at.aplFloat = (APLFLOAT) $1.at.aplInteger;
-///                                      // If the imaginary part is integer, ...
-///                                      if (IsIntegerType ($3.chType))
-///                                          // Convert it to float
-///                                          $3.at.aplFloat = (APLFLOAT) $3.at.aplInteger;
-///
-///                                      // Save the real & imaginary parts
-///                                      $1.at.aplHC2.Real = $1.at.aplFloat;
-///                                      $1.at.aplHC2.Imag = $3.at.aplFloat;
-///
-///                                      // Mark the result as Complex
-///                                      $1.chType = PN_NUMTYPE_HC2;
-///
-///                                      $$ = $1;
-///                                     }
-///     | DecPoint 'a' 'd' DecPoint     {DbgMsgWP (L"%%Hc2Point:  DecPoint 'a' 'd' DecPoint");
-///                                      // If the real part is integer, ...
-///                                      if (IsIntegerType ($1.chType))
-///                                          // Convert it to float
-///                                          $1.at.aplFloat = (APLFLOAT) $1.at.aplInteger;
-///                                      // If the imaginary part is integer, ...
-///                                      if (IsIntegerType ($4.chType))
-///                                          // Convert it to float
-///                                          $4.at.aplFloat = (APLFLOAT) $4.at.aplInteger;
-///
-///                                      // Convert from degrees to radians
-///                                      $4.at.aplFloat = FloatPi * $4.at.aplFloat / 180;
-///
-///                                      // Save the real & imaginary parts
-///                                      // ***FIXME*** -- Do we need to reduce the radians modulo Pi/2 ??
-///                                      $1.at.aplHC2.Real = $1.at.aplFloat * cos ($4.at.aplFloat);
-///                                      $1.at.aplHC2.Imag = $1.at.aplFloat * sin ($4.at.aplFloat);
-///
-///                                      // Mark the result as Complex
-///                                      $1.chType = PN_NUMTYPE_HC2;
-///
-///                                      $$ = $1;
-///                                     }
-///     | DecPoint 'a' 'r' DecPoint     {DbgMsgWP (L"%%Hc2Point:  DecPoint 'a' 'r' DecPoint");
-///                                      // If the real part is integer, ...
-///                                      if (IsIntegerType ($1.chType))
-///                                          // Convert it to float
-///                                          $1.at.aplFloat = (APLFLOAT) $1.at.aplInteger;
-///                                      // If the imaginary part is integer, ...
-///                                      if (IsIntegerType ($4.chType))
-///                                          // Convert it to float
-///                                          $4.at.aplFloat = (APLFLOAT) $4.at.aplInteger;
-///
-///                                      // Save the real & imaginary parts
-///                                      // ***FIXME*** -- Do we need to reduce the radians modulo Pi/2 ??
-///                                      $1.at.aplHC2.Real = $1.at.aplFloat * cos ($4.at.aplFloat);
-///                                      $1.at.aplHC2.Imag = $1.at.aplFloat * sin ($4.at.aplFloat);
-///
-///                                      // Mark the result as Complex
-///                                      $1.chType = PN_NUMTYPE_HC2;
-///
-///                                      $$ = $1;
-///                                     }
-///     ;
-///
-/// // Quaternion Point
-/// Hc4Point:
-///       DecPoint 'i' DecPoint 'j' DecPoint 'i' 'j' DecPoint
-///                                     {DbgMsgWP (L"%%Hc4Point:  DecPoint 'i' DecPoint 'j' DecPoint 'i' 'j' DecPoint");
-///                                      // If the real part is integer, ...
-///                                      if (IsIntegerType ($1.chType))
-///                                          // Convert it to float
-///                                          $1.at.aplFloat = (APLFLOAT) $1.at.aplInteger;
-///                                      // If the imaginary part #1 is integer, ...
-///                                      if (IsIntegerType ($3.chType))
-///                                          // Convert it to float
-///                                          $3.at.aplFloat = (APLFLOAT) $3.at.aplInteger;
-///                                      // If the imaginary part #2 is integer, ...
-///                                      if (IsIntegerType ($5.chType))
-///                                          // Convert it to float
-///                                          $5.at.aplFloat = (APLFLOAT) $5.at.aplInteger;
-///                                      // If the imaginary part #3 is integer, ...
-///                                      if (IsIntegerType ($8.chType))
-///                                          // Convert it to float
-///                                          $8.at.aplFloat = (APLFLOAT) $8.at.aplInteger;
-///
-///                                      // Save the real & imaginary parts
-///                                      $1.at.aplHC4.Real  = $1.at.aplFloat;
-///                                      $1.at.aplHC4.Imag1 = $3.at.aplFloat;
-///                                      $1.at.aplHC4.Imag2 = $5.at.aplFloat;
-///                                      $1.at.aplHC4.Imag3 = $8.at.aplFloat;
-///
-///                                      // Mark the result as Quaternion
-///                                      $1.chType = PN_NUMTYPE_HC4;
-///
-///                                      $$ = $1;
-///                                     }
-///     | DecPoint 'i' DecPoint 'j' DecPoint 'k' DecPoint
-///                                     {DbgMsgWP (L"%%Hc4Point:  DecPoint 'i' DecPoint 'j' DecPoint 'k' DecPoint");
-///                                      // If the real part is integer, ...
-///                                      if (IsIntegerType ($1.chType))
-///                                          // Convert it to float
-///                                          $1.at.aplFloat = (APLFLOAT) $1.at.aplInteger;
-///                                      // If the imaginary part #1 is integer, ...
-///                                      if (IsIntegerType ($3.chType))
-///                                          // Convert it to float
-///                                          $3.at.aplFloat = (APLFLOAT) $3.at.aplInteger;
-///                                      // If the imaginary part #2 is integer, ...
-///                                      if (IsIntegerType ($5.chType))
-///                                          // Convert it to float
-///                                          $5.at.aplFloat = (APLFLOAT) $5.at.aplInteger;
-///                                      // If the imaginary part #3 is integer, ...
-///                                      if (IsIntegerType ($7.chType))
-///                                          // Convert it to float
-///                                          $7.at.aplFloat = (APLFLOAT) $7.at.aplInteger;
-///
-///                                      // Save the real & imaginary parts
-///                                      $1.at.aplHC4.Real  = $1.at.aplFloat;
-///                                      $1.at.aplHC4.Imag1 = $3.at.aplFloat;
-///                                      $1.at.aplHC4.Imag2 = $5.at.aplFloat;
-///                                      $1.at.aplHC4.Imag3 = $7.at.aplFloat;
-///
-///                                      // Mark the result as Quaternion
-///                                      $1.chType = PN_NUMTYPE_HC4;
-///
-///                                      $$ = $1;
-///                                     }
-///     ;
-///
-/// // Octonion Point
-/// Hc8Point:
-///       DecPoint 'i' DecPoint 'j' DecPoint 'k' DecPoint 'l' DecPoint 'i' 'j' DecPoint 'i' 'k' DecPoint 'i' 'l' DecPoint
-///                                     {DbgMsgWP (L"%%Hc4Point:  DecPoint 'i' DecPoint 'j' DecPoint 'k' DecPoint 'l' DecPoint 'i' 'j' DecPoint 'i' 'k' DecPoint 'i' 'l' DecPoint");
-///                                      // If the real part is integer, ...
-///                                      if (IsIntegerType ($1.chType))
-///                                          // Convert it to float
-///                                          $1.at.aplFloat = (APLFLOAT) $1.at.aplInteger;
-///                                      // If the imaginary part #1 is integer, ...
-///                                      if (IsIntegerType ($3.chType))
-///                                          // Convert it to float
-///                                          $3.at.aplFloat = (APLFLOAT) $3.at.aplInteger;
-///                                      // If the imaginary part #2 is integer, ...
-///                                      if (IsIntegerType ($5.chType))
-///                                          // Convert it to float
-///                                          $5.at.aplFloat = (APLFLOAT) $5.at.aplInteger;
-///                                      // If the imaginary part #3 is integer, ...
-///                                      if (IsIntegerType ($7.chType))
-///                                          // Convert it to float
-///                                          $7.at.aplFloat = (APLFLOAT) $7.at.aplInteger;
-///                                      // If the imaginary part #4 is integer, ...
-///                                      if (IsIntegerType ($9.chType))
-///                                          // Convert it to float
-///                                          $9.at.aplFloat = (APLFLOAT) $9.at.aplInteger;
-///                                      // If the imaginary part #5 is integer, ...
-///                                      if (IsIntegerType ($12.chType))
-///                                          // Convert it to float
-///                                          $12.at.aplFloat = (APLFLOAT) $12.at.aplInteger;
-///                                      // If the imaginary part #6 is integer, ...
-///                                      if (IsIntegerType ($15.chType))
-///                                          // Convert it to float
-///                                          $15.at.aplFloat = (APLFLOAT) $15.at.aplInteger;
-///                                      // If the imaginary part #7 is integer, ...
-///                                      if (IsIntegerType ($18.chType))
-///                                          // Convert it to float
-///                                          $18.at.aplFloat = (APLFLOAT) $18.at.aplInteger;
-///
-///                                      // Save the real & imaginary parts
-///                                      $1.at.aplHC8.Real  = $1.at.aplFloat;
-///                                      $1.at.aplHC8.Imag1 = $3.at.aplFloat;
-///                                      $1.at.aplHC8.Imag2 = $5.at.aplFloat;
-///                                      $1.at.aplHC8.Imag3 = $7.at.aplFloat;
-///                                      $1.at.aplHC8.Imag4 = $9.at.aplFloat;
-///                                      $1.at.aplHC8.Imag5 = $12.at.aplFloat;
-///                                      $1.at.aplHC8.Imag6 = $15.at.aplFloat;
-///                                      $1.at.aplHC8.Imag7 = $18.at.aplFloat;
-///
-///                                      // Mark the result as Octonion
-///                                      $1.chType = PN_NUMTYPE_HC8;
-///
-///                                      $$ = $1;
-///                                     }
-///     ;
-
-Rational:
-      Integer  DEF_RATSEP Digit     {DbgMsgWP (L"%%Rational:  Integer 'r' Digit");
-                                     // Terminate the argument
-                                     PN_NumAcc (lppnLocalVars, '\0');
-
-                                     // Mark the result as integer
-                                     $1.chType = PN_NUMTYPE_INT;
-
-                                     // Calculate the number
-                                     PN_NumCalc (lppnLocalVars, &$1, TRUE);
-
-                                     // Mark starting offset
-                                     $1.uNumAcc = lppnLocalVars->uNumAcc;
-
-                                     // Accumulate the digit
-                                     PN_NumAcc (lppnLocalVars, $3.chCur);
-
-                                     $$ = $1;
-                                    }
-    | Integer  DEF_RATSEP OVR Digit {DbgMsgWP (L"%%Rational:  Integer 'r' '" WS_UTF16_OVERBAR L"' Digit");
-                                     // Terminate the argument
-                                     PN_NumAcc (lppnLocalVars, '\0');
-
-                                     // Mark the result as integer
-                                     $1.chType = PN_NUMTYPE_INT;
-
-                                     // Calculate the number
-                                     PN_NumCalc (lppnLocalVars, &$1, TRUE);
-
-                                     // Mark starting offset
-                                     $1.uNumAcc = lppnLocalVars->uNumAcc;
-
-                                     // Accumulate the negative sign
-                                     PN_NumAcc (lppnLocalVars, OVERBAR1);
-
-                                     // Accumulate the digit
-                                     PN_NumAcc (lppnLocalVars, $4.chCur);
-
-                                     $$ = $1;
-                                    }
-    | Rational         Digit        {DbgMsgWP (L"%%Rational:  Rational Digit");
-                                     // Accumulate the digit
-                                     PN_NumAcc (lppnLocalVars, $2.chCur);
-                                    }
+// RatPoint left and right arguments
+// ExtPoint left arg
+RatArgs:
+      DecPoint
+    | ExpPoint
     ;
 
 RatPoint:
-      Rational                      {DbgMsgWP (L"%%RatPoint:  Rational");
-                                     // Terminate the argument
-                                     PN_NumAcc (lppnLocalVars, '\0');
-
-                                     // Mark the result as rational
-                                     $1.chType = PN_NUMTYPE_RAT;
-
-                                     // Calculate the number
-                                     PN_NumCalc (lppnLocalVars, &$1, TRUE);
-
-                                     $$ = $1;
+      RatArgs  DEF_RATSEP RatArgs   {DbgMsgWP (L"%%RatPoint:  RatArgs 'r' RatArgs");
+                                     // Make it into a RatPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeRatPoint   (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
     ;
 
-RatConstants:
-          INF EXT                   {DbgMsgWP (L"%%RatConstants:  INF 'x'");
+RatConstantsInt:
+          INF  DEF_RATSEP RatArgs   {DbgMsgWP (L"%%RatConstantsInt:  INF 'r' RatArgs");
                                      // Set constant infinity
-                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_RAT,  1);
+                                     //   taking into account negative integer and -0
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_RAT, $1.uNumStart,  1 - 2 * (lppnLocalVars->lpszNumAccum[0] EQ OVERBAR1), NULL);
                                     }
-    |     INF DEF_RATSEP Integer    {DbgMsgWP (L"%%RatConstants:  INF 'r' Integer");
+    | OVR INF  DEF_RATSEP RatArgs   {DbgMsgWP (L"%%RatConstantsInt:  OVR INF 'r' RatArgs");
                                      // Set constant infinity
-                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_RAT,  1);
+                                     //   taking into account negative integer and -0
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_RAT, $1.uNumStart,  (2 * (lppnLocalVars->lpszNumAccum[0] EQ OVERBAR1)) - 1, NULL);
                                     }
-    | OVR INF EXT                   {DbgMsgWP (L"%%RatConstants:  OVR INF 'x'");
+    | RatArgs  DEF_RATSEP INF       {DbgMsgWP (L"%%RatConstantsInt:  RatArgs 'r' INF");
+                                     // If the integer is signed, ...
+                                     if (gAllowNeg0
+                                      && lppnLocalVars->lpszNumAccum[0] EQ OVERBAR1)
+                                     {
+                                         // Initialize the result and set to -0
+                                         mpfr_init_set_str (&$$.at.aplVfp, "-0", 10, MPFR_RNDN);
+
+                                         // Mark the result as VFP
+                                         $$.chType = PN_NUMTYPE_VFP;
+                                     } else
+                                     {
+                                         // Initialize the result to 0/1
+                                         mpq_init (&$$.at.aplRat);
+
+                                         // Mark the result as RAT
+                                         $$.chType = PN_NUMTYPE_RAT;
+                                     } // End IF/ELSE
+                                    }
+    | RatArgs  DEF_RATSEP OVR INF   {DbgMsgWP (L"%%RatConstantsInt:  RatArgs 'r' OVR INF");
+                                     // If the integer is NOT signed, ...
+                                     if (gAllowNeg0
+                                      && lppnLocalVars->lpszNumAccum[0] NE OVERBAR1)
+                                     {
+                                         // Initialize the result and set to -0
+                                         mpfr_init_set_str (&$$.at.aplVfp, "-0", 10, MPFR_RNDN);
+
+                                         // Mark the result as VFP
+                                         $$.chType = PN_NUMTYPE_VFP;
+                                     } else
+                                     {
+                                         // Initialize the result to 0/1
+                                         mpq_init (&$$.at.aplRat);
+
+                                         // Mark the result as RAT
+                                         $$.chType = PN_NUMTYPE_RAT;
+                                     } // End IF/ELSE
+                                    }
+    ;
+
+RatConstantsExt:
+          INF EXT                   {DbgMsgWP (L"%%RatConstantsExt:  INF 'x'");
                                      // Set constant infinity
-                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_RAT, -1);
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_RAT, $1.uNumStart,  1, NULL);
                                     }
-    | OVR INF DEF_RATSEP Integer    {DbgMsgWP (L"%%RatConstants:  OVR INF 'r' Integer");
+    | OVR INF EXT                   {DbgMsgWP (L"%%RatConstantsExt:  OVR INF 'x'");
                                      // Set constant infinity
-                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_RAT, -1);
-                                    }
-    | Integer DEF_RATSEP INF        {DbgMsgWP (L"%%RatConstants:  Integer 'r' INF");
-                                     // Initialize to 0/1
-                                     mpq_init (&$1.at.aplRat);
-
-                                     // Mark the result as RAT
-                                     $1.chType = PN_NUMTYPE_RAT;
-
-                                     $$ = $1;
-                                    }
-    | Integer DEF_RATSEP OVR INF    {DbgMsgWP (L"%%RatConstants:  Integer 'r' OVR INF");
-                                     // Initialize to 0/1
-                                     mpq_init (&$1.at.aplRat);
-
-                                     // Mark the result as RAT
-                                     $1.chType = PN_NUMTYPE_RAT;
-
-                                     $$ = $1;
+                                     $$ = PN_SetInfinity (lppnLocalVars, PN_NUMTYPE_RAT, $1.uNumStart, -1, NULL);
                                     }
     ;
 
 ExtPoint:
-      Integer EXT                   {DbgMsgWP (L"%%ExtPoint:  Integer 'x'");
-                                     // Terminate the argument
-                                     PN_NumAcc (lppnLocalVars, '\0');
-
-                                     // Mark the result as integer
-                                     $1.chType = PN_NUMTYPE_INT;
-
-                                     // Calculate the number
-                                     PN_NumCalc (lppnLocalVars, &$1, TRUE);
-
-                                     // Set the denominator to 1
-                                     mpz_init_set_ui (mpq_denref (&$1.at.aplRat), 1);
-
-                                     // Mark the result as rational
-                                     $1.chType = PN_NUMTYPE_RAT;
-
-                                     $$ = $1;
+      RatArgs  EXT                  {DbgMsgWP (L"%%ExtPoint:  RatArgs 'x'");
+                                     // Make it into a RatPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeRatPoint   (&$1, NULL, lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
     ;
 
-// Euler/Pi left and right arguments
-EPArgs:
-      DecPoint                      {DbgMsgWP (L"%%EPArgs:  DecPoint");
+// Euler/Pi/Gamma left and right arguments
+EPGArgs:
+      DecPoint
+    | ExpPoint
+    | RatPoint
+    | VfpPoint
+    ;
+
+GammaPoint:
+      EPGArgs   'g' EPGArgs         {DbgMsgWP (L"%%GammaPoint:  EPGArgs 'g' EPGArgs");
+                                     // Make it into a GammaPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeGammaPoint (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
-    | ExpPoint                      {DbgMsgWP (L"%%EPArgs:  ExpPoint");
-                                    }
-////| Hc2Point                      {DbgMsgWP (L"%%EPArgs:  Hc2Point");
-////                                }
-////| Hc4Point                      {DbgMsgWP (L"%%EPArgs:  Hc4Point");
-////                                }
-////| Hc8Point                      {DbgMsgWP (L"%%EPArgs:  Hc8Point");
-////                                }
-    | RatPoint                      {DbgMsgWP (L"%%EPArgs:  RatPoint");
-                                    }
-    | VfpPoint                      {DbgMsgWP (L"%%EPArgs:  VfpPoint");
+    | EPGArgs   'g' ExtPoint        {DbgMsgWP (L"%%GammaPoint:  EPGArgs 'g' ExtPoint");
+                                     // Make it into a GammaPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeGammaPoint (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
     ;
 
 PiPoint:
-      EPArgs    'p' EPArgs          {DbgMsgWP (L"%%PiPoint:  EPArgs 'p' EPArgs");
-                                     $$ = *PN_MakePiPoint (lppnLocalVars, &$1, &$3);
+      EPGArgs   'p' EPGArgs         {DbgMsgWP (L"%%PiPoint:  EPGArgs 'p' EPGArgs");
+                                     // Make it into a PiPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakePiPoint    (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
+                                    }
+    | EPGArgs   'p' ExtPoint        {DbgMsgWP (L"%%PiPoint:  EPGArgs 'p' ExtPoint");
+                                     // Make it into a PiPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakePiPoint    (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
     ;
 
@@ -619,8 +444,9 @@ ExpPoint:
                                      // Terminate the (Exponent) argument
                                      PN_NumAcc (lppnLocalVars, '\0');
 
-                                     lppnLocalVars->lpYYRes = PN_MakeExpPoint (lppnLocalVars, &$1, &$3);
-                                     if (!lppnLocalVars->lpYYRes)
+                                     // Make it into a ExpPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeExpPoint   (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
                                          YYERROR2;
                                      $$ = *lppnLocalVars->lpYYRes;
                                     }
@@ -628,8 +454,9 @@ ExpPoint:
                                      // Terminate the (Exponent) argument
                                      PN_NumAcc (lppnLocalVars, '\0');
 
-                                     lppnLocalVars->lpYYRes = PN_MakeExpPoint (lppnLocalVars, &$1, &$3);
-                                     if (!lppnLocalVars->lpYYRes)
+                                     // Make it into a ExpPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeExpPoint   (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
                                          YYERROR2;
                                      $$ = *lppnLocalVars->lpYYRes;
                                     }
@@ -637,57 +464,97 @@ ExpPoint:
 
 VfpPoint:
       DecPoint DEF_VFPSEP           {DbgMsgWP (L"%%VfpPoint:  DecPoint 'v'");
-                                     $$ = *PN_MakeVfpPoint (lppnLocalVars, &$1, NULL);
+                                     // Make it into a VfpPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeVfpPoint   (&$1, NULL, lppnLocalVars, NULL);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
+                                    }
+    | DecPoint DEF_VFPSEP UnIntPoint{DbgMsgWP (L"%%VfpPoint:  DecPoint 'v' UnIntPoint");
+                                     // Make it into a VfpPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeVfpPoint   (&$1, NULL, lppnLocalVars, &$3.at.aplInteger);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
     | DecPoint 'e' Integer DEF_VFPSEP
                                     {DbgMsgWP (L"%%VfpPoint:  DecPoint 'e' Integer 'v'");
                                      // Terminate the (Exponent) argument
                                      PN_NumAcc (lppnLocalVars, '\0');
 
-                                     $$ = *PN_MakeVfpPoint (lppnLocalVars, &$1, &$3);
+                                     // Make it into a VfpPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeVfpPoint   (&$1, &$3,  lppnLocalVars, NULL);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
+                                    }
+    | DecPoint 'e' Integer DEF_VFPSEP UnIntPoint
+                                    {DbgMsgWP (L"%%VfpPoint:  DecPoint 'e' Integer 'v'");
+                                     // Terminate the (Exponent) argument
+                                     PN_NumAcc (lppnLocalVars, '\0');
+
+                                     // Make it into a VfpPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeVfpPoint   (&$1, &$3,  lppnLocalVars, &$5.at.aplInteger);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
     | DecPoint 'E' Integer DEF_VFPSEP
                                     {DbgMsgWP (L"%%VfpPoint:  DecPoint 'E' Integer 'v'");
                                      // Terminate the (Exponent) argument
                                      PN_NumAcc (lppnLocalVars, '\0');
 
-                                     $$ = *PN_MakeVfpPoint (lppnLocalVars, &$1, &$3);
+                                     // Make it into a VfpPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeVfpPoint   (&$1, &$3,  lppnLocalVars, NULL);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
+                                    }
+    | DecPoint 'E' Integer DEF_VFPSEP UnIntPoint
+                                    {DbgMsgWP (L"%%VfpPoint:  DecPoint 'E' Integer 'v'");
+                                     // Terminate the (Exponent) argument
+                                     PN_NumAcc (lppnLocalVars, '\0');
+
+                                     // Make it into a VfpPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeVfpPoint   (&$1, &$3,  lppnLocalVars, &$5.at.aplInteger);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
     ;
 
 EulerPoint:
-      EPArgs   'x' EPArgs           {DbgMsgWP (L"%%EulerPoint:  EPArgs 'x' EPArgs");
-                                     $$ = *PN_MakeEulerPoint (lppnLocalVars, &$1, &$3);
+      EPGArgs  'x' EPGArgs          {DbgMsgWP (L"%%EulerPoint:  EPGArgs 'x' EPGArgs");
+                                     // Make it into a EulerPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeEulerPoint (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
+                                    }
+    | EPGArgs  'x' ExtPoint         {DbgMsgWP (L"%%EulerPoint:  EPGArgs 'x' ExtPoint");
+                                     // Make it into a EulerPoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeEulerPoint (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
     ;
 
+// BasePoint left args
+BaseArgs:
+      EPGArgs
+    | EulerPoint
+    | GammaPoint
+    | PiPoint
+    ;
+
 BasePoint:
-      DecPoint   'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  DecPoint 'b' AlphaInt");
-                                     $$ = *PN_MakeBasePoint (lppnLocalVars, &$1, &$3);
-                                    }
-    | EulerPoint 'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  EulerPoint 'b' AlphaInt");
-                                     $$ = *PN_MakeBasePoint (lppnLocalVars, &$1, &$3);
-                                    }
-    | ExpPoint   'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  ExpPoint 'b' AlphaInt");
-                                     $$ = *PN_MakeBasePoint (lppnLocalVars, &$1, &$3);
-                                    }
-    | PiPoint    'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  PiPoint 'b' AlphaInt");
-                                     $$ = *PN_MakeBasePoint (lppnLocalVars, &$1, &$3);
-                                    }
-    | RatPoint   'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  RatPoint 'b' AlphaInt");
-                                     $$ = *PN_MakeBasePoint (lppnLocalVars, &$1, &$3);
-                                    }
-////| Hc2Point   'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  Hc2Point 'b' AlphaInt");
-////                                 $$ = *PN_MakeBasePoint (lppnLocalVars, &$1, &$3);
-////                                }
-////| Hc4Point   'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  Hc4Point 'b' AlphaInt");
-////                                 $$ = *PN_MakeBasePoint (lppnLocalVars, &$1, &$3);
-////                                }
-////| Hc8Point   'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  Hc8Point 'b' AlphaInt");
-////                                 $$ = *PN_MakeBasePoint (lppnLocalVars, &$1, &$3);
-////                                }
-    | VfpPoint   'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  VfpPoint 'b' AlphaInt");
-                                     $$ = *PN_MakeBasePoint (lppnLocalVars, &$1, &$3);
+      BaseArgs   'b' AlphaInt       {DbgMsgWP (L"%%BasePoint:  BaseArgs 'b' AlphaInt");
+                                     // Make it into a BasePoint number
+                                     lppnLocalVars->lpYYRes = PN_MakeBasePoint  (&$1, &$3,  lppnLocalVars);
+                                     if (lppnLocalVars->lpYYRes EQ NULL)
+                                         YYERROR2;
+                                     $$ = *lppnLocalVars->lpYYRes;
                                     }
     ;
 
@@ -696,15 +563,7 @@ Number:
                                      lppnLocalVars->at             = $1.at;
                                      lppnLocalVars->chType         = $1.chType;
                                     }
-    | DecPoint                      {DbgMsgWP (L"%%Number:  DecPoint");
-                                     lppnLocalVars->at             = $1.at;
-                                     lppnLocalVars->chType         = $1.chType;
-                                    }
-    | EulerPoint                    {DbgMsgWP (L"%%Number:  EulerPoint");
-                                     lppnLocalVars->at             = $1.at;
-                                     lppnLocalVars->chType         = $1.chType;
-                                    }
-    | ExpPoint                      {DbgMsgWP (L"%%Number:  ExpPoint");
+    | BaseArgs                      {DbgMsgWP (L"%%Number:  BaseArgs");
                                      lppnLocalVars->at             = $1.at;
                                      lppnLocalVars->chType         = $1.chType;
                                     }
@@ -712,35 +571,15 @@ Number:
                                      lppnLocalVars->at             = $1.at;
                                      lppnLocalVars->chType         = $1.chType;
                                     }
-    | PiPoint                       {DbgMsgWP (L"%%Number:  PiPoint");
-                                     lppnLocalVars->at             = $1.at;
-                                     lppnLocalVars->chType         = $1.chType;
-                                    }
-    | RatPoint                      {DbgMsgWP (L"%%Number:  RatPoint");
-                                     lppnLocalVars->at             = $1.at;
-                                     lppnLocalVars->chType         = $1.chType;
-                                    }
-////| Hc2Point                      {DbgMsgWP (L"%%Number:  Hc2Point");
-////                                 lppnLocalVars->at             = $1.at;
-////                                 lppnLocalVars->chType         = $1.chType;
-////                                }
-////| Hc4Point                      {DbgMsgWP (L"%%Number:  Hc4Point");
-////                                 lppnLocalVars->at             = $1.at;
-////                                 lppnLocalVars->chType         = $1.chType;
-////                                }
-////| Hc8Point                      {DbgMsgWP (L"%%Number:  Hc8Point");
-////                                 lppnLocalVars->at             = $1.at;
-////                                 lppnLocalVars->chType         = $1.chType;
-////                                }
-    | VfpPoint                      {DbgMsgWP (L"%%Number:  VfpPoint");
-                                     lppnLocalVars->at             = $1.at;
-                                     lppnLocalVars->chType         = $1.chType;
-                                    }
     | DecConstants                  {DbgMsgWP (L"%%Number:  DecConstants");
                                      lppnLocalVars->at             = $1.at;
                                      lppnLocalVars->chType         = $1.chType;
                                     }
-    | RatConstants                  {DbgMsgWP (L"%%Number:  RatConstants");
+    | RatConstantsExt               {DbgMsgWP (L"%%Number:  RatConstantsExt");
+                                     lppnLocalVars->at             = $1.at;
+                                     lppnLocalVars->chType         = $1.chType;
+                                    }
+    | RatConstantsInt               {DbgMsgWP (L"%%Number:  RatConstantsInt");
                                      lppnLocalVars->at             = $1.at;
                                      lppnLocalVars->chType         = $1.chType;
                                     }
@@ -754,23 +593,24 @@ Number:
 VectorAcc:
       Number                        {DbgMsgWP (L"%%VectorAcc:  Number");
                                      // Accumulate the current value into the vector
-                                     if (!PN_VectorAcc (lppnLocalVars))
+                                     if (!PN_VectorAcc (&$1, lppnLocalVars))
                                          YYERROR2;
                                     }
     | VectorAcc Space Number        {DbgMsgWP (L"%%VectorAcc:  VectorAcc Space Number");
                                      // Accumulate the current value into the vector
-                                     if (!PN_VectorAcc (lppnLocalVars))
+                                     if (!PN_VectorAcc (&$3, lppnLocalVars))
                                          YYERROR2;
                                     }
     ;
 
 Space:
             ' '                     {DbgMsgWP (L"%%Space:  ' '");
+                                     // Skip over the space
+                                     lppnLocalVars->uNumIni++;
                                     }
     | Space ' '                     {DbgMsgWP (L"%%Space:  Space ' '");
-////                                 Assert (IsWhite (lppnLocalVars->lpszStart[lppnLocalVars->uNumCur]));
-////                                 lppnLocalVars->uNumCur++;
-////                                 lppnLocalVars->uNumIni = lppnLocalVars->uNumCur;
+                                     // Skip over the space
+                                     lppnLocalVars->uNumIni++;
                                     }
     ;
 
@@ -788,229 +628,6 @@ VectorRes:
 //***************************************************************************
 //  Start of C program
 //***************************************************************************
-
-//***************************************************************************
-//  $PN_actIDENT
-//***************************************************************************
-
-void PN_actIDENT
-    (LPPN_YYSTYPE lpSrc)
-
-{
-} // End PN_actIDENT
-
-
-//***************************************************************************
-//  $PN_actUNK
-//***************************************************************************
-
-void PN_actUNK
-    (LPPN_YYSTYPE lpSrc)
-
-{
-    DbgStop ();
-} // End PN_actUNK
-
-
-//***************************************************************************
-//  $PN_actBOOL_FLT
-//***************************************************************************
-
-void PN_actBOOL_FLT
-    (LPPN_YYSTYPE lpSrc)
-
-{
-    // Convert the value from BOOL to FLT
-    lpSrc->at.aplFloat = (APLFLOAT) lpSrc->at.aplInteger;
-
-    lpSrc->chType = PN_NUMTYPE_FLT;
-} // End PN_actBOOL_FLT
-
-
-//***************************************************************************
-//  $PN_actBOOL_RAT
-//***************************************************************************
-
-void PN_actBOOL_RAT
-    (LPPN_YYSTYPE lpSrc)
-
-{
-    // Convert the value from BOOL to RAT
-    mpq_init_set_sx (&lpSrc->at.aplRat, lpSrc->at.aplInteger, 1);
-
-    lpSrc->chType = PN_NUMTYPE_RAT;
-} // End PN_actBOOL_RAT
-
-
-//***************************************************************************
-//  $PN_actBOOL_VFP
-//***************************************************************************
-
-void PN_actBOOL_VFP
-    (LPPN_YYSTYPE lpSrc)
-
-{
-    // Convert the value from BOOL to VFP
-    mpfr_init_set_sx (&lpSrc->at.aplVfp, lpSrc->at.aplInteger, MPFR_RNDN);
-
-    lpSrc->chType = PN_NUMTYPE_VFP;
-} // End PN_actBOOL_VFP
-
-
-//***************************************************************************
-//  $PN_actINT_FLT
-//***************************************************************************
-
-void PN_actINT_FLT
-    (LPPN_YYSTYPE lpSrc)
-
-{
-    // Convert the value from INT to FLT
-    lpSrc->at.aplFloat = (APLFLOAT) lpSrc->at.aplInteger;
-
-    lpSrc->chType = PN_NUMTYPE_FLT;
-} // End PN_actINT_FLT
-
-
-//***************************************************************************
-//  $PN_actINT_RAT
-//***************************************************************************
-
-void PN_actINT_RAT
-    (LPPN_YYSTYPE lpSrc)
-
-{
-    // Convert the value from INT to RAT
-    mpq_init_set_sx (&lpSrc->at.aplRat, lpSrc->at.aplInteger, 1);
-
-    lpSrc->chType = PN_NUMTYPE_RAT;
-} // End PN_actINT_RAT
-
-
-//***************************************************************************
-//  $PN_actINT_VFP
-//***************************************************************************
-
-void PN_actINT_VFP
-    (LPPN_YYSTYPE lpSrc)
-
-{
-    // Convert the value from INT to VFP
-    mpfr_init_set_sx (&lpSrc->at.aplVfp, lpSrc->at.aplInteger, MPFR_RNDN);
-
-    lpSrc->chType = PN_NUMTYPE_VFP;
-} // End PN_actINT_VFP
-
-
-//***************************************************************************
-//  $PN_actFLT_VFP
-//***************************************************************************
-
-void PN_actFLT_VFP
-    (LPPN_YYSTYPE lpSrc)
-
-{
-    // Convert the value from FLT to VFP
-    mpfr_init_set_d  (&lpSrc->at.aplVfp, lpSrc->at.aplFloat  , MPFR_RNDN);
-
-    lpSrc->chType = PN_NUMTYPE_VFP;
-} // End PN_actFLT_VFP
-
-
-//***************************************************************************
-//  $PN_actRAT_VFP
-//***************************************************************************
-
-void PN_actRAT_VFP
-    (LPPN_YYSTYPE lpSrc)
-
-{
-    APLVFP aplVfp = {0};
-
-    // Convert the value from RAT to VFP
-    mpfr_init_set_q  (&aplVfp, &lpSrc->at.aplRat, MPFR_RNDN);
-
-    Myq_clear (&lpSrc->at.aplRat);
-
-    lpSrc->at.aplVfp = aplVfp;
-
-    lpSrc->chType = PN_NUMTYPE_VFP;
-} // End PN_actRAT_VFP
-
-
-#define PN_MAT                                                                                                                           \
-{/*     BOOL          INT          FLT          HC2          HC4          HC8          RAT          VFP         INIT     */              \
-   {M(BOOL,BOOL),M(BOOL,INT ),M(BOOL,FLT ),M(BOOL,HC2 ),M(BOOL,HC4 ),M(BOOL,HC8 ),M(BOOL,RAT ),M(BOOL,VFP ),M(BOOL,BOOL)},   /* BOOL */  \
-   {M(INT ,INT ),M(INT ,INT ),M(INT ,FLT ),M(INT ,HC2 ),M(INT ,HC4 ),M(INT ,HC8 ),M(INT ,RAT ),M(INT ,VFP ),M(INT ,INT )},   /* INT  */  \
-   {M(FLT ,FLT ),M(FLT ,FLT ),M(FLT ,FLT ),M(FLT ,HC2 ),M(FLT ,HC4 ),M(FLT ,HC8 ),M(FLT ,VFP ),M(FLT ,VFP ),M(FLT ,FLT )},   /* FLT  */  \
-   {M(HC2 ,HC2 ),M(HC2 ,HC2 ),M(HC2 ,HC2 ),M(HC2 ,HC2 ),M(HC2 ,HC4 ),M(HC2 ,HC8 ),M(HC2 ,HC2 ),M(HC2 ,HC2 ),M(HC2 ,HC2 )},   /* HC2  */  \
-   {M(HC4 ,HC4 ),M(HC4 ,HC4 ),M(HC4 ,HC4 ),M(HC4 ,HC4 ),M(HC4 ,HC4 ),M(HC4 ,HC8 ),M(HC4 ,HC4 ),M(HC4 ,HC4 ),M(HC4 ,HC4 )},   /* HC4  */  \
-   {M(HC8 ,HC8 ),M(HC8 ,HC8 ),M(HC8 ,HC8 ),M(HC8 ,HC8 ),M(HC8 ,HC8 ),M(HC8 ,HC8 ),M(HC8 ,HC8 ),M(HC8 ,HC8 ),M(HC8 ,HC8 )},   /* HC8  */  \
-   {M(RAT ,RAT ),M(RAT ,RAT ),M(RAT ,VFP ),M(RAT ,HC2 ),M(RAT ,HC4 ),M(RAT ,HC8 ),M(RAT ,RAT ),M(RAT ,VFP ),M(RAT ,RAT )},   /* RAT  */  \
-   {M(VFP ,VFP ),M(VFP ,VFP ),M(VFP ,VFP ),M(VFP ,HC2 ),M(VFP ,HC4 ),M(VFP ,HC8 ),M(VFP ,VFP ),M(VFP ,VFP ),M(VFP ,VFP )},   /* VFP  */  \
-   {M(INIT,BOOL),M(INIT,INT ),M(INIT,FLT ),M(INIT,HC2 ),M(INIT,HC4 ),M(INIT,HC8 ),M(INIT,RAT ),M(INIT,VFP ),M(INIT,INIT)},   /* INIT */  \
-};
-// PN_NUMTYPE_xxx promotion result matrix
-PNNUMTYPE aNumTypePromote[PN_NUMTYPE_LENGTH][PN_NUMTYPE_LENGTH] =
-#define M(a,b)  PN_NUMTYPE_##b
-PN_MAT
-#undef  M
-
-typedef void (*PN_ACTION)(LPPN_YYSTYPE);
-
-#define PN_actBOOL_BOOL     PN_actIDENT
-#define PN_actBOOL_INT      PN_actIDENT
-////ine PN_actBOOL_FLT      NULL
-#define PN_actBOOL_HC2      PN_actUNK
-#define PN_actBOOL_HC4      PN_actUNK
-#define PN_actBOOL_HC8      PN_actUNK
-
-#define PN_actINT_INT       PN_actIDENT
-////ine PN_actINT_FLT       NULL
-#define PN_actINT_HC2       PN_actUNK
-#define PN_actINT_HC4       PN_actUNK
-#define PN_actINT_HC8       PN_actUNK
-
-#define PN_actFLT_FLT       PN_actIDENT
-#define PN_actFLT_HC2       PN_actUNK
-#define PN_actFLT_HC4       PN_actUNK
-#define PN_actFLT_HC8       PN_actUNK
-
-#define PN_actHC2_HC2       PN_actIDENT
-#define PN_actHC2_HC4       PN_actUNK
-#define PN_actHC2_HC8       PN_actUNK
-
-#define PN_actHC4_HC4       PN_actIDENT
-#define PN_actHC4_HC8       PN_actUNK
-
-#define PN_actHC8_HC8       PN_actIDENT
-
-#define PN_actRAT_RAT       PN_actIDENT
-#define PN_actRAT_HC2       PN_actUNK
-#define PN_actRAT_HC4       PN_actUNK
-#define PN_actRAT_HC8       PN_actUNK
-
-#define PN_actVFP_VFP       PN_actIDENT
-#define PN_actVFP_HC2       PN_actUNK
-#define PN_actVFP_HC4       PN_actUNK
-#define PN_actVFP_HC8       PN_actUNK
-
-#define PN_actINIT_BOOL     PN_actUNK
-#define PN_actINIT_INT      PN_actUNK
-#define PN_actINIT_FLT      PN_actUNK
-#define PN_actINIT_HC2      PN_actUNK
-#define PN_actINIT_HC4      PN_actUNK
-#define PN_actINIT_HC8      PN_actUNK
-#define PN_actINIT_RAT      PN_actUNK
-#define PN_actINIT_VFP      PN_actUNK
-#define PN_actINIT_INIT     PN_actUNK
-
-// PN_NUMTYPE_xxx promotion action matrix
-PN_ACTION aNumTypeAction [PN_NUMTYPE_LENGTH][PN_NUMTYPE_LENGTH] =
-#define M(a,b)  PN_act##a##_##b
-PN_MAT
-#undef  M
-
 
 //***************************************************************************
 //  $ParsePointNotation
@@ -1042,6 +659,28 @@ UBOOL ParsePointNotation
     while (lppnLocalVars->uNumLen && IsWhite (lppnLocalVars->lpszStart[lppnLocalVars->uNumLen - 1]))
         // Delete it
         lppnLocalVars->uNumLen--;
+
+    // Check for Rat but not Vfp separator
+    if (strchr (lppnLocalVars->lpszStart, 'v' ) EQ NULL
+     && (strchr (lppnLocalVars->lpszStart, 'r' ) NE NULL
+      || strstr (lppnLocalVars->lpszStart, "x ") NE NULL
+      || lppnLocalVars->lpszStart[lppnLocalVars->uNumLen - 1] EQ 'x'))
+    {
+        // Weed out non-RAT expressions such as 2g3 and 2p3
+        if (strchr (lppnLocalVars->lpszStart, 'g' ) EQ NULL
+         && strchr (lppnLocalVars->lpszStart, 'p' ) EQ NULL)
+        {
+            LPCHAR p;
+
+            // Weed out non-RAT expressions such as 2x3
+            p = strchr (lppnLocalVars->lpszStart, 'x');
+            while (p NE NULL && (p[1] EQ ' ' || p[1] EQ AC_EOS))
+                p = strchr (p + 1, 'x');
+            if (p EQ NULL)
+                // Save for later use
+                lppnLocalVars->bRatSep = TRUE;
+        } // End IF
+    } // End IF
 
 #if YYDEBUG
     // Enable debugging
@@ -1097,9 +736,12 @@ int pn_yylex
      LPPNLOCALVARS lppnLocalVars)       // Ptr to local pnLocalVars
 
 {
+    // Save the index position in lpszStart
+    lpYYLval->uNumStart = lppnLocalVars->uNumCur;
+
     // Check for EOL
     if (lppnLocalVars->uNumCur EQ lppnLocalVars->uNumLen)
-        lpYYLval->chCur = '\0';
+        lpYYLval->chCur = AC_EOS;
     else
     {
         // Get the next char
@@ -1140,24 +782,24 @@ int pn_yylex
 
 void pn_yyerror                     // Called for Bison syntax error
     (LPPNLOCALVARS lppnLocalVars,   // Ptr to local pnLocalVars
-     LPCHAR        s)               // Ptr to error msg
+     const char   *s)               // Ptr to error msg
 
 {
     char    szTemp[1024];
     LPWCHAR lpwszTemp;
 
-    DbgMsg (s);
+    DbgMsg ((char *) s);
 
     // Check for SYNTAX ERROR
-#define ERR     "syntax error"
-    if (lstrcpyn (szTemp, s, sizeof (ERR)),     // Note: Terminates the string, too
+#define ERR     PN_SYNTAX
+    if (MyStrcpyn (szTemp, sizeof (szTemp), s, strsizeof (ERR)),    // Note: Terminates the string, too
         lstrcmp (szTemp, ERR) EQ 0)
 #undef  ERR
         lpwszTemp = ERRMSG_SYNTAX_ERROR APPEND_NAME;
     else
     // Check for NONCE ERROR
-#define ERR     "nonce error"
-    if (lstrcpyn (szTemp, s, sizeof (ERR)),     // Note: Terminates the string, too
+#define ERR     PN_NONCE
+    if (MyStrcpyn (szTemp, sizeof (szTemp), s, strsizeof (ERR)),    // Note: Terminates the string, too
         lstrcmp (szTemp, ERR) EQ 0)
 #undef  ERR
     {
@@ -1167,11 +809,18 @@ void pn_yyerror                     // Called for Bison syntax error
         lppnLocalVars->uNumCur--;
     } else
     // Check for WS FULL
-#define ERR     WSFULL
-    if (lstrcpyn (szTemp, s, sizeof (ERR)),     // Note: Terminates the string, too
+#define ERR     PN_WSFULL
+    if (MyStrcpyn (szTemp, sizeof (szTemp), s, strsizeof (ERR)),    // Note: Terminates the string, too
         lstrcmp (szTemp, ERR) EQ 0)
 #undef  ERR
         lpwszTemp = ERRMSG_WS_FULL APPEND_NAME;
+    else
+    // Check for DOMAIN ERROR
+#define ERR     PN_DOMAIN
+    if (MyStrcpyn (szTemp, sizeof (szTemp), s, strsizeof (ERR)),    // Note: Terminates the string, too
+        lstrcmp (szTemp, ERR) EQ 0)
+#undef  ERR
+        lpwszTemp = ERRMSG_DOMAIN_ERROR APPEND_NAME;
     else
         lpwszTemp = ERRMSG_PN_PARSE APPEND_NAME;
 
@@ -1188,6 +837,18 @@ void pn_yyerror                     // Called for Bison syntax error
     if (lppnLocalVars->lpszStart[lppnLocalVars->uNumCur] EQ WC_EOS)
         // Back off to the last char
         lppnLocalVars->uCharIndex--;
+
+    if (lppnLocalVars->hGlbRes NE NULL)
+    {
+        if (lppnLocalVars->lpMemHdrRes NE NULL)
+        {
+            // We no longer need this ptr
+            MyGlobalUnlock (lppnLocalVars->hGlbRes); lppnLocalVars->lpMemHdrRes = NULL;
+        } // End IF
+
+        // We no longer need this storage
+        DbgGlobalFree (lppnLocalVars->hGlbRes); lppnLocalVars->hGlbRes = NULL;
+    } // End IF
 } // End pn_yyerror
 #undef  APPEND_NAME
 
@@ -1205,32 +866,29 @@ void pn_yyfprintf
 
 {
 #if (defined (DEBUG)) && (defined (YYFPRINTF_DEBUG))
+    HRESULT  hResult;       // The result of <StringCbVPrintf>
     va_list  vl;
-    APLU3264 i1,
-             i2,
-             i3;
-    static  char szTemp[256] = {'\0'};
+    APLU3264 i1;
+    static   char szTemp[256] = {'\0'};
 
+    // Initialize the variable list
     va_start (vl, lpszFmt);
-
-    // Bison uses no more than three arguments.
-    // Note we must grab them separately this way
-    //   as using va_arg in the argument list to
-    //   wsprintf pushes the arguments in reverse
-    //   order.
-    i1 = va_arg (vl, APLU3264);
-    i2 = va_arg (vl, APLU3264);
-    i3 = va_arg (vl, APLU3264);
-
-    va_end (vl);
 
     // Accumulate into local buffer because
     //   Bison calls this function multiple
     //   times for the same line, terminating
     //   the last call for the line with a LF.
-    wsprintf (&szTemp[lstrlen (szTemp)],
-              lpszFmt,
-              i1, i2, i3);
+    hResult = StringCbVPrintf (&szTemp[lstrlen (szTemp)],
+                                sizeof (szTemp),
+                                lpszFmt,
+                                vl);
+    // End the variable list
+    va_end (vl);
+
+    // If it failed, ...
+    if (FAILED (hResult))
+        DbgBrk ();                  // #ifdef DEBUG
+
     // Check last character.
     i1 = lstrlen (szTemp);
 

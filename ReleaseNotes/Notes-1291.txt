@@ -1,0 +1,12 @@
+Build #1291 -- Version 0.4.9.xx
+-------------------------------
+
+* Improve DEBUG Display of An APL Var
+
+Directory trunk:
+
+DISPDBG.C:
+  Improve <DisplayGlbVar> which is a preliminary version of a function to display the contents of an APL var.
+
+MACROS.H:
+  Define DEBUG and non-DEBUG version of <DisplayGlbVar>.

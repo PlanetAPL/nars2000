@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -259,11 +259,11 @@ LPPL_YYSTYPE PrimFnMonDownShoe_EM_YY
 
         // Allocate space for the result.
         hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRes)
+        if (hGlbRes EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemRes = MyGlobalLock (hGlbRes);
+        lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
         // Fill in the header
@@ -389,11 +389,11 @@ LPPL_YYSTYPE PrimFnMonDownShoe_EM_YY
 
             // Allocate space for the result.
             hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-            if (!hGlbRes)
+            if (hGlbRes EQ NULL)
                 goto WSFULL_EXIT;
 
             // Lock the memory to get a ptr to it
-            lpMemRes = MyGlobalLock (hGlbRes);
+            lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
             // Fill in the header
@@ -483,7 +483,7 @@ LPPL_YYSTYPE PrimFnMonDownShoe_EM_YY
             YYFree (lpYYRes); lpYYRes = NULL;
 
             // Lock the memory to get a ptr to it
-            lpMemGup = MyGlobalLock (hGlbGup);
+            lpMemGup = MyGlobalLockVar (hGlbGup);
 
             // Skip over the header and dimensions to the data
             lpMemGup = VarArrayDataFmBase (lpMemGup);
@@ -621,11 +621,11 @@ LPPL_YYSTYPE PrimFnMonDownShoe_EM_YY
 
             // Allocate space for the temp
             hGlbTmp = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-            if (!hGlbTmp)
+            if (hGlbTmp EQ NULL)
                 goto WSFULL_EXIT;
 
             // Lock the memory to get a ptr to it
-            lpMemTmp = MyGlobalLock (hGlbTmp);
+            lpMemTmp = MyGlobalLock000 (hGlbTmp);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemTmp)
             // Fill in the header
@@ -683,7 +683,7 @@ LPPL_YYSTYPE PrimFnMonDownShoe_EM_YY
             YYFree (lpYYRes); lpYYRes = NULL;
 
             // Lock the memory to get a ptr to it
-            lpMemGup = MyGlobalLock (hGlbGup);
+            lpMemGup = MyGlobalLockVar (hGlbGup);
 
             // Skip over the header and dimensions to the data
             lpMemGup = VarArrayDataFmBase (lpMemGup);
@@ -697,11 +697,11 @@ LPPL_YYSTYPE PrimFnMonDownShoe_EM_YY
 
             // Allocate space for the result.
             hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-            if (!hGlbRes)
+            if (hGlbRes EQ NULL)
                 goto WSFULL_EXIT;
 
             // Lock the memory to get a ptr to it
-            lpMemRes = MyGlobalLock (hGlbRes);
+            lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
             // Fill in the header

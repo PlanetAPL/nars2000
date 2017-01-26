@@ -1,0 +1,9 @@
+Build #1548 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In )COPY Of A UDFO On Top Of A Function Array
+
+Directory trunk:
+
+SAVEFCN.C:
+  In <SaveFunctionCom>, if a UDFO is replacing a function array, we fail and mark the workspace as corrupt.

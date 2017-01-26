@@ -1,0 +1,9 @@
+Build #1487 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug When Writing Out Workspace
+
+Directory trunk:
+
+INIFILE.C:
+  In <ProfileWrite>, test for INVALID_HANDLE_VALUE, not NULL.

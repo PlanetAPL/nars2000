@@ -1,0 +1,9 @@
+Build #1519 -- Version 0.4.15.xx
+--------------------------------
+
+* Implement )FOPS and Its Alias )FOP, Part 2
+
+Directory trunk:
+
+ENUMS.H:
+  Implement )FOPS and its alias )FOP to display both functions and operators.

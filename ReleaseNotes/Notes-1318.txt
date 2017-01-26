@@ -1,0 +1,13 @@
+Build #1318 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In []EA/[]EC
+
+Directory trunk:
+
+PARSELINE.C:
+  In <ParseLine>/PARSELINE_DONE, when checking for a function to release (and return NOVALUE),
+    exclude the naked {goto} case as the ExitType has already been set to RESET_ONE.
+
+QF_EA.C:
+  Set EC bit for []EA as that bit is checked when considering whether or not to suspend []EA's caller.

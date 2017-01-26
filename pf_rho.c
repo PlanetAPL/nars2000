@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -275,7 +275,7 @@ LPPL_YYSTYPE PrimFnMonRhoGlb_EM_YY
     LPPL_YYSTYPE lpYYRes = NULL;    // Ptr to the result
 
     // Lock the memory to get a ptr to it
-    lpMemRht = MyGlobalLock (hGlbRht);
+    lpMemRht = MyGlobalLockVar (hGlbRht);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRht)
     // Get the rank
@@ -296,11 +296,11 @@ LPPL_YYSTYPE PrimFnMonRhoGlb_EM_YY
 
         // Allocate space for one dimension and <aplRankRht> integers
         hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRes)
+        if (hGlbRes EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemRes = MyGlobalLock (hGlbRes);
+        lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
         // Fill in the header
@@ -419,7 +419,7 @@ LPPL_YYSTYPE PrimFnDydRho_EM_YY
     //   and the result is a nested array,
     //   make room for a prototype.  Also,
     //   demote the storage type (actually
-    //   the prototype) to Boolean if numeric.
+    //   the prototype) to Boolean if BOOL/INT/FLOAT/APA.
     //***************************************************************
     if (IsEmpty (aplNELMRes))
     {
@@ -429,17 +429,13 @@ LPPL_YYSTYPE PrimFnDydRho_EM_YY
             case ARRAY_INT:
             case ARRAY_FLOAT:
             case ARRAY_APA:
-            case ARRAY_RAT:
-            case ARRAY_VFP:
                 aplTypeRes = ARRAY_BOOL;
-
-////////////////ByteRes = 0;
 
                 break;
 
+            case ARRAY_RAT:
+            case ARRAY_VFP:
             case ARRAY_CHAR:
-////////////////ByteRes = 0;
-
                 break;
 
             case ARRAY_HETERO:
@@ -458,9 +454,6 @@ LPPL_YYSTYPE PrimFnDydRho_EM_YY
                 // If it's not char, it's Boolean
                 if (!IsSimpleChar (aplTypeRes))
                     aplTypeRes = ARRAY_BOOL;
-
-////////////////ByteRes = 0;
-
                 break;
 
             case ARRAY_NESTED:
@@ -499,16 +492,9 @@ LPPL_YYSTYPE PrimFnDydRho_EM_YY
                 // Check to see if the first element is simple.
                 // If so, fill in aplTypeRes; if not, fill in hSymGlbProto
                 //   with the HGLOBAL of the first element.
-                if (IsFirstSimpleGlb (&hSymGlbProto, &aplTypeRes))
-                {
-////////////////////ByteRes = 0;
-                } else
-                {
-////////////////////ByteRes = 1 * sizeof (APLNESTED);
-
+                if (!IsFirstSimpleGlb (&hSymGlbProto, &aplTypeRes))
                     // Mark as needing to generate a prototype
                     bPrototype = TRUE;
-                } // End IF/ELSE
 
                 break;
 
@@ -555,11 +541,11 @@ LPPL_YYSTYPE PrimFnDydRho_EM_YY
     // Now we can allocate the storage for the result.
     //***************************************************************
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemHdrRes = lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -1296,7 +1282,7 @@ UBOOL PrimFnDydRhoLftGlbValid_EM
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemLft = MyGlobalLock (hGlbLft);
+    lpMemLft = MyGlobalLockVar (hGlbLft);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemLft)
     aplTypeLft = lpHeader->ArrType;
@@ -1351,7 +1337,7 @@ UBOOL PrimFnDydRhoLftGlbValid_EM
                         goto DOMAIN_EXIT;
 
                     // Multiply the two numbers as APLINTs so we can check for overflow
-                    aplIntTmp = _imul64 (*lpaplNELMRes, aplIntTmp, &bRet);
+                    aplIntTmp = imul64 (*lpaplNELMRes, aplIntTmp, &bRet);
 
                     // Check for overflow
                     bRet = bRet && (aplIntTmp <= MAX_APLNELM);
@@ -1393,7 +1379,7 @@ UBOOL PrimFnDydRhoLftGlbValid_EM
                         goto DOMAIN_EXIT;
 
                     // Multiply the two numbers as APLINTs so we can check for overflow
-                    aplIntTmp = _imul64 (*lpaplNELMRes, aplIntTmp, &bRet);
+                    aplIntTmp = imul64 (*lpaplNELMRes, aplIntTmp, &bRet);
 
                     // Check for overflow
                     bRet = bRet && (aplIntTmp <= MAX_APLNELM);
@@ -1495,7 +1481,7 @@ UBOOL PrimFnDydRhoLftGlbValid_EM
                         goto DOMAIN_EXIT;
 
                     // Multiply the two numbers as APLINTs so we can check for overflow
-                    aplIntTmp = _imul64 (*lpaplNELMRes, aplIntTmp, &bRet);
+                    aplIntTmp = imul64 (*lpaplNELMRes, aplIntTmp, &bRet);
 
                     // Check for overflow
                     bRet = bRet && (aplIntTmp <= MAX_APLNELM);
@@ -1540,7 +1526,7 @@ UBOOL PrimFnDydRhoLftGlbValid_EM
                         goto DOMAIN_EXIT;
 
                     // Multiply the two numbers as APLINTs so we can check for overflow
-                    aplIntTmp = _imul64 (*lpaplNELMRes, aplIntTmp, &bRet);
+                    aplIntTmp = imul64 (*lpaplNELMRes, aplIntTmp, &bRet);
 
                     // Check for overflow
                     bRet = bRet && (aplIntTmp <= MAX_APLNELM);
@@ -1631,7 +1617,7 @@ void PrimFnDydRhoLftGlbCopyDim
     UBOOL    bRet;          // TRUE iff the result is valid
 
     // Lock the memory to get a ptr to it
-    lpMemLft = MyGlobalLock (hGlbLft);
+    lpMemLft = MyGlobalLockVar (hGlbLft);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemLft)
 
@@ -1747,7 +1733,7 @@ UBOOL PrimFnDydRhoRhtGlbCopyData_EM
     lpbCtrlBreak = &lpplLocalVars->bCtrlBreak;
 
     // Lock the memory to get a ptr to it
-    lpMemRhtBase = MyGlobalLock (hGlbRht);
+    lpMemRhtBase = MyGlobalLockVar (hGlbRht);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRhtBase)
 
@@ -1757,25 +1743,44 @@ UBOOL PrimFnDydRhoRhtGlbCopyData_EM
     // Check for empty right arg
     if (IsEmpty (aplNELMRht))
     {
-        // If the result (right arg) is simple numeric, ...
-        if (IsSimpleNum (aplTypeRes))
+        // Split cases based upon the storage type
+        switch (aplTypeRes)
         {
-////////////// Fill the result with zeros (already done by GND)
-////////////ZeroMemory (lpDataRes, (APLU3264) RoundUpBitsToBytes (aplNELMRes));
+            case ARRAY_BOOL:
+            case ARRAY_INT:
+            case ARRAY_FLOAT:
+            case ARRAY_APA:
+////////////////// Fill the result with zeros (already done by GND)
+////////////////ZeroMemory (lpDataRes, (APLU3264) RoundUpBitsToBytes (aplNELMRes));
 
-            goto NORMAL_EXIT;
-        } else
-        // If the result is char, ...
-        if (IsSimpleChar (aplTypeRes))
-        {
-            // Fill the result with chars
-            FillMemoryW (lpDataRes, (APLU3264) aplNELMRes, L' ');
+                break;
 
-            goto NORMAL_EXIT;
-        } // End IF
+            case ARRAY_CHAR:
+                FillMemoryW (lpDataRes, (APLU3264) aplNELMRes, L' ');
 
-        // The result must be nested
-        Assert (IsNested (aplTypeRes));
+                break;
+
+            case ARRAY_NESTED:
+                break;
+
+            case ARRAY_RAT:
+                // Fill the result with RAT zeros
+                for (uRes = 0; uRes < (APLNELMSIGN) aplNELMRes; uRes++)
+                    mpq_init (((LPAPLRAT) lpDataRes)++);
+                break;
+
+            case ARRAY_VFP:
+                // Fill the result with VFP zeros
+                for (uRes = 0; uRes < (APLNELMSIGN) aplNELMRes; uRes++)
+                    mpfr_init0 (((LPAPLVFP) lpDataRes)++);
+                break;
+
+            case ARRAY_HETERO:
+            defstop
+                break;
+        } // End SWITCH
+
+        goto NORMAL_EXIT;
     } // End IF
 
     // Split cases based upon the right arg's array type

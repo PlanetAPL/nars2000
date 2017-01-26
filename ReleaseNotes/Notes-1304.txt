@@ -1,0 +1,9 @@
+Build #1304 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In DEBUG Display of Temporary Function Lines
+
+Directory trunk:
+
+DISPDBG.C:
+  Fix display of function display with axis operators.

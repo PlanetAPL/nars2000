@@ -1,0 +1,20 @@
+Build #1481 -- Version 0.4.14.xx
+--------------------------------
+
+* Handle Niladic Calls To Dyadic Operators
+
+Directory trunk:
+
+EXECDFN.C:
+EXECFNS.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Handle niladic calls to dyadic operators by testing for NULL right args.
+
+PO_DICIRCLE.C:
+PO_DIDTACK.C:
+PO_DIJOT.C:
+PO_DITILDE.C:
+PO_JOT.C:
+PO_VARIANT.C:
+  Handle niladic calls to dyadic operators by testing for NULL right args.

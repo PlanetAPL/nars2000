@@ -1,0 +1,9 @@
+Build #1271 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Calling []ID Label
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecDfnGlbIdent_EM_YY>, we mistakenly pass a left argument when calling the user-defined function/operator at []ID.

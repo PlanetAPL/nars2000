@@ -1,0 +1,17 @@
+Build #1403 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in syntax analyzer missing case of "{is})", "{is}]", "{is}{rbrace}", and "{is}EOS"
+  Define the above cases as returning soSYNR.
+  In <PARSELINE_ERROR>, if the current object is valid and in use, free it only
+    if it's a function or var.  This code can fail with the above cases.
+  Improve comments.
+
+PARSELINE.H:
+  Fix bug in syntax analyzer missing case of "{is})", "{is}]", "{is}{rbrace}", and "{is}EOS"
+  Define the above cases as returning soSYNR.

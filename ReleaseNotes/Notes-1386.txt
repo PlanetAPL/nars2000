@@ -1,0 +1,9 @@
+Build #1386 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Syntax Coloring When Selecting Black
+
+Directory trunk:
+
+WEBCOLORS.C:
+  Fix bug in syntax coloring when selecting black.

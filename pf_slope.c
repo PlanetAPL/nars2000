@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -244,7 +244,7 @@ LPPL_YYSTYPE PrimFnDydSlope_EM_YY
 
     // Check for LEFT DOMAIN ERROR
     if (!IsNumeric (aplTypeLft)
-     && !(IsSimpleChar (aplTypeLft) && IsEmpty (aplNELMLft)))
+     && !IsCharEmpty (aplTypeLft, aplNELMLft))
         goto LEFT_DOMAIN_EXIT;
 
     // Save a ptr to the right arg header
@@ -317,13 +317,13 @@ LPPL_YYSTYPE PrimFnDydSlope_EM_YY
 
         // Allocate temp storage for the normalized left arg
         hGlbRep = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRep)
+        if (hGlbRep EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
         //   and check for empty (char) case
         if (!IsEmpty (aplNELMLft))
-            lpMemRep = MyGlobalLock (hGlbRep);
+            lpMemRep = MyGlobalLock000 (hGlbRep);
 
         // Skip over the header to the data
         lpMemLft = VarArrayDataFmBase (lpMemLft);
@@ -443,7 +443,7 @@ LPPL_YYSTYPE PrimFnDydSlope_EM_YY
         if (!IsEmpty (aplNELMLft))
         {
             MyGlobalUnlock (hGlbRep); lpMemRep = NULL;
-            lpMemRep = MyGlobalLock (hGlbRep);
+            lpMemRep = MyGlobalLockInt (hGlbRep);
         } // End IF
 
         // We no longer need this ptr
@@ -474,11 +474,11 @@ LPPL_YYSTYPE PrimFnDydSlope_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header values
@@ -846,17 +846,8 @@ NORMAL_EXIT:
         FreeResultGlobalVar (aplNestProto); aplNestProto = NULL;
     } // End IF
 
-    if (hGlbRep)
-    {
-        if (lpMemRep)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbRep); lpMemRep = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbRep); hGlbRep = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbRep, lpMemRep);
 
     if (hGlbLft && lpMemLft)
     {

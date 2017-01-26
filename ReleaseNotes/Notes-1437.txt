@@ -1,0 +1,11 @@
+Build #1437 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In []TRACE
+
+Directory trunk:
+
+QF_STRACE.C:
+  In <TraceLine>, when retrieving the name of the function to display,
+    handle AFOs using {del} or {del}{del} as the function name.
+  In <DisplayTraceResult>, handle results that are not variables (e.g., functions).

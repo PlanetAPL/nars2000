@@ -1,0 +1,62 @@
+Build #1428 -- Version 0.4.12.xx
+--------------------------------
+
+* Allow Exponent Notation In Rational Numbers
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new module.
+
+CR_PROC.C:
+CR_PROC.H:
+  New module implementing a FSA to parse exponential notation for rational numbers
+    such as -1.23E3r23.5E-4.
+
+DEFINES.H:
+  Define <bAllowNeg0> flag ahead of time rather than excising it from copied code
+    and introducing a difference between this and the original HC code.
+  Define pn_parse.y code's symbols for Overbar and Infinity to be the same as
+    those used in <mpifns.c> to provide a seamless transition between the two.
+
+EXTERNS.H:
+  Define <bAllowNeg0> flag ahead of time rather than excising it from copied code
+    and introducing a difference between this and the original HC code.
+  Change the prototype for PN_actXXX functions.
+
+HEADERS.H:
+  Include header file for ConvertToRational in the main header file.
+
+MACROS.H:
+  Define new macros for later use.
+  Improve comments.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Include entry for new file.
+
+MPIFNS.C:
+MPIFNS.H:
+  Define new <mpq_...> function to handle clearing the entry in case it's infinity.
+  Remove duplicate code from <mpiq_set_str> that is now in <mpq_set_str2>.
+  Insert test for new flag <bAllowNeg0> for future use.
+
+PN_PARSE.H:
+PN_PARSE.Y:
+  Define macros for use in <pn_proc.c> and <pn_parse.y>.
+  Define struct entries for use in <pn_proc.c> and <pn_parse.y>.
+  Define struct entry flag for use in <pn_proc.c> and <pn_parse.y>.
+
+PN_PROC.C:
+  Move <PN_actXXXX> functions out of <pn_parse.y> into <pn_proc.c> so that changes
+    to them don't trigger a build of the entire source.
+  Define <PN_MakeRatPoint> function to handle new notation for rational numbers.
+  Change the calling syntax of various <PN_Makexxx> functions to be more consistent with others.
+
+REBAR.C:
+  Increase the maximum ToolTip width for future use.
+  Improve comments.
+  Increase size of static var to handle Circle function ToolTip text.
+
+TOKENIZE.C:
+  Initialize ConvertToRational FSA table.

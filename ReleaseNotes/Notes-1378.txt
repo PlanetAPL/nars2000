@@ -1,0 +1,21 @@
+Build #1378 -- Version 0.4.11.xx
+--------------------------------
+
+* Allow Double Quotes In )IN and )OUT
+* Allow )DROP to Drop ATF Files
+
+Directory trunk:
+
+COMMON.C:
+  Improve comments.
+  Define common function to strip off double quotes from a string, also handling leading/trailing white space.
+
+SC_DROP.C:
+  Update copyright notice.
+  Improve comments.
+  Check for .atf files and drop them if the extension is explicit.
+
+SC_IN.C:
+SC_OUT.C:
+  Update copyright notice.
+  Strip off double quotes from the filename.

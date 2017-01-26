@@ -1,0 +1,11 @@
+Build #1545 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer With Modified Indexed Assignment And A Derived Function
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+SYNOBJ.H:
+  Define new object (ADX) to handle A[A] F MOP SPA.

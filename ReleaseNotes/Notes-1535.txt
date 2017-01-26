@@ -1,0 +1,10 @@
+Build #1535 -- Version 0.4.15.xx
+--------------------------------
+
+* Display Workspace Version Numbers If There Is A Mismatch On )LOAD/)COPY
+
+Directory trunk:
+
+SC_COPY.C:
+SC_LOAD.C:
+  Display the workspace version numbers if there is a mismatch on )LOAD/)COPY.

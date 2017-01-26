@@ -1,0 +1,9 @@
+Build #1504 -- Version 0.4.15.xx
+--------------------------------
+
+* Change Operand For Pochhammer Symbol To Specify Number Of Steps
+
+Directory trunk:
+
+MF_VARIANT.H:
+  Change the second element of the right operand to the Variant operator on Shreik to specify the number of steps.

@@ -1,0 +1,20 @@
+Build #1308 -- Version 0.4.9.xx
+-------------------------------
+
+* Rename Float Pos/NegInfinity To Parallel MPQ/MPFR
+
+Directory trunk:
+
+EXTERNS.H:
+INITDATA.C:
+MACROS.H:
+MPIFNS.C:
+PF_CSTAR.C:
+PF_ROOT.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TIMES.C:
+PN_PROC.C:
+SC_LOAD.C:
+TRANSLATE.C:
+  Rename float Pos/NegInfinity to parallel the names used for MPQ/MPFR.

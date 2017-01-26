@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2010 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 //***************************************************************************
 //  $CmdDrop_EM
 //
-//  Execute the system command:  )DROP wsid
+//  Execute the system command:  )DROP wsid  or  )DROP file.atf
 //***************************************************************************
 
 #ifdef DEBUG
@@ -42,7 +42,8 @@ UBOOL CmdDrop_EM
     (LPWCHAR lpwszTail)                 // Ptr to command line tail
 
 {
-    WCHAR   wszTailDPFE[_MAX_PATH];     // Save area for canonical form of given ws name
+    WCHAR   wszTailDPFE[_MAX_PATH],     // Save area for canonical form of given ws name
+            wszExt[_MAX_EXT];           // ...           file extension
     UBOOL   bRet = FALSE;               // TRUE iff result is valid
     WCHAR   wszTemp[DATETIME_LEN + 1];  // Output save area ("+ 1" for terminating zero)
     LPWCHAR lpw;                        // Temporary ptr
@@ -59,8 +60,14 @@ UBOOL CmdDrop_EM
         // Convert the given workspace name into a canonical form (without WS_WKSEXT)
         MakeWorkspaceNameCanonical (wszTailDPFE, lpwszTail, lpwszWorkDir);
 
-        // Append the common workspace extension
-        lstrcatW (wszTailDPFE, WS_WKSEXT);
+        // Split out the file extension (if any)
+        _wsplitpath (wszTailDPFE, NULL, NULL, NULL, wszExt);
+
+        // If the file extension is not ".atf", ...
+        //   (This allows us to delete .atf files, for example)
+        if (lstrcmpiW (wszExt, L".atf") NE 0)
+            // Append the common workspace extension
+            MyStrcatW (wszTailDPFE, sizeof (wszTailDPFE), WS_WKSEXT);
 
         // Attempt to delete the workspace
         if (!_wremove (wszTailDPFE))

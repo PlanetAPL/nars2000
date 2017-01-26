@@ -1,0 +1,24 @@
+Build #1438 -- Version 0.4.12.xx
+--------------------------------
+
+* Prepare To Use Our Own Workspace Writer
+
+Directory trunk:
+
+DICTIONARY.C:
+  In <hashlittleConv>, convert units from char to WCHAR.
+  In <dictionary_del>, zap the items after freeing them so as to catch errors later on.
+  In <dictionary_get>, pass additional argument needed in a later build.
+
+DICTIONARY.H:
+  Define <LPWCHAR> and <LPUBOOL> as we don't #include "types.h" anymore.
+
+INIFILE.C:
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+  Define new <ProfileXXX> functions for use in a later build.
+
+INIPARSER.C:
+  Omit "types.h" as that complicates other types.
+  Define prototypes for later use.
+  Define new <iniparser_XXX> functions for use in a later build.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.

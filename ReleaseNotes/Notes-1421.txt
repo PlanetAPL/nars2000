@@ -1,0 +1,13 @@
+Build #1421 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In )LOAD On Certain Rational And Variable Precision Numbers
+* Include "Hdr" In Name Of Result Of MyGlobalLock
+
+Directory trunk:
+
+SC_LOAD.C:
+  Improve comments.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <LoadWorkspaceGlobal_EM> case 'V' case ARRAY_RAT/ARRAY_VFP, skip to
+    next field using previous calculation.

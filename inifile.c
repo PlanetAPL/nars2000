@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "headers.h"
+////#include "bom.h"
 
 
 // Section names
@@ -53,7 +54,8 @@
 #define KEYNAME_YSIZE                   L"ySize"
 #define KEYNAME_INITIALCAT              L"InitialCategory"
 #define KEYNAME_COUNT                   L"Count"
-#define KEYNAME_KEYBUNIBASE             L"KeybUnibase"
+#define KEYNAME_UNIBASE                 L"Unibase"
+#define KEYNAME_CHAR                    L"Char"
 #define KEYNAME_KEYBTCNUM               L"KeybTCNum"
 #define KEYNAME_KEYBSTATE               L"KeybState"
 #define KEYNAME_KEYBLAYOUTNAME          L"KeybLayoutName"
@@ -85,11 +87,9 @@
 #define KEYNAME_QUADSA                  L"QuadSA"
 
 #define KEYNAME_LOGFONTFE               L"LogFontFE"
-#define KEYNAME_LOGFONTME               L"LogFontME"
 #define KEYNAME_LOGFONTPR               L"LogFontPR"
 #define KEYNAME_LOGFONTSM               L"LogFontSM"
 #define KEYNAME_LOGFONTTC               L"LogFontTC"
-#define KEYNAME_LOGFONTVE               L"LogFontVE"
 
 #define KEYNAME_ADJUSTPW                L"AdjustPW"
 #define KEYNAME_UNDERBARTOLOWERCASE     L"UnderbarToLowercase"
@@ -109,6 +109,8 @@
 #define KEYNAME_REVDBLCLK               L"RevDblClk"
 #define KEYNAME_VIEWSTATUSBAR           L"ViewStatusBar"
 #define KEYNAME_DEFDISPFCNLINENUMS      L"DefDispFcnLineNums"
+#define KEYNAME_DISPMPSUF               L"DisplayMPSuffix"
+#define KEYNAME_OUTPUTDEBUG             L"OutputDebug"
 
 #define KEYNAME_SC_GLBNAME              L"GlbName"
 #define KEYNAME_SC_LCLNAME              L"LclName"
@@ -133,6 +135,7 @@
 #define KEYNAME_SC_UNMATCHGRP           L"UnmatchGrp"
 #define KEYNAME_SC_UNNESTED             L"UnnestedGrp"
 #define KEYNAME_SC_UNK                  L"Unk"
+#define KEYNAME_SC_LINECONT             L"LineContinuation"
 #define KEYNAME_SC_WINTEXT              L"WinText"
 
 #define KEYNAME_CUSTOMCOLORS            L"CustomColors"
@@ -185,7 +188,8 @@ LPWCHAR aColorKeyNames[] =
  KEYNAME_SC_UNMATCHGRP  ,       // 14:  Unmatched Grouping Symbols [] () {} ' "
  KEYNAME_SC_UNNESTED    ,       // 15:  Improperly Nested Grouping Symbols [] () {}
  KEYNAME_SC_UNK         ,       // 16:  Unknown symbol
- KEYNAME_SC_WINTEXT     ,       // 17:  Window text
+ KEYNAME_SC_LINECONT    ,       // 17:  Line Continuation
+ KEYNAME_SC_WINTEXT     ,       // 18:  Window text
 };
 
 // Array of keynames for use in [Toolbars] section
@@ -244,14 +248,14 @@ UBOOL CreateAppDataDirs
 #undef  WS_APPDATA
 
     // Append the "\\NARS2000" part
-    lstrcatW (wszAppData, WS_SLOPE WS_APPNAME);
+    MyStrcatW (wszAppData, sizeof (wszAppData), WS_SLOPE WS_APPNAME);
 
     // Ensure the "...\\Application Data\\NARS2000" directory is present
     if (!CreateDirectoryW (wszAppData, NULL)
      && GetLastError () NE ERROR_ALREADY_EXISTS)
     {
         // Start with leading text
-        lstrcpyW (wszTemp, L"CreateAppDataDirs (wszAppData):  ");
+        strcpyW (wszTemp, L"CreateAppDataDirs (wszAppData):  ");
         uNxt = lstrlenW (wszTemp);
 
         // Format the error message
@@ -263,7 +267,7 @@ UBOOL CreateAppDataDirs
                         TEMPBUFLEN - uNxt,          // Maximum size of message buffer
                         NULL);                      // Address of array of message inserts
 #ifdef DEBUG
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
 #endif
         MBW (wszTemp);
 
@@ -274,7 +278,7 @@ UBOOL CreateAppDataDirs
     cchSize = lstrlenW (wszAppData);
 
     // Now append the .ini file name to get lpwszIniFile
-    lstrcpyW (&wszAppData[cchSize], WS_SLOPE WS_APPNAME L".ini");
+    strcpyW (&wszAppData[cchSize], WS_SLOPE WS_APPNAME L".ini");
     lpwszIniFile = wszAppData;
 
     // Get ptr to where the workspaces dir will be stored
@@ -282,18 +286,18 @@ UBOOL CreateAppDataDirs
     lpwszWorkDir = &wszAppData[lstrlenW (lpwszIniFile) + 1];
 
     // Append the AppData directory part so we can form the workspaces dir
-    // The "+ 1" is because lstrcpynW includes a terminating zero in the count
-    lstrcpynW (lpwszWorkDir, lpwszIniFile, cchSize + 1);
+    // The "+ 1" is because strcpynW includes a terminating zero in the count
+    strcpynW (lpwszWorkDir, lpwszIniFile, cchSize + 1);
 
     // Append the workspaces name
-    lstrcatW (lpwszWorkDir, WS_SLOPE WS_WKSNAME);
+    strcatW (lpwszWorkDir, WS_SLOPE WS_WKSNAME);
 
     // Ensure the workspaces dir is present
     if (!CreateDirectoryW (lpwszWorkDir, NULL)
      && GetLastError () NE ERROR_ALREADY_EXISTS)
     {
         // Start with leading text
-        lstrcpyW (wszTemp, L"CreateAppDataDirs (lpwszWorkDir):  ");
+        strcpyW (wszTemp, L"CreateAppDataDirs (lpwszWorkDir):  ");
         uNxt = lstrlenW (wszTemp);
 
         // Format the error message
@@ -306,7 +310,7 @@ UBOOL CreateAppDataDirs
                         NULL);                      // Address of array of message inserts
 #undef  TEMPBUFLEN
 #ifdef DEBUG
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
 #endif
         MBW (wszTemp);
 
@@ -314,7 +318,7 @@ UBOOL CreateAppDataDirs
     } // End IF
 
     // Ensure there's a trailing backslash
-    lstrcatW (lpwszWorkDir, WS_SLOPE);
+    strcatW (lpwszWorkDir, WS_SLOPE);
 
     return TRUE;
 } // End CreateAppDataDirs
@@ -356,8 +360,10 @@ void ReadAplFontNames
     for (iCnt = 0; iCnt < iNumFonts; iCnt++)
     {
         // Format the counter
-        wsprintfW (wszCount, L"%d", iCnt);
-
+        MySprintfW (wszCount,
+                    sizeof (wszCount),
+                   L"%d",
+                    iCnt);
         // Read in the Font Name
         GetPrivateProfileStringW (SECTNAME_APLFONTS,    // Ptr to the section name
                                   wszCount,             // Ptr to the key name
@@ -438,8 +444,10 @@ void WriteAplFontNames
         SendMessageW (hWndCB, CB_GETLBTEXT, uCnt, (LPARAM) wszTemp);
 
         // Format the counter
-        wsprintfW (wszCount, L"%d", uCnt);
-
+        MySprintfW (wszCount,
+                    sizeof (wszCount),
+                   L"%d",
+                    uCnt);
         // Write out the Font Name
         WritePrivateProfileStringW (SECTNAME_APLFONTS,  // Ptr to the section name
                                     wszCount,           // Ptr to the key name
@@ -448,8 +456,10 @@ void WriteAplFontNames
     } // End FOR
 
     // Format the counter
-    wsprintfW (wszCount, L"%d", uNumFonts);
-
+    MySprintfW (wszCount,
+                sizeof (wszCount),
+               L"%d",
+                uNumFonts);
     // Write out the count
     WritePrivateProfileStringW (SECTNAME_APLFONTS,  // Ptr to the section name
                                 KEYNAME_COUNT,      // Ptr to the key name
@@ -463,6 +473,12 @@ void WriteAplFontNames
 //
 //  Read in global-specific .ini file settings
 //***************************************************************************
+
+#ifdef DEBUG
+#define APPEND_NAME     L" -- ReadIniFileGlb"
+#else
+#define APPEND_NAME
+#endif
 
 UBOOL ReadIniFileGlb
     (void)
@@ -494,7 +510,7 @@ UBOOL ReadIniFileGlb
                              lpwszIniFile);         // Ptr to the file name
     // Allocate space for the LibDirs
     hGlbLibDirs =
-      MyGlobalAlloc (GHND, max (uNumLibDirs, 2) * _MAX_PATH * sizeof (WCHAR));
+      DbgGlobalAlloc (GHND, max (uNumLibDirs, 2) * _MAX_PATH * sizeof (WCHAR));
     if (hGlbLibDirs EQ NULL)
     {
         MessageBoxW (hWndMF, L"Unable to allocate enough memory for Library Directories", WS_APPNAME, MB_OK | MB_ICONSTOP);
@@ -503,7 +519,7 @@ UBOOL ReadIniFileGlb
     } // End IF
 
     // Lock the memory to get a ptr to it
-    lpwszLibDirs = MyGlobalLock (hGlbLibDirs);
+    lpwszLibDirs = MyGlobalLock000 (hGlbLibDirs);
 
     // Check for no LibDirs
     if (uNumLibDirs EQ 0)
@@ -512,16 +528,17 @@ UBOOL ReadIniFileGlb
         uNumLibDirs = 2;
 
         // Append the two default dirs
-        lstrcpyW (lpwszLibDirs[0], L".");
-        lstrcpyW (lpwszLibDirs[1], lpwszWorkDir);
+        strcpyW (lpwszLibDirs[0], L".");
+        strcpyW (lpwszLibDirs[1], lpwszWorkDir);
     } else
     // Loop through the LibDirs
     for (uCnt = 0; uCnt < uNumLibDirs; uCnt++)
     {
         // Format the keyname
-        wsprintfW (wszKey,
+        MySprintfW (wszKey,
+                    sizeof (wszKey),
                    L"%u",
-                   uCnt);
+                    uCnt);
         // Read in the next LibDir
         GetPrivateProfileStringW (SECTNAME_LIBDIRS,     // Ptr to the section name
                                   wszKey,               // Ptr to the key name
@@ -540,11 +557,9 @@ UBOOL ReadIniFileGlb
 
     // Read in the LOGFONTW strucs
     GetPrivateProfileLogFontW (SECTNAME_FONTS, KEYNAME_LOGFONTFE, &lfFE);
-    GetPrivateProfileLogFontW (SECTNAME_FONTS, KEYNAME_LOGFONTME, &lfME);
     GetPrivateProfileLogFontW (SECTNAME_FONTS, KEYNAME_LOGFONTPR, &lfPR);
     GetPrivateProfileLogFontW (SECTNAME_FONTS, KEYNAME_LOGFONTSM, &lfSM);
     GetPrivateProfileLogFontW (SECTNAME_FONTS, KEYNAME_LOGFONTTC, &lfTC);
-    GetPrivateProfileLogFontW (SECTNAME_FONTS, KEYNAME_LOGFONTVE, &lfVE);
 
     //***************************************************************
     // Read in the [SameFontAs] section
@@ -554,9 +569,10 @@ UBOOL ReadIniFileGlb
     for (uCnt = 0; uCnt < FONTENUM_LENGTH; uCnt++)
     {
         // Format the keyname
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"%u",
-                   uCnt);
+                    uCnt);
         // Read in the glbSameFontAs value
         glbSameFontAs[uCnt] =
           GetPrivateProfileIntW (SECTNAME_SAMEFONTAS,   // Ptr to the section name
@@ -680,6 +696,35 @@ UBOOL ReadIniFileGlb
                              KEYNAME_DEFDISPFCNLINENUMS, // Ptr to the key name
                              DEF_DISPFCNLINENUMS,   // Default value if not found
                              lpwszIniFile);         // Ptr to the file name
+    // Read in bDispMPSuf
+    OptionFlags.bDispMPSuf =
+      GetPrivateProfileIntW (SECTNAME_OPTIONS,      // Ptr to the section name
+                             KEYNAME_DISPMPSUF,     // Ptr to the key name
+                             DEF_DISPMPSUF,         // Default value if not found
+                             lpwszIniFile);         // Ptr to the file name
+    // Read in bOutputDebug
+    OptionFlags.bOutputDebug =
+      GetPrivateProfileIntW (SECTNAME_OPTIONS,      // Ptr to the section name
+                             KEYNAME_OUTPUTDEBUG,   // Ptr to the key name
+                             DEF_OUTPUTDEBUG,       // Default value if not found
+                             lpwszIniFile);         // Ptr to the file name
+    // Read in the Line Continuation char as an integer
+    uUserChar =
+      GetPrivateProfileIntW (SECTNAME_OPTIONS,      // Ptr to the section name
+                             KEYNAME_CHAR,          // Ptr to the key name
+                             WC_LC,                 // Default value if not found
+                             lpwszIniFile);         // Ptr to the file name
+    // Read in the Unicode base for typed chars (10 or 16)
+    uUserUnibase =
+      GetPrivateProfileIntW (SECTNAME_OPTIONS,      // Ptr to the section name
+                             KEYNAME_UNIBASE,       // Ptr to the key name
+                             16,                    // Default value if not found
+                             lpwszIniFile);         // Ptr to the file name
+    // Ensure the Unicode base is either 10 or 16
+    if (uUserUnibase NE 10
+     && uUserUnibase NE 16)
+        uUserUnibase = 16;
+
     //***************************************************************
     // Read in the [SysVars] section -- default values for system
     //                                  variables in a CLEAR WS
@@ -689,8 +734,8 @@ UBOOL ReadIniFileGlb
     hGlbQuadALX_CWS =
       GetPrivateProfileGlbCharW (SECTNAME_SYSVARS,  // Ptr to the section name
                                  KEYNAME_QUADALX,   // Ptr to the key name
-                                 DEF_QUADALX_CWS_BR,// Ptr to default value
-                                 DEF_QUADALX_GLB,   // HGLOBAL of the result
+                                 DEF_QUADALX_CWS,   // Ptr to default value
+                                 DEF_QUADALX_GLB,   // HGLOBAL of the default value
                                  lpwszIniFile);     // Ptr to the file name
     // Read in []CT
     fQuadCT_CWS =
@@ -713,15 +758,15 @@ UBOOL ReadIniFileGlb
     hGlbQuadELX_CWS =
       GetPrivateProfileGlbCharW (SECTNAME_SYSVARS,  // Ptr to the section name
                                  KEYNAME_QUADELX,   // Ptr to the key name
-                                 DEF_QUADELX_CWS_BR,// Ptr to default value
-                                 DEF_QUADELX_GLB,   // HGLOBAL of the result
+                                 DEF_QUADELX_CWS,   // Ptr to default value
+                                 DEF_QUADELX_GLB,   // HGLOBAL of the default value
                                  lpwszIniFile);     // Ptr to the file name
     // Read in []FC
     hGlbQuadFC_CWS =
       GetPrivateProfileGlbCharW (SECTNAME_SYSVARS,  // Ptr to the section name
                                  KEYNAME_QUADFC,    // Ptr to the key name
-                                 DEF_QUADFC_CWS_BR, // Ptr to default value
-                                 DEF_QUADFC_GLB,    // HGLOBAL of the result
+                                 DEF_QUADFC_CWS,    // Ptr to default value
+                                 DEF_QUADFC_GLB,    // HGLOBAL of the default value
                                  lpwszIniFile);     // Ptr to the file name
     // Loop through the items of aplDefaultFEATURE
     for (uCnt = 0, lpwszTemp = wszTemp; uCnt < FEATURENDX_LENGTH; uCnt++)
@@ -735,7 +780,7 @@ UBOOL ReadIniFileGlb
       GetPrivateProfileGlbIntW (SECTNAME_SYSVARS,       // Ptr to the section name
                                 KEYNAME_QUADFEATURE,    // Ptr to the key name
                                 wszTemp,                // Ptr to default value
-                                DEF_QUADFEATURE_GLB,    // HGLOBAL of the result
+                                DEF_QUADFEATURE_GLB,    // HGLOBAL of the default value
                                 FEATURENDX_LENGTH,      // Length of the default integer vector
                                 lpwszIniFile);          // Ptr to the file name
     // Read in []FPC
@@ -756,7 +801,7 @@ UBOOL ReadIniFileGlb
       GetPrivateProfileGlbIntW (SECTNAME_SYSVARS,   // Ptr to the section name
                                 KEYNAME_QUADIC,     // Ptr to the key name
                                 wszTemp,            // Ptr to default value
-                                DEF_QUADIC_GLB,     // HGLOBAL of the result
+                                DEF_QUADIC_GLB,     // HGLOBAL of the default value
                                 ICNDX_LENGTH,       // Length of the default integer vector
                                 lpwszIniFile);      // Ptr to the file name
     // Read in uMigration.IC0LOG0
@@ -771,10 +816,10 @@ UBOOL ReadIniFileGlb
         LPAPLINT lpMemQuadIC;
 
         // Lock the memory to get a ptr to it
-        lpMemQuadIC = MyGlobalLock (hGlbQuadIC_CWS);
+        lpMemQuadIC = MyGlobalLockVar (hGlbQuadIC_CWS);
 
         // Skip over the header and dimensions to the data
-        lpMemQuadIC = VarArrayBaseToData (lpMemQuadIC, 1);
+        lpMemQuadIC = VarArrayDataFmBase (lpMemQuadIC);
 
         // Set the new value
         lpMemQuadIC[ICNDX_0LOG0] = aplDefaultIC[ICNDX_0LOG0];
@@ -797,7 +842,7 @@ UBOOL ReadIniFileGlb
       GetPrivateProfileGlbCharW (SECTNAME_SYSVARS,  // Ptr to the section name
                                  KEYNAME_QUADLX,    // Ptr to the key name
                                  DEF_QUADLX_CWS,    // Ptr to default value
-                                 DEF_QUADLX_GLB,    // HGLOBAL of the result
+                                 DEF_QUADLX_GLB,    // HGLOBAL of the default value
                                  lpwszIniFile);     // Ptr to the file name
     // Read in []MF
     uQuadMF_CWS =
@@ -1073,22 +1118,23 @@ UBOOL ReadIniFileGlb
                              lpwszIniFile);         // Ptr to the file name
     // Allocate space for the Recent Files list
     hGlbRecentFiles =
-      MyGlobalAlloc (GHND, DEF_RECENTFILES * _MAX_PATH * sizeof (WCHAR));
+      DbgGlobalAlloc (GHND, DEF_RECENTFILES * _MAX_PATH * sizeof (WCHAR));
 
     // Check for error
-    if (!hGlbRecentFiles)
+    if (hGlbRecentFiles EQ NULL)
         return FALSE;           // Stop the whole process
 
     // Lock the memory to get a ptr to it
-    lpwszRecentFiles = MyGlobalLock (hGlbRecentFiles);
+    lpwszRecentFiles = MyGlobalLock000 (hGlbRecentFiles);
 
     // Loop through the Recent Files
     for (uCnt = 0; uCnt < uNumRecentFiles; uCnt++)
     {
         // Format the keyname
-        wsprintfW (wszKey,
+        MySprintfW (wszKey,
+                    sizeof (wszKey),
                    L"%u",
-                   uCnt);
+                    uCnt);
         // Read in the next Recent File
         GetPrivateProfileStringW (SECTNAME_RECENTFILES,         // Ptr to the section name
                                   wszKey,                       // Ptr to the key name
@@ -1113,7 +1159,7 @@ UBOOL ReadIniFileGlb
                              lpwszIniFile);         // Ptr to the file name
     // Allocate space for the # built-in layouts + user-defined
     hGlbKeybLayouts =
-      MyGlobalAlloc (GHND, (uGlbKeybLayoutBI + uGlbKeybLayoutUser) * sizeof (KEYBLAYOUTS));
+      DbgGlobalAlloc (GHND, (uGlbKeybLayoutBI + uGlbKeybLayoutUser) * sizeof (KEYBLAYOUTS));
     if (hGlbKeybLayouts EQ NULL)
     {
         MessageBoxW (hWndMF, L"Unable to allocate enough memory for Keyboard Layouts", WS_APPNAME, MB_OK | MB_ICONSTOP);
@@ -1122,19 +1168,25 @@ UBOOL ReadIniFileGlb
     } // End IF
 
     // Lock the memory to get a ptr to it
-    lpKeybLayouts = MyGlobalLock (hGlbKeybLayouts);
+    lpKeybLayouts = MyGlobalLock000 (hGlbKeybLayouts);
 
     // Get the Unicode base for typed chars (10 or 16)
     uKeybUnibase =
       GetPrivateProfileIntW (SECTNAME_KEYBOARDS,    // Ptr to the section name
-                             KEYNAME_KEYBUNIBASE,   // Ptr to the key name
-                             10,                    // Default value if not found
+                             KEYNAME_UNIBASE,       // Ptr to the key name
+                             16,                    // Default value if not found
                              lpwszIniFile);         // Ptr to the file name
     // Ensure the Unicode base is either 10 or 16
     if (uKeybUnibase NE 10
      && uKeybUnibase NE 16)
         uKeybUnibase = 16;
 
+    // Get the last keyboard unicode character selected
+    uKeybChar =
+      GetPrivateProfileIntW (SECTNAME_KEYBOARDS,    // Ptr to the section name
+                             KEYNAME_CHAR,          // Ptr to the key name
+                             0,                     // Default value if not found
+                             lpwszIniFile);         // Ptr to the file name
     // Get the index of the keyboard TabCtrl tab
     uKeybTCNum =
       GetPrivateProfileIntW (SECTNAME_KEYBOARDS,    // Ptr to the section name
@@ -1219,7 +1271,7 @@ UBOOL ReadIniFileGlb
                     aKeybLayoutsBI[uCnt].lpCharCodes,
                     aKeybLayoutsBI[uCnt].uCharCodesLen * sizeof (CHARCODE));
         lpKeybLayouts[uCnt].uCharCodesLen          = aKeybLayoutsBI[uCnt].uCharCodesLen;
-        lstrcpyW (lpKeybLayouts[uCnt].wszLayoutName, aKeybLayoutsBI[uCnt].wszLayoutName);
+        strcpyW (lpKeybLayouts[uCnt].wszLayoutName, aKeybLayoutsBI[uCnt].wszLayoutName);
         lpKeybLayouts[uCnt].uScanCode2B_RowNum     = aKeybLayoutsBI[uCnt].uScanCode2B_RowNum;
         lpKeybLayouts[uCnt].bReadOnly              = TRUE;
         lpKeybLayouts[uCnt].bExtraKeyRow3          = aKeybLayoutsBI[uCnt].bExtraKeyRow3;
@@ -1238,9 +1290,10 @@ UBOOL ReadIniFileGlb
              uLen;                                      // Length value
 
         // Format the section name
-        wsprintfW (wszSectName,
-                   SECTNAME_KEYBPREFIX L"%u",
-                   uCnt);
+        MySprintfW (wszSectName,
+                    sizeof (wszSectName),
+                    SECTNAME_KEYBPREFIX L"%u",
+                    uCnt);
         // Read in the layout name
         GetPrivateProfileStringW (wszSectName,              // Ptr to the section name
                                   KEYNAME_KEYBLAYOUTNAME,   // Ptr to the key name
@@ -1288,9 +1341,10 @@ UBOOL ReadIniFileGlb
         for (uCol = 0; uCol < uLen; uCol++)
         {
             // Format the keyname
-            wsprintfW (wszKeyName,
-                       KEYNAME_KEYBSCANCODE L"%02X",
-                       uCol);
+            MySprintfW (wszKeyName,
+                        sizeof (wszKeyName),
+                        KEYNAME_KEYBSCANCODE L"%02X",
+                        uCol);
             // Read in the keyboard chars for this scancode
             GetPrivateProfileStringW (wszSectName,              // Ptr to the section name
                                       wszKeyName,               // Ptr to the key name
@@ -1336,7 +1390,7 @@ UBOOL ReadIniFileGlb
     aKeybLayoutAct = lpKeybLayouts[uGlbKeybLayoutNumAct];
 
     // Make that the visible keyboard layout name
-    lstrcpyW (wszGlbKeybLayoutVis, wszGlbKeybLayoutAct);
+    strcpyW (wszGlbKeybLayoutVis, wszGlbKeybLayoutAct);
     uGlbKeybLayoutNumVis = uGlbKeybLayoutNumAct;
 
     // We no longer need this ptr
@@ -1346,6 +1400,28 @@ UBOOL ReadIniFileGlb
 
     return TRUE;
 } // End ReadIniFileGlb
+#undef  APPEND_NAME
+
+
+//***************************************************************************
+//  $DeleIniFileGlb
+//
+//  Delete the global vars created by <ReadIniFileGlb>
+//***************************************************************************
+
+void DeleIniFileGlb
+    (void)
+
+{
+////FreeGlbName (hGlbQuadALX_CWS    ); hGlbQuadALX_CWS      = NULL; // Deleted in DelePermVars
+////FreeGlbName (hGlbQuadELX_CWS    ); hGlbQuadELX_CWS      = NULL; // ...
+//  FreeGlbName (hGlbQuadFC_CWS     ); hGlbQuadFC_CWS       = NULL;
+//  FreeGlbName (hGlbQuadLX_CWS     ); hGlbQuadLX_CWS       = NULL;
+//  FreeGlbName (hGlbQuadFEATURE_CWS); hGlbQuadFEATURE_CWS  = NULL;
+//  FreeGlbName (hGlbQuadIC_CWS     ); hGlbQuadIC_CWS       = NULL;
+    FreeGlbName (hGlbLibDirs        ); hGlbLibDirs          = NULL;
+    FreeGlbName (hGlbRecentFiles    ); hGlbRecentFiles      = NULL;
+} // End DeleIniFileGlb
 
 
 //***************************************************************************
@@ -1400,15 +1476,13 @@ void GetPrivateProfileLogFontW
                               countof (wszTemp) - 1,// Count of the output buffer
                               lpwszIniFile);        // Ptr to the file name
     // If the new value is present, ...
-    if (wszTemp[0])
+    if (wszTemp[0] NE WC_EOS)
     {
-        // Note that this works for little-endian formats only as
-        //   the .lfItalic and following numeric fields are BYTE
-        //   but there is no way to tell sscanfW about that, so it
-        //   treats them as four-byte ints overwiting the next three
-        //   bytes each time it scans a number which is actually
-        //   a one-byte int.  As this happens sequentially and the
-        //   last field is the FaceName, there is no harm.
+        int lfTmp[8];
+
+        // Because many of the fields in a LOGFONT struc are BYTE wide,
+        //   we use the following artifice of temporary INT wide fields
+        //   so that sscanfW doesn't write into date beyond the BYTE.
         sscanfW (wszTemp,
                  FMTSTR_LOGFONT_INP,
                 &lplfFont->lfHeight,
@@ -1416,18 +1490,28 @@ void GetPrivateProfileLogFontW
                 &lplfFont->lfEscapement,
                 &lplfFont->lfOrientation,
                 &lplfFont->lfWeight,
-                &lplfFont->lfItalic,
-                &lplfFont->lfUnderline,
-                &lplfFont->lfStrikeOut,
-                &lplfFont->lfCharSet,
-                &lplfFont->lfOutPrecision,
-                &lplfFont->lfClipPrecision,
-                &lplfFont->lfQuality,
-                &lplfFont->lfPitchAndFamily,
+                &lfTmp[0],                  // &lplfFont->lfItalic,
+                &lfTmp[1],                  // &lplfFont->lfUnderline,
+                &lfTmp[2],                  // &lplfFont->lfStrikeOut,
+                &lfTmp[3],                  // &lplfFont->lfCharSet,
+                &lfTmp[4],                  // &lplfFont->lfOutPrecision,
+                &lfTmp[5],                  // &lplfFont->lfClipPrecision,
+                &lfTmp[6],                  // &lplfFont->lfQuality,
+                &lfTmp[7],                  // &lplfFont->lfPitchAndFamily,
                 &lplfFont->lfFaceName);
+        // Copy the temp fields into the byte fields in lplfFont
+        lplfFont->lfItalic          = (BYTE) lfTmp[0];
+        lplfFont->lfUnderline       = (BYTE) lfTmp[1];
+        lplfFont->lfStrikeOut       = (BYTE) lfTmp[2];
+        lplfFont->lfCharSet         = (BYTE) lfTmp[3];
+        lplfFont->lfOutPrecision    = (BYTE) lfTmp[4];
+        lplfFont->lfClipPrecision   = (BYTE) lfTmp[5];
+        lplfFont->lfQuality         = (BYTE) lfTmp[6];
+        lplfFont->lfPitchAndFamily  = (BYTE) lfTmp[7];
+
         // If the facename contains an embedded blank, sscanfW misses
         //   the tail of the name so we do it over again here
-        lstrcpyW (lplfFont->lfFaceName, strchrW (wszTemp, WC_SQ) + 1);
+        strcpyW (lplfFont->lfFaceName, strchrW (wszTemp, WC_SQ) + 1);
         *(strchrW (lplfFont->lfFaceName, WC_SQ)) = WC_EOS;
     } // End IF
 } // End GetPrivateProfileLogFontW
@@ -1459,12 +1543,12 @@ APLFLOAT GetPrivateProfileFloatW
     // If the new value is present, ...
     if (wszTemp[0])
     {
-        // Convert wide to single-byte so we can use strtod
+        // Convert wide to single-byte so we can use MyStrtod
         //   which has no wide counterpart
         W2A (szTemp, wszTemp, sizeof (wszTemp));
 
         // Use David Gay's routines
-        return strtod (szTemp, NULL);
+        return MyStrtod (szTemp, NULL);
     } else
         return fDefVal;
 } // End GetPrivateProfileFloatW
@@ -1491,8 +1575,7 @@ HGLOBAL GetPrivateProfileGlbCharW
                               hDefVal,              // Default value global memory handle
                               ARRAY_CHAR,           // Result storage type
                               sizeof (APLCHAR),     // Size of each item in the result
-                              lstrlenW (lpwDefVal) - 2,// Length of the default vector
-                                                    //   less the surrounding single quotes
+                              lstrlenW (lpwDefVal), // Length of the default vector
                               lpwszIniFile);        // Ptr to the file name
 } // End GetPrivateProfileGlbCharW
 
@@ -1530,6 +1613,12 @@ HGLOBAL GetPrivateProfileGlbIntW
 //  Read in a global integer or char vector from a .ini file
 //***************************************************************************
 
+#ifdef DEBUG
+#define APPEND_NAME     L" -- GetPrivateProfileGlbComW"
+#else
+#define APPEND_NAME
+#endif
+
 HGLOBAL GetPrivateProfileGlbComW
     (LPWCHAR  lpwSectName,                          // Ptr to the section name
      LPWCHAR  lpwKeyName,                           // Ptr to the key name
@@ -1541,13 +1630,15 @@ HGLOBAL GetPrivateProfileGlbComW
      LPWCHAR  lpwszIniFile)                         // Ptr to the file name
 
 {
-    WCHAR   wszTemp[1024];                          // Temporary storage for string results
-    APLNELM aplNELMRes;                             // Result NELM
-    APLUINT ByteRes;                                // # bytes in the result
-    HGLOBAL hGlbRes,                                // Result global memory handle
-            hGlbChk;                                // Result from CheckGlobals
-    LPVOID  lpMemRes,                               // Ptr to result global memory
-            lpMemInp;                               // Ptr to input global memory
+    WCHAR             wszTemp[1024];                // Temporary storage for string results
+    APLNELM           aplNELMRes,                   // Result NELM
+                      aplNELMInp;                   // Input NELM
+    APLUINT           ByteRes;                      // # bytes in the result
+    HGLOBAL           hGlbRes,                      // Result global memory handle
+                      hGlbChk;                      // Result from CheckGlobals
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;           // Ptr to result header
+    LPVOID            lpMemRes,                     // Ptr to result global memory
+                      lpMemInp;                     // Ptr to input global memory
 
     // Read in the global integer or char vector as a string
     GetPrivateProfileStringW (lpwSectName,          // Ptr to the section name
@@ -1565,7 +1656,7 @@ HGLOBAL GetPrivateProfileGlbComW
          && (lstrcmpW (wszTemp, L"3 4 2 2 2 1 2 2 1 2 2 2 1")   EQ 0
           || lstrcmpW (wszTemp, L"3 4 2 2 2 1 2 2 1 2 2 2 2 1") EQ 0))
             // Use the new default value
-            lstrcpyW (wszTemp, L"3 4 2 2 2 1 2 2 2 2 1 2 2 2 2 1");
+            strcpyW (wszTemp, L"3 4 2 2 2 1 2 2 2 2 1 2 2 2 2 1");
         // Use the given (or substituted value)
         lpMemInp = wszTemp;
     } else
@@ -1573,7 +1664,8 @@ HGLOBAL GetPrivateProfileGlbComW
         lpMemInp = lpDefVal;
 
     // Find out how many elements are in the .ini file value
-    aplNELMRes = ScanNELM (lpMemInp, aplTypeRes);
+    aplNELMInp = ScanNELM (lpMemInp, aplTypeRes);
+    aplNELMRes = max (aplNELMInp, uVecLen);
 
     // Calculate space needed for the result
     ByteRes = CalcArraySize (aplTypeRes, aplNELMRes, 1);
@@ -1581,14 +1673,14 @@ HGLOBAL GetPrivateProfileGlbComW
     // Allocate space for the data
     // Note, we can't use DbgGlobalAlloc here as the
     //   PTD has not been allocated as yet
-    hGlbRes = MyGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
+    if (hGlbRes EQ NULL)
         return hGlbRes;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header values
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = aplTypeRes;
@@ -1600,16 +1692,43 @@ HGLOBAL GetPrivateProfileGlbComW
 #undef  lpHeader
 
     // Save the dimension
-    *VarArrayBaseToDim (lpMemRes) = aplNELMRes;
+    *VarArrayBaseToDim (lpMemHdrRes) = aplNELMRes;
 
     // Skip over the header and dimensions to the data
-    lpMemRes = VarArrayBaseToData (lpMemRes, 1);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // Copy and convert the values to the result
-    CopyConvertDataOfType (lpMemRes, aplTypeRes, aplNELMRes, lpMemInp);
+    CopyConvertDataOfType (lpMemRes,                                // Ptr to result global memory
+                           0,                                       // Initial index into lpMemRes
+                           aplTypeRes,                              // Result storage type
+                           aplNELMInp,                              // Result NELM
+                           lpMemInp,                                // Ptr to the input buffer
+                           FALSE);                                  // TRUE iff the input buffer is integer
+    // If the saved value is shorter than the default value, ...
+    if (aplNELMInp < aplNELMRes)
+    {
+        LPVARARRAY_HEADER lpMemHdrDef = NULL;   // Ptr to default header
+        LPVOID            lpMemDef;             // Ptr to default values
+
+        // Lock the memory to get a ptr to it
+        lpMemHdrDef = MyGlobalLockVar (hDefVal);
+
+        // Skip over the header & dimensions to the data
+        lpMemDef = VarArrayDataFmBase (lpMemHdrDef);
+
+        // Copy and convert the values to the result
+        CopyConvertDataOfType (lpMemRes,                            // Ptr to result global memory
+                               aplNELMInp,                          // Initial index into lpMemRes
+                               aplTypeRes,                          // Result storage type
+                               aplNELMRes - aplNELMInp,             // Result NELM
+                               lpMemDef,                            // Ptr to the input buffer
+                               lpMemHdrDef->ArrType EQ ARRAY_INT);  // TRUE iff the input buffer is integer
+        // We no longer need this ptr
+        MyGlobalUnlock (hDefVal); lpMemHdrDef = NULL;
+    } // End IF
 
     // We no longer need this ptr
-    MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
     // Check to see if this value duplicates one of the already
     //   allocated permanent globals
@@ -1625,6 +1744,7 @@ HGLOBAL GetPrivateProfileGlbComW
 
     return hGlbRes;
 } // End GetPrivateProfileGlbComW
+#undef  APPEND_NAME
 
 
 //***************************************************************************
@@ -1635,30 +1755,42 @@ HGLOBAL GetPrivateProfileGlbComW
 
 void CopyConvertDataOfType
     (LPVOID   lpMemRes,                             // Ptr to result global memory
+     APLNELM  aplNELMIni,                           // Initial index into lpMemRes
      APLSTYPE aplTypeRes,                           // Result storage type
      APLNELM  aplNELMRes,                           // Result NELM
-     LPWCHAR  wszTemp)                              // Ptr to the output buffer
+     LPWCHAR  lpwszTemp,                            // Ptr to the input buffer
+     UBOOL    bInpInteger)                          // TRUE iff the input buffer is integer
 
 {
-    APLUINT uCnt;                                   // Loop counter
-    WCHAR   wcTmp;                                  // Temporary char
+    LPAPLINT  lpaplInteger;                         // Ptr to integer input
+    APLUINT   uCnt;                                 // Loop counter
+    WCHAR     wcTmp;                                // Temporary char
 
     // Split cases based upon the result storage type
     switch (aplTypeRes)
     {
         case ARRAY_INT:
+            lpaplInteger = (LPAPLINT) lpwszTemp;
+
             // Loop through the result elements
             for (uCnt = 0; uCnt < aplNELMRes; uCnt++)
             {
-                // Convert the next #
-                sscanfW (wszTemp,
-                         L"%I64d",
-                         lpMemRes);
-                // Skip to the next field
-                wszTemp = SkipPastCharW (wszTemp, L' ');
+                // If the input buffer is integer, ...
+                if (bInpInteger)
+                {
+                    ((LPAPLINT) lpMemRes)[aplNELMIni] = lpaplInteger[uCnt];
+                } else
+                {
+                    // Convert the next #
+                    sscanfW (lpwszTemp,
+                             L"%I64d",
+                            &((LPAPLINT) lpMemRes)[aplNELMIni]);
+                    // Skip to the next field
+                    lpwszTemp = SkipPastCharW (lpwszTemp, L' ');
+                } // End IF/ELSE
 
                 // Skip to next result location
-                ((LPAPLINT) lpMemRes)++;
+                aplNELMIni++;
             } // End FOR
 
             break;
@@ -1668,35 +1800,36 @@ void CopyConvertDataOfType
             for (uCnt = 0; uCnt < aplNELMRes; uCnt++)
             {
                 // Convert the single {name} or other char to UTF16_xxx
-                if (L'{' EQ  *wszTemp)
+                if (L'{' EQ  *lpwszTemp)
                 {
                     // Get the next char
-                    wcTmp = SymbolNameToChar (wszTemp);
+                    wcTmp = SymbolNameToChar (lpwszTemp);
 
 #define ZEROSTR     L"{\\x0000}"
 
                     // If there's a matching UTF16_xxx equivalent,
                     //   or the hex value is zero
-                    if (wcTmp || strncmpW (wszTemp, ZEROSTR, strcountof (ZEROSTR)) EQ 0)
+                    if (wcTmp || strncmpW (lpwszTemp, ZEROSTR, strcountof (ZEROSTR)) EQ 0)
                     {
                         // Save in the result and skip over it
-                        *((LPAPLCHAR) lpMemRes)++ = wcTmp;
+                        ((LPAPLCHAR) lpMemRes)[aplNELMIni++] = wcTmp;
 
                         // Skip to the next field
-                        wszTemp = SkipPastCharW (wszTemp, L'}');
+                        lpwszTemp = SkipPastCharW (lpwszTemp, L'}');
                     } else
                     {
                         // Copy source to destin up to and including the matching '}'
-                        while (wszTemp[0] NE L'}')
+                        while (lpwszTemp[0] NE L'}')
                             // Save in the result and skip over it
-                            *((LPAPLCHAR) lpMemRes)++ = *wszTemp++;
+                            ((LPAPLCHAR) lpMemRes)[aplNELMIni++] = *lpwszTemp++;
 
                         // Copy the '}'
-                        *((LPAPLCHAR) lpMemRes)++ = *wszTemp++;
+                        ((LPAPLCHAR) lpMemRes)[aplNELMIni++] = *lpwszTemp++;
                     } // End IF/ELSE
+#undef  ZEROSTR
                 } else
                     // Save in the result and skip over it
-                    *((LPAPLCHAR) lpMemRes)++ = *wszTemp++;
+                    ((LPAPLCHAR) lpMemRes)[aplNELMIni++] = *lpwszTemp++;
             } // End FOR
 
             break;
@@ -1777,6 +1910,7 @@ void ReadIniFileWnd
     RECT  rcDtop;           // Rectangle for desktop
     POINT PosCtr;           // x- and y- positions
     WCHAR wszTemp[128];     // Temporary buffer
+    UINT  uTmp[3];          // Temp UINTs for sscanfW
 
     // Read in the values from the [General] section
 
@@ -1839,7 +1973,7 @@ void ReadIniFileWnd
     if (guUpdFrq EQ countof (updFrq))
     {
         // Use the defaults
-        lstrcpyW (gszUpdFrq, DEF_UPDFRQ_STR);
+        strcpyW (gszUpdFrq, DEF_UPDFRQ_STR);
         guUpdFrq = DEF_UPDFRQ_NDX;
     } // End IF
 
@@ -1853,9 +1987,13 @@ void ReadIniFileWnd
     // Convert the date to SYSTEMTIME format
     sscanfW (wszTemp,
              FMTSTR_UPDCHK,
-            &gstUpdChk.wYear,
-            &gstUpdChk.wMonth,
-            &gstUpdChk.wDay);
+            &uTmp[0],           // &gstUpdChk.wYear,
+            &uTmp[1],           // &gstUpdChk.wMonth,
+            &uTmp[2]);          // &gstUpdChk.wDay,
+    // Copy the temps to the SYSTEMTIME struc
+    gstUpdChk.wYear     = (WORD)uTmp[0];
+    gstUpdChk.wMonth    = (WORD)uTmp[1];
+    gstUpdChk.wDay      = (WORD)uTmp[2];
 } // End ReadIniFileWnd
 
 
@@ -1875,22 +2013,24 @@ void SaveIniFile
                   uCnt2,                            // ...
                   uCol,                             // ...
                   uLen,                             // Length value
-                  uTmp;                             // Temp var
+                  uVal;                             // Temp var
     LPVOID        lpMemObj;                         // Ptr to object global memory
     LPAPLCHAR     lpaplChar;                        // Ptr to output save area
     APLNELM       aplNELMObj;                       // Object NELM
     WCHAR       (*lpwszRecentFiles)[][_MAX_PATH];   // Ptr to list of recent files
     LPKEYBLAYOUTS lpKeybLayouts;                    // Ptr to keyboard layouts global memory
     LPWSZLIBDIRS  lpwszLibDirs;                     // Ptr to LibDirs
+    UINT          uTmp[3];                          // Temp UINTs for sscanfW
 
     //*********************************************************
     // Write out [LibDirs] section entries
     //*********************************************************
 
     // Format the # LibDirs
-    wsprintfW (wszKey,
+    MySprintfW (wszKey,
+                sizeof (wszKey),
                L"%u",
-               uNumLibDirs);
+                uNumLibDirs);
     // Write it out
     WritePrivateProfileStringW (SECTNAME_LIBDIRS,           // Ptr to the section name
                                 KEYNAME_COUNT,              // Ptr to the key name
@@ -1903,9 +2043,10 @@ void SaveIniFile
     for (uCnt = 0; uCnt < uNumLibDirs; uCnt++)
     {
         // Format the keyname
-        wsprintfW (wszKey,
+        MySprintfW (wszKey,
+                    sizeof (wszKey),
                    L"%u",
-                   uCnt);
+                    uCnt);
         // Write it out
         WritePrivateProfileStringW (SECTNAME_LIBDIRS,       // Ptr to the section name
                                     wszKey,                 // Ptr to the key name
@@ -1926,54 +2067,60 @@ void SaveIniFile
                                 L"0.01",                    // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
     // Format the x-position
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%d",
-               MFPosCtr.x);
+                MFPosCtr.x);
     // Write out the x-position
     WritePrivateProfileStringW (SECTNAME_GENERAL,           // Ptr to the section name
                                 KEYNAME_XPOS,               // Ptr to the key name
                                 wszTemp,                    // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
     // Format the x-size
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%d",
-               MFSize.cx);
+                MFSize.cx);
     // Write out the x-size
     WritePrivateProfileStringW (SECTNAME_GENERAL,           // Ptr to the section name
                                 KEYNAME_XSIZE,              // Ptr to the key name
                                 wszTemp,                    // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
     // Format the y-position
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%d",
-               MFPosCtr.y);
+                MFPosCtr.y);
     // Write out the y-position
     WritePrivateProfileStringW (SECTNAME_GENERAL,           // Ptr to the section name
                                 KEYNAME_YPOS,               // Ptr to the key name
                                 wszTemp,                    // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
     // Format the y-size
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%d",
-               MFSize.cy);
+                MFSize.cy);
     // Write out the y-size
     WritePrivateProfileStringW (SECTNAME_GENERAL,           // Ptr to the section name
                                 KEYNAME_YSIZE,              // Ptr to the key name
                                 wszTemp,                    // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
     // Format the size state
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%d",
-               MFSizeState);
+                MFSizeState);
     // Write out the size state
     WritePrivateProfileStringW (SECTNAME_GENERAL,           // Ptr to the section name
                                 KEYNAME_SIZESTATE,          // Ptr to the key name
                                 wszTemp,                    // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
     // Format the initial category
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%d",
-               gInitCustomizeCategory);
+                gInitCustomizeCategory);
     // Write out the initial category
     WritePrivateProfileStringW (SECTNAME_GENERAL,           // Ptr to the section name
                                 KEYNAME_INITIALCAT,         // Ptr to the key name
@@ -1984,12 +2131,18 @@ void SaveIniFile
                                 KEYNAME_UPDFRQ,             // Ptr to the key name
                                 gszUpdFrq,                  // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
+    // Copy the SYSTEMTIME struc to the temps
+    (WORD)uTmp[0]    = gstUpdChk.wYear ;
+    (WORD)uTmp[1]    = gstUpdChk.wMonth;
+    (WORD)uTmp[2]    = gstUpdChk.wDay  ;
+
     // Format the update check date
-    wsprintfW (wszTemp,
-               FMTSTR_UPDCHK,
-               gstUpdChk.wYear,
-               gstUpdChk.wMonth,
-               gstUpdChk.wDay);
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+                FMTSTR_UPDCHK,
+                uTmp[0],
+                uTmp[1],
+                uTmp[2]);
     // Write out the update check date
     WritePrivateProfileStringW (SECTNAME_GENERAL,           // Ptr to the section name
                                 KEYNAME_UPDCHK,             // Ptr to the key name
@@ -2019,11 +2172,6 @@ void SaveIniFile
                                  KEYNAME_LOGFONTFE,         // Ptr to the key name
                                 &lfFE,                      // Ptr to LOGFONTW
                                  lpwszIniFile);             // Ptr to the file name
-    // Write out the LOGFONTW struc for ME
-    WritePrivateProfileLogfontW (SECTNAME_FONTS,            // Ptr to the section name
-                                 KEYNAME_LOGFONTME,         // Ptr to the key name
-                                &lfME,                      // Ptr to LOGFONTW
-                                 lpwszIniFile);             // Ptr to the file name
     // Write out the LOGFONTW struc for PR
     WritePrivateProfileLogfontW (SECTNAME_FONTS,            // Ptr to the section name
                                  KEYNAME_LOGFONTPR,         // Ptr to the key name
@@ -2039,11 +2187,6 @@ void SaveIniFile
                                  KEYNAME_LOGFONTTC,         // Ptr to the key name
                                 &lfTC,                      // Ptr to LOGFONTW
                                  lpwszIniFile);             // Ptr to the file name
-    // Write out the LOGFONTW struc for VE
-    WritePrivateProfileLogfontW (SECTNAME_FONTS,            // Ptr to the section name
-                                 KEYNAME_LOGFONTVE,         // Ptr to the key name
-                                &lfVE,                      // Ptr to LOGFONTW
-                                 lpwszIniFile);             // Ptr to the file name
     //*********************************************************
     // Write out [SameFontAs] section entries
     //*********************************************************
@@ -2052,13 +2195,15 @@ void SaveIniFile
     for (uCnt = 0; uCnt < FONTENUM_LENGTH; uCnt++)
     {
         // Format the keyname
-        wsprintfW (wszKey,
+        MySprintfW (wszKey,
+                    sizeof (wszKey),
                    L"%u",
-                   uCnt);
+                    uCnt);
         // Format the glbSameFontAs value
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"%u",
-                   glbSameFontAs[uCnt]);
+                    glbSameFontAs[uCnt]);
         WritePrivateProfileStringW (SECTNAME_SAMEFONTAS,    // Ptr to the section name
                                     wszKey,                 // Ptr to the key name
                                     wszTemp,                // Ptr to the SameFontAs value
@@ -2151,9 +2296,10 @@ void SaveIniFile
                                 lpwszIniFile);              // Ptr to the file name
     //******************* uDefaultPaste ***********************
     // Format uDefaultPaste
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%u",
-               OptionFlags.uDefaultPaste);
+                OptionFlags.uDefaultPaste);
     // Write out uDefaultPaste
     WritePrivateProfileStringW (SECTNAME_OPTIONS,           // Ptr to the section name
                                 KEYNAME_DEFAULTPASTE,       // Ptr to the key name
@@ -2161,9 +2307,10 @@ void SaveIniFile
                                 lpwszIniFile);              // Ptr to the file name
     //******************* uDefaultCopy ************************
     // Format uDefaultCopy
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%u",
-               OptionFlags.uDefaultCopy);
+                OptionFlags.uDefaultCopy);
     // Write out uDefaultCopy
     WritePrivateProfileStringW (SECTNAME_OPTIONS,           // Ptr to the section name
                                 KEYNAME_DEFAULTCOPY,        // Ptr to the key name
@@ -2253,6 +2400,49 @@ void SaveIniFile
                                 wszTemp,                    // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
 
+    //******************* bDispMPSuf **************************
+    // Format bDispMPSuf
+    wszTemp[0] = L'0' + OptionFlags.bDispMPSuf;
+    wszTemp[1] = WC_EOS;
+
+    // Write out bDispMPSuf
+    WritePrivateProfileStringW (SECTNAME_OPTIONS,           // Ptr to the section name
+                                KEYNAME_DISPMPSUF,          // Ptr to the key name
+                                wszTemp,                    // Ptr to the key value
+                                lpwszIniFile);              // Ptr to the file name
+    //******************* bOutputDebug ************************
+    // Format bOutputDebug
+    wszTemp[0] = L'0' + OptionFlags.bOutputDebug;
+    wszTemp[1] = WC_EOS;
+
+    // Write out bOutputDebug
+    WritePrivateProfileStringW (SECTNAME_OPTIONS,           // Ptr to the section name
+                                KEYNAME_OUTPUTDEBUG,        // Ptr to the key name
+                                wszTemp,                    // Ptr to the key value
+                                lpwszIniFile);              // Ptr to the file name
+    //******************* uUserChar ***************************
+    // Format the Line Continuation marker
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%u",
+                uUserChar);
+    // Write it out
+    WritePrivateProfileStringW (SECTNAME_OPTIONS,           // Ptr to the section name
+                                KEYNAME_CHAR,               // Ptr to the key name
+                                wszTemp,                    // Ptr to the key value
+                                lpwszIniFile);              // Ptr to the file name
+    //******************* uUserUnibase ************************
+    // Format the Line Continuation Unicode base
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%u",
+                uUserUnibase);
+    // Write it out
+    WritePrivateProfileStringW (SECTNAME_OPTIONS,           // Ptr to the section name
+                                KEYNAME_UNIBASE,            // Ptr to the key name
+                                wszTemp,                    // Ptr to the key value
+                                lpwszIniFile);              // Ptr to the file name
+
     //*********************************************************
     // Write out [SysVars] section entries
     //*********************************************************
@@ -2266,13 +2456,13 @@ void SaveIniFile
     //************************ []CT ***************************
     // Format []CT
     lpaplChar =
-     FormatFloatFC (wszTemp,                                // Ptr to output save area
-                    fQuadCT_CWS,                            // The value to format
-                    DEF_MAX_QUADPP64,                       // Precision to use
-                    L'.',                                   // Char to use as decimal separator
-                    L'-',                                   // Char to use as overbar
-                    FLTDISPFMT_RAWFLT,                      // Float display format
-                    FALSE);                                 // TRUE iff we're to substitute text for infinity
+     FormatAplFltFC (wszTemp,                               // Ptr to output save area
+                     fQuadCT_CWS,                           // The value to format
+                     DEF_MAX_QUADPP_IEEE,                   // Precision to use
+                     L'.',                                  // Char to use as decimal separator
+                     L'-',                                  // Char to use as overbar
+                     FLTDISPFMT_RAWFLT,                     // Float display format
+                     FALSE);                                // TRUE iff we're to substitute text for infinity
     // Zap the trailing blank
     lpaplChar[-1] = WC_EOS;
 
@@ -2308,7 +2498,7 @@ void SaveIniFile
                                  lpwszIniFile);
     //************************ []FEATURE **********************
     // Lock the memory to get a ptr to it
-    lpMemObj = MyGlobalLock (hGlbQuadFEATURE_CWS);
+    lpMemObj = MyGlobalLockVar (hGlbQuadFEATURE_CWS);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemObj)
     // Get the # bytes
@@ -2316,7 +2506,7 @@ void SaveIniFile
 #undef  lpHeader
 
     // Skip over the header and dimensions to the data
-    lpMemObj = VarArrayBaseToData (lpMemObj, 1);
+    lpMemObj = VarArrayDataFmBase (lpMemObj);
 
     // Format []FEATURE
     lpaplChar = wszTemp;
@@ -2339,7 +2529,7 @@ void SaveIniFile
     //************************ []FPC **************************
     // Format []FPC
     lpaplChar =
-      FormatAplintFC (wszTemp,                              // Ptr to output save area
+      FormatAplIntFC (wszTemp,                              // Ptr to output save area
                       uQuadFPC_CWS,                         // The value to format
                       L'-');                                // Char to use as overbar
     // Zap the trailing blank
@@ -2352,7 +2542,7 @@ void SaveIniFile
                                 lpwszIniFile);              // Ptr to the file name
     //************************ []IC ***************************
     // Lock the memory to get a ptr to it
-    lpMemObj = MyGlobalLock (hGlbQuadIC_CWS);
+    lpMemObj = MyGlobalLockVar (hGlbQuadIC_CWS);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemObj)
     // Get the # bytes
@@ -2360,7 +2550,7 @@ void SaveIniFile
 #undef  lpHeader
 
     // Skip over the header and dimensions to the data
-    lpMemObj = VarArrayBaseToData (lpMemObj, 1);
+    lpMemObj = VarArrayDataFmBase (lpMemObj);
 
     // Format []IC
     lpaplChar = wszTemp;
@@ -2383,7 +2573,7 @@ void SaveIniFile
     //************************ []IO ***************************
     // Format []IO
     lpaplChar =
-      FormatAplintFC (wszTemp,                              // Ptr to output save area
+      FormatAplIntFC (wszTemp,                              // Ptr to output save area
                       bQuadIO_CWS,                          // The value to format
                       L'-');                                // Char to use as overbar
     // Zap the trailing blank
@@ -2403,7 +2593,7 @@ void SaveIniFile
     //************************ []MF ***************************
     // Format []MF
     lpaplChar =
-      FormatAplintFC (wszTemp,                              // Ptr to output save area
+      FormatAplIntFC (wszTemp,                              // Ptr to output save area
                       uQuadMF_CWS,                          // The value to format
                       L'-');                                // Char to use as overbar
     // Zap the trailing blank
@@ -2417,7 +2607,7 @@ void SaveIniFile
     //************************ []PP ***************************
     // Format []PP
     lpaplChar =
-      FormatAplintFC (wszTemp,                              // Ptr to output save area
+      FormatAplIntFC (wszTemp,                              // Ptr to output save area
                       uQuadPP_CWS,                          // The value to format
                       L'-');                                // Char to use as overbar
     // Zap the trailing blank
@@ -2452,7 +2642,7 @@ void SaveIniFile
     //************************ []PW ***************************
     // Format []PW
     lpaplChar =
-      FormatAplintFC (wszTemp,                              // Ptr to output save area
+      FormatAplIntFC (wszTemp,                              // Ptr to output save area
                       uQuadPW_CWS,                          // The value to format
                       L'-');                                // Char to use as overbar
     // Zap the trailing blank
@@ -2466,7 +2656,7 @@ void SaveIniFile
     //************************ []RL ***************************
     // Format []RL
     lpaplChar =
-      FormatAplintFC (wszTemp,                              // Ptr to output save area
+      FormatAplIntFC (wszTemp,                              // Ptr to output save area
                       uQuadRL_CWS,                          // The value to format
                       L'-');                                // Char to use as overbar
     // Zap the trailing blank
@@ -2683,11 +2873,12 @@ void SaveIniFile
     for (uCnt = 0; uCnt < SC_LENGTH; uCnt++)
     {
         // Format the color name value
-         wsprintfW (wszTemp,
-                    FMTSTR_SYNTAXCOLOR,
-                    gSyntaxColorName[uCnt].syntClr.crFore,
-                    gSyntaxColorName[uCnt].syntClr.crBack,
-                    gSyntClrBGTrans [uCnt]);
+         MySprintfW (wszTemp,
+                     sizeof (wszTemp),
+                     FMTSTR_SYNTAXCOLOR,
+                     gSyntaxColorName[uCnt].syntClr.crFore,
+                     gSyntaxColorName[uCnt].syntClr.crBack,
+                     gSyntClrBGTrans [uCnt]);
         // Write out the entry
         WritePrivateProfileStringW (SECTNAME_COLORS,            // Ptr to the section name
                                     aColorKeyNames[uCnt],       // Ptr to the key name
@@ -2696,12 +2887,13 @@ void SaveIniFile
     } // End FOR
 
     // Write out the CustomColors
-     wsprintfW (wszTemp,
-                FMTSTR_CUSTOMCOLORS,
-                aCustomColors[ 0], aCustomColors[ 1], aCustomColors[ 2], aCustomColors[ 3],
-                aCustomColors[ 4], aCustomColors[ 5], aCustomColors[ 6], aCustomColors[ 7],
-                aCustomColors[ 8], aCustomColors[ 9], aCustomColors[10], aCustomColors[11],
-                aCustomColors[12], aCustomColors[13], aCustomColors[14], aCustomColors[15]);
+     MySprintfW (wszTemp,
+                 sizeof (wszTemp),
+                 FMTSTR_CUSTOMCOLORS,
+                 aCustomColors[ 0], aCustomColors[ 1], aCustomColors[ 2], aCustomColors[ 3],
+                 aCustomColors[ 4], aCustomColors[ 5], aCustomColors[ 6], aCustomColors[ 7],
+                 aCustomColors[ 8], aCustomColors[ 9], aCustomColors[10], aCustomColors[11],
+                 aCustomColors[12], aCustomColors[13], aCustomColors[14], aCustomColors[15]);
     // Write out the entry
     WritePrivateProfileStringW (SECTNAME_COLORS,            // Ptr to the section name
                                 KEYNAME_CUSTOMCOLORS,       // Ptr to the key name
@@ -2733,16 +2925,17 @@ void SaveIniFile
     lpwszRecentFiles = MyGlobalLock (hGlbRecentFiles);
 
     // Loop through the Recent Files
-    for (uTmp = uCnt = 0; uCnt < uNumRecentFiles; uCnt++)
+    for (uVal = uCnt = 0; uCnt < uNumRecentFiles; uCnt++)
     if ((*lpwszRecentFiles)[uCnt][0])
     {
         // Count in another valid Recent File
-        uTmp++;
+        uVal++;
 
         // Format the keyname
-        wsprintfW (wszKey,
+        MySprintfW (wszKey,
+                    sizeof (wszKey),
                    L"%u",
-                   uCnt);
+                    uCnt);
         // Write out the current Recent File
         WritePrivateProfileStringW (SECTNAME_RECENTFILES,       // Ptr to the section name
                                     wszKey,                     // Ptr to the key name
@@ -2754,9 +2947,10 @@ void SaveIniFile
     MyGlobalUnlock (hGlbRecentFiles); lpwszRecentFiles = NULL;
 
     // Format the # valid Recent Files
-    wsprintfW (wszKey,
+    MySprintfW (wszKey,
+                sizeof (wszKey),
                L"%u",
-               uTmp);
+                uVal);
     // Write it out
     WritePrivateProfileStringW (SECTNAME_RECENTFILES,       // Ptr to the section name
                                 KEYNAME_COUNT,              // Ptr to the key name
@@ -2767,36 +2961,50 @@ void SaveIniFile
     //*********************************************************
 
     // Format the # user-defined keyboards
-    wsprintfW (wszKey,
+    MySprintfW (wszKey,
+                sizeof (wszKey),
                L"%u",
-               uGlbKeybLayoutUser);
+                uGlbKeybLayoutUser);
     // Write it out
     WritePrivateProfileStringW (SECTNAME_KEYBOARDS,         // Ptr to the section name
                                 KEYNAME_COUNT,              // Ptr to the key name
                                 wszKey,                     // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
     // Format the keyboard Unicode base
-    wsprintfW (wszKey,
+    MySprintfW (wszKey,
+                sizeof (wszKey),
                L"%u",
-               uKeybUnibase);
+                uKeybUnibase);
     // Write it out
     WritePrivateProfileStringW (SECTNAME_KEYBOARDS,         // Ptr to the section name
-                                KEYNAME_KEYBUNIBASE,        // Ptr to the key name
+                                KEYNAME_UNIBASE,            // Ptr to the key name
+                                wszKey,                     // Ptr to the key value
+                                lpwszIniFile);              // Ptr to the file name
+    // Format the last keyboard unicode char
+    MySprintfW (wszKey,
+                sizeof (wszKey),
+               L"%u",
+                uKeybChar);
+    // Write it out
+    WritePrivateProfileStringW (SECTNAME_KEYBOARDS,         // Ptr to the section name
+                                KEYNAME_CHAR,               // Ptr to the key name
                                 wszKey,                     // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
     // Format the keyboard TabCtrl tab index
-    wsprintfW (wszKey,
+    MySprintfW (wszKey,
+                sizeof (wszKey),
                L"%u",
-               uKeybTCNum);
+                uKeybTCNum);
     // Write it out
     WritePrivateProfileStringW (SECTNAME_KEYBOARDS,         // Ptr to the section name
                                 KEYNAME_KEYBTCNUM,          // Ptr to the key name
                                 wszKey,                     // Ptr to the key value
                                 lpwszIniFile);              // Ptr to the file name
     // Format the keyboard state
-    wsprintfW (wszKey,
+    MySprintfW (wszKey,
+                sizeof (wszKey),
                L"%u",
-               uKeybState);
+                uKeybState);
     // Write it out
     WritePrivateProfileStringW (SECTNAME_KEYBOARDS,         // Ptr to the section name
                                 KEYNAME_KEYBSTATE,          // Ptr to the key name
@@ -2824,9 +3032,10 @@ void SaveIniFile
               wszCount[8 + 1];                          // Scancode count
 
         // Format the section name
-        wsprintfW (wszSectName,
-                   SECTNAME_KEYBPREFIX L"%u",
-                   uCnt);
+        MySprintfW (wszSectName,
+                    sizeof (wszSectName),
+                    SECTNAME_KEYBPREFIX L"%u",
+                    uCnt);
         // Write out the layout name
         WritePrivateProfileStringW (wszSectName,                // Ptr to the section name
                                     KEYNAME_KEYBLAYOUTNAME,     // Ptr to the key name
@@ -2881,9 +3090,10 @@ void SaveIniFile
         uLen = lpKeybLayouts[uCnt2].uCharCodesLen;
 
         // Format the # scancodes in this layout
-        wsprintfW (wszCount,
+        MySprintfW (wszCount,
+                    sizeof (wszCount),
                    L"%u",
-                   uLen);
+                    uLen);
         // Write out the # scancodes in this layout
         WritePrivateProfileStringW (wszSectName,                // Ptr to the section name
                                     KEYNAME_COUNT,              // Ptr to the key name
@@ -2893,20 +3103,22 @@ void SaveIniFile
         for (uCol = 0; uCol < uLen; uCol++)
         {
             // Format the keyname
-            wsprintfW (wszKeyName,
-                       KEYNAME_KEYBSCANCODE L"%02X",
-                       uCol);
+            MySprintfW (wszKeyName,
+                        sizeof (wszKeyName),
+                        KEYNAME_KEYBSCANCODE L"%02X",
+                        uCol);
             // Format the keyboard chars for this scancode
-            wsprintfW (wszKeybChars,
-                       FMTSTR_KEYBCHARS,
-                       lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[0],
-                       lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[1],
-                       lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[2],
-                       lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[3],
-                       lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[4],
-                       lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[5],
-                       lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[6],
-                       lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[7]);
+            MySprintfW (wszKeybChars,
+                        sizeof (wszKeybChars),
+                        FMTSTR_KEYBCHARS,
+                        lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[0],
+                        lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[1],
+                        lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[2],
+                        lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[3],
+                        lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[4],
+                        lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[5],
+                        lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[6],
+                        lpKeybLayouts[uCnt2].aCharCodes[uCol].wc[7]);
             // Write out the keyb chars for this scancode
             WritePrivateProfileStringW (wszSectName,                // Ptr to the section name
                                         wszKeyName,                 // Ptr to the key name
@@ -2922,9 +3134,10 @@ void SaveIniFile
         WCHAR wszLayoutName[KBLEN];                         // Space for a temporary layout name
 
         // Format the section name
-        wsprintfW (wszSectName,
-                   SECTNAME_KEYBPREFIX L"%u",
-                   uCnt);
+        MySprintfW (wszSectName,
+                    sizeof (wszSectName),
+                    SECTNAME_KEYBPREFIX L"%u",
+                    uCnt);
         // Read in the layout name
         GetPrivateProfileStringW (wszSectName,              // Ptr to the section name
                                   KEYNAME_KEYBLAYOUTNAME,   // Ptr to the key name
@@ -2966,22 +3179,23 @@ void WritePrivateProfileLogfontW
     WCHAR wszTemp[1024];                            // Temporary storage
 
     // Format the LOGFONTW struc entries
-    wsprintfW (wszTemp,
-               FMTSTR_LOGFONT_OUT,
-               lplfFont->lfHeight,
-               lplfFont->lfWidth,
-               lplfFont->lfEscapement,
-               lplfFont->lfOrientation,
-               lplfFont->lfWeight,
-               lplfFont->lfItalic,
-               lplfFont->lfUnderline,
-               lplfFont->lfStrikeOut,
-               lplfFont->lfCharSet,
-               lplfFont->lfOutPrecision,
-               lplfFont->lfClipPrecision,
-               lplfFont->lfQuality,
-               lplfFont->lfPitchAndFamily,
-              &lplfFont->lfFaceName);
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+                FMTSTR_LOGFONT_OUT,
+                lplfFont->lfHeight,
+                lplfFont->lfWidth,
+                lplfFont->lfEscapement,
+                lplfFont->lfOrientation,
+                lplfFont->lfWeight,
+                lplfFont->lfItalic,
+                lplfFont->lfUnderline,
+                lplfFont->lfStrikeOut,
+                lplfFont->lfCharSet,
+                lplfFont->lfOutPrecision,
+                lplfFont->lfClipPrecision,
+                lplfFont->lfQuality,
+                lplfFont->lfPitchAndFamily,
+               &lplfFont->lfFaceName);
     // Write out the LOGFONTW struc
     WritePrivateProfileStringW (lpwSectName,        // Ptr to the section name
                                 lpwKeyName,         // Ptr to the key name
@@ -3008,7 +3222,7 @@ void WritePrivateProfileGlbCharW
     APLNELM   aplNELMObj;                   // Object NELM
 
     // Lock the memory to get a ptr to it
-    lpMemObj = MyGlobalLock (hGlbObj);
+    lpMemObj = MyGlobalLockVar (hGlbObj);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemObj)
     // Get the NELM
@@ -3016,7 +3230,7 @@ void WritePrivateProfileGlbCharW
 #undef  lpHeader
 
     // Skip over the header and dimensions to the data
-    lpMemObj = VarArrayBaseToData (lpMemObj, 1);
+    lpMemObj = VarArrayDataFmBase (lpMemObj);
 
     // Get starting ptr
     lpaplChar = lpwszGlbTemp;
@@ -3045,6 +3259,30 @@ void WritePrivateProfileGlbCharW
     // We no longer need this ptr
     MyGlobalUnlock (hGlbObj); lpMemObj = NULL;
 } // End WritePrivateProfileGlbCharW
+
+
+//***************************************************************************
+//  $ProfileInit_EM
+//
+//  Initialize a .ini profile
+//***************************************************************************
+
+LPDICTIONARY ProfileInit_EM
+    (LPWSTR       lpwszDPFE,        // Ptr to workspace DPFE
+     LPWCHAR     *lplpwErrMsg)      // Ptr to ptr to error message text
+
+{
+    LPDICTIONARY lpDict;            // Ptr to workspace dictionary
+
+    // Initialize the parser dictionary
+    lpDict = iniparser_init (lpwszDPFE);
+    if (lpDict EQ NULL)
+        *lplpwErrMsg = L"No room for Dictionary";
+    else
+        *lplpwErrMsg = NULL;
+
+    return lpDict;
+} // End ProfileInit_EM
 
 
 //***************************************************************************
@@ -3103,26 +3341,26 @@ LPDICTIONARY ProfileLoad_EM
         switch (errCode)
         {
             case ERRCODE_BUFFER_OVERFLOW:
-                wsprintfW (*lplpwErrMsg,
-                           ERRMSG_WS_NOT_LOADABLE
-                           L":  Buffer overflow"
-                           APPEND_NAME);
+                MySprintfW (wszTemp,
+                            sizeof (wszTemp),
+                            ERRMSG_WS_NOT_LOADABLE
+                           L":  Buffer overflow" APPEND_NAME);
                 break;
 
             case ERRCODE_SYNTAX_ERROR:
-                wsprintfW (*lplpwErrMsg,
-                           ERRMSG_WS_NOT_LOADABLE
-                           L":  Syntax error in line %u"
-                           APPEND_NAME,
-                           lineno);
+                MySprintfW (wszTemp,
+                            sizeof (wszTemp),
+                            ERRMSG_WS_NOT_LOADABLE
+                           L":  Syntax error in line %u" APPEND_NAME,
+                            lineno);
                 break;
 
             case ERRCODE_ALLOC_ERROR:
-                wsprintfW (*lplpwErrMsg,
-                           ERRMSG_WS_NOT_LOADABLE
-                           L":  Allocation in line %u"
-                           APPEND_NAME,
-                           lineno);
+                MySprintfW (wszTemp,
+                            sizeof (wszTemp),
+                            ERRMSG_WS_NOT_LOADABLE
+                           L":  Allocation in line %u" APPEND_NAME,
+                            lineno);
                 break;
 
             defstop
@@ -3151,10 +3389,142 @@ LPWSTR ProfileGetString
     WCHAR wszTemp[1024];        // Save area for longest "sectionname:keyname"
 
     // Merge the section and key names
-    wsprintfW (wszTemp, L"%s" SECTION_SEP_STR L"%s", lpwAppName, lpwKeyName);
-
-    return iniparser_getstring (lpDict, wszTemp, lpwDefault);
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%s" SECTION_SEP_STR L"%s",
+                lpwAppName,
+                lpwKeyName);
+    return iniparser_getstring (lpDict, wszTemp, lpwDefault, NULL);
 } // End ProfileGetString
+
+
+//***************************************************************************
+//  $ProfileGetStringEx
+//
+//  Retrieve a string value from a .ini profile
+//***************************************************************************
+
+LPWSTR ProfileGetStringEx
+    (LPWSTR       lpwAppName,   // Section name containing the key name
+     LPWSTR       lpwKeyName,   // Key name whose associated string is to be retrieved
+     LPWSTR       lpwDefault,   // Ptr to default result if lpwKeyName not found
+     LPINT        lpIndex,      // Ptr to index on output (may be NULL)
+     LPDICTIONARY lpDict)       // Ptr to workspace dictionary
+
+{
+    WCHAR wszTemp[1024];        // Save area for longest "sectionname:keyname"
+
+    // Merge the section and key names
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%s" SECTION_SEP_STR L"%s",
+                lpwAppName,
+                lpwKeyName);
+    return iniparser_getstring (lpDict, wszTemp, lpwDefault, lpIndex);
+} // End ProfileGetStringEx
+
+
+//***************************************************************************
+//  $ProfileCopyString
+//
+//  Copy a string value from a .ini profile into an external buffer
+//***************************************************************************
+
+UBOOL ProfileCopyString
+    (LPWSTR       lpwAppName,   // Section name containing the key name
+     LPWSTR       lpwKeyName,   // Key name whose associated string is to be retrieved
+     LPWSTR       lpwDefault,   // Ptr to default result if lpwKeyName not found
+     LPWSTR       lpwBuffer,    // Ptr to output buffer
+     DWORD        nSize,        // # bytes in the output buffer
+     LPDICTIONARY lpDict)       // Ptr to workspace dictionary
+
+{
+    WCHAR  wszTemp[1024];       // Save area for longest "sectionname:keyname"
+    LPWSTR lpwOutput;           // Ptr to string in memory
+
+    // Merge the section and key names
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%s" SECTION_SEP_STR L"%s",
+                lpwAppName,
+                lpwKeyName);
+    lpwOutput = iniparser_getstring (lpDict, wszTemp, lpwDefault, NULL);
+
+    // If the section:keyname was found, ...
+    if (lpwOutput NE NULL)
+        // Copy the string to the output buffer
+        return SUCCEEDED (StringCchCopyW (lpwBuffer,
+                                          nSize / sizeof (WCHAR),
+                                          lpwOutput));
+    else
+        return FALSE;
+} // End ProfileCopyString
+
+
+//***************************************************************************
+//  $ProfileSetString
+//
+//  Set a string value into a .ini profile
+//***************************************************************************
+
+int ProfileSetString
+    (LPWSTR       lpwAppName,   // Section name containing the key name
+     LPWSTR       lpwKeyName,   // Key name whose associated string is to be set
+     LPWSTR       lpwVal,       // Ptr to new value to associate with the Section:Keyname
+     LPDICTIONARY lpDict)       // Ptr to workspace dictionary
+
+{
+    WCHAR wszTemp[1024];        // Save area for longest "sectionname:keyname"
+
+#ifdef DEBUG
+    // If the Keyname is present, ...
+    if (lpwKeyName NE NULL)
+    {
+        int nSecs, i;
+
+        // Get the # sections
+        nSecs = iniparser_getnsec (lpDict);
+
+        // Ensure the section name is present
+        for (i = 0; i < nSecs; i++)
+        if (lstrcmpiW (lpwAppName, iniparser_getsecname (lpDict, i)) EQ 0)
+            break;
+        // If we didn't terminate early (i.e., section not found), ...
+        if (i EQ nSecs)
+            DbgStop ();
+    } // End IF
+#endif
+    // If the keyname is not NULL, ...
+    if (lpwKeyName NE NULL)
+        // Merge the section and key names
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                   L"%s" SECTION_SEP_STR L"%s",
+                    lpwAppName,
+                    lpwKeyName);
+    else
+        // Format the section name
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                   L"%s",
+                    lpwAppName);
+    return iniparser_set (lpDict, wszTemp, lpwVal);
+} // End ProfileSetString
+
+
+//***************************************************************************
+//  $ProfileSetSection
+//
+//  Create a section in a .ini profile
+//***************************************************************************
+
+int ProfileSetSection
+    (LPWSTR       lpwAppName,   // Section name
+     LPDICTIONARY lpDict)       // Ptr to workspace dictionary
+
+{
+    return iniparser_set (lpDict, lpwAppName, NULL);
+} // End ProfileSetSection
 
 
 //***************************************************************************
@@ -3173,8 +3543,11 @@ int ProfileGetInt
     WCHAR wszTemp[1024];        // Save area for longest "sectionname:keyname"
 
     // Merge the section and key names
-    wsprintfW (wszTemp, L"%s" SECTION_SEP_STR L"%s", lpwAppName, lpwKeyName);
-
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%s" SECTION_SEP_STR L"%s",
+                lpwAppName,
+                lpwKeyName);
     // Get the integer
     return iniparser_getint (lpDict, wszTemp, iDefault);
 } // End ProfileGetInt
@@ -3196,8 +3569,11 @@ UBOOL ProfileGetBoolean
     WCHAR wszTemp[1024];        // Save area for longest "sectionname:keyname"
 
     // Merge the section and key names
-    wsprintfW (wszTemp, L"%s" SECTION_SEP_STR L"%s", lpwAppName, lpwKeyName);
-
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%s" SECTION_SEP_STR L"%s",
+                lpwAppName,
+                lpwKeyName);
     // Get the integer
     return iniparser_getboolean (lpDict, wszTemp, bDefault);
 } // End ProfileGetBoolean
@@ -3219,11 +3595,109 @@ APLFLOAT ProfileGetDouble
     WCHAR wszTemp[1024];        // Save area for longest "sectionname:keyname"
 
     // Merge the section and key names
-    wsprintfW (wszTemp, L"%s" SECTION_SEP_STR L"%s", lpwAppName, lpwKeyName);
-
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%s" SECTION_SEP_STR L"%s",
+                lpwAppName,
+                lpwKeyName);
     // Get the integer
     return iniparser_getdouble (lpDict, wszTemp, fDefault);
 } // End ProfileGetDouble
+
+
+//***************************************************************************
+//  $ProfileDelSection
+//
+//  Delete a section in a .ini profile
+//***************************************************************************
+
+void ProfileDelSection
+    (LPWSTR       lpwAppName,   // Section name containing the key name
+     LPDICTIONARY lpDict)       // Ptr to workspace dictionary
+
+{
+    WCHAR wszTemp[1024];        // Save area for longest "sectionname:keyname"
+
+    // Format the section name with a trailing section separator
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
+               L"%s" SECTION_SEP_STR,
+                lpwAppName);
+    // Delete the Section
+    iniparser_delsection (lpDict, wszTemp);
+} // End ProfileDelSection
+
+
+//***************************************************************************
+//  $ProfileWrite
+//
+//  Write out a .ini profile
+//***************************************************************************
+
+UBOOL ProfileWrite
+    (LPDICTIONARY lpDict)       // Ptr to workspace dictionary
+
+{
+    WCHAR wszDrive[_MAX_DRIVE],
+          wszDir  [_MAX_DIR],
+          wszFname[_MAX_FNAME],
+          wszExt  [_MAX_EXT],
+          wszPath [_MAX_PATH];
+    HANDLE hFile;               // File handle from CreateFileW
+////DWORD  dwBytesOut;          // # bytes written out
+
+    // Split out the drive and path from the module filename
+    _wsplitpath (lpDict->lpwszDPFE, wszDrive, wszDir, wszFname, wszExt);
+
+    // Form the destination path
+    lstrcpyW (wszPath, wszDrive);
+    lstrcatW (wszPath, wszDir  );
+
+    // Append a backslash if not already present
+    if (wszPath[lstrlenW (wszPath) - 1] NE '\\')
+        lstrcatW (wszPath, L"\\"   );
+
+    // Append the temp filename
+    GetTempFileNameW (wszPath,                      // Temp path
+                     L"",                           // Prefix string
+                      0,                            // Unique ID (0 = none)
+                      wszPath);                     // Output buffer
+    // Create (or truncate the file)
+    hFile =
+      CreateFileW (wszPath,                         // lpwFileName
+                   GENERIC_READ | GENERIC_WRITE,    // dwDesiredAccess
+                   FILE_SHARE_READ,                 // dwShareMode
+                   NULL,                            // lpSecurityAttributes
+                   CREATE_ALWAYS,                   // dwCreationDistribution
+                   FILE_ATTRIBUTE_NORMAL,           // dwFlagsAndAttributes
+                   NULL);                           // hTemplateFile
+    if (hFile EQ INVALID_HANDLE_VALUE)
+    {
+#ifdef DEBUG
+        DWORD dwErrCode = GetLastError ();
+
+        DbgBrk ();
+#endif
+        return FALSE;
+    } // End IF
+
+////// Write out the BOM for UTF-16
+////WriteFile (hFile, UTF16LE_BOM, strcountof (UTF16LE_BOM), &dwBytesOut, NULL);
+////
+    // Write out the .ini file
+    iniparser_dump_ini (lpDict, hFile);
+
+    // Close it after creating the file
+    CloseHandle (hFile); hFile = NULL;
+
+    // Delete the old file
+    DeleteFileW (lpDict->lpwszDPFE);
+
+    // Rename the temp file
+    MoveFileW (wszPath, lpDict->lpwszDPFE);
+
+    return TRUE;
+} // End ProfileWrite
 
 
 //***************************************************************************

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -171,10 +171,11 @@ typedef enum tagTOKEN_TYPES
 // N.B.:  Whenever changing the above enum (TOKEN_TYPES),
 //   be sure to make a corresponding change to
 //   <Untokenize> and <AppendNewToken_EM> in <tokenize.c>,
-//   <LookaheadAdjacent>, <LookaheadDyadicOp>, <LookbehindOp>, and <pl_yylex> in <pl_parse.y>,
+//   <pl_yylex> in <pl_parse.y>,
 //   <MakeVarStrand_EM_YY> and <CopyToken_EM> in <strand.c>,
 //   <GetTokenTypeName> in <dispdbg.c>,
 //   <GetNameType> in <assign.c>,
+//   <tokenSo> in <parseline.c>,
 //   and <TokenTypeFV>, <IsTknNamed>, <IsTknNamedVar>, and <IsTknImmed> in <primfns.c>.
 
 
@@ -188,12 +189,15 @@ typedef struct tagTKFLAGS
          bSyntErr:1,        // 00010000:  TRUE iff this stmt is a SYNTAX ERROR
          bAfoArgs:1,        // 00020000:  TRUE iff this stmt references {alpha} or {omega}
          bGuardStmt:1,      // 00040000:  TRUE iff this stmt is an AFO Guard
-         :13;               // FFF80000:  Available bits
+         bAssignName:1,     // 00080000:  TRUE iff this token is a name that is the target of an assignment
+         bTempAPV:1,        // 00100000:  TRUE iff this is a temporary APV used in place of an elided index
+         :11;               // FFE00000:  Available bits
 } TKFLAGS, *LPTKFLAGS;
 
 // N.B.:  Whenever changing the above enum (TKFLAGS),
 //   be sure to make a corresponding change to
-//   the values assigned to <tkZero> and <tkBlank> in <externs.h>.
+//   the values assigned to <tkZero> and <tkBlank> in <externs.h>, and
+//   <plYYEOS>/<plYYSOS> in <parseline.c>.
 
 
 typedef struct tagLOCATION
@@ -227,11 +231,12 @@ typedef union tagTOKEN_DATA
               *tkSym;               // 00:  Data is an LPSYMENTRY
     HGLOBAL    tkGlbData;           // 00:  ...     an HGLOBAL
     struct {
-      UINT      tkIndex;            // 00:  ...     an index
-      DFN_TYPES tkDfnType;          // 04:  ...     a DFNTYPE_xxx
+      UINT         tkIndex;         // 00:  ...     an index
+      DFN_TYPES    tkDfnType;       // 04:  ...     a DFNTYPE_xxx
            };
     APLBOOL    tkBoolean;           // 00:  ...     an APLBOOL
     APLINT     tkInteger;           // 00:  ...     an APLINT
+    APLAPA     tkAPA;               // 00:  ...     an APLAPA
     ANON_CTRL_STRUC;                // 00:  ...     Ctrl Struc data (8 bytes)
     struct tagTOKEN
               *lptkCSLink;          // 00:  ...     Ptr to previous token at start of stmt
@@ -244,13 +249,25 @@ typedef union tagTOKEN_DATA
                                     // 10:  Length
 } TOKEN_DATA, *LPTOKEN_DATA;
 
+// N.B.:  Whenever changing the above enum (TOKEN_DATA),
+//   be sure to make a corresponding change to
+//   <plYYEOS>/<plYYSOS> in <parseline.c>.
+
+
 typedef struct tagTOKEN
 {
     TKFLAGS          tkFlags;       // 00:  The flags part
-    TOKEN_DATA       tkData;        // 04:  The data part (16 bytes)
-    int              tkCharIndex;   // 14:  Index into the input line of this token
-                                    // 18:  Length
+    SO_ENUM          tkSynObj;      // 04:  The Syntax Object for this token
+    TOKEN_DATA       tkData;        // 08:  The data part (16 bytes)
+    int              tkCharIndex;   // 18:  Index into the input line of this token
+                                    // 1C:  Length
 } TOKEN, *LPTOKEN;
+
+// N.B.:  Whenever changing the above struct (TOKEN),
+//   be sure to make a corresponding change to
+//   <tkZero> and <tkBlank> in <externs.h>,
+//   <plYYEOS>/<plYYSOS> in <parseline.c>,
+//   <tkMinMaxAfo> in <po_dot.c>.
 
 #define TOKEN_HEADER_SIGNATURE      'NKOT'
 

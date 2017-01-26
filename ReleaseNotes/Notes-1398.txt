@@ -1,0 +1,11 @@
+Build #1398 -- Version 0.4.11.xx
+--------------------------------
+
+* More DEBUG Code
+
+Directory trunk:
+
+MACROS.H:
+RESDEBUG.C:
+RESDEBUG.H:
+  More DEBUG code.

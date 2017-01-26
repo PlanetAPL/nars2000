@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***************************************************************************/
+
+#if _WIN32_WINNT < 0x0600   // From BASETSD.H
+
+#define MAXUINT64   ((UINT64)~((UINT64)0))
+#define MAXINT64    ((INT64)(MAXUINT64 >> 1))
+#define MININT64    ((INT64)~MAXINT64)
+
+#endif      // _WIN32_WINNT < 0x0600
 
 // Wide char __FILE__ and __LINE__ macros
 #define WFILE       WIDEN(__FILE__)
@@ -48,7 +56,7 @@
   #define DEF_ASFONTNAME    L"Code2000"         // Default Alternate SM font
 #endif
 #define DEF_SMFONTNAME      DEF_APLFONT_INTNAME
-#define DEF_FBFONTNAME      DEF_APLFONT_INTNAME
+#define DEF_FBFONTNAME      L"Fallback00-1F"
 #define DEF_LWFONTNAME      DEF_APLFONT_INTNAME
 #define DEF_PRFONTNAME      DEF_APLFONT_INTNAME
 #define DEF_CCFONTNAME      DEF_APLFONT_INTNAME
@@ -108,7 +116,6 @@
 #define DEF_YYRES_MAXNELM       (  16*1024)                 // Maximum ...
 #define DEF_WPTDTEMP_INITNELM   (   4*1024)                 // Initial NELM of WCHAR PTD ...
 #define DEF_WPTDTEMP_INCRNELM   (   1*1024)                 // Incremental ...
-#define DEF_WPTDTEMP_MAXNELM    (2048*1024)                 // Maximum ...
 #define DEF_WGLBTEMP_INITNELM   (   4*1024)                 // Initial NELM of WCHAR GLB ...
 #define DEF_WGLBTEMP_INCRNELM   (   1*1024)                 // Incremental ...
 #define DEF_WGLBTEMP_MAXNELM    (  16*1024)                 // Maximum ...
@@ -117,7 +124,6 @@
 #define DEF_DEBUG_MAXNELM       (  16*1024)                 // Maximum ...
 #define DEF_WFORMAT_INITNELM    (   4*1024)                 // Initial NELM of WCHAR Formatting storage
 #define DEF_WFORMAT_INCRNELM    (   4*1024)                 // Incremental ...
-#define DEF_WFORMAT_MAXNELM     (4096*1024)                 // Maximum ...
 #define DEF_UNDOBUF_INITNELM    (   4*1024)                 // Initial NELM of Undo buffer
 #define DEF_UNDOBUF_INCRNELM    (   4*1024)                 // Incremental ...
 #define DEF_UNDOBUF_MAXNELM     ( 128*1024)                 // Maximum ...
@@ -130,8 +136,12 @@
 #define DEF_DISPLAY_INITNELM    (   4*1024)                 // Initial NELM of WCHARs for Array Display
 #define DEF_DISPLAY_INCRNELM    (   4*1024)                 // Incremental ...
 #ifdef _WIN64
-  #define DEF_DISPLAY_MAXNELM (8*1024*1024)                 // Maximum ...
+  #define DEF_WPTDTEMP_MAXNELM (100*1024*1024)              // Maximum ...
+  #define DEF_WFORMAT_MAXNELM  (100*1024*1024)              // Maximum ...
+  #define DEF_DISPLAY_MAXNELM  (100*1024*1024)              // Maximum ...
 #elif defined (_WIN32)
+  #define DEF_WPTDTEMP_MAXNELM  (2048*1024)                 // Maximum ...
+  #define DEF_WFORMAT_MAXNELM   (4096*1024)                 // Maximum ...
   #define DEF_DISPLAY_MAXNELM   ( 256*1024)                 // Maximum ...
 #else
   #error Need code for this architecture.
@@ -143,15 +153,21 @@
 #define DEF_GLBHSHTAB_MAXNELM   (1024 * DEF_GLBHSHTAB_EPB)  // Maximum ...
 #define DEF_GLBHSHTAB_HASHMASK  (DEF_GLBHSHTAB_NBLKS - 1)   // Starting hash mask
 #define DEF_GLBHSHTAB_INCRFREE  (DEF_HSHTAB_PRIME % DEF_GLBHSHTAB_INITNELM)
-#define DEF_CS_INITNELM         (   4*1024)                 // Initial NELM of Ctrl Struc token buffer
-#define DEF_CS_INCRNELM         (   4*1024)                 // Incremental ...
-#define DEF_CS_MAXNELM          (  64*1024)                 // Maximum ...
-#define DEF_FORSTMT_INITNELM    (   1*1024)                 // Initial NELM of FORSTMT stack
-#define DEF_FORSTMT_INCRNELM    (   1*1024)                 // Incremental ...
-#define DEF_FORSTMT_MAXNELM     (   1*1024)                 // Maximum ...
+#define DEF_CS_INITNELM         (     4*1024)               // Initial NELM of Ctrl Struc token buffer
+#define DEF_CS_INCRNELM         (     4*1024)               // Incremental ...
+#define DEF_CS_MAXNELM          (    64*1024)               // Maximum ...
+#define DEF_FORSTMT_INITNELM    (     1*1024)               // Initial NELM of FORSTMT stack
+#define DEF_FORSTMT_INCRNELM    (     1*1024)               // Incremental ...
+#define DEF_FORSTMT_MAXNELM     (     1*1024)               // Maximum ...
+#define DEF_LFTSTK_INITNELM     (     4*1024)               // Initial NELM of 2by2 left stack
+#define DEF_LFTSTK_INCRNELM     (     4*1024)               // incremental ...
+#define DEF_LFTSTK_MAXNELM      (   128*1024)               // Maximum ...
+#define DEF_RHTSTK_INITNELM     DEF_LFTSTK_INITNELM         // Initial NELM of 2by2 left stack
+#define DEF_RHTSTK_INCRNELM     DEF_LFTSTK_INCRNELM         // incremental ...
+#define DEF_RHTSTK_MAXNELM      DEF_LFTSTK_MAXNELM          // Maximum ...
 
 
-// Global Options
+// Global Options for User Preferences
 #define DEF_ADJUSTPW                TRUE
 #define DEF_UNDERBARTOLOWERCASE     FALSE
 #define DEF_NEWTABONCLEAR           TRUE
@@ -170,6 +186,8 @@
 #define DEF_REVDBLCLK               FALSE
 #define DEF_VIEWSTATUSBAR           TRUE
 #define DEF_DISPFCNLINENUMS         TRUE
+#define DEF_DISPMPSUF               FALSE
+#define DEF_OUTPUTDEBUG             FALSE
 
 
 // Range limits for []vars
@@ -235,6 +253,7 @@
 #define QUIET_NAN               (0xFFF8000000000000)
 #define FLOAT2POW53             (0x4340000000000000)
 #define FLOATPI                 (0x400921FB54442D18)
+#define FLOATGAMMA              (0x3FE2788CFC6FB619)
 #define FLOATE                  (0x4005BF0A8B145769)
 
 
@@ -256,10 +275,6 @@
 #endif
 #define  FEWNDCLASS     "FEClass"       // Function Editor ...
 #define LFEWNDCLASS    L"FEClass"       // ...
-#define  MEWNDCLASS     "MEClass"       // Matrix Editor ...
-#define LMEWNDCLASS    L"MEClass"       // ...
-#define  VEWNDCLASS     "VEClass"       // Vector Editor ...
-#define LVEWNDCLASS    L"VEClass"       // ...
 #define  ECWNDCLASS     "ECClass"       // Edit Ctrl ...
 #define LECWNDCLASS    L"ECClass"       // ...
 #define  CCWNDCLASS     "CCClass"       // Crash Control ...
@@ -331,7 +346,8 @@
 //  Debugging
 //***************************************************************************
 
-#define DbgStop()       __debugbreak ()
+#define DbgBrk          __debugbreak
+#define DbgStop         __debugbreak
 
 #define defstop \
 default:        \
@@ -346,8 +362,8 @@ default:        \
   #define LCLODSSIZE    ODSSIZE
   #define LCLODSAPI     ODSAPI
 
-  #define DBGENTER      if (gDbgLvl > 2) {DbgMsgW (L"Entering" APPEND_NAME);}
-  #define DBGLEAVE      if (gDbgLvl > 2) {DbgMsgW (L"Leaving " APPEND_NAME);}
+  #define DBGENTER
+  #define DBGLEAVE
 
   #define APPEND_NAME_ARG , APPEND_NAME
 #else
@@ -374,16 +390,17 @@ default:        \
 #define GWLDB_EXTRA     GWLDB_HWNDLB   + 1 * sizeof (HANDLE_PTR)    // Total # extra bytes
 
 // Define common offset between the Session Manager and Function Editor
-#define GWLSF_PERTAB    0                                           // Ptr to PerTabData global memory
-#define GWLSF_HWNDEC    GWLSF_PERTAB   + 1 * sizeof (HANDLE_PTR)    // ...           Edit Control window
-#define GWLSF_UNDO_BEG  GWLSF_HWNDEC   + 1 * sizeof (HANDLE_PTR)    // ...                beginning
-#define GWLSF_UNDO_NXT  GWLSF_UNDO_BEG + 1 * sizeof (HANDLE_PTR)    // ...                next
-#define GWLSF_UNDO_LST  GWLSF_UNDO_NXT + 1 * sizeof (HANDLE_PTR)    // ...                last
-#define GWLSF_UNDO_GRP  GWLSF_UNDO_LST + 1 * sizeof (HANDLE_PTR)    // Value of next Undo group index
-#define GWLSF_LASTKEY   GWLSF_UNDO_GRP + 1 * sizeof (long)          // Value of last WM_KEYDOWN key
-#define GWLSF_CHANGED   GWLSF_LASTKEY  + 1 * sizeof (long)          // Boolean of whether or not the text has changed
-#define GWLSF_FLN       GWLSF_CHANGED  + 1 * sizeof (long)          // Boolean of whether or not function line #s are to be displayed
-#define GWLSF_LPMVS     GWLSF_FLN      + 1 * sizeof (long)          // Ptr to LPMEMVIRTSTR
+#define GWLSF_PERTAB     0                                           // Ptr to PerTabData global memory
+#define GWLSF_HWNDEC     GWLSF_PERTAB     + 1 * sizeof (HANDLE_PTR)  // ...   Edit Control window
+#define GWLSF_HGLBDFNHDR GWLSF_HWNDEC     + 1 * sizeof (HANDLE_PTR)  // ...   pre-existing function global memory handle (may be NULL)
+#define GWLSF_UNDO_BEG   GWLSF_HGLBDFNHDR + 1 * sizeof (HANDLE_PTR)  // ...                beginning
+#define GWLSF_UNDO_NXT   GWLSF_UNDO_BEG   + 1 * sizeof (HANDLE_PTR)  // ...                next
+#define GWLSF_UNDO_LST   GWLSF_UNDO_NXT   + 1 * sizeof (HANDLE_PTR)  // ...                last
+#define GWLSF_UNDO_GRP   GWLSF_UNDO_LST   + 1 * sizeof (HANDLE_PTR)  // Value of next Undo group index
+#define GWLSF_LASTKEY    GWLSF_UNDO_GRP   + 1 * sizeof (long)        // Value of last WM_KEYDOWN key
+#define GWLSF_CHANGED    GWLSF_LASTKEY    + 1 * sizeof (long)        // Boolean of whether or not the text has changed
+#define GWLSF_FLN        GWLSF_CHANGED    + 1 * sizeof (long)        // Boolean of whether or not function line #s are to be displayed
+#define GWLSF_LPMVS      GWLSF_FLN        + 1 * sizeof (long)        // Ptr to LPMEMVIRTSTR
 
 // Define offsets in SMWNDCLASS window extra bytes
 #define GWLSM_EXTRA     GWLSF_LPMVS    + 1 * sizeof (HANDLE_PTR)    // Total # extra bytes
@@ -392,9 +409,6 @@ default:        \
 #define GWLFE_HWNDPRV   GWLSF_LPMVS    + 1 * sizeof (HANDLE_PTR)    // Next window handle in linked list (NULL = none)
 #define GWLFE_HWNDNXT   GWLFE_HWNDPRV  + 1 * sizeof (HANDLE_PTR)    // Previous ...
 #define GWLFE_EXTRA     GWLFE_HWNDNXT  + 1 * sizeof (HANDLE_PTR)    // Total # extra bytes
-
-// Define offsets in MEWNDCLASS window extra bytes
-#define GWLME_EXTRA     0                                           // Total # extra bytes
 
 // Define offsets in PMWNDCLASS window extra bytes
 #define GWLPM_HWNDLB    0                                           // Window handle of Listbox
@@ -409,9 +423,6 @@ default:        \
 
 // Define offsets in LW_RBWNDCLASS window extra bytes
 #define GWLLW_RB_EXTRA  0                                           // Total # extra bytes
-
-// Define offsets in VEWNDCLASS window extra bytes
-#define GWLVE_EXTRA     0                                           // Total # extra bytes
 
 // Define offsets in CCWNDCLASS window extra bytes
 #define GWLCC_EXTRA     0                                           // Total # extra bytes
@@ -449,7 +460,7 @@ default:        \
 #define MYWM_PROMPT         (WM_APP +21)    // MF (Display the prompt)
 #define MYWM_INIT_EC        (WM_APP +22)    // EC (Initialize local Edit Ctrl)
 #define MYWM_DNL_SUCCESS    (WM_APP +23)    // DL (TRUE iff the download succeeded)
-#define MYWM_MOUSELEAVE     (WM_APP+ 24)    // RB (Local version of WM_MOSUELEAVE)
+#define MYWM_MOUSELEAVE     (WM_APP+ 24)    // RB (Local version of WM_MOUSELEAVE)
 
 // Define Debug window messages
 #define MYWM_INIT_DB        (WM_APP +50)    // DB
@@ -493,14 +504,17 @@ default:        \
 #define EOL_LEN         2           // Length of EOL ("\r\n")
 
 #define WC_EOS          L'\0'       // 00:  End-of-string
+#define WC_BEL          L'\x0007'   // 07:  Bell
 #define WC_BS           L'\b'       // 08:  Backspace
 #define WC_HT           L'\t'       // 09:  Horizontal Tab
 #define WC_LF           L'\n'       // 0A:  Linefeed
 #define WC_FF           L'\f'       // 0C:  FormFeed
 #define WC_CR           L'\r'       // 0D:  Carriage Return
+#define WC_ESC          L'\x001B'   // 1B:  Escape
 #define WC_DQ           L'\"'       // 22:  Double Quote
 #define WC_SQ           L'\''       // 27:  Single Quote
 #define WC_SLOPE        L'\\'       // 5C:  Slope
+#define WC_LC           L'\x27A5'   // 27A5:  Line Continuation marker
 
 #define WS_BS           L"\b"       // 08:  Backspace
 #define WS_HT           L"\t"       // 09:  Horizontal Tab
@@ -510,14 +524,10 @@ default:        \
 #define WS_DQ           L"\""       // 22:  Double Quote
 #define WS_SQ           L"\'"       // 27:  Single Quote
 #define WS_SLOPE        L"\\"       // 5C:  Slope
+#define WS_LC           L"\x27A5"   // 27A5:  Line Continuation marker
 
-#define WS_CRLF         L"\r\n"     // 0D0A:  CR/LF
-
-#define INFINITY1       '~'         // Use when translating to non-WCHAR code
-                                    //   in <pn_parse.y>
-#define INFINITY1_STR   "~"         // ...
-#define OVERBAR1        '-'         // ...
-#define OVERBAR1_STR    "-"         // ...
+#define WS_CRLF         L"\r\n"     // 0D0A:    CR/LF    (hard line-break)
+#define WS_CRCRLF       L"\r\r\n"   // 0D0D0A:  CR/CR/LF (soft line-break)
 
 #define DEF_UNDERFLOW       L'_'    // Default underflow char
 #define DEF_UNDERFLOW_WS    L"_"    // ...
@@ -534,6 +544,12 @@ default:        \
 #define DEF_POSINFINITY_STR      "!"
 #define DEF_NEGINFINITY_STR     "-!"
 
+// Use when translating to non-WCHAR code in <pn_parse.y>
+#define INFINITY1       DEF_POSINFINITY_CHAR
+#define INFINITY1_STR   DEF_POSINFINITY_STR
+#define OVERBAR1        '-'
+#define OVERBAR1_STR    "-"
+
 
 //***************************************************************************
 // Wide-char routines From <string.h>
@@ -541,9 +557,11 @@ default:        \
 
 #define strchrW         wcschr
 #define strncmpW        wcsncmp
+#define strncmpi        _strnicmp
 #define strncmpiW       _wcsnicmp
 #define strpbrkW        wcspbrk
 #define strspnW         wcsspn
+#define strcspnW        wcscspn
 #define strtolW         wcstol
 #define isspaceW        iswspace
 #define atofW           _wtof
@@ -553,6 +571,8 @@ default:        \
 #define strlwrW         _wcslwr
 #define strdupW         _wcsdup
 #define tolowerW        towlower
+#define IsDigit         isdigit
+#define IsDigitW        iswdigit
 
 
 //***************************************************************************
@@ -647,7 +667,7 @@ default:        \
 
 // Define the following symbol iff comparison of two RATs is meant to be exact
 //   as opposed to sensitive to []CT.
-#define RAT_EXACT
+////#define RAT_EXACT
 
 //***************************************************************************
 //  Timers

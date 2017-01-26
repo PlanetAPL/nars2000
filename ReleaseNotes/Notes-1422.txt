@@ -1,0 +1,16 @@
+Build #1422 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Matrix Divide With Boolean Left Arg And FP Result
+* Include "Hdr" In Name Of Result Of MyGlobalLock
+
+Directory trunk:
+
+PF_DOMINO.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <PrimFnMonDomino_EM_YY> case ARRAY_FLOAT, simplify code by calling <GetNextFloat> for all cases.
+  Improve comments.
+  In <PrimFnDydDomino_EM_YY> with Boolean left arg and FP result, the left arg is
+    mishandled such that the first row is reused over and over.
+  In <PrimFnDydDomino_EM_YY> case ARRAY_FLOAT, simplify code by calling <GetNextFloat> for all cases.
+  In <GaussJordan>, if called from Matrix Divide, return the result in <lpMemLft>.

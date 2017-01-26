@@ -1,0 +1,46 @@
+Build #1603 -- Version 0.4.18.xx
+--------------------------------
+
+* Handle Indexed Assignment Of Nested Character Constant Into A Simple Var
+* Signal INDEX ERROR For A[B;empty] If B Is Not A Valid Index
+* Fix Bug Of Wrong Error Message For A[1 2 'a';]
+
+Directory trunk:
+
+GETFNS.C:
+  In <GetNextValueGlb>, allow an empty argument.
+
+PF_INDEX.C:
+  Fix bug in <ArrayIndexRef_EM_YY>, mis-casting <lpMemHdrSub> as a List Array rather than a Var Array.
+  In <ArrayIndexRef_EM_YY>, merge cases.
+  In <ArrayIndexRef_EM_YY>, at various points include Assertions so as to catch bugs.
+  In <ArrayIndexRefNamImmed_EM_YY>, change the type and name of <lpMemHdrLst> from a List Array to a Var Array header.
+  In <ArrayIndexSetSingLst_EM>, for RATs and VFPs, set the new value into the name rather than copy if as the name is already initialized.  This avoids a memory leak.
+
+PF_SQUAD.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <PrimFnDydSquadGlb_EM_YY>, count the number of elements in the result from non-zero indices so as to test for INDEX ERRORs on empty results.
+  In <PrimFnDydSquadGlb_EM_YY>, if the left arg is not numeric, signal a DOMAIN ERROR.
+  In <PrimFnDydSquadGlb_EM_YY>, if the left arg item is a global, but not a global numeric, get the item NELM for later use in case it's empty.
+  In <PrimFnDydSquadGlb_EM_YY>, if the left arg item is a global, but not a global numeric, merge RAT and VFP cases when converting to an integer.
+  In <PrimFnDydSquadGlb_EM_YY>, keep track of the item's NELM in case it's empty so as to avoid testing the value for an INDEX ERROR.
+
+PRIMFNS.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <IncrOdometer>, do not increment empty coordinate.
+
+PRIMSPEC.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <PrimIdentFnScalar_EM_YY>, do not assume that the identity element is zero.
+  In <PrimFnDydSiScSiSc_EM>, after calling <PrimFnDydSiScSiScSub_EM>, handle the case where the result is a global numeric.
+
+TYPEMOTE.C:
+  Change the name with "RhtHdr" to "HdrRht" to conform to naming conventions.
+  In <TPA_NEST2NEST>, copy the global handle instead of saving it as the new use is a separate copy and shouldn't be freed when the old handle is.
+    This handles the case of an indexed assignment of a nested character constant into a simple var.
+
+YYFNS.C:
+  Improve comments.

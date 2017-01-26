@@ -1,0 +1,70 @@
+Build #1272 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug Of Displaying Error Message After )RESET
+* Fix Bug Of Displaying Magic Function Line In Error Message
+* Remove References To LookAhead/Behind/Stop As They Are No Longer Used
+
+Directory trunk:
+
+ERRMSG.C:
+  In <AppendFcnNameLineNum>, include bit flag argument for whether or not a caller is []EC.
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+  In <AppendFcnNameLineNum>, fix bug where we incorrectly returned a
+    (locked) global memory ptr (never to unlock it) instead of an HGLOBAL.
+  In <AppendFcnNameLineNum>, if we're in an MFO wind back the stack to the UDFO
+    and return that functionname[line #].
+  In <AppendFcnNameLineNum>, if the function name is valid andwe're not under control of []EC, suspend execution at this level.
+  In <ErrorMessageDirect>, handle return of immediate execution line instead of global memory handle.
+
+EXECDFN.C:
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+  In <ExecuteFunction_EM_YY>, return NoValue token if EXITTYPE_RESET_ALL so we don't display an error message.
+  Improve comments.
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+
+EXECMFN.C:
+FH_PARSE.H:
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+
+GOTO.C:
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+
+IMMEXEC.C:
+  Make test in <if> statement explicit.
+
+PARSELINE.C:
+  In <plRedMF_A>, save the current function caret position for later use.
+  Remove references to LookAhead/Behind/Stop as they are no longer used.
+  In <ParseLine>, save a ptr to the local vars in the SIS header.
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+  If we suspend in an MFO, reset the error codes so we don't execute []ELX at this level.
+  Make test in <if> statement explicit.
+
+PL_PARSE.H:
+  Remove references to LookAhead/Behind/Stop as they are no longer used.
+
+PRIMFNS.C:
+  In <FillSISNxt>, include references to all <SIS_HEADER> members even if commented out.
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+
+QF_EA.C:
+QF_EC.C:
+  Rename struc member <ItsEC> to <bItsEC> to reflect its Boolean nature.
+
+SC_LOAD.C:
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+
+SC_SI.C:
+  Update copyright year.
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+
+SIS.H:
+  Update copyright year.
+  Rename struct member <PermFn> to <bMFO> to parallel <bAFO>.
+  Include struct member of current function caret position.
+  Include struct member of ptr to this level's ParselLine Local Vars.
+
+TOKENS.H:
+  Remove references to LookAhead/Behind/Stop as they are no longer used.

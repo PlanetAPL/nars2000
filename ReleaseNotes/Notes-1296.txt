@@ -1,0 +1,31 @@
+Build #1296 -- Version 0.4.9.xx
+-------------------------------
+
+* Change The Units Of []T To Seconds
+
+Directory trunk:
+
+EXTERNS.H:
+  Define constant for # CPU ticks per second.  This value doesn't change during a Windows session so it can be cached here.
+
+INITDATA.C:
+  Update copyright year.
+  Initialize constant <liTicksPerSec>.
+
+PERFMON.C:
+  Update copyright year.
+  Use cached value of <liTicksPerSec> instead of re-reading it each time.
+
+QF_MF.C:
+  Use cached value of <liTicksPerSec> instead of re-reading it each time.
+
+QF_T.C
+  Use cached value of <liTicksPerSec> instead of re-reading it each time.
+  Change the units of []T to seconds since the CPU was started.
+
+STATUSBAR.C:
+  Change name of []T to High Resolution Time.
+  Use cached value of <liTicksPerSec> instead of re-reading it each time.
+
+SYSVARS.C:
+  Change name of []T to High Resolution Time.

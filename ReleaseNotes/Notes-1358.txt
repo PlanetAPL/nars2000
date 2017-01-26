@@ -1,0 +1,9 @@
+Build #1358 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Replicate Reduction
+
+Directory trunk:
+
+PARSELINE.C:
+  Just before scanning, check for "HY HY" and convert it to "HY MOP".

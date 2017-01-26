@@ -1,0 +1,10 @@
+Build #1245 -- Version 0.4.8.xx
+-------------------------------
+
+* Extend {div}0 Indeterminate Case to L{div}0
+
+Directory trunk:
+
+PF_COLONBAR.C:
+  Update copyright year.
+  Extend {div}0 indeterminate case to L{div}0.

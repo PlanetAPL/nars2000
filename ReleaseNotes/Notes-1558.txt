@@ -1,0 +1,31 @@
+Build #1558 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Function Editor When Editing A Local Function And Saving Back To Wrong SI Level
+
+Directory trunk:
+
+AFOFNS.C:
+QF_FX.C:
+QF_TF.C:
+SC_INASCII.C:
+SC_LOAD.C:
+  Identify the caller of <SaveFunctionCom> for later use.
+
+FH_PARSE.H:
+FH_PARSE.Y:
+FH_PROC.C:
+  Define new fields to track the token offset in <hGlbTknHdr> of the function name.
+
+SAVEFCN.C:
+  Identify the caller of <SaveFunctionCom> for later use.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In IF stmts always compare ptr against NULL and value against 0.
+  In <SaveFunctionCom> after calling <ParseFcnHeader>, if called from FE find the next SI level in which
+    a given name is localized and when found change the LPSYMENTRY into the header tokens and incoming SYMENTRY.
+
+SAVEFCN.H:
+  Define fields to track caller of <SaveFunctionCom>.
+
+TOKENIZE.C:
+  Remove parens around {del} in <fnDelDone> as they are unnecessary and also mess up the above tracking of the function name token.

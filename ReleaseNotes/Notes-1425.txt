@@ -1,0 +1,10 @@
+Build #1425 -- Version 0.4.11.xx
+--------------------------------
+
+* Remove Spurious Trailing Digits From Display Of VFP Numbers
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplVfpFC>, remove spurious trailing digits from the display of VFP numbers
+    in both mantissa and exponent.

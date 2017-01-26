@@ -1,0 +1,9 @@
+Build #1560 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In {iota}1E16 And Higher
+
+Directory trunk:
+
+MPFNS.C:
+  Fix bug in <_mpfr_get_ctsx> not returning error if the converted number doesn't fit in the result.

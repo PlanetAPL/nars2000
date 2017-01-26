@@ -1,0 +1,16 @@
+Build #1239 -- Version 0.4.7.xx
+-------------------------------
+
+* Fix Bug In Bracket Indexing
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY>, allow items of the list arg to be scalars as well as vectors.
+    This allows bracket indexing to be more like {pick}{each]{enclose}.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Use a more specific target as the link for "Extra APL Glyphs".

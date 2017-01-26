@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -139,12 +139,12 @@ APLSTYPE PrimSpecDownCaretStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // Calculate the storage type of the result
@@ -179,11 +179,8 @@ APLINT gcdAplInt
         aplRht = aplTmp;
     } // End WHILE
 
-    // The sign of the result is the sign of the left argument
-    if (aplIntegerLft < 0)
-        return -aplRht;
-    else
-        return  aplRht;
+    // The sign of the result is non-negative
+    return  abs64 (aplRht);
 } // End gcdAplInt
 
 
@@ -205,18 +202,15 @@ APLFLOAT gcdAplFloat
     aplLft = PrimFnMonStileFisF (aplFloatLft, lpPrimSpec);
     aplRht = PrimFnMonStileFisF (aplFloatRht, lpPrimSpec);
 
-    while (aplLft >= SYS_CT)
+    while (aplLft >= GCD_CT)
     {
         aplTmp = aplLft;
-        aplLft = fmod (aplRht, aplLft);
+        aplLft = PrimFnDydStileFisFvF (aplLft, aplRht, lpPrimSpec);
         aplRht = aplTmp;
     } // End WHILE
 
-    // The sign of the result is the sign of the left argument
-    if (aplFloatLft > 0)
-        return  aplRht;
-    else
-        return -aplRht;
+    // The sign of the result is non-negative
+    return fabs (aplRht);
 } // End gcdAplFloat
 
 
@@ -254,11 +248,12 @@ APLRAT gcdAplRat
         mpq_set (&aplRht, &aplTmp);
     } // End WHILE
 
-    // The sign of the result is the sign of the left argument
-    if (mpq_sgn (&aplRatLft) < 0)
-        mpq_neg (&aplRht, &aplRht);
+    // The sign of the result is non-negative
+    mpq_abs (&aplRht, &aplRht);
 
     // We no longer need this storage
+////Myq_clear (&aplRht);        // Returned as result
+    Myq_clear (&aplLft);
     Myq_clear (&aplTmp);
 
     return aplRht;
@@ -281,13 +276,14 @@ APLVFP gcdAplVfp
            aplLft,
            aplRht;
 
+    // Initialize the temp to 0
     mpfr_init0 (&aplTmp);
 
     // Ensure both arguments are non-negative
     aplLft = PrimFnMonStileVisV (aplVfpLft, lpPrimSpec);
     aplRht = PrimFnMonStileVisV (aplVfpRht, lpPrimSpec);
 
-    while (!IsMpf0 (&aplLft))
+    while (mpfr_cmp_d (&aplLft, GCD_CT) >= 0)
     {
 ////////aplTmp = aplLft;
 ////////aplLft = aplRht % aplLft;
@@ -298,11 +294,12 @@ APLVFP gcdAplVfp
         mpfr_copy (&aplRht, &aplTmp);
     } // End WHILE
 
-    // The sign of the result is the sign of the left argument
-    if (mpfr_sgn (&aplVfpLft) < 0)
-        mpfr_neg0 (&aplRht, &aplRht, MPFR_RNDN);
+    // The sign of the result is non-negative
+    mpfr_abs (&aplRht, &aplRht, MPFR_RNDN);
 
     // We no longer need this storage
+////Myf_clear (&aplRht);        // Returned as result
+    Myf_clear (&aplLft);
     Myf_clear (&aplTmp);
 
     return aplRht;
@@ -434,15 +431,15 @@ APLFLOAT PrimFnDydDownCaretFisFvF
 
 {
     // Check for indeterminates:  gcd (PoM_, 0)  or  gcd (0, PoM_)
-    if ((IsInfinity (aplFloatLft) && (aplFloatRht EQ 0))
-     || (IsInfinity (aplFloatRht) && (aplFloatLft EQ 0)))
+    if ((IsFltInfinity (aplFloatLft) && (aplFloatRht EQ 0))
+     || (IsFltInfinity (aplFloatRht) && (aplFloatLft EQ 0)))
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_0GCDInf,
-                                     aplFloatRht);
-
+                                     aplFloatRht,
+                                     SIGN_APLFLOAT (aplFloatLft));
     // Check for special cases:  gcd (PoM_, N)  or  gcd (N, PoM_)
-    if (IsInfinity (aplFloatLft)
-     || IsInfinity (aplFloatRht))
+    if (IsFltInfinity (aplFloatLft)
+     || IsFltInfinity (aplFloatRht))
         RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
 
     return gcdAplFloat (aplFloatLft, aplFloatRht, lpPrimSpec);
@@ -469,7 +466,8 @@ APLRAT PrimFnDydDownCaretRisRvR
         return *mpq_QuadICValue (&aplRatLft,
                                   ICNDX_0GCDInf,
                                  &aplRatRht,
-                                 &aplTmp);
+                                 &aplTmp,
+                                  mpq_sgn (&aplRatLft) EQ -1);
     // Check for special cases:  gcd (PoM_, N)  or  gcd (N, PoM_)
     if (mpq_inf_p (&aplRatLft)
      || mpq_inf_p (&aplRatRht))
@@ -521,7 +519,8 @@ APLVFP PrimFnDydDownCaretVisVvV
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_0GCDInf,
                                   &aplVfpRht,
-                                  &aplTmp);
+                                  &aplTmp,
+                                   SIGN_APLVFP (&aplVfpLft));
     // Check for special cases:  gcd (PoM_, N)  or  gcd (N, PoM_)
     if (mpfr_inf_p (&aplVfpLft)
      || mpfr_inf_p (&aplVfpRht))

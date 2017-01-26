@@ -1,0 +1,93 @@
+Version 0.4.8.xx consists of the following Builds:
+
+
+Build #1245 -- Version 0.4.8.xx
+-------------------------------
+
+* Extend {div}0 Indeterminate Case to L{div}0
+
+Directory trunk:
+
+PF_COLONBAR.C:
+  Update copyright year.
+  Extend {div}0 indeterminate case to L{div}0.
+
+
+Build #1244 -- Version 0.4.8.xx
+-------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+MAKEVER.C:
+  Update copyright year.
+  Set to NULL closed handle.
+
+
+Build #1243 -- Version 0.4.8.xx
+-------------------------------
+
+* Fix Bug When Changing []PW
+
+Directory trunk:
+
+EDITFCN.C:
+  Update copyright year.
+  In <RespecifyNewQuadPW> under some circumstances, the <lphtsPTD> can be NULL
+    which crashes the interpreter.
+
+
+Build #1242 -- Version 0.4.8.xx
+-------------------------------
+
+* Fix Race Condition Bug When Erasing a Native File
+
+Directory trunk:
+
+QF_NFNS.C:
+  Update copyright year.
+  Factor out <CloseHandle> from inside <NfnsRleaseOneResource> inside <NfnsReleaseResources>
+    so as to be able to delete file while the ptr to the filename is still valid.
+  In <NfnsReleasseOneResource>, test for validity before closing/freeing the resource.
+  In <NfnsEraseRenameResize_EM> when erasing a native file,
+    the unlock tests at the end of the subroutine must test for
+    the presence of the global memory handle.
+  In <NfnsErase>, close the handle, delete the file, and then release the resources.
+
+
+Build #1241 -- Version 0.4.8.xx
+-------------------------------
+
+* Fix Bug In Bracket Indexing Of Scalars, II
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexValidZilde_EM>, allow {enclose}{zilde} and a nested vector of {zilde}s only.
+
+PF_RSHOE.C:
+  Update copyright year.
+  In <PrimFnDydRightShoeImm_EM_YY>, allow {zilde} and a nested vector of {zilde}s only.
+  In <PrimFnDydRightShoeGlbImm_EM>, miscellaneous simplifications.
+
+Directory trunk\htdocs\Download:
+
+DOWNLOAD-BODY.PHP:
+DOWNLOAD-LEFT.HTML:
+  Include new section on "Beta Versions".
+
+
+Build #1240 -- Version 0.4.8.xx
+-------------------------------
+
+* Fix Bug In Bracket Indexing Of Scalars
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexValidZilde_EM>, if the item is nested, recurse.
+    This allows 3=3[{enclose}{enclose}{enclose}{zilde}].
+
+VER.RC:
+  Increment version # to 0.4.8.xx.

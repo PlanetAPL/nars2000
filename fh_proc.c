@@ -8,7 +8,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -151,6 +151,7 @@ BOOL GetOprName_EM
             lpfhLocalVars->DfnType     = DFNTYPE_FCN;
             lpfhLocalVars->fhNameType  = NAMETYPE_FN12;
             lpfhLocalVars->lpYYFcnName = &lpYYArg->lpYYStrandBase[0];
+            lpfhLocalVars->offFcnName  =  lpYYArg->lpYYStrandBase[0].offTknIndex;
 
             return TRUE;
 
@@ -159,6 +160,7 @@ BOOL GetOprName_EM
             lpfhLocalVars->fhNameType  = NAMETYPE_OP1;
             lpfhLocalVars->lpYYLftOpr  = &lpYYArg->lpYYStrandBase[0];
             lpfhLocalVars->lpYYFcnName = &lpYYArg->lpYYStrandBase[1];
+            lpfhLocalVars->offFcnName  =  lpYYArg->lpYYStrandBase[1].offTknIndex;
 
             return TRUE;
 
@@ -167,6 +169,7 @@ BOOL GetOprName_EM
             lpfhLocalVars->fhNameType  = NAMETYPE_OP2;
             lpfhLocalVars->lpYYLftOpr  = &lpYYArg->lpYYStrandBase[0];
             lpfhLocalVars->lpYYFcnName = &lpYYArg->lpYYStrandBase[1];
+            lpfhLocalVars->offFcnName  =  lpYYArg->lpYYStrandBase[1].offTknIndex;
             lpfhLocalVars->lpYYRhtOpr  = &lpYYArg->lpYYStrandBase[2];
 
             return TRUE;

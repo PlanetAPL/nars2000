@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -137,21 +137,40 @@ APLSTYPE PrimSpecUpStileStorageTypeMon
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
-
-    if (IsSimpleChar (*lpaplTypeRht)
-     || *lpaplTypeRht EQ ARRAY_LIST)
-        return ARRAY_ERROR;
 
     // The storage type of the result is
     //   the same as that of the right arg
-    //   except FLOAT goes to INT
-    // IisF promotes to FisF as necessary.
-    if (IsSimpleFlt (*lpaplTypeRht))
-        aplTypeRes = ARRAY_INT;
-    else
-        aplTypeRes = *lpaplTypeRht;
+    aplTypeRes = *lpaplTypeRht;
+
+    // Split cases based upon the storage type
+    switch (aplTypeRes)
+    {
+        // Except FLOAT goes to INT
+        // IisF promotes to FisF as necessary.
+        case ARRAY_FLOAT:
+            aplTypeRes = ARRAY_FLOAT;
+
+            break;
+
+        case ARRAY_BOOL:
+        case ARRAY_INT:
+        case ARRAY_APA:
+        case ARRAY_RAT:
+        case ARRAY_VFP:
+        case ARRAY_NESTED:
+            break;
+
+        case ARRAY_CHAR:
+        case ARRAY_HETERO:
+            aplTypeRes = ARRAY_ERROR;
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
 
     return aplTypeRes;
 } // End PrimSpecUpStileStorageTypeMon
@@ -200,7 +219,7 @@ APLINT PrimFnMonUpStileIisF
 {
     // Check for PoM infinity and numbers whose
     //   absolute value is >= 2*53
-    if (IsInfinity (aplFloatRht)
+    if (IsFltInfinity (aplFloatRht)
      || fabs (aplFloatRht) >= Float2Pow53)
         RaiseException (EXCEPTION_RESULT_FLOAT, 0, 0, NULL);
 
@@ -276,13 +295,13 @@ APLVFP PrimFnMonUpStileVisV
     mpfr_init0 (&mpfTmp);
 
     // Negate the temp to use with DownStile
-    mpfr_neg0 (&mpfTmp, &aplVfpRht, MPFR_RNDN);
+    mpfr_neg (&mpfTmp, &aplVfpRht, MPFR_RNDN);
 
     // Use the code in DownStile
     mpfRes = PrimFnMonDownStileVisV (mpfTmp, NULL);
 
     // Negate the result after calling VisV
-    mpfr_neg0 (&mpfRes, &mpfRes, MPFR_RNDN);
+    mpfr_neg (&mpfRes, &mpfRes, MPFR_RNDN);
 
     // We no longer need this storage
     Myf_clear (&mpfTmp);
@@ -357,12 +376,12 @@ APLSTYPE PrimSpecUpStileStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // Calculate the storage type of the result

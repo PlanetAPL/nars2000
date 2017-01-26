@@ -1,0 +1,30 @@
+Build #1601 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement Temporary APVs To Handle Elided Indices
+
+Directory trunk:
+
+COMMON.C:
+  In <AllocateGlobalArray>, allow the dimension ptr to be NULL as that how Temporary APVs are initialized.
+
+EXTERNS.H:
+  Re-format and comment constant tokens <tkZero> and <tkBlank>.
+
+PF_INDEX.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In IF stmts always compare ptr against NULL.
+  Simplify and coalesce cases of integer conversion by calling <ConvertToInteger_SCT>.
+  Fix bug where the result of indexing may be marked as PV0 or PV1 incorrectly.
+  Implement temporary APVs to handle elided indices.
+
+STARTADDR.H:
+  Include more entry points.
+
+STRAND.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Implement temporary APVs to handle elided indices.
+
+TOKENS.H:
+  Implement temporary APVs to handle elided indices.

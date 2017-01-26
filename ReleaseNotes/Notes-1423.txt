@@ -1,0 +1,9 @@
+Build #1423 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Matrix Divide With Multiple-Precision Scalar Result
+
+Directory trunk:
+
+PF_DOMINO.C:
+  In <PrimFnDydDomino_EM_YY>, at the end handle multiple-precision scalar result.

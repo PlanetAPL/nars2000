@@ -1,0 +1,174 @@
+Build #1564 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement Line Continuations
+
+Directory trunk:
+
+AFOFNS.C:
+  Define an FSA to detect whether or not text represents an AFO.
+  Define a function to erase $AFORESULT separated out from <AfoReturn>
+  Include additional functions needed to handle LC when saving a function.
+
+AFOFNS.H:
+  Define structs to handle the above FSA.
+
+COMMON.C:
+  In <CharFromPos>, allow the output ptrs to be NULL in case the caller doesn't need them.
+
+CRASH.C:
+DEBUG.C:
+  Rename AC_xx to WC_xx when it refers to a WCHAR.
+
+CUSTOMIZE.C:
+  Implement user control of the LC char similar to the code for Keyboards.
+  In IF stmts always compare ptr against NULL.
+
+DEFINES.H:
+  Define new window extra to hold the global memory handle of any old UDFO.
+  Define default char for LC along with related character and string constants.
+
+DISPLAY.C:
+  Display Line Continuation marker for CR/CR/LF when displaying a character vector.
+
+EDITCTRL.H:
+  Define message # for determining whether or not a line is continued.
+  Define function line # indent.
+
+EDITFCN.C:
+  Define function to calculate left margins for a function editor window.
+  Define functions to use in place of certain EM_REPLACESEL messages to disallow editing an AFO header.
+  Tell the Edit Ctrl we want soft line-breaks.
+  Draw Line Continuation markers when we draw function line numbers.
+  When drawing line numbers, skip those lines continued from the previous one.
+
+ENUMS.H:
+  Move var from <fh_parse.h> to <enums.h> as they are closely related to each other.
+
+EXECDFN.C:
+  If the function is an AFO and the current line starts with a System label, return NoValue.
+  Stop executing an AFO if it returns a value.
+
+EXECMFN.C:
+  Switch the function line numbers to origin-1 with 0 = header.
+
+EXTERNS.H:
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+  Allow the user to control the foreground and background of the LC char when drawn.
+  Save the Unicode char used in Customize's Keyboards and User Prefs categories.
+
+FH_PARSE.H:
+  Define bit flag for System Label line.
+  Move var from <fh_parse.h> to <enums.h> as they are closely related to each other.
+  Comment on dependencies for <FCN_VALENCES> and define <FCN_VALENCES_LENGTH>.
+
+FH_PARSE.Y:
+  Handle Line Continuations.
+
+GETFNS.C:
+  In <GetPrototypeFcnPtr>, allow AFO fns as we now support system labels in AFOs.
+
+HEADERS.H:
+  Include afofns.h.
+
+IMMEXEC.C:
+  Define various functions to handle a block of continued lines.
+  In <ImmExecLine>, handle LCs.
+
+INIFILE.C:
+  Read in on startup and write out on termination the two Unicode bases as well as the last Unicode chars.
+  Read in on startup and write out on termination Syntax Coloring for Line Continuations.
+
+KEYBOARDS.H:
+  Define vars to hold the Unicode base and last char for the Keyboard category.
+
+MAIN.C:
+  Define a enum callback function to draw Line Continuations when the User Preference LC char is set.
+  In <CreateNewFontCom>, pass the font enum and calculate the pixel width of the Line Continuation marker for that font.
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+
+MAIN.RC:
+  Define dialog entries for LC Syntax Coloring as well as the UI for changing the character used.
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+
+MAKEFILE.INC:
+  Include new library.
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+
+NARS2000.VCXPROJ:
+  Include new library.
+
+PARSELINE.C:
+  Handle stopping an AFO when it returns a value.
+  Handle LC encountered during parsing.
+
+PL_PARSE.H:
+  Handle stopping an AFO when it returns a value.
+
+PO_SLOPE.C:
+  In IF stmts always compare ptr against NULL.
+
+QF_CR.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Handle Line Continuations in []CR/[]VR results.
+  In IF stmts always compare ptr against NULL.
+
+QF_EX.C:
+  Allow []Z as an <EraseableName>.
+
+QF_FX.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Detect whether or not a text represents an AFO.
+  Include additional functions needed to handle LC when saving a function.
+  In IF stmts always compare ptr against NULL.
+
+QF_TF.C:
+  Include additional functions needed to handle LC when saving a function.
+
+RESOURCE.H:
+  Delete references to the Line Continuation bitmap as we now use a Unicode character.
+  Define IDCs for User Prefs UI to change the default LC.
+  Define IDCs for LC Syntax Coloring as well as the UI for changing the character used.
+
+SAVEFCN.C:
+  Define AFO headers to cover all cases.
+  Include additional functions needed to handle LC when saving a function.
+  In IF stmts always compare ptr against NULL.
+  Switch the function line numbers to origin-1 with 0 = header.
+  Allow System Labels in an AFO.
+
+SAVEFCN.H:
+SC_INASCII.C:
+SC_LOAD.C:
+  Include additional functions needed to handle LC when saving a function.
+
+SESSMAN.C:
+  In IF stmts always compare ptr against NULL.
+  Define function to calculate the pixel width of a Line Continuation marker for a given font enum.
+  Define function to draw all Line Continuations as well as just one.
+  Tell the Edit Ctrl we want soft line-breaks.
+  In <MYWM_KEYDOWN/VK_ENTER>, handle Shift-Enter as well as Ctrl-Enter.
+
+SIS.H:
+  Handle stopping an AFO when it returns a value.
+
+SYNTAXCOLORS.H:
+  Define entries for Syntax Coloring of LCs.
+
+THREADS.H:
+  Improve comments.
+
+TOKENIZE.C:
+  Allow comments inside an AFO.
+
+VER.RC:
+  Increment version # to 0.4.18.xx.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+  Delete WIN16 code.
+  Comment existing code for soft line-breaks.
+  Handle Shift-Enter as a soft line-break.
+  Handle local message to determine if a line is continued.

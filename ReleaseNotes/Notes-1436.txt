@@ -1,0 +1,21 @@
+Build #1436 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Determinant Operator On Singletons
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define names, etc. of new Magic Operator.
+
+MF_DOT.H:
+  Define APL Code for new Magic Operator.
+
+PO_DOT.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  In <PrimOpMonDotCommon_EM_YY>, move singleton code to before tests for
+    special cases.
+  In <PrimOpMonDotCommon_EM_YY>, handle singletons via Magic Operator as per
+    Reduction of Singletons.

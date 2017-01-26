@@ -1,0 +1,13 @@
+Build #1374 -- Version 0.4.11.xx
+-------------------------------
+
+* Fix Bug Which Crashes When Editing A Function After Typing A Tab
+
+Directory trunk:
+
+EDITFCN.C:
+  Fix bug in <LclEditCtrlWndProc/WM_KEYDOWN/VK_TAB> which miscalculates (off by 1)
+    the # spaces to insert.
+
+VER.RC:
+  Increment version # to 0.4.11.xx.

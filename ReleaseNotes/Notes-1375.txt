@@ -1,0 +1,11 @@
+Build #1375 -- Version 0.4.11.xx
+-------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+  Fix bug where stmts such as A[NAM{is}+/A] don't parse correctly because the binding strength of
+    "HY A" and others is zero which then binds "A]" too soon.

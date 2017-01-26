@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2009 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ UBOOL CmdInAscii_EM
     _wsplitpath (lpwszTail, wszDrive, wszDir, NULL, NULL);
 
     // Initialize success string
-    lstrcpyW (lpwszGlbTemp, LEADING_TEXT);
+    strcpyW (lpwszGlbTemp, LEADING_TEXT);
 
     // Call on first file
     hFile = FindFirstFileW (lpwszTail, &findData);
@@ -184,7 +184,7 @@ UBOOL InAsciiFile_EM
                           NULL);                    // Name of file-mapping object
     if (hA2AMap EQ NULL)
     {
-        lstrcpyW (wszTemp, L"Unable to create file mapping:  ");
+        strcpyW (wszTemp, L"Unable to create file mapping:  ");
         uLen = lstrlenW (wszTemp);
 
         FormatMessageW (FORMAT_MESSAGE_FROM_SYSTEM, // Source and processing options
@@ -208,7 +208,7 @@ UBOOL InAsciiFile_EM
                      dwA2AFileSize);                // Number of bytes to map
     if (hA2AView EQ NULL)
     {
-        lstrcpyW (wszTemp, L"Unable to map view of file:  ");
+        strcpyW (wszTemp, L"Unable to map view of file:  ");
         uLen = lstrlenW (wszTemp);
 
         FormatMessageW (FORMAT_MESSAGE_FROM_SYSTEM, // Source and processing options
@@ -324,10 +324,13 @@ UBOOL InAsciiFile_EM
     SF_Fcns.bDisplayErr     = FALSE;                // DO NOT Display Errors
     SF_Fcns.SF_LineLen      = SF_LineLenAA;         // Ptr to line length function
     SF_Fcns.SF_ReadLine     = SF_ReadLineAA;        // Ptr to read line function
-    SF_Fcns.SF_NumLines     = SF_NumLinesAA;        // Ptr to get # lines function
+    SF_Fcns.SF_IsLineCont   = SF_IsLineContAA;      // Ptr to Is Line Continued function
+    SF_Fcns.SF_NumPhyLines  = SF_NumPhyLinesAA;     // Ptr to get # physical lines function
+    SF_Fcns.SF_NumLogLines  = SF_NumLogLinesAA;     // Ptr to get # logical  ...
     SF_Fcns.SF_CreationTime = SF_CreationTimeAA;    // Ptr to get function creation time
     SF_Fcns.SF_LastModTime  = SF_LastModTimeAA;     // Ptr to get function last modification time
     SF_Fcns.SF_UndoBuffer   = SF_UndoBufferAA;      // Ptr to get function Undo Buffer global memory handle
+    SF_Fcns.sfTypes         = SFTYPES_AA;           // Caller type
 
     // Fill in ASCII2APL-specific values
     AA_Params.lpwStart = lpwA2AView;
@@ -349,7 +352,7 @@ UBOOL InAsciiFile_EM
         htGlbName = SF_Fcns.lpSymName->stHshEntry->htGlbName;
 
         // Lock the memory to get a ptr to it
-        lpMemName = MyGlobalLock (htGlbName);
+        lpMemName = MyGlobalLockWsz (htGlbName);
 
         // Get the name length plus the leading blanks
         uNameLen = 2 + lstrlenW (lpMemName);
@@ -371,8 +374,8 @@ UBOOL InAsciiFile_EM
         } // End IF
 
         // Append the separator and function name
-        lstrcatW (lpwszTemp, L"  ");
-        lstrcatW (lpwszTemp, lpMemName);
+        strcatW (lpwszTemp, L"  ");
+        strcatW (lpwszTemp, lpMemName);
 
         // We no longer need this ptr
         MyGlobalUnlock (htGlbName); lpMemName = NULL;
@@ -384,20 +387,22 @@ UBOOL InAsciiFile_EM
         ReplaceLastLineCRPmt (lpwszTemp);
 
         // Initialize success string
-        lstrcpyW (lpwszTemp, LEADING_TEXT);
+        strcpyW (lpwszTemp, LEADING_TEXT);
 
         // If the error line # is NEG1U, there is an error message, so display it
         if (SF_Fcns.uErrLine EQ NEG1U)
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"FUNCTION IN <%s> NOT DEFINED:  %s",
-                       lpwszFileName,
-                       SF_Fcns.wszErrMsg);
+                        lpwszFileName,
+                        SF_Fcns.wszErrMsg);
         else
             // Otherwise, display the error line # as an integer scalar (origin-sensitive)
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"FUNCTION IN <%s> NOT DEFINED:  ERROR ON LINE %u",
-                       lpwszFileName,
-                       SF_Fcns.uErrLine);
+                        lpwszFileName,
+                        SF_Fcns.uErrLine);
         // Display the line
         ReplaceLastLineCRPmt (wszTemp);
 

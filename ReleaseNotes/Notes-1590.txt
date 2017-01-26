@@ -1,0 +1,12 @@
+Build #1590 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bugs In []Nfns
+
+Directory trunk:
+
+CONVERT.C:
+  In <ConvertToInteger_SCT>, allow indexing into HETERO and NESTED arrays.
+
+QF_NFNS.C:
+  In <NfnsArgAplint>, fix bug of failing to pass on the propert index and setting the default result to FALSE instead of TRUE;

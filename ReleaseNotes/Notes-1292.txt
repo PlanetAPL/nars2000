@@ -1,0 +1,19 @@
+Build #1292 -- Version 0.4.9.xx
+-------------------------------
+
+* Improve DEBUG Display of An APL Var
+
+Directory trunk:
+
+PF_INDEX.C:
+  Improve comments.
+  Handle indexing of simple and non-simple scalars.
+
+PF_RSHOE.C:
+  Improve comments.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Include additional identities for Reach and Scatter indexing.

@@ -24,7 +24,6 @@
 
 
 #define strlenW         (UINT_PTR) lstrlenW
-#define strcpyW         lstrcpyW
 
 #define WINAPI          __stdcall
 typedef int             BOOL,       *PBOOL,    *LPBOOL;
@@ -37,6 +36,9 @@ typedef CHAR           *PSTR,       *LPSTR,     *NPSTR;
 typedef const CHAR     *PCSTR,      *LPCSTR;
 typedef WCHAR          *PWSTR,      *LPWSTR,    *NWPSTR;
 typedef const WCHAR    *PCWSTR,     *LPCWSTR;
+
+LPWSTR strcpyW  (LPWSTR, LPWSTR);
+LPWSTR strcpynW (LPWSTR, LPWSTR, int);
 
 #define CP_ACP          0
 #define USE_IME         0
@@ -52,6 +54,9 @@ extern int __cdecl dprintfWL9 (unsigned short *lpwszFmt,...);
 extern int gDbgLvl;
 #endif
 
+extern HFONT hFontPR;
+void DrawLineContSub (HWND, HDC, int, int, int);
+
 #define MP_RAT          int // For APLRAT in "types.h"
 #define __mpfr_struct   int // For APLVFP in "types.h"
 #include "enums.h"
@@ -62,6 +67,8 @@ extern int gDbgLvl;
 #include "types.h"
 #include "editctrl.h"
 #include "resource.h"
+#include "unicode.h"
+#include "macros.h"
 
 #ifdef DEBUG
   #define   LCLODSAPI   ODSAPI

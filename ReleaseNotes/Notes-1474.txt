@@ -1,0 +1,12 @@
+Build #1474 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bugs In []TRACE
+
+Directory trunk:
+
+QF_STRACE.C:
+  Fix bug in <SysFnMonSTRACE_EM_YY> where ~ is used mistakenly instead of ! (duh!).
+  Fix bug in <SysFnDydSTRACE_EM_YY> where the test for Empty Char is wrong.
+  Fix bug in <SysFnDydSTRACE_EM_YY> at the end where there's a missing test for error result.
+  Fix bug in <SysFnDydSTRACE_EM_YY> at the end where we fail to unlock the left arg if it was locked.

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,53 +34,53 @@
 //***************************************************************************
 
 void MakeWorkspaceNameCanonical
-    (LPWCHAR wszOut,            // Output workspace name
-     LPWCHAR wszInp,            // Input  ...
-     LPWCHAR wszDefDir)         // Default drive and directory if no drive letter (may be NULL)
+    (LPWCHAR lpwszOut,          // Output workspace name
+     LPWCHAR lpwszInp,          // Input  ...
+     LPWCHAR lpwszDefDir)       // Default drive and directory if no drive letter (may be NULL)
 
 {
     UINT uLen;
 
     // If the incoming workspace name begins with a double-quote, skip over it
-    if (wszInp[0] EQ WC_DQ)
-        wszInp++;
+    if (lpwszInp[0] EQ WC_DQ)
+        lpwszInp++;
 
     // Get the incoming workspace name string length
-    uLen = lstrlenW (wszInp);
+    uLen = lstrlenW (lpwszInp);
 
     // If the incoming workspace name ends with a double-quote, delete it
-    if (uLen && wszInp[uLen - 1] EQ WC_DQ)
-        wszInp[uLen - 1] = WC_EOS;
+    if (uLen && lpwszInp[uLen - 1] EQ WC_DQ)
+        lpwszInp[uLen - 1] = WC_EOS;
 
     // If the name doesn't begin with a drive letter and
     //   doesn't start at the root or a dot, prepend the
     //   default dir
-    if (wszDefDir               // Not NULL
-     && wszInp[0] NE WC_EOS     // Non-empty,
-     && ((wszInp[0] EQ L'.'
-       && wszInp[1] EQ L'.')    // and up one dir
-      || wszInp[0] NE L'.')     // or not current dir,
-     && wszInp[0] NE WC_SLOPE   // and not root dir,
-     && wszInp[1] NE L':')      // and no drive letter
+    if (lpwszDefDir                 // Not NULL
+     && lpwszInp[0] NE WC_EOS       // Non-empty,
+     && ((lpwszInp[0] EQ L'.'
+       && lpwszInp[1] EQ L'.')      // and up one dir
+      || lpwszInp[0] NE L'.')       // or not current dir,
+     && lpwszInp[0] NE WC_SLOPE     // and not root dir,
+     && lpwszInp[1] NE L':')        // and no drive letter
     {
-        lstrcpyW (wszOut, wszDefDir);
+        strcpyW (lpwszOut, lpwszDefDir);
 
         // If the input doesn't already start with a backslash, ...
-        if (wszInp[0] NE WC_SLOPE)
-            AppendBackslash (wszOut);
+        if (lpwszInp[0] NE WC_SLOPE)
+            AppendBackslash (lpwszOut);
 
-        lstrcatW (wszOut, wszInp);
+        strcatW (lpwszOut, lpwszInp);
     } else
-        lstrcpyW (wszOut, wszInp);
+        strcpyW (lpwszOut, lpwszInp);
 
     // Get the outgoing workspace name string length
-    uLen = lstrlenW (wszOut);
+    uLen = lstrlenW (lpwszOut);
 
     // If the workspace name is long enough and
     //   ends with WSKEXT
     if (uLen >= WS_WKSEXT_LEN
-     && lstrcmpiW (&wszOut[uLen - WS_WKSEXT_LEN], WS_WKSEXT) EQ 0)
-        wszOut[uLen - WS_WKSEXT_LEN] = WC_EOS;
+     && lstrcmpiW (&lpwszOut[uLen - WS_WKSEXT_LEN], WS_WKSEXT) EQ 0)
+        lpwszOut[uLen - WS_WKSEXT_LEN] = WC_EOS;
 } // End MakeWorkspaceNameCanonical
 
 
@@ -102,7 +102,7 @@ void AppendBackslash
     // If there's no trailing backslash, ...
     if (uLen && lpwsz[uLen - 1] NE WC_SLOPE)
         // Append one
-        lstrcatW (lpwsz, WS_SLOPE);
+        strcatW (lpwsz, WS_SLOPE);
 } // End AppendBackslash
 
 
@@ -116,11 +116,22 @@ void DisplayWorkspaceStamp
     (LPDICTIONARY lpDict)               // Ptr to workspace dictionary
 
 {
-    WCHAR      wszTimeStamp[16 + 1];    // Output save area for time stamp
+    WCHAR      wszTimeStamp[16 + 1],    // Output save area for time stamp
+               wszVersion[WS_VERLEN];   // ...                  version info
     LPWCHAR    lpwszProf;               // Ptr to profile string
     FILETIME   ftCreation,              // Function creation time in UTC
                ftLocalTime;             // ...                       localtime
     SYSTEMTIME systemTime;              // Current system (UTC) time
+
+    // Get the version #
+    lpwszProf =
+      ProfileGetString (SECTNAME_GENERAL,   // Ptr to the section name
+                        KEYNAME_VERSION,    // Ptr to the key name
+                        L"",                // Ptr to the default value
+                        lpDict);            // Ptr to workspace dictionary
+    // Copy the string to a save area
+    // DO NOT USE lstrcpyW as it doesn't trigger a visible Page Fault
+    MyStrcpyW (wszVersion, sizeof (wszVersion), lpwszProf);
 
     // Get the current system (UTC) time
     GetSystemTime (&systemTime);
@@ -129,10 +140,11 @@ void DisplayWorkspaceStamp
     SystemTimeToFileTime (&systemTime, &ftCreation);
 
     // Format the creation time
-    wsprintfW (wszTimeStamp,
-               FMTSTR_DATETIME,
-               ftCreation.dwHighDateTime,
-               ftCreation.dwLowDateTime);
+    MySprintfW (wszTimeStamp,
+                sizeof (wszTimeStamp),
+                FMTSTR_DATETIME,
+                ftCreation.dwHighDateTime,
+                ftCreation.dwLowDateTime);
     // Read the creation time
     lpwszProf =
       ProfileGetString (SECTNAME_GENERAL,       // Ptr to the section name
@@ -140,7 +152,7 @@ void DisplayWorkspaceStamp
                         wszTimeStamp,           // Ptr to the default value
                         lpDict);                // Ptr to the file name
     // Convert the CreationTime string to time
-    sscanfW (lpwszProf, SCANFSTR_TIMESTAMP, &ftCreation);
+    sscanfW (lpwszProf, SCANFSTR_TIMESTAMP, (LPAPLINT) &ftCreation);
 
     if (OptionFlags.bUseLocalTime)
         // Convert to local filetime
@@ -152,7 +164,7 @@ void DisplayWorkspaceStamp
     FileTimeToSystemTime (&ftLocalTime, &systemTime);
 
     // Display the "SAVED ..." message
-    DisplaySavedMsg (systemTime, OptionFlags.bUseLocalTime);
+    DisplaySavedMsg (systemTime, OptionFlags.bUseLocalTime, wszVersion);
 } // End DisplayWorkspaceStamp
 
 
@@ -163,27 +175,37 @@ void DisplayWorkspaceStamp
 //***************************************************************************
 
 void DisplaySavedMsg
-    (SYSTEMTIME systemTime,
-     UBOOL      bUseLocalTime)
+    (SYSTEMTIME systemTime,         // System time
+     UBOOL      bUseLocalTime,      // TRUE iff we should use LocalTime
+     LPWCHAR    lpwszVersion)       // Workspace version # (may be NULL)
 
 {
-#define TIMESTAMP_FMT L"SAVED MM/DD/YYYY hh:mm:ss (GMT)"
+#define TIMESTAMP_FMT L"SAVED MM/DD/YYYY hh:mm:ss (GMT) (ver 0.00)"
 
     // "+ 1" for the trailing zero
     WCHAR wszTemp[strcountof (TIMESTAMP_FMT) + 1];
 
-    lstrcpyW (wszTemp, L"SAVED ");
+    strcpyW (wszTemp, L"SAVED ");
 
     // Format it
-    wsprintfW (wszTemp + lstrlenW (wszTemp),
-               DATETIME_FMT L"%s",
-               systemTime.wMonth,
-               systemTime.wDay,
-               systemTime.wYear,
-               systemTime.wHour,
-               systemTime.wMinute,
-               systemTime.wSecond,
-               bUseLocalTime ? L"" : L" (GMT)");
+    MySprintfW (&wszTemp[lstrlenW (wszTemp)],
+                 sizeof (wszTemp) - (lstrlenW (wszTemp) * sizeof (wszTemp[0])),
+                 DATETIME_FMT L"%s",
+                 systemTime.wMonth,
+                 systemTime.wDay,
+                 systemTime.wYear,
+                 systemTime.wHour,
+                 systemTime.wMinute,
+                 systemTime.wSecond,
+                 bUseLocalTime ? L"" : L" (GMT)");
+#ifdef DEBUG
+    if (lpwszVersion NE NULL)
+        // Append the workspace version
+        MySprintfW (&wszTemp[lstrlenW (wszTemp)],
+                     sizeof (wszTemp) - (lstrlenW (wszTemp) * sizeof (wszTemp[0])),
+                    L" (ver %s)",
+                     lpwszVersion);
+#endif
     // Display it
     AppendLine (wszTemp, FALSE, TRUE);
 } // End DisplaySavedMsg
@@ -247,13 +269,13 @@ void MakeWorkspaceBackup
     fclose (fStream); fStream = NULL;
 
     // Copy the original name
-    lstrcpyW (wszTemp, lpwszDPFE);
+    strcpyW (wszTemp, lpwszDPFE);
 
     // Get the entire length less WS_WKSEXT
     uLen = lstrlenW (wszTemp) - WS_WKSEXT_LEN;
 
     // Append new extensions
-    lstrcpyW (&wszTemp[uLen], lpwExtType);
+    strcpyW (&wszTemp[uLen], lpwExtType);
 
     // Copy the workspace to its backup
     if (!CopyFileW (lpwszDPFE,      // Source file (must exist)
@@ -313,11 +335,11 @@ UBOOL SaveNewWsid_EM
 
         // Allocate space for the new WSID
         hGlbWSID = DbgGlobalAlloc (GHND, (APLU3264) ByteWSID);
-        if (!hGlbWSID)
+        if (hGlbWSID EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemNewWSID = MyGlobalLock (hGlbWSID);
+        lpMemNewWSID = MyGlobalLock000 (hGlbWSID);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemNewWSID)
         // Fill in the header
@@ -334,7 +356,7 @@ UBOOL SaveNewWsid_EM
         *VarArrayBaseToDim (lpMemNewWSID) = iLen2;
 
         // Skip over the header and dimensions to the data
-        lpMemNewWSID = VarArrayBaseToData (lpMemNewWSID, 1);
+        lpMemNewWSID = VarArrayDataFmBase (lpMemNewWSID);
 
         // Copy data to the new []WSID
         CopyMemoryW (lpMemNewWSID, lpMemSaveWSID, iLen2);
@@ -428,7 +450,7 @@ void SaveRecentWSID
                              (*lpwszRecentFiles)[0],
                              uCnt * _MAX_PATH);
                 // Copy the new file to the top
-                lstrcpyW ((*lpwszRecentFiles)[0], lpMemWSID);
+                strcpyW ((*lpwszRecentFiles)[0], lpMemWSID);
             } // End IF
 
             break;
@@ -442,7 +464,7 @@ void SaveRecentWSID
         if (uNumRecentFiles < DEF_RECENTFILES)
             // Append it to the end and
             //   increase the # Recent Files
-            lstrcpyW ((*lpwszRecentFiles)[uNumRecentFiles++], lpMemWSID);
+            strcpyW ((*lpwszRecentFiles)[uNumRecentFiles++], lpMemWSID);
         else
         {
             // Move entries from [0, DEF_RECENTFILES - 2] to [1, DEF_RECENTFILES - 1]
@@ -450,7 +472,7 @@ void SaveRecentWSID
                          (*lpwszRecentFiles)[0],
                          (DEF_RECENTFILES - 1) * _MAX_PATH);
             // Copy the new file to the top
-            lstrcpyW ((*lpwszRecentFiles)[0], lpMemWSID);
+            strcpyW ((*lpwszRecentFiles)[0], lpMemWSID);
         } // End IF/ELSE
     } // End IF
 

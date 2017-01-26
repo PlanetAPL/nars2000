@@ -1,0 +1,17 @@
+Build #1410 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix More Bugs In []STOP And []TRACE
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, handle {goto} w/o target as not suspending on []STOP.
+  In calls to <TraceExit> note that the ptr to the result may be NoValue.
+
+QF_STRACE.C:
+  In both <TraceLine> and <TraceExit>, exit from TEMP_OPEN checks before calling
+    <DisplayTraceResult> as we can't pass the TEMP_OPEN state across into that fcn.
+  Move common code from <TraceLine> and <TraceExit> to <DisplayTraceResult>.
+  In <TraceExit>, handle immediate results.
+  In <DisplayTraceResult>, handle ptr to result of NoValue.

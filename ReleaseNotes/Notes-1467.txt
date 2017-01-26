@@ -1,0 +1,15 @@
+Build #1467 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix -0 Bugs
+
+Directory trunk:
+
+PF_STILE.C:
+  Remove extra condition so that RAT_EXACT is alone on the #ifdef line.
+  Improve comments.
+  In <PrimFnDydStileRisRvR>, check for AllowNeg0 before signalling an exception.
+  In <PrimFnDydStileVisVvV>, make the result sensitive to []CT.
+
+TYPEMOTE.C:
+  In <TypeDemote>, don't convert a FLT to INT if it's a -0 and AllowNeg0 is FALSE.

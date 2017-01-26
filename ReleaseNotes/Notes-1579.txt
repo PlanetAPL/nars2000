@@ -1,0 +1,9 @@
+Build #1579 -- Version 0.4.18.xx
+--------------------------------
+
+* Make Function Fix Time Sensitive To A User Preference
+
+Directory trunk:
+
+QF_AT.C:
+  Make the Function Fix Time sensitive to the User Preference "Use local time".

@@ -1,0 +1,9 @@
+Build #1388 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Crash Message Box
+
+Directory trunk:
+
+CRASH.C:
+  In <CCWndProc>, pass NULL handle to MessageBox so as to allow the user to copy data from the session.

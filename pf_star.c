@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -140,24 +140,44 @@ APLSTYPE PrimSpecStarStorageTypeMon
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
-
-    if (IsSimpleChar (*lpaplTypeRht)
-     || *lpaplTypeRht EQ ARRAY_LIST)
-        return ARRAY_ERROR;
 
     // The storage type of the result is
     //   the same as that of the right arg
     aplTypeRes = *lpaplTypeRht;
 
-    // Except that BOOL, INT and APA become FLOAT
-    if (IsSimpleInt (aplTypeRes))
-        aplTypeRes = ARRAY_FLOAT;
-    else
-    // Except that RAT becomes VFP
-    if (IsRat (aplTypeRes))
-        return ARRAY_VFP;
+    // Split cases based upon the storage type
+    switch (aplTypeRes)
+    {
+        // Except that BOOL, INT and APA become FLOAT
+        case ARRAY_BOOL:
+        case ARRAY_INT:
+        case ARRAY_APA:
+            aplTypeRes = ARRAY_FLOAT;
+
+            break;
+
+        // Except that RAT becomes VFP
+        case ARRAY_RAT:
+            aplTypeRes = ARRAY_VFP;
+
+            break;
+
+        case ARRAY_FLOAT:
+        case ARRAY_VFP:
+        case ARRAY_NESTED:
+            break;
+
+        case ARRAY_CHAR:
+        case ARRAY_HETERO:
+            aplTypeRes = ARRAY_ERROR;
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
 
     return aplTypeRes;
 } // End PrimSpecStarStorageTypeMon
@@ -256,7 +276,7 @@ APLVFP PrimFnMonStarVisV
     // Times m
     mpfr_mul_ui (&mpfTmp1, &mpfLn2, abs ((int) log2x), MPFR_RNDN);
     if (log2x < 0)
-        mpfr_neg0 (&mpfTmp1, &mpfTmp1, MPFR_RNDN);
+        mpfr_neg (&mpfTmp1, &mpfTmp1, MPFR_RNDN);
     // Subtract from V to yield V - m * log (2)
     mpfr_sub (&mpfRes, &mpfRes, &mpfTmp1, MPFR_RNDN);
 
@@ -270,7 +290,7 @@ APLVFP PrimFnMonStarVisV
     // Finally, convert the result back to normal
     //   by multiplying it by 2 ^ m.
     // Split cases based upon the signum of m
-    switch (signum (log2x))
+    switch (signumint (log2x))
     {
         case -1:
             mpfr_div_2exp (&mpfRes, &mpfRes, (int) -log2x);
@@ -370,12 +390,12 @@ APLSTYPE PrimSpecStarStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // Calculate the storage type of the result
@@ -404,9 +424,11 @@ APLBOOL PrimFnDydStarBisBvB
      && aplBooleanRht EQ 0)
     {
         // See what the []IC oracle has to say
-        aplFloatRes = TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
-                                            ICNDX_0EXP0,
-                                            (APLFLOAT) aplBooleanRht);
+        aplFloatRes =
+          TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
+                                           ICNDX_0EXP0,
+                                (APLFLOAT) aplBooleanRht,
+                                           FALSE);
         // If the result is Boolean
         if (aplFloatRes EQ 0)
             return 0;
@@ -440,9 +462,11 @@ APLB64 PrimFnDydStarB64isB64vB64
      && aplBooleanRht EQ 0)
     {
         // See what the []IC oracle has to say
-        aplFloatRes = TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
-                                            ICNDX_0EXP0,
-                                            (APLFLOAT) aplBooleanRht);
+        aplFloatRes =
+          TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
+                                           ICNDX_0EXP0,
+                                (APLFLOAT) aplBooleanRht,
+                                           FALSE);
         // If the result is Boolean
         if (aplFloatRes EQ 0)
             return 0x0000000000000000;
@@ -476,9 +500,11 @@ APLB32 PrimFnDydStarB32isB32vB32
      && aplBooleanRht EQ 0)
     {
         // See what the []IC oracle has to say
-        aplFloatRes = TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
-                                            ICNDX_0EXP0,
-                                            (APLFLOAT) aplBooleanRht);
+        aplFloatRes =
+          TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
+                                           ICNDX_0EXP0,
+                                (APLFLOAT) aplBooleanRht,
+                                           FALSE);
         // If the result is Boolean
         if (aplFloatRes EQ 0)
             return 0x00000000;
@@ -512,9 +538,11 @@ APLB16 PrimFnDydStarB16isB16vB16
      && aplBooleanRht EQ 0)
     {
         // See what the []IC oracle has to say
-        aplFloatRes = TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
-                                            ICNDX_0EXP0,
-                                            (APLFLOAT) aplBooleanRht);
+        aplFloatRes =
+          TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
+                                           ICNDX_0EXP0,
+                                (APLFLOAT) aplBooleanRht,
+                                           FALSE);
         // If the result is Boolean
         if (aplFloatRes EQ 0)
             return 0x0000;
@@ -548,9 +576,11 @@ APLB08 PrimFnDydStarB08isB08vB08
      && aplBooleanRht EQ 0)
     {
         // See what the []IC oracle has to say
-        aplFloatRes = TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
-                                            ICNDX_0EXP0,
-                                            (APLFLOAT) aplBooleanRht);
+        aplFloatRes =
+          TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
+                                           ICNDX_0EXP0,
+                                (APLFLOAT) aplBooleanRht,
+                                           FALSE);
         // If the result is Boolean
         if (aplFloatRes EQ 0)
             return 0x00;
@@ -603,7 +633,7 @@ APLINT PrimFnDydStarIisIvI
     // Initialize with identity element for multiplication
     aplIntegerRes = 1;
     while (aplIntegerRht--)
-        aplIntegerRes = imul64 (aplIntegerRes, aplIntegerLft);
+        aplIntegerRes = imul64_RE (aplIntegerRes, aplIntegerLft);
 
     return aplIntegerRes;
 } // End PrimFnDydStarIisIvI
@@ -625,8 +655,9 @@ APLFLOAT PrimFnDydStarFisIvI
     if (aplIntegerLft EQ 0
      && aplIntegerRht EQ 0)
         return TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-                                     ICNDX_0EXP0,
-                                     (APLFLOAT) aplIntegerRht);
+                                                ICNDX_0EXP0,
+                                     (APLFLOAT) aplIntegerRht,
+                                                FALSE);
     return pow ((APLFLOAT) aplIntegerLft, (APLFLOAT) aplIntegerRht);
 } // End PrimFnDydStarFisIvI
 
@@ -650,52 +681,59 @@ APLFLOAT PrimFnDydStarFisFvF
      && aplFloatRht EQ 0)
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_0EXP0,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     FALSE);
     // Check for indeterminates:  0 * +_
     if (aplFloatLft EQ 0
-     && aplFloatRht EQ PosInfinity)
+     && IsFltPosInfinity (aplFloatRht))
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_0EXPPi,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     FALSE);
     // Check for indeterminates:  0 * -_
     if (aplFloatLft EQ 0
-     && aplFloatRht EQ NegInfinity)
+     && IsFltNegInfinity (aplFloatRht))
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_0EXPNi,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     FALSE);
     // Check for indeterminates:  L * _ for L <= -1
     if (aplFloatLft <= -1
-     && aplFloatRht EQ PosInfinity)
+     && IsFltPosInfinity (aplFloatRht))
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_NEXPPi,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     FALSE);
     // Check for indeterminates:  L * -_ for -1 <= L < 0
-    if (aplFloatRht EQ NegInfinity
+    if (IsFltNegInfinity (aplFloatRht)
      && aplFloatLft >= -1
      && aplFloatLft <   0)
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_N1to0EXPNi,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     FALSE);
 ////// Check for indeterminates:  L * R for L < 0 and R not an integer
 ////if (aplFloatLft < 0
 //// && aplFloatRht NE floor (aplFloatRht))
 ////////return TranslateQuadICIndex (aplFloatLft,
 ////////                             ICNDX_NegEXPFrc,
-////////                             aplFloatRht);
+////////                             aplFloatRht,
+////////                             FALSE);
     // Check for complex result
-    if (aplFloatLft < 0
+    if (SIGN_APLFLOAT (aplFloatLft)
      && aplFloatRht NE floor (aplFloatRht))
         RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
 
     // Check for special cases:  _ * 0 and -_ * 0
-    if (IsInfinity (aplFloatLft)
+    if (IsFltInfinity (aplFloatLft)
      && aplFloatRht EQ 0)
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_InfEXP0,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     FALSE);
     // Check for special cases:  1 * _ and 1 * -_
     if (aplFloatLft EQ 1
-     && IsInfinity (aplFloatRht))
+     && IsFltInfinity (aplFloatRht))
         return aplFloatLft;
 
     // Calculate the power
@@ -726,28 +764,32 @@ APLRAT PrimFnDydStarRisRvR
         return *mpq_QuadICValue (&aplRatLft,
                                   ICNDX_0EXP0,
                                  &aplRatRht,
-                                 &mpqRes);
+                                 &mpqRes,
+                                  FALSE);
     // Check for indeterminates:  0 * +_
     if (IsMpq0 (&aplRatLft)
      && mpq_cmp (&aplRatRht, &mpqPosInfinity) EQ 0)
         return *mpq_QuadICValue (&aplRatLft,
                                   ICNDX_0EXPPi,
                                  &aplRatRht,
-                                 &mpqRes);
+                                 &mpqRes,
+                                  FALSE);
     // Check for indeterminates:  0 * -_
     if (IsMpq0 (&aplRatLft)
      && mpq_cmp (&aplRatRht, &mpqNegInfinity) EQ 0)
         return *mpq_QuadICValue (&aplRatLft,
                                   ICNDX_0EXPNi,
                                  &aplRatRht,
-                                 &mpqRes);
+                                 &mpqRes,
+                                  FALSE);
     // Check for indeterminates:  L * _ for L <= -1
     if (mpq_cmp_si (&aplRatLft, -1, 1) <= 0
      && mpq_cmp (&aplRatRht, &mpqPosInfinity) EQ 0)
         return *mpq_QuadICValue (&aplRatLft,
                                   ICNDX_NEXPPi,
                                  &aplRatRht,
-                                 &mpqRes);
+                                 &mpqRes,
+                                  FALSE);
     // Check for indeterminates:  L * -_ for -1 <= L < 0
     if (mpq_cmp    (&aplRatRht, &mpqNegInfinity) EQ 0
      && mpq_cmp_si (&aplRatLft, -1, 1) >= 0
@@ -755,14 +797,16 @@ APLRAT PrimFnDydStarRisRvR
         return *mpq_QuadICValue (&aplRatLft,
                                   ICNDX_N1to0EXPNi,
                                  &aplRatRht,
-                                 &mpqRes);
+                                 &mpqRes,
+                                  FALSE);
 ////// Check for indeterminates:  L * R for L < 0 and R not an integer
 ////if (mpq_sgn (&aplRatLft) < 0
 //// && !mpq_integer_p (&aplRatRht))
 ////    return *mpq_QuadICValue (&aplRatLft,
 ////                              ICNDX_NegEXPFrc,
 ////                             &aplRatRht,
-////                             &mpqRes);
+////                             &mpqRes,
+////                              FALSE);
     // Check for complex result
     if (mpq_sgn (&aplRatLft) < 0
      && !mpq_integer_p (&aplRatRht))
@@ -774,7 +818,8 @@ APLRAT PrimFnDydStarRisRvR
         return *mpq_QuadICValue (&aplRatLft,
                                   ICNDX_InfEXP0,
                                  &aplRatRht,
-                                 &mpqRes);
+                                 &mpqRes,
+                                  FALSE);
     // Check for special cases:  1 * _ and 1 * -_
     if (IsMpq1 (&aplRatLft)
      && mpq_inf_p (&aplRatRht))
@@ -787,7 +832,7 @@ APLRAT PrimFnDydStarRisRvR
     // If the exponent's denominator is 1,
     //   and the exponent's numerator fits in an UINT, ...
     if (IsMpz1 (mpq_denref (&aplRatRht))
-     && mpz_fits_ulong_p (mpq_numref (&aplRatRht)) NE 0)
+     && mpz_fits_slong_p (mpq_numref (&aplRatRht)) NE 0)
     {
         // Initialize the base
         mpq_init_set (&mpqRes, &aplRatLft);
@@ -848,28 +893,32 @@ APLVFP PrimFnDydStarVisVvV
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_0EXP0,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for indeterminates:  0 * +_
     if (IsMpf0 (&aplVfpLft)
      && mpfr_cmp (&aplVfpRht, &mpfPosInfinity) EQ 0)
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_0EXPPi,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for indeterminates:  0 * -_
     if (IsMpf0 (&aplVfpLft)
      && mpfr_cmp (&aplVfpRht, &mpfNegInfinity) EQ 0)
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_0EXPNi,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for indeterminates:  L * _ for L <= -1
     if (mpfr_cmp_si (&aplVfpLft, -1) <= 0
      && mpfr_cmp (&aplVfpRht, &mpfPosInfinity) EQ 0)
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_NEXPPi,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for indeterminates:  L * -_ for -1 <= L < 0
     if (mpfr_cmp    (&aplVfpRht, &mpfNegInfinity) EQ 0
      && mpfr_cmp_si (&aplVfpLft, -1) >= 0
@@ -877,14 +926,16 @@ APLVFP PrimFnDydStarVisVvV
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_N1to0EXPNi,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for indeterminates:  L * R for L < 0 and R not an integer
 ////if (mpfr_sgn (&aplVfpLft) < 0
 //// && !mpfr_integer_p (&aplVfpRht))
 ////    return *mpfr_QuadICValue (&aplVfpLft,
 ////                               ICNDX_NegEXPFrc,
 ////                              &aplVfpRht,
-////                              &mpfRes);
+////                              &mpfRes,
+////                               FALSE);
     // Check for complex result
     if (mpfr_sgn (&aplVfpLft) < 0
      && !mpfr_integer_p (&aplVfpRht))
@@ -896,7 +947,8 @@ APLVFP PrimFnDydStarVisVvV
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_InfEXP0,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for special cases:  1 * _ and 1 * -_
     if (IsMpf1 (&aplVfpLft)
      && mpfr_inf_p (&aplVfpRht))

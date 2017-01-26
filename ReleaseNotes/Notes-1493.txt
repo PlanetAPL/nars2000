@@ -1,0 +1,22 @@
+Build #1493 -- Version 0.4.15.xx
+--------------------------------
+
+* Include Section On Alpha Versions
+* Fix Minor Formatting Bugs
+
+Directory trunk:
+VER.RC:
+  Increment version # to 0.4.15.xx.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Fix minor HTML formatting bugs found by W3C Validation.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+DOWNLOAD-LEFT.PHP:
+  Include section on "Alpha Versions".

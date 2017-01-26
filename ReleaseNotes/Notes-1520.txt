@@ -1,0 +1,13 @@
+Build #1520 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Transpose With Eight Or More Axes.
+
+Directory trunk:
+
+AXISFNS.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Fix bug which fails to catch character or nested array arguments.
+  Fix bug in Transpose with eight or more axes because of a bug in <CheckAxisGlb> where
+    a ptr is not pointing to the first element but is used as if it were thus signaling
+    an error when it shouldn't.

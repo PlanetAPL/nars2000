@@ -1,0 +1,10 @@
+Build #1392 -- Version 0.4.11.xx
+--------------------------------
+
+* Handle MOPN A And MOPN A Syntax
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+  Handle MOPN A and MOPN A syntax which previously signaled a SYNTAX ERROR.

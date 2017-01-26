@@ -1,0 +1,20 @@
+Build #1408 -- Version 0.4.11.xx
+--------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+ERRMSG.C:
+  Improve comments.
+
+MPFNS.C:
+  In DEBUG mode, display argument and intermediate result VFP numbers.
+
+SC_LOAD.C:
+  Use <_wtoi64> in favor of <sscanfW> as the former is much faster.
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Use special Bitcoin font to display official Unicode Bitcoin currency symbol.

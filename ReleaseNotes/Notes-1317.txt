@@ -1,0 +1,15 @@
+Build #1317 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When No CRASHRPT.DLL
+
+Directory trunk:
+
+COMMON.C:
+  Define a function to do sprintfW and check for buffer overwrite.
+
+MAIN.C:
+  In <WinMain>, if there is no <CRASHRPT.DLL> in the same directory as the .exe,
+    a message is displayed which uses a buffer that is too short, thus overwriting
+    other data on the stack.  Use a longer buffer as well as a function to check the
+    buffer size.

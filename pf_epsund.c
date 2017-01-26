@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -236,11 +236,11 @@ LPPL_YYSTYPE PrimFnDydEpsilonUnderbar_EM_YY
         // Now we can allocate the storage for the result
         //***************************************************************
         hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRes)
+        if (hGlbRes EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemRes = MyGlobalLock (hGlbRes);
+        lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
         // Fill in the header
@@ -341,11 +341,11 @@ LPPL_YYSTYPE PrimFnDydEpsilonUnderbar_EM_YY
         // Allocate space for the temporary left arg dimension vector
         //***************************************************************
         hGlbDimTmp = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbDimTmp)
+        if (hGlbDimTmp EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemDimTmp = MyGlobalLock (hGlbDimTmp);
+        lpMemDimTmp = MyGlobalLock000 (hGlbDimTmp);
 
         // Fill in the leading padding (1s)
         for (uRes = 0; uRes < (aplRankRht - aplRankLft); uRes++)
@@ -362,11 +362,11 @@ LPPL_YYSTYPE PrimFnDydEpsilonUnderbar_EM_YY
     //***************************************************************
     hGlbKmpNext =
       DbgGlobalAlloc (GHND, (APLU3264) ((aplColsLft + 1 ) * sizeof (APLINT)));
-    if (!hGlbKmpNext)
+    if (hGlbKmpNext EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemKmpNext = MyGlobalLock (hGlbKmpNext);
+    lpMemKmpNext = MyGlobalLock000 (hGlbKmpNext);
 
     // Calculate space needed for the result
     ByteRes = aplRankRht * sizeof (APLUINT);
@@ -379,11 +379,11 @@ LPPL_YYSTYPE PrimFnDydEpsilonUnderbar_EM_YY
     // Allocate space for the dimension difference vector
     //***************************************************************
     hGlbDimDiff = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbDimDiff)
+    if (hGlbDimDiff EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemDimDiff = MyGlobalLock (hGlbDimDiff);
+    lpMemDimDiff = MyGlobalLock000 (hGlbDimDiff);
 
     // Ensure the left arg dimensions are <= the right arg dimensions
     //   and save the difference for later use
@@ -409,11 +409,11 @@ LPPL_YYSTYPE PrimFnDydEpsilonUnderbar_EM_YY
     //   separately.
     //***************************************************************
     hGlbWVecRht = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbWVecRht)
+    if (hGlbWVecRht EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemWVecRht = MyGlobalLock (hGlbWVecRht);
+    lpMemWVecRht = MyGlobalLock000 (hGlbWVecRht);
 
     // Loop through the dimensions of the right arg in reverse
     //   order {backscan} and compute the cumulative product
@@ -440,11 +440,11 @@ LPPL_YYSTYPE PrimFnDydEpsilonUnderbar_EM_YY
     //   dimension in the right arg.
     //***************************************************************
     hGlbOdoRht = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbOdoRht)
+    if (hGlbOdoRht EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemOdoRht = MyGlobalLock (hGlbOdoRht);
+    lpMemOdoRht = MyGlobalLock000 (hGlbOdoRht);
 
     // Calculate space needed for the result
     ByteRes = aplRankRht * sizeof (APLUINT);
@@ -460,11 +460,11 @@ LPPL_YYSTYPE PrimFnDydEpsilonUnderbar_EM_YY
     //   separately.
     //***************************************************************
     hGlbWVecTst = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbWVecTst)
+    if (hGlbWVecTst EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemWVecTst = MyGlobalLock (hGlbWVecTst);
+    lpMemWVecTst = MyGlobalLock000 (hGlbWVecTst);
 
     // Copy the right arg weighting vector
     CopyMemory (lpMemWVecTst, lpMemWVecRht, (APLU3264) ByteRes);
@@ -481,11 +481,11 @@ LPPL_YYSTYPE PrimFnDydEpsilonUnderbar_EM_YY
     //   dimension in the right arg.
     //***************************************************************
     hGlbOdoTst = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbOdoTst)
+    if (hGlbOdoTst EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemOdoTst = MyGlobalLock (hGlbOdoTst);
+    lpMemOdoTst = MyGlobalLock000 (hGlbOdoTst);
 
     // Split cases based upon the left & right arg storage types
     if (IsSimpleBool (aplTypeLft) && IsSimpleBool (aplTypeRht))
@@ -719,15 +719,8 @@ NOMATCH:
     // If the right arg is a global, ...
     if (lpMemRht)
     {
-        // If the result is a global, ...
-        if (hGlbRes)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
-
-            // We no longer need this resource
-            DbgGlobalFree (hGlbRes); hGlbRes = NULL;
-        } // End IF
+        // Unlock and free (and set to NULL) a global name and ptr
+        UnlFreeGlbName (hGlbRes, lpMemRes);
 
         // If there was a YYAlloc, ...
         if (lpYYRes)
@@ -774,11 +767,11 @@ NOMATCH:
             // Now we can allocate the storage for the result
             //***************************************************************
             hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-            if (!hGlbRes)
+            if (hGlbRes EQ NULL)
                 goto WSFULL_EXIT;
 
             // Lock the memory to get a ptr to it
-            lpMemRes = MyGlobalLock (hGlbRes);
+            lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
             // Fill in the header
@@ -846,89 +839,23 @@ ERROR_EXIT:
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbKmpNext)
-    {
-        if (lpMemKmpNext)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbKmpNext); lpMemKmpNext = NULL;
-        } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbKmpNext, lpMemKmpNext);
 
-        // We no longer need this resource
-        MyGlobalFree (hGlbKmpNext); hGlbKmpNext = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbDimTmp, lpMemDimTmp);
 
-    if (hGlbDimTmp)
-    {
-        if (lpMemDimTmp)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbDimTmp); lpMemDimTmp = NULL;
-        } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdoTst, lpMemOdoTst);
 
-        // We no longer need this resource
-        MyGlobalFree (hGlbDimTmp); hGlbDimTmp = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWVecTst, lpMemWVecTst);
 
-    if (hGlbOdoTst)
-    {
-        if (lpMemOdoTst)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbOdoTst); lpMemOdoTst = NULL;
-        } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWVecRht, lpMemWVecRht);
 
-        // We no longer need this resource
-        MyGlobalFree (hGlbOdoTst); hGlbOdoTst = NULL;
-    } // End IF
-
-    if (hGlbWVecTst)
-    {
-        if (lpMemWVecTst)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbWVecTst); lpMemWVecTst = NULL;
-        } // End IF
-
-        // We no longer need this resource
-        MyGlobalFree (hGlbWVecTst); hGlbWVecTst = NULL;
-    } // End IF
-
-    if (hGlbOdoTst)
-    {
-        if (lpMemOdoTst)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbOdoTst); lpMemOdoTst = NULL;
-        } // End IF
-
-        // We no longer need this resource
-        MyGlobalFree (hGlbOdoTst); hGlbOdoTst = NULL;
-    } // End IF
-
-    if (hGlbWVecRht)
-    {
-        if (lpMemWVecRht)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbWVecRht); lpMemWVecRht = NULL;
-        } // End IF
-
-        // We no longer need this resource
-        MyGlobalFree (hGlbWVecRht); hGlbWVecRht = NULL;
-    } // End IF
-
-    if (hGlbOdoRht)
-    {
-        if (lpMemOdoRht)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbOdoRht); lpMemOdoRht = NULL;
-        } // End IF
-
-        // We no longer need this resource
-        MyGlobalFree (hGlbOdoRht); hGlbOdoRht = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdoRht, lpMemOdoRht);
 
     if (hGlbLft && lpMemLft)
     {

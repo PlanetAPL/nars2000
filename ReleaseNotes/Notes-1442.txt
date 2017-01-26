@@ -1,0 +1,8 @@
+Build #1442 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In A[B] F {is} R Where B Has Repeated Values
+
+PF_INDEX.C:
+  Fix heap memory leak in <ArrayIndexSetVector_EM>.
+  Fix bug in <ArrayIndexFcnSet_EM> with A[B] F {is} R where B has repeated values.

@@ -1,0 +1,10 @@
+Build #1529 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In N f/ When Promoting Floating Point Numbers
+
+Directory trunk:
+
+PO_SLASH.C:
+  In IF stmts always compare ptr against NULL.
+  Fix bug in <PrimOpMonSlashCommon_EM_YY> and <PrimOpDydSlashCommon_EM_YY> when calling <aTypeActPromote> to use the correct datatype.

@@ -1,0 +1,49 @@
+Build #1253 -- Version 0.4.9.xx
+-------------------------------
+
+* Switch To Simpler Macro
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+CUSTOMIZE.C:
+DISPDBG.C:
+FREE.C:
+GETFNS.C:
+INIFILE.C:
+MACROS.H:
+PF_BAR.C:
+PF_CSLOPE.C:
+PF_DTACK.C:
+PF_EPSILON.C:
+PF_PLUS.C:
+PF_TIMES.C:
+PF_UARROW.C:
+PF_UTACKJOT.C:
+PO_DIJOT.C:
+PO_JOTDOT.C:
+PO_MULTISET.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+QF_AV.C:
+QF_DR.C:
+QF_EA.C:
+QF_EC.C:
+QF_ERROR.C:
+QF_EX.C:
+QF_FX.C:
+QF_LC.C:
+QF_NC.C:
+QF_SYSID.C:
+QF_SYSVER.C:
+QF_TC.C:
+QF_TS.C:
+SAVEFCN.C:
+SC_COMMON.C:
+SC_SAVE.C:
+SC_WSID.C:
+SESSMAN.C:
+STRAND.C:
+TABCTRL.C:
+  Switch macro <VarArrayBaseToData> to <VarArrayDataFmBase> as it's simpler.

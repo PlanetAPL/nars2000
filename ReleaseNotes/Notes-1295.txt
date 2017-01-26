@@ -1,0 +1,21 @@
+Build #1295 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement []T To Return Tick Count
+
+Directory trunk:
+
+COMPRO.H:
+  Include <qf_t.pro> in the list of prototype files.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include <qf_t.c> in the list of source files.
+
+QF_T.C
+  Implement []T.
+
+SYSVARS.C:
+  Include []T in the list of niladic system functions.

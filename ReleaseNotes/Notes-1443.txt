@@ -1,0 +1,11 @@
+Build #1443 -- Version 0.4.12.xx
+--------------------------------
+
+* Use String Safe Functions
+
+DISPDBG.C:
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+  Pass byte size of buffer to <FormatHTE> and <FormatSTE> so they can use string safe functions.
+
+EXECDFN.C:
+  Pass byte size of buffer to <FormatHTE> and <FormatSTE> so they can use string safe functions.

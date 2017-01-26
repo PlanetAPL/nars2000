@@ -1,0 +1,17 @@
+Build #1344 -- Version 0.4.9.xx
+-------------------------------
+
+* Move from GoogleCode To SourceForge
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-MENU.HTML:
+INDEX-MENU.HTML:
+LICENSE-MENU.HTML:
+  Move from GoogleCode to SourceForge.
+
+
+Directory trunk\htdocs\Download:
+
+DOWNLOAD-MENU.HTML:
+  Move from GoogleCode to SourceForge.

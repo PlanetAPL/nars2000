@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2011 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,25 +39,23 @@
 #endif
 
 LPPL_YYSTYPE PrimOpDieresisTilde_EM_YY
-    (LPTOKEN      lptkLftArg,           // Ptr to left arg token (may be NULL if monadic)
+    (LPTOKEN      lptkLftArg,           // Ptr to left arg token (may be NULL if niladic/monadic)
      LPPL_YYSTYPE lpYYFcnStrOpr,        // Ptr to operator function strand
      LPTOKEN      lptkRhtArg)           // Ptr to right arg token
 
 {
     Assert (lpYYFcnStrOpr->tkToken.tkData.tkChar EQ UTF16_DIERESISTILDE);
 
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (&lpYYFcnStrOpr->tkToken APPEND_NAME_ARG);
-
     // Split cases based upon monadic or dyadic derived function
     if (lptkLftArg EQ NULL)
-        return PrimOpMonDieresisTilde_EM_YY (lpYYFcnStrOpr, // Ptr to operator function strand
-                                             lptkRhtArg);   // Ptr to right arg
+        return
+          PrimOpMonDieresisTilde_EM_YY (lpYYFcnStrOpr,  // Ptr to operator function strand
+                                        lptkRhtArg);    // Ptr to right arg (may be NULL if niladic)
     else
-        return PrimOpDydDieresisTilde_EM_YY (lptkLftArg,    // Ptr to left arg token
-                                             lpYYFcnStrOpr, // Ptr to operator function strand
-                                             lptkRhtArg);   // Ptr to right arg token
+        return
+          PrimOpDydDieresisTilde_EM_YY (lptkLftArg,     // Ptr to left arg token
+                                        lpYYFcnStrOpr,  // Ptr to operator function strand
+                                        lptkRhtArg);    // Ptr to right arg token
 } // End PrimOpDieresisTilde_EM_YY
 #undef  APPEND_NAME
 
@@ -85,19 +83,21 @@ LPPL_YYSTYPE PrimProtoOpDieresisTilde_EM_YY
         // Called monadically
         //***************************************************************
 
-        return PrimOpMonDieresisTildeCommon_EM_YY (lpYYFcnStrOpr,   // Ptr to operator function strand
-                                                   lptkRhtArg,      // Ptr to right arg token
-                                                   TRUE);           // TRUE iff prototyping
+        return
+          PrimOpMonDieresisTildeCommon_EM_YY (lpYYFcnStrOpr,    // Ptr to operator function strand
+                                              lptkRhtArg,       // Ptr to right arg token
+                                              TRUE);            // TRUE iff prototyping
     } else
     {
         //***************************************************************
         // Called dyadically
         //***************************************************************
 
-        return PrimOpDydDieresisTildeCommon_EM_YY (lptkLftArg,      // Ptr to left arg token
-                                                   lpYYFcnStrOpr,   // Ptr to operator function strand
-                                                   lptkRhtArg,      // Ptr to right arg token
-                                                   TRUE);           // TRUE iff prototyping
+        return
+          PrimOpDydDieresisTildeCommon_EM_YY (lptkLftArg,       // Ptr to left arg token
+                                              lpYYFcnStrOpr,    // Ptr to operator function strand
+                                              lptkRhtArg,       // Ptr to right arg token
+                                              TRUE);            // TRUE iff prototyping
     } // End IF/ELSE
 } // End PrimProtoOpDieresisTilde_EM_YY
 
@@ -145,7 +145,7 @@ LPPL_YYSTYPE PrimIdentOpDieresisTilde_EM_YY
 
     // Set ptr to left operand,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrLft = &lpYYFcnStrOpr[1 + (lptkAxisOpr NE NULL)];
+    lpYYFcnStrLft = GetMonLftOper (lpYYFcnStrOpr, lptkAxisOpr);
 
     // Ensure the left operand is a function
     if (!IsTknFcnOpr (&lpYYFcnStrLft->tkToken)
@@ -159,7 +159,7 @@ LPPL_YYSTYPE PrimIdentOpDieresisTilde_EM_YY
     lpPrimFlagsLft = GetPrimFlagsPtr (&lpYYFcnStrLft->tkToken);
 
     // Check for error
-    if (!lpPrimFlagsLft || !lpPrimFlagsLft->lpPrimOps)
+    if (lpPrimFlagsLft EQ NULL || lpPrimFlagsLft->lpPrimOps EQ NULL)
         goto LEFT_OPERAND_DOMAIN_EXIT;
 
     // Execute the left operand identity function on the right arg
@@ -201,9 +201,10 @@ LPPL_YYSTYPE PrimOpMonDieresisTilde_EM_YY
      LPTOKEN      lptkRhtArg)           // Ptr to right arg token
 
 {
-    return PrimOpMonDieresisTildeCommon_EM_YY (lpYYFcnStrOpr,   // Ptr to operator function strand
-                                               lptkRhtArg,      // Ptr to right arg token
-                                               FALSE);          // TRUE iff prototyping
+    return
+      PrimOpMonDieresisTildeCommon_EM_YY (lpYYFcnStrOpr,    // Ptr to operator function strand
+                                          lptkRhtArg,       // Ptr to right arg token (may be NULL if niladic)
+                                          FALSE);           // TRUE iff prototyping
 } // End PrimOpMonDieresisTilde_EM_YY
 
 
@@ -222,7 +223,7 @@ LPPL_YYSTYPE PrimOpMonDieresisTilde_EM_YY
 
 LPPL_YYSTYPE PrimOpMonDieresisTildeCommon_EM_YY
     (LPPL_YYSTYPE lpYYFcnStrOpr,        // Ptr to operator function strand
-     LPTOKEN      lptkRhtArg,           // Ptr to right arg token
+     LPTOKEN      lptkRhtArg,           // Ptr to right arg token (may be NULL if niladic)
      UBOOL        bPrototyping)         // TRUE if prototyping
 
 {
@@ -242,7 +243,7 @@ LPPL_YYSTYPE PrimOpMonDieresisTildeCommon_EM_YY
 
     // Set ptr to left operand,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrLft = &lpYYFcnStrOpr[1 + (lptkAxisOpr NE NULL)];
+    lpYYFcnStrLft = GetMonLftOper (lpYYFcnStrOpr, lptkAxisOpr);
 
     // Ensure the left operand is a function
     if (!IsTknFcnOpr (&lpYYFcnStrLft->tkToken)
@@ -254,7 +255,7 @@ LPPL_YYSTYPE PrimOpMonDieresisTildeCommon_EM_YY
     {
         // Get the appropriate prototype function ptr
         lpPrimProtoLft = GetPrototypeFcnPtr (&lpYYFcnStrLft->tkToken);
-        if (!lpPrimProtoLft)
+        if (lpPrimProtoLft EQ NULL)
             goto LEFT_OPERAND_NONCE_EXIT;
 
         // Execute the function dyadically between the right arg and itself
@@ -264,13 +265,13 @@ LPPL_YYSTYPE PrimOpMonDieresisTildeCommon_EM_YY
         //   primitive operator which takes a function strand
         return (*lpPrimProtoLft) (lptkRhtArg,       // Ptr to left arg token
                         (LPTOKEN) lpYYFcnStrLft,    // Ptr to left operand fnuction strand
-                                  lptkRhtArg,       // Ptr to right arg token
+                                  lptkRhtArg,       // Ptr to right arg token (may be NULL if niladic)
                                   lptkAxisOpr);     // Ptr to operator axis token
     } else
         // Execute the function dyadically between the right arg and itself
         return ExecFuncStr_EM_YY (lptkRhtArg,       // Ptr to left arg token
                                   lpYYFcnStrLft,    // Ptr to left operand function strand
-                                  lptkRhtArg,       // Ptr to right arg token
+                                  lptkRhtArg,       // Ptr to right arg token (may be NULL if niladic)
                                   lptkAxisOpr);     // Ptr to operator axis token
 AXIS_SYNTAX_EXIT:
     ErrorMessageIndirectToken (ERRMSG_SYNTAX_ERROR APPEND_NAME,
@@ -346,7 +347,7 @@ LPPL_YYSTYPE PrimOpDydDieresisTildeCommon_EM_YY
 
     // Set ptr to left operand,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrLft = &lpYYFcnStrOpr[1 + (lptkAxisOpr NE NULL)];
+    lpYYFcnStrLft = GetMonLftOper (lpYYFcnStrOpr, lptkAxisOpr);
 
     // Ensure the left operand is a function
     if (!IsTknFcnOpr (&lpYYFcnStrLft->tkToken)
@@ -358,7 +359,7 @@ LPPL_YYSTYPE PrimOpDydDieresisTildeCommon_EM_YY
     {
         // Get the appropriate prototype function ptr
         lpPrimProtoLft = GetPrototypeFcnPtr (&lpYYFcnStrLft->tkToken);
-        if (!lpPrimProtoLft)
+        if (lpPrimProtoLft EQ NULL)
             goto LEFT_OPERAND_NONCE_EXIT;
 
         // Execute the function dyadically between the two args switched

@@ -1,0 +1,16 @@
+Build #1305 -- Version 0.4.9.xx
+-------------------------------
+
+* Catch More Unset Syntax Objects
+
+Directory trunk:
+
+STRAND.C:
+  In <StripStrand>, allow endpoint in Assert stmt.
+  In <MakeVarStrand_EM_YY>, set the Syntax Object type.
+  In <MakeFcnStrand_EM_YY>, set the Syntax Object type.
+  In <MakeFcnStrand_EM_YY>, simplify the code after <bSaveTxtLine>.
+
+TRANSLATE.C:
+  In <TranslateSOTypeToNameType>, include more Syntax Object types.
+  Define <TranslateNameTypeToSOType> needed in <MakeFcnStrand_EM_YY>.

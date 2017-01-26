@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <VisualStudioToolFile
-	Name="Bison File"
+	Name="Bison_Rule"
 	Version="8.00"
 	>
 	<Rules>
 		<CustomBuildRule
-			Name="Bison Rule"
+			Name="Bison_Rule"
 			DisplayName="Bison Rule"
 			CommandLine="$(PARGEN) -o$(OutDir)\$(InputName).c -v -r all -l $(InputPath)&#x0D;&#x0A;$(MSVC)bin\nmake /f makefile.pro.parse O=$(OutDir)\"
 			Outputs="$(OutDir)\$(InputName).c"

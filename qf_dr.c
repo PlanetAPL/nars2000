@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2012 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -238,6 +238,9 @@ LPPL_YYSTYPE SysFnDydDR_EM_YY
                 hGlbRes = SysFnDR_CharToInt_EM (lptkRhtArg, lptkFunc, &bScalar);
             break;
 
+        case DR_GETPREC:
+            return SysFnDR_GetPrec_EM_YY (lptkRhtArg, lptkFunc);
+
         case DR_BOOL:
             return SysFnDR_Convert_EM_YY (ARRAY_BOOL,  lptkRhtArg, lptkFunc);
 
@@ -342,6 +345,148 @@ LEFT_DOMAIN_EXIT:
 
 
 //***************************************************************************
+//  $SysFnDR_GetPrec_EM_YY
+//
+//  Return the lowest precision in the right arg
+//***************************************************************************
+
+#ifdef DEBUG
+#define APPEND_NAME     L" -- SysFnDR_GetPrec_EM_YY"
+#else
+#define APPEND_NAME
+#endif
+
+LPPL_YYSTYPE SysFnDR_GetPrec_EM_YY
+    (LPTOKEN  lptkRhtArg,           // Ptr to right arg token
+     LPTOKEN  lptkFunc)             // Ptr to function token
+
+{
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+    APLSTYPE          aplTypeRht;           // Right arg storage type
+    IMM_TYPES         immTypeRes;           // Result immediate storage type
+    APLNELM           aplNELMRht;           // Right arg NELM
+    APLLONGEST        aplLongestRht;        // Right arg as immediate
+    HGLOBAL           hGlbRht = NULL;       // Right arg global memory handle
+    LPVARARRAY_HEADER lpMemHdrRht = NULL;   // Ptr to right arg global memory
+    LPAPLVFP          lpMemRht;             // Ptr to VFP global memory data
+    APLINT            aplIntegerRes;        // The result
+    UINT              uCnt;                 // Loop counter
+    APLINT            aplPrec;              // Temporary for the precision
+    int               iHCDim;               // HC Dimension (1, 2, 4, 8)
+
+    // Get the attributes (Type, NELM, and Rank)
+    //   of the right arg
+    AttrsOfToken (lptkRhtArg, &aplTypeRht, &aplNELMRht, NULL, NULL);
+
+    // Get right arg's global ptrs
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
+
+    // If the array is empty, ...
+    if (IsEmpty (aplNELMRht))
+    {
+        // Return the numeric precision
+        aplIntegerRes = POS_INFINITY;
+        immTypeRes    = IMMTYPE_FLOAT;
+    } else
+    // Split cases based upon the right arg storage type
+    switch (aplTypeRht)
+    {
+        case ARRAY_BOOL:
+            // Return the numeric precision
+            aplIntegerRes = 1;
+            immTypeRes    = IMMTYPE_BOOL;
+
+            break;
+
+        case ARRAY_INT:
+        case ARRAY_APA:
+        case ARRAY_FLOAT:
+////////case ARRAY_HC2I:
+////////case ARRAY_HC4I:
+////////case ARRAY_HC8I:
+////////case ARRAY_HC2F:
+////////case ARRAY_HC4F:
+////////case ARRAY_HC8F:
+            // Return the numeric precision
+            aplIntegerRes = 64;
+            immTypeRes    = IMMTYPE_INT;
+
+            break;
+
+        case ARRAY_RAT:
+////////case ARRAY_HC2R:
+////////case ARRAY_HC4R:
+////////case ARRAY_HC8R:
+            // Return the numeric precision
+            aplIntegerRes = POS_INFINITY;
+            immTypeRes    = IMMTYPE_FLOAT;
+
+            break;
+
+        case ARRAY_VFP:
+////////case ARRAY_HC2V:
+////////case ARRAY_HC4V:
+////////case ARRAY_HC8V:
+////////    // Get the HC Dimension (1, 2, 4, 8)
+////////    iHCDim = TranslateArrayTypeToHCDim (aplType);
+            iHCDim = 1;
+
+            // Skip over the header and dimensions to the data
+            lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
+
+            // Set to identity element for Floor
+            aplIntegerRes = MAX_APLINT;
+            immTypeRes    = IMMTYPE_INT;
+
+            // Loop through the array looking for the lowest precision
+            for (uCnt = 0; uCnt < (aplNELMRht * iHCDim); uCnt++)
+            {
+                // Get the precision
+                aplPrec = mpfr_get_prec (&lpMemRht[uCnt]);
+
+                // Use the smaller
+                aplIntegerRes = min (aplIntegerRes, aplPrec);
+            } // End FOR
+
+            break;
+
+        case ARRAY_HETERO:
+        case ARRAY_NESTED:
+        case ARRAY_CHAR:
+            // Return the numeric precision
+            // ***FIXME*** -- should this be an error?
+            aplIntegerRes = 0;
+            immTypeRes    = IMMTYPE_INT;
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
+
+    // Allocate a new YYRes
+    lpYYRes = YYAlloc ();
+
+    // Fill in the result token
+    lpYYRes->tkToken.tkFlags.TknType   = TKT_VARIMMED;
+    lpYYRes->tkToken.tkFlags.ImmType   = immTypeRes;
+////lpYYRes->tkToken.tkFlags.NoDisplay = FALSE;         // Already zero from YYAlloc
+    lpYYRes->tkToken.tkData.tkInteger  = aplIntegerRes;
+    lpYYRes->tkToken.tkCharIndex       = lptkFunc->tkCharIndex;
+//ERROR_EXIT:
+    // If the right arg is a global, ...
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
+    {
+        // We no longer need this ptr
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
+    } // End IF
+
+    return lpYYRes;
+} // End SysFnDR_GetPrec_EM_YY
+#undef  APPEND_NAME
+
+
+//***************************************************************************
 //  $SysFnDR_Convert_EM_YY
 //
 //  Return the <aplTypeRes> representation of the right arg
@@ -429,7 +574,7 @@ LPPL_YYSTYPE SysFnDR_Convert_EM_YY
         LPAPLINT lpMemDataRht;
 
         // Skip over the header and dimensions to the data
-        lpMemDataRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+        lpMemDataRht = VarArrayDataFmBase (lpMemRht);
 
         // Get the APA offset
         apaOffRes = ((LPAPLAPA) lpMemDataRht)->Off;
@@ -454,7 +599,7 @@ LPPL_YYSTYPE SysFnDR_Convert_EM_YY
                 goto RIGHT_DOMAIN_EXIT;
 
             // Save in NELM
-            aplNELMRes = _imul64 (aplNELMRes, iAccum, &bRet);
+            aplNELMRes = imul64 (aplNELMRes, iAccum, &bRet);
 
             // Check for overflow
             if (!bRet)
@@ -499,11 +644,11 @@ LPPL_YYSTYPE SysFnDR_Convert_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -525,7 +670,7 @@ LPPL_YYSTYPE SysFnDR_Convert_EM_YY
         lpMemDimRes = VarArrayBaseToDim (lpMemRes);
 
         // Skip over the header and dimensions to the data
-        lpMemRes = VarArrayBaseToData (lpMemRes, aplRankRes);
+        lpMemRes = VarArrayDataFmBase (lpMemRes);
 
         // If the result is an APA, save the offset & multiplier
         if (IsSimpleAPA (aplTypeRes))
@@ -534,7 +679,7 @@ LPPL_YYSTYPE SysFnDR_Convert_EM_YY
             ((LPAPLAPA) lpMemRes)->Mul = apaMulRes;
 
             // Skip over the header and dimensions to the data
-            lpMemRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+            lpMemRht = VarArrayDataFmBase (lpMemRht);
 
             // Save the result shape vector
             CopyMemory (lpMemDimRes, &((LPAPLUINT) lpMemRht)[2], (APLU3264) BytesIn (ARRAY_INT, aplRankRes));
@@ -554,7 +699,7 @@ LPPL_YYSTYPE SysFnDR_Convert_EM_YY
                              VarArrayBaseToDim (lpMemRht),
                              (APLU3264) BytesIn (ARRAY_INT, aplRankRht));
             // Skip over the header and dimensions to the data
-            lpMemRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+            lpMemRht = VarArrayDataFmBase (lpMemRht);
 
             // Copy the right arg data to the result
             CopyMemory (lpMemRes, lpMemRht, (APLU3264) BytesIn (aplTypeRht, aplNELMRht));
@@ -565,7 +710,7 @@ LPPL_YYSTYPE SysFnDR_Convert_EM_YY
         *VarArrayBaseToDim (lpMemRes) = aplColsRes;
 
         // Skip over the header and dimensions to the data
-        lpMemRes = VarArrayBaseToData (lpMemRes, aplRankRes);
+        lpMemRes = VarArrayDataFmBase (lpMemRes);
 
         // Copy the right arg to the result
         *((LPAPLLONGEST) lpMemRes) = aplLongestRht;
@@ -721,57 +866,66 @@ LPPL_YYSTYPE SysFnDR_Show_EM_YY
     switch (aplTypeRht)
     {
         case ARRAY_BOOL:
-            wsprintfW (wszTemp,
-                      L"Boolean (%d):  1 bit per element",
-                       DR_BOOL);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"Boolean (%d):  1 bit per element",
+                        DR_BOOL);
             break;
 
         case ARRAY_INT:
-            wsprintfW (wszTemp,
-                      L"Integer (%d):  64 bits per element",
-                       DR_INT64);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"Integer (%d):  64 bits per element",
+                        DR_INT64);
             break;
 
         case ARRAY_FLOAT:
-            wsprintfW (wszTemp,
-                      L"Floating Point (%d):  64 bits per element",
-                       DR_FLOAT);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"Floating Point (%d):  64 bits per element",
+                        DR_FLOAT);
             break;
 
         case ARRAY_CHAR:
-            wsprintfW (wszTemp,
-                      L"Character (%d):  16 bits per element",
-                       DR_CHAR16);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"Character (%d):  16 bits per element",
+                        DR_CHAR16);
             break;
 
         case ARRAY_APA:
-            wsprintfW (wszTemp,
-                      L"Arithmetic Progression Array (%d):  64 bit offset + 64 bit multiplier",
-                      DR_APA);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"Arithmetic Progression Array (%d):  64 bit offset + 64 bit multiplier",
+                        DR_APA);
             break;
 
         case ARRAY_NESTED:
-            wsprintfW (wszTemp,
-                      L"Nested Array (%d):  PTR bits per element",
-                      DR_NESTED);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"Nested Array (%d):  PTR bits per element",
+                        DR_NESTED);
             break;
 
         case ARRAY_HETERO:
-            wsprintfW (wszTemp,
-                      L"Heterogeneous Array (%d):  PTR bits per element",
-                      DR_HETERO);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"Heterogeneous Array (%d):  PTR bits per element",
+                        DR_HETERO);
             break;
 
         case ARRAY_RAT:
-            wsprintfW (wszTemp,
-                      L"Rational (%d):  arbitrary precision numerator and denominator",
-                      DR_RAT);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"Rational (%d):  arbitrary precision numerator and denominator",
+                        DR_RAT);
             break;
 
         case ARRAY_VFP:
-            wsprintfW (wszTemp,
-                      L"Variable Floating Point (%d):  variable precision mantissa, 32-bit exponent",
-                      DR_VFP);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"VFP (%d):  variable precision mantissa, 32-bit exponent",
+                        DR_VFP);
             break;
 
         defstop
@@ -786,36 +940,39 @@ LPPL_YYSTYPE SysFnDR_Show_EM_YY
     {
         if (!bInit)
         {
-            lstrcatW (wszTemp, L" --");
+            MyStrcatW (wszTemp, sizeof (wszTemp), L" --");
             bInit = TRUE;
         } // End IF
 
-        lstrcatW (wszTemp, L" " AP_PV0);
+        MyStrcatW (wszTemp, sizeof (wszTemp), L" " AP_PV0);
     } // End IF
 
     if (IsPermVector1 (lpHeader))
     {
         if (!bInit)
         {
-            lstrcatW (wszTemp, L" --");
+            MyStrcatW (wszTemp, sizeof (wszTemp), L" --");
             bInit = TRUE;
         } // End IF
 
-        lstrcatW (wszTemp, L" " AP_PV1);
+        MyStrcatW (wszTemp, sizeof (wszTemp), L" " AP_PV1);
     } // End IF
 
     if (IsAll2s (lpHeader))
     {
         if (!bInit)
         {
-            lstrcatW (wszTemp, L" --");
+            MyStrcatW (wszTemp, sizeof (wszTemp), L" --");
             bInit = TRUE;
         } // End IF
 
-        lstrcatW (wszTemp, L" " AP_ALL2S);
+        MyStrcatW (wszTemp, sizeof (wszTemp), L" " AP_ALL2S);
     } // End IF
 
-    if (IsVfp (aplTypeRht))
+    // If the array is VFP,
+    //   and it's non-empty, ...
+    if (IsVfp (aplTypeRht)
+     && !IsEmpty (aplNELMRht))
     {
         LPAPLVFP lpaplVfp;          // Ptr to VFP value
         APLUINT  uCommPrec;         // Ptr to common VFP array precision (0 if none) (may be NULL)
@@ -823,7 +980,7 @@ LPPL_YYSTYPE SysFnDR_Show_EM_YY
         // If the array is all the same precision, ...
 
         // Skip over the header and dimensions to the data
-        lpaplVfp = VarArrayBaseToData (lpHeader, aplRankRht);
+        lpaplVfp = VarArrayDataFmBase (lpHeader);
 
         // Get the initial precision
         uCommPrec = mpfr_get_prec (lpaplVfp++);
@@ -839,19 +996,20 @@ LPPL_YYSTYPE SysFnDR_Show_EM_YY
 
         if (!bInit)
         {
-            lstrcatW (wszTemp, L" --");
+            MyStrcatW (wszTemp, sizeof (wszTemp), L" --");
             bInit = TRUE;
         } // End IF
 
         // If there's a common precision, ...
         if (uCommPrec NE 0)
         {
-            lstrcatW (wszTemp, L" " AP_FPC);
-            wsprintfW (&wszTemp[lstrlenW (wszTemp)],
+            MyStrcatW (wszTemp, sizeof (wszTemp), L" " AP_FPC);
+            MySprintfW (&wszTemp[lstrlenW (wszTemp)],
+                         sizeof (wszTemp) - (lstrlenW (wszTemp) * sizeof (wszTemp[0])),
                         L"%I64u ",
-                        uCommPrec);
+                         uCommPrec);
         } else
-            lstrcatW (wszTemp, L" " AP_FPC L"-Mixed");
+            MyStrcatW (wszTemp, sizeof (wszTemp), L" " AP_FPC L"-Mixed");
     } // End IF
 
     // If the ptr is valid, ...
@@ -873,11 +1031,11 @@ LPPL_YYSTYPE SysFnDR_Show_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -894,7 +1052,7 @@ LPPL_YYSTYPE SysFnDR_Show_EM_YY
     *VarArrayBaseToDim (lpMemRes) = aplNELMRes;
 
     // Point to the data (APLAPA struct)
-    lpMemRes = VarArrayBaseToData (lpMemRes, 1);
+    lpMemRes = VarArrayDataFmBase (lpMemRes);
 
     // Copy the text to the result
     CopyMemory (lpMemRes, wszTemp, (APLU3264) BytesIn (ARRAY_CHAR, aplNELMRes));
@@ -1069,11 +1227,11 @@ HGLOBAL SysFnDR_IntFloatToChar_EM
 
     // Allocate space for the result.
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -1118,6 +1276,7 @@ HGLOBAL SysFnDR_IntFloatToChar_EM
             // Get the next value from the right arg
             GetNextValueMem (lpMemRht,      // Ptr to item global memory data
                              aplTypeRht,    // Item storage type
+                             aplNELMRht,    // Item NELM
                              uRes,          // Index into item
                              NULL,          // Ptr to result LPSYMENTRY or HGLOBAL (may be NULL)
                             &aplLongestRht, // Ptr to result immediate value (may be NULL)
@@ -1263,7 +1422,7 @@ HGLOBAL SysFnDR_CharToIntFloat_EM
     Assert (hGlbRht NE NULL);
 
     // Skip over the header to the data
-    lpMemDataRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+    lpMemDataRht = VarArrayDataFmBase (lpMemRht);
 
     // Ensure the right arg is all hexadecimal digits
     for (uRht = 0; uRht < aplNELMRht; uRht++)
@@ -1297,11 +1456,11 @@ HGLOBAL SysFnDR_CharToIntFloat_EM
 
     // Allocate space for the result.
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -1356,10 +1515,11 @@ HGLOBAL SysFnDR_CharToIntFloat_EM
             if (L'A' <= aplChar
               &&        aplChar <= L'Z')
                 aplChar -= L'A' - 10;
+#ifdef DEBUG
             else
                 // We should never get here
-                DbgStop ();
-
+                DbgStop ();         // #ifdef DEBUG
+#endif
             // Shift and accumulate
             aplLongestRht = (aplLongestRht << 4) | aplChar;
         } // End FOR

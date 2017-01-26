@@ -1,0 +1,22 @@
+Build #1395 -- Version 0.4.11.xx
+--------------------------------
+
+* Change Rational Comparisons From Exact (No []CT) To Inexact (Use []CT)
+
+Directory trunk:
+
+DEFINES.H:
+  Increase default sizes of static virtual alloc vars.
+  Improve comments.
+  Define more library function aliases.
+  Change rational comparisons from exact (no []CT) to inexact (use []CT).
+
+PF_EPSILON.C:
+  Change rational comparisons from exact (no []CT) to inexact (use []CT).
+
+PF_EQUALUND.C:
+  Update copyright notice.
+  Change rational comparisons from exact (no []CT) to inexact (use []CT).
+
+PF_IOTA.C:
+  Change rational comparisons from exact (no []CT) to inexact (use []CT).

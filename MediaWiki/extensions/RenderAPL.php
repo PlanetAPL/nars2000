@@ -14,8 +14,10 @@ function wfAPLExtension (&$parser)
     // In this case it defines the tag <apl> ... </apl>
     // the second parameter is the callback function for
     // processing the text between the tags
-    $parser->setHook( "apl",  "renderAPL" );
-    $parser->setHook( "apll", "renderAPLlarge" );
+    $parser->setHook( "apl",   "renderAPL" );
+    $parser->setHook( "apll",  "renderAPLlarge" );
+    $parser->sethook( "aplx",  "renderAPLxlarge" );
+    $parser->sethook( "aplxx", "renderAPLxxlarge" );
 
     return true;
 } // End wfAPLExtension
@@ -24,19 +26,33 @@ function wfAPLExtension (&$parser)
 // The callback function for converting the input text to HTML output
 function renderAPL ($input, $args, $parser, $frame)
 {
-    return renderAPLcom ($input, $args, $parser, false, false);
+    return renderAPLcom ($input, $args, $parser, 0, false);
 } // End renderAPL
 
 
 // The callback function for converting the input text to HTML output
 function renderAPLlarge ($input, $args, $parser, $frame)
 {
-    return renderAPLcom ($input, $args, $parser, true, true);
+    return renderAPLcom ($input, $args, $parser, 1, true);
 } // End renderAPLlarge
 
 
 // The callback function for converting the input text to HTML output
-function renderAPLcom ($input, $argv, $parser, $bLargeSize, $bBoldWeight)
+function renderAPLxlarge ($input, $args, $parser, $frame)
+{
+    return renderAPLcom ($input, $args, $parser, 2, true);
+} // End renderAPLxlarge
+
+
+// The callback function for converting the input text to HTML output
+function renderAPLxxlarge ($input, $args, $parser, $frame)
+{
+    return renderAPLcom ($input, $args, $parser, 3, true);
+} // End renderAPLxxlarge
+
+
+// The callback function for converting the input text to HTML output
+function renderAPLcom ($input, $argv, $parser, $iLargeSize, $bBoldWeight)
 {
     global $FontName;
 
@@ -57,13 +73,31 @@ function renderAPLcom ($input, $argv, $parser, $bLargeSize, $bBoldWeight)
     if ($argv['size'])
         $style .= 'font-size: '   . $argv['size']   . '; ';
     else
-    if ($bLargeSize)
-        $style .= 'font-size: large; ';
+    switch ($iLargeSize)
+    {
+        case 0:
+            break;
+
+        case 1:
+            $style .= 'font-size: large; ';
+
+            break;
+
+        case 2:
+            $style .= 'font-size: x-large; ';
+
+            break;
+
+        case 3:
+            $style .= 'font-size: xx-large; ';
+
+            break;
+    } // End SWITCH
 
     if ($argv['font'])
         $style .= 'font-family: ' . $argv['font']   . '; ';
     else
-        $style .= 'font-family: \'' . $FontName     . '\'; ';
+        $style .= 'font-family: "' . $FontName     . '"; ';
 
     if ($argv['weight'])
         $style .= 'font-weight: ' . $argv['weight'] . '; ';
@@ -76,7 +110,7 @@ function renderAPLcom ($input, $argv, $parser, $bLargeSize, $bBoldWeight)
     else
         $class = '';
 
-    return '<span ' . $class . ' style="' . $style . '">' . $input . '</span>';
+    return '<span ' . $class . 'style="' . $style . '">' . $input . '</span>';
 } // End renderAPLcom
 
 ?>

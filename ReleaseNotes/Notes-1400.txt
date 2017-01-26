@@ -1,0 +1,10 @@
+Build #1400 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in syntax analyzer when assigning a name inside brackets such as with
+    z{is}1 2 3 {diamond} z[f z{is}...]

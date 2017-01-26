@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -269,7 +269,7 @@ static APLCHAR DydLineMM2[] =
   L"Z←∧/L∊⍦R ⋄ →0";
 
 static APLCHAR DydLineMM3[] = 
-  L"⎕RO:Z←⊤(⊤L) " MFON_MM L" ⊤R";
+  L"⎕PRO:Z←⊤(⊤L) " MFON_MM L" ⊤R";
 
 static LPAPLCHAR DydBodyMM[] =
 {DydLineMM1,
@@ -312,6 +312,33 @@ MAGIC_FCNOPR MFO_MMUL =
  countof (DydBodyMMUL),
 };
 
+
+//***************************************************************************
+//  Magic function/operator for Multiset Dyadic Iota Underbar
+//
+//  Multiset Dyadic Iota Underbar -- Matrix Iota
+//
+//  Return an array of indices from searching for the
+//    array  of trailing subarrays from the right arg in the
+//    vector of trailing subarrays from the left arg.
+//***************************************************************************
+
+static APLCHAR DydHeaderMDIU[] =
+  L"Z←L " MFON_MDIU L" R";
+
+static APLCHAR DydLineMDIU1[] = 
+  L"⎕MS:Z←(⊂⍤¯1 L)⍳⍦⊂⍤(¯1+⍴⍴L) R ⋄ →0";
+
+static LPAPLCHAR DydBodyMDIU[] =
+{DydLineMDIU1,
+};
+
+MAGIC_FCNOPR MFO_MDIU =
+{DydHeaderMDIU,
+ DydBodyMDIU,
+ countof (DydBodyMDIU),
+};
+  
 
 //***************************************************************************
 //  End of File: mf_multiset.h

@@ -1,0 +1,10 @@
+Build #1407 -- Version 0.4.11.xx
+--------------------------------
+
+* If Syntax Coloring Is Turned Off, Use Default Tex And Background Colors For Session
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclECPaintHook>, if we're not syntax coloring the line, use the default
+    text and background colors for session coloring.

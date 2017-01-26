@@ -1,0 +1,550 @@
+Version 0.4.14.xx consists of the following Builds:
+
+
+Build #1492 -- Version 0.4.14.xx
+--------------------------------
+
+* Compare Ptrs Against NULL
+
+Directory trunk:
+
+PO_DIERESIS.C:
+PRIMSPEC.C:
+  In IF stmts always compare ptr against NULL.
+
+
+Build #1491 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bugs Handling Infinities In RAT Strands
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Set <uNumStart> when calling <PN_SetInfinity>.
+
+PN_PROC.C:
+  In <PN_VectorRes>, fix bug handling ininfities in RAT strands.
+  Set <uNumStart> when calling <PN_SetInfinity>.
+
+
+Build #1490 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bugs Handling -0
+
+Directory trunk:
+
+MPIFNS.C:
+  In <mpiq_div>, test for -0 and handle specially.
+  Define <mpifr_set> so as to avoid spurious increment/decrement from macro.
+
+MPIFNS.H:
+  Define <mpifr_set> so as to avoid spurious increment/decrement from macro.
+
+PF_STILE.C:
+  In <PrimFnDydStileIisIvI>, test for -0 allowed.
+  In <PrimFnDydStileVisVvV>, fix bug in test for -0 allowed.
+
+
+Build #1489 -- Version 0.4.14.xx
+--------------------------------
+
+* When Saving A Workspace, Move The Test For And Message About A Non-empty SI Message To Earlier
+
+Directory trunk:
+
+SC_SAVE.C:
+  In <CmdSave_EM>, move the test for and message about a non-empty SI to precede the creation of the workspace.
+
+
+Build #1488 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug When Parsing Function Name If []Z
+
+Directory trunk:
+
+EDITFCN.C:
+  In <ParseFunctionName>, if the name is []Z, handle specially as that name initially has no value.
+
+
+Build #1487 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug When Writing Out Workspace
+
+Directory trunk:
+
+INIFILE.C:
+  In <ProfileWrite>, test for INVALID_HANDLE_VALUE, not NULL.
+
+
+Build #1486 -- Version 0.4.14.xx
+--------------------------------
+
+* In Name Assignment, Check For NoValue System Names
+* Check for MIN_APLINT In Internal Function
+
+Directory trunk:
+
+ASSIGN.C:
+  In <AssignName_EM>, check for the target name as a NoValue system name (except for []Z),
+    and signal an error if found.
+
+PRIMFNS.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <abs64>, check for MIN_APLINT and signal exception if so.
+  Define function <IsTknSysName> used by <AssignName_EM>.
+
+
+Build #1485 -- Version 0.4.14.xx
+--------------------------------
+
+* Ensure []FEATURE Has A Minimum Length
+
+Directory trunk:
+
+SYSVARS.C:
+  In <ValidateCharVector_EM>, test for <CHECK_TEMP_OPEN> and related macros only if the []VAR is []WSID.
+  In <ValidSetFEATURE_EM>, check for minimum length to copy from incoming variable to <aplCurrentFEATURE>.
+
+
+Build #1484 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug With Absolute Value of Minimum Negative Integer
+
+Directory trunk:
+
+PF_STILE.C:
+  Fix bug with absolute value of minimum negative integer.
+
+
+Build #1483 -- Version 0.4.14.xx
+--------------------------------
+
+* Validate []vars On )LOAD
+
+Directory trunk:
+
+SC_LOAD.C:
+  In IF stmts always compare ptr against NULL.
+  In <LoadWorkspace_EM> when loading a system var, run it through <*aSysVarValidSet> and
+    <*aSysVarValidPost> first in order to ensure validity.
+
+
+Build #1482 -- Version 0.4.14.xx
+--------------------------------
+
+* Handle Niladic Calls To Monadic/Dyadic Operators, Part 2
+
+Directory trunk:
+
+PO_CMIDDOT.C:
+PO_DIDTACK.C:
+PO_DIERESIS.C:
+PO_DOT.C:
+PO_JOT.C:
+PO_MULTISET.C:
+  Handle niladic calls to monadic/dyadic operators by testing for NULL right args.
+
+
+Build #1481 -- Version 0.4.14.xx
+--------------------------------
+
+* Handle Niladic Calls To Dyadic Operators
+
+Directory trunk:
+
+EXECDFN.C:
+EXECFNS.C:
+  In IF stmts always compare ptr against NULL.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Handle niladic calls to dyadic operators by testing for NULL right args.
+
+PO_DICIRCLE.C:
+PO_DIDTACK.C:
+PO_DIJOT.C:
+PO_DITILDE.C:
+PO_JOT.C:
+PO_VARIANT.C:
+  Handle niladic calls to dyadic operators by testing for NULL right args.
+
+
+Build #1480 -- Version 0.4.14.xx
+--------------------------------
+
+* Check Certain Ptrs For NULL Before Using Them
+
+Directory trunk:
+
+PARSELINE.C:
+  In IF stmts always compare ptr against NULL.
+  When using certain SIS ptrs, check for NULL first.
+  In <plExecuteFn0>, don't Assert ptrs NE NULL as they are allowed
+    and handled elsewhere.
+
+
+Build #1479 -- Version 0.4.14.xx
+--------------------------------
+
+* Rename Function To be More Consistent
+
+Directory trunk:
+
+EXECDFN.C:
+FH_PARSE.Y:
+SC_LOAD.C:
+  Rename <IsThisSysName> to <IsSymSysName> to reflect the argument type.
+
+
+Build #1478 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In []RL Handling From Build #1477
+
+Directory trunk:
+
+GETFNS.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <SetQuadDT>, convert argument to lowercase just in case.
+  In <RestPrimSpecRL>, fix bug introduced in build #1477 where I didn't update
+    the var names after changing the place where the previous HSHTABSTR was saved.
+
+MAKEFILE.INC:
+  Skip display of the filenames when creating the .dep files.
+
+
+Build #1477 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In AFO With Query Primitive Not Changing Global Value Of []RL
+
+Directory trunk:
+
+EXECDFN.C:
+  Save Localized []RL flag in State Indicator Stack.
+  Save ptr to previous HSHTABSTR in SIS.
+
+EXECMFN.H:
+  Define shorthand for []RL text.
+
+FH_PARSE.H:
+  Define Localized []RL bit in two strucs.
+
+FH_PARSE.Y:
+  In <fh_yylex>, set Localized []RL flag as appropriate.
+
+GETFNS.C:
+  Rename <QuadRL> to <uQuadRL> to reflect its datatype.
+  In <RestPrimSpecRL>, if the value to save is new, pass it on up the line to more
+    global HSHTABSTRs for which []RL is not localized in case we're in an AFO.
+
+PF_QUERY.C:
+PRIMSPEC.H:
+  Rename <QuadRL> to <uQuadRL> to reflect its datatype.
+
+SAVEFCN.C:
+  In <SaveFunctionCom>, pass Localized []RL flag from <fh_parse> to the UDFO header.
+  In <SaveFunctionCom>, if we're in an AFO, pass the Localize []RL flag to the UDFO header.
+
+SAVEFCN.H:
+  In <tagSF_FCNS> struc, define a Localized []RL flag.
+
+SIS.H:
+  In <tagSIS_HEADER>, define a Lcalized []RL flag.
+  In <tagSIS_HEADER>, define a ptr to the previous HSHTABSTR.
+
+TOKENIZE.C:
+  In <fnAsnDone>, if the []var being assigned to is []RL, set a Localized []RL flag in <tagSF_FCNS> struc.
+
+
+Build #1476 -- Version 0.4.14.xx
+--------------------------------
+
+* Implement Gamma Point Notation
+
+Directory trunk:
+
+DEFINES.H:
+EXTERNS.H:
+INITDATA.C:
+PERTAB.H:
+  Define Gamma Point Notation vars.
+
+DISPDBG.C:
+  Define Gamma Point Notation vars.
+  Rename <DisplayFnHdr> to <DisplayFcnHdr> as that's the more common abbrev I use for function.
+  In <DisplayFcnHdr>, when displaying operand and function names, ensure they are valid.
+
+FH_PARSE.Y:
+  Rename <DisplayFnHdr> to <DisplayFcnHdr> as that's the more common abbrev I use for function.
+
+PN_PARSE.Y:
+PN_PROC.C:
+  Define Gamma Point Notation vars.
+
+REBAR.C:
+  Document Gamma Point Notation
+
+STARTADDR.H:
+  Rename <DisplayFnHdr> to <DisplayFcnHdr> as that's the more common abbrev I use for function.
+  Include Gamma Point Notation function in list of functions.
+
+TOKENIZE.C:
+  Include Gamma Point Notation in list of Point Notation separators for Syntax Coloring.
+
+UNICODE.H:
+  Define Gamma Unicode character.
+
+
+Build #1475 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bugs In Rational Point Notation In Strands
+
+Directory trunk:
+
+MACROS.H:
+  Define macro to test for VFP Negative 0.
+
+PN_PARSE.Y:
+PN_PROC.C:
+  Fix bug in Rational Point Notation in strands where the code might fail to recognize
+    that the constant can be represented as a Rational number.
+
+
+Build #1474 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bugs In []TRACE
+
+Directory trunk:
+
+QF_STRACE.C:
+  Fix bug in <SysFnMonSTRACE_EM_YY> where ~ is used mistakenly instead of ! (duh!).
+  Fix bug in <SysFnDydSTRACE_EM_YY> where the test for Empty Char is wrong.
+  Fix bug in <SysFnDydSTRACE_EM_YY> at the end where there's a missing test for error result.
+  Fix bug in <SysFnDydSTRACE_EM_YY> at the end where we fail to unlock the left arg if it was locked.
+
+
+Build #1473 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In CS Parsing To Handle Missing Case of ElseIf ElseIf
+
+Directory trunk:
+
+CS_PARSE.Y:
+  Fix bug in CS parsing to handle missing case of consecutive ElseIf ElseIf.
+
+
+Build #1472 -- Version 0.4.14.xx
+--------------------------------
+
+* Allow a Wider Margin In Function Editor If Line Numbering Is Off
+
+Directory trunk:
+
+EDITFCN.C:
+  In <SetMarginsFE>, allow a wider margin in the function editor if line numbering is off.
+
+
+Build #1471 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In []AT Returning The Wrong Rank Result
+
+Directory trunk:
+
+QF_AT.C:
+  Fix bug in []AT returning the wrong rank result.
+
+
+Build #1470 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In DownTack With Zeros In Left Arg
+
+Directory trunk:
+
+PF_DTACK.C:
+  Fix bug in <PrimFnDydDownTack_EM_YY> in the general case when tehre are zeros in the left arg.
+
+
+Build #1469 -- Version 0.4.14.xx
+--------------------------------
+
+* Handle Overflow of Absolute Value of MININT64
+
+Directory trunk:
+
+DEFINES.H:
+  Define MAXINTxx values.
+
+PF_STILE.C:
+  In <PrimFnMonStileIisI>, if the arg is MININT64, signal a "Result is FLT" exception.
+  Handle "Result is FLT" exception by defining <PrimFnMonStileFisI>.
+
+
+Build #1468 -- Version 0.4.14.xx
+--------------------------------
+
+* Include Branch Arrow In Traced Goto
+
+Directory trunk:
+
+QF_STRACE.C:
+  Include {rightarrow} in trace display of a branch.
+
+
+Build #1467 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix -0 Bugs
+
+Directory trunk:
+
+PF_STILE.C:
+  Remove extra condition so that RAT_EXACT is alone on the #ifdef line.
+  Improve comments.
+  In <PrimFnDydStileRisRvR>, check for AllowNeg0 before signalling an exception.
+  In <PrimFnDydStileVisVvV>, make the result sensitive to []CT.
+
+TYPEMOTE.C:
+  In <TypeDemote>, don't convert a FLT to INT if it's a -0 and AllowNeg0 is FALSE.
+
+
+Build #1466 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Syntax Bug not Allowing NF MOP -> NF
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+  Fix syntax bug where NF MOP -> F instead of NF.
+  Delay execution of NF if it's a left operand to MOP.
+
+
+Build #1465 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug When Tracing Line With Label Only
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug when tracing a line with a label only, e.g. L1:
+
+
+Build #1464 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug Allowing Chars And Heteros In Certain Monadic Scalar Functions
+
+Directory trunk:
+
+PF_BAR.C:
+PF_COLONBAR.C:
+PF_PLUS.C:
+PF_QUERY.C:
+PF_TIMES.C:
+  Fix bug allowing chars and heteros in certain scalar monadic functions.
+
+
+Build #1463 -- Version 0.4.14.xx
+--------------------------------
+
+* Define Macros To Detect Empty Char Arrays And Similar
+* Fix Bugs Caught By The Above Macros
+
+Directory trunk:
+
+AXISFNS.C:
+  Fix bug in ''{transpose}1.
+
+MACROS.H:
+  Define macro for detecting empty AND char arrays.
+  Define macro for detecting empty OR  char arrays.
+
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_EQUAL.C:
+PF_LCARET.C:
+PF_LCARETUND.C:
+PF_NDCARET.C:
+PF_NEQUAL.C:
+PF_NUCARET.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_QUERY.C:
+PF_RCARET.C:
+PF_RCARETUND.C:
+PF_ROOT.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TILDE.C:
+PF_TIMES.C:
+PF_UARROW.C:
+PF_UCARET.C:
+PF_USTILE.C:
+  Use macro to test for empty char arrays.
+
+PF_DELTASTILE.C:
+PF_UTACKJOT.C:
+QF_EX.C:
+QF_MF.C:
+QF_NL.C:
+  Use macro to test for empty OR char arrays.
+
+PF_INDEX.C:
+  Fix bug in a[''].
+
+PF_SQUAD.C:
+  Use macro to test for a LIST array.
+
+QF_AT.C:
+  Use macro to test for empty OR char arrays.
+  Fix bug in n []AT ''.
+
+QF_STRACE.C:
+  Simplify code to test for just simple char arrays.
+
+
+Build #1462 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In Scan On Empty Char Array Returning Char Instead Of Numeric
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+PO_SLOPE.C:
+  Change result of =\3 0{rho}'' from char to numeric so as to be consistent with the range of =\.
+
+PRIMFNS.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+
+
+Build #1461 -- Version 0.4.14.xx
+--------------------------------
+
+* Insert Blank Column On Left Of Simple Array Output Of Monadic []FMT
+
+Directory trunk:
+
+MF_QUADFMT.H:
+  In <#MonFMT>, insert a blank column on the left of a simple array display inside the outer box
+    so as to avoid the dimension eliding with the values.
+
+VER.RC:
+  Increment version # to 0.4.14.xx.

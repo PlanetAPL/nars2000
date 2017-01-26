@@ -1,0 +1,9 @@
+Build #1309 -- Version 0.4.9.xx
+-------------------------------
+
+* Handle Scalar Left Args In Matrix Lookup
+
+Directory trunk:
+
+MF_IOTA.H:
+  In the Magic Function for Matrix Lookup, allow scalar left args.

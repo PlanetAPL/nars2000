@@ -1,0 +1,13 @@
+Build #1240 -- Version 0.4.8.xx
+-------------------------------
+
+* Fix Bug In Bracket Indexing Of Scalars
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexValidZilde_EM>, if the item is nested, recurse.
+    This allows 3=3[{enclose}{enclose}{enclose}{zilde}].
+
+VER.RC:
+  Increment version # to 0.4.8.xx.

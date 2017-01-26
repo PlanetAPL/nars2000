@@ -1,0 +1,522 @@
+Version 0.4.12.xx consists of the following Builds:
+
+
+Build #1448 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Modify Named Assignment On Immediate Right Args
+
+Directory trunk:
+
+ASSIGN.C:
+  In <ModifyAssignNamedVars_EM>, in the case where the right arg is an immediate, execute the function between each name and the immediate.
+
+PARSELINE.C:
+  In <plRedLNR_SPA>, free and YYFree the curried function (if any).
+
+
+Build #1447 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Point Notation To Handle 2x3
+* Catch More Occurrences Of -0
+
+Directory trunk:
+
+CR_PROC.C:
+  In <crExit> and <crEndSeg>, check for -0.
+
+CR_PROC.H:
+  Define return code for when the result is -0.
+
+MACROS.H:
+  Delete unused macros.
+
+PN_PARSE.H:
+  Improve comments.
+  Define macros for PN_NUMTYPE_BOOL testing.
+
+PN_PROC.C:
+  In <PN_MakeRatPoint>, handle -0 result.
+  Use common macros for PN_NUMTYPE_xxx testing.
+  In <PN_VectorAcc>, redo test for expressible as integer and/or rational to handle 2x3.
+
+
+Build #1446 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Memory Leak In L{downtack}R
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+GETFNS.C:
+  Remove no longer relevant comments.
+
+PF_COLONBAR.C:
+  Include inactive debugging stmts.
+
+PF_DTACK.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix memory leak in <PrimFnDydDownTack_EM_YY> where we fail to values before they are re-used.
+
+
+Build #1445 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Memory Leak In L..R
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+PF_DOTDOT.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix memory leak in <PrimFnDydDotDot_EM_YY> where we fail to free Global Numerics
+    that were initialized unnecessarily.
+
+
+Build #1444 -- Version 0.4.12.xx
+--------------------------------
+
+* Prepare For Use Of <aTypeFree>
+
+Directory trunk:
+
+DATATYPE.H:
+  Note that changes in <ARRAY_TYPES> enum must be reflected in <aTypeFree>.
+
+EXTERNS.H:
+  Move prototypes of TypeMote functions from <typemote.h> to <externs.h>.
+
+MACROS.H:
+  Define macro <FreeYYRes> as a shorter form of the whole thing.
+
+MAIN.C:
+  Replace <symbolnames.h> with <typemote.h> as vars defined in <main.c>.
+
+SYMBOLNAMES.H:
+  Remove <DEFINE_VALUES> defines as this file is no longer included in <main.c>.
+
+TYPEMOTE.C:
+  Define the <TPF> functions.
+
+TYPEMOTE.H:
+  Document the TypeMote prototype functions.
+  Define the <TPF> functions.
+
+
+Build #1443 -- Version 0.4.12.xx
+--------------------------------
+
+* Use String Safe Functions
+
+Directory trunk:
+
+DISPDBG.C:
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+  Pass byte size of buffer to <FormatHTE> and <FormatSTE> so they can use string safe functions.
+
+EXECDFN.C:
+  Pass byte size of buffer to <FormatHTE> and <FormatSTE> so they can use string safe functions.
+
+
+Build #1442 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In A[B] F {is} R Where B Has Repeated Values
+
+Directory trunk:
+
+PF_INDEX.C:
+  Fix heap memory leak in <ArrayIndexSetVector_EM>.
+  Fix bug in <ArrayIndexFcnSet_EM> with A[B] F {is} R where B has repeated values.
+
+
+Build #1441 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug With (A B C) F {is} R
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+ASSIGN.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix bug in <ModifyAssignNamedVars_EM> with (A B C) F {is} R where the function
+    (F) was applied to the entire right arg (R) instead of to the individual items
+    as per the number of names in parens.
+
+
+Build #1440 -- Version 0.4.12.xx
+--------------------------------
+
+* Implement []FEATURE[2] As "Allow -0"
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+DEFINES.H:
+  Remove "Allow -0" from "User Preferences" and into []FEATURE[2].
+  Remove old debugging aid DBGENTER/DBGLEAVE.
+
+EXTERNS.H:
+  Remove "Allow -0" from "User Preferences" and into []FEATURE[2].
+
+INIFILE.C:
+  Don't pass "xxx_CWS_BR" var to "GetPrivateProfileXXX" functions as we need its
+    length to be one-to-one with the default value.
+  Improve comments.
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  In <GetPrivateProfileGlbComW>, ensure resutl length of sysvar is at least minimum required,
+    and if not, fill in trailing values from the default.
+
+MACROS.H:
+  Define and use names for current value of <bAllowNeg0>.
+
+MAKEFILE.INC
+  Omit Whole Program Optimization as that slows down each compile.
+
+MPIFNS.C:
+PF_COLONBAR.C:
+PN_PARSE.Y:
+TRANSLATE.C:
+TYPEMOTE.C:
+  Use names for current value of <bAllowNeg0>.
+
+PF_BAR.C:
+  Use names for current value of <bAllowNeg0>.
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+
+PF_INDEX.C:
+  Fix bug in <ArrayIndexSetSingLst_EM> where indexed assignment into sysvar uses the wrong index.
+
+PF_STILE.C:
+  Use names for current value of <bAllowNeg0>.
+  Use exact arithmetic on rational residue.
+
+PF_TIMES.C:
+  Use names for current value of <bAllowNeg0>.
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+
+PN_PROC.C:
+  Use names for current value of <bAllowNeg0>.
+  Fix bug in <PN_VectorAcc> when determining if a number is expressible as an integer or a rational.
+  In <PN_VectorRes>, terminate the string before calling <ParsePointNotation> and restore afterwards.
+
+TOKENIZE.C:
+  In <fnPointDone>, terminate the string before calling <ParsePointNotation> and restore afterwards.
+
+
+Build #1439 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug Not Handling Modify Assignments Into A Name
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+  Rename DEBUG2 toDEBUG_TRACE.
+  Undefine DEBUG_START to shorten run time of long functions.
+  Clean up <MessageBox> display for ASSERTION ERROR.
+  Improve comments.
+  Refactor locals in <GetLftSynObj>.
+  Clean up code in <pl_yylexCOM> at switch/TKT_VARNAMED/NAMETYPE_VAR which
+    handles late catch of modify assignments into a name.
+
+PARSELINE.H:
+  Revert to previous handling of MOP/MOPN HY.
+
+
+Build #1438 -- Version 0.4.12.xx
+--------------------------------
+
+* Prepare To Use Our Own Workspace Writer
+
+Directory trunk:
+
+DICTIONARY.C:
+  In <hashlittleConv>, convert units from char to WCHAR.
+  In <dictionary_del>, zap the items after freeing them so as to catch errors later on.
+  In <dictionary_get>, pass additional argument needed in a later build.
+
+DICTIONARY.H:
+  Define <LPWCHAR> and <LPUBOOL> as we don't #include "types.h" anymore.
+
+INIFILE.C:
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+  Define new <ProfileXXX> functions for use in a later build.
+
+INIPARSER.C:
+  Omit "types.h" as that complicates other types.
+  Define prototypes for later use.
+  Define new <iniparser_XXX> functions for use in a later build.
+  Use string safe functions as in MySprintf(W) instead of wsprintf(W), etc.
+
+
+Build #1437 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In []TRACE
+
+Directory trunk:
+
+QF_STRACE.C:
+  In <TraceLine>, when retrieving the name of the function to display,
+    handle AFOs using {del} or {del}{del} as the function name.
+  In <DisplayTraceResult>, handle results that are not variables (e.g., functions).
+
+
+Build #1436 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Determinant Operator On Singletons
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define names, etc. of new Magic Operator.
+
+MF_DOT.H:
+  Define APL Code for new Magic Operator.
+
+PO_DOT.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  In <PrimOpMonDotCommon_EM_YY>, move singleton code to before tests for
+    special cases.
+  In <PrimOpMonDotCommon_EM_YY>, handle singletons via Magic Operator as per
+    Reduction of Singletons.
+
+
+Build #1435 -- Version 0.4.12.xx
+--------------------------------
+
+* Miscellaneous Build Fixes
+
+Directory trunk:
+
+NARS2000.32.SLN:
+NARS2000.32.VCPROJ:
+NARS2000.64.SLN:
+NARS2000.64.VCPROJ:
+NARS2000.VCPROJ:
+  Delete the old 32- and 64-bit build files.
+
+NARS2000.SLN:
+NARS2000.VCXPROJ:
+  Integrate the 32- and 64-bit build files into one.
+
+
+Build #1434 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug When Restarting Certain Exceptions
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+PRIMSPEC.C:
+PRIMSPEC.H:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix bug when restarting certain exceptions which failed to restart the left and right ptrs.
+
+
+Build #1433 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In N-Wise Reduction For Negative Left Args On Non-default Axes
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+PO_SLASH.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  In <PrimOpMonSlashCommon_EM_YY>, handle immediate right arg.
+  In <PrimOpMonSlashCommon_EM_YY>, specify the function token when calling
+    <PrimFnMonCircleStile_EM_YY> so as to get the correct axis.
+
+
+Build #1432 -- Version 0.4.12.xx
+--------------------------------
+
+* Reduce The Number Of Times ECM Is Called When Trying To factor A Number
+
+Directory trunk:
+
+PF_PI.C:
+  In <PrimeFactor>, limit the number of times ECM is called so as to not wait on most likely unsuccessful attempts to factor a large number.
+  Add more DEBUG stmts to indicate how many iterations are being run.
+
+
+Build #1431 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug When Passing Global Numeric Scalar to Multi-element UDFO Header
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitVarSTEs>, handle scalar global numeric assigned to a multi-element left or
+    right arg as in Z{is}(L1 L2 L3) foo (R1 R2).
+
+
+Build #1430 -- Version 0.4.12.xx
+--------------------------------
+
+* When Displaying DEBUG Crash Screen Show Offsets From Actual <mpifns.c> Routines
+
+Directory trunk:
+
+EXCEPT.C:
+HEADERS.H:
+  In order to expose the symbols which we substitute for in <mpifns.c>, do not include
+    <mpifns.h> via <headers.h> in <except.c>.
+
+MPFNS.C:
+MPIFNS.C:
+  Clean up code when freeing a RAT or VFP.
+
+
+Build #1429 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Modify Assignment
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+ASSIGN.C:
+  Pass same types vars to <AssignNamedVars_EM> as to <ModifyAssignNamedVars_EM>.
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+
+PARSELINE.C:
+  Define new Left and Right stack length macros for use in <pl_yylexCOM/TKT_VARNAMED/NAMETYPE_VAR>.
+  In <plRedLNR_SPA>, test for presence of <lpplYYFcnCurry> function and, if found, call
+    <ModifyAssignnamedVars_EM> instead of <AssignNamedVars_EM>.
+  In <pl_yylexCOM/TKT_VARNAMED/NAMETYPE_VAR>, check for assignment of the name in
+    <NAM F {is} A>, <NAM [A] F {is} A>, and <(NAM ... NAM) F {is} A> and mark it as such.
+
+STARTADDR.H:
+  Change the name of <ModifyAssignNameVals_EM> to <ModifyAssignNamedVars_EM> to parallel
+    that of <AssignNamedVars_EM>.
+
+
+Build #1428 -- Version 0.4.12.xx
+--------------------------------
+
+* Allow Exponent Notation In Rational Numbers
+
+Directory trunk:
+
+COMPRO.H:
+  Include prototype file for new module.
+
+CR_PROC.C:
+CR_PROC.H:
+  New module implementing a FSA to parse exponential notation for rational numbers
+    such as -1.23E3r23.5E-4.
+
+DEFINES.H:
+  Define <bAllowNeg0> flag ahead of time rather than excising it from copied code
+    and introducing a difference between this and the original HC code.
+  Define pn_parse.y code's symbols for Overbar and Infinity to be the same as
+    those used in <mpifns.c> to provide a seamless transition between the two.
+
+EXTERNS.H:
+  Define <bAllowNeg0> flag ahead of time rather than excising it from copied code
+    and introducing a difference between this and the original HC code.
+  Change the prototype for PN_actXXX functions.
+
+HEADERS.H:
+  Include header file for ConvertToRational in the main header file.
+
+MACROS.H:
+  Define new macros for later use.
+  Improve comments.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Include entry for new file.
+
+MPIFNS.C:
+MPIFNS.H:
+  Define new <mpq_...> function to handle clearing the entry in case it's infinity.
+  Remove duplicate code from <mpiq_set_str> that is now in <mpq_set_str2>.
+  Insert test for new flag <bAllowNeg0> for future use.
+
+PN_PARSE.H:
+PN_PARSE.Y:
+  Define macros for use in <pn_proc.c> and <pn_parse.y>.
+  Define struct entries for use in <pn_proc.c> and <pn_parse.y>.
+  Define struct entry flag for use in <pn_proc.c> and <pn_parse.y>.
+
+PN_PROC.C:
+  Move <PN_actXXXX> functions out of <pn_parse.y> into <pn_proc.c> so that changes
+    to them don't trigger a build of the entire source.
+  Define <PN_MakeRatPoint> function to handle new notation for rational numbers.
+  Change the calling syntax of various <PN_Makexxx> functions to be more consistent with others.
+
+REBAR.C:
+  Increase the maximum ToolTip width for future use.
+  Improve comments.
+  Increase size of static var to handle Circle function ToolTip text.
+
+TOKENIZE.C:
+  Initialize ConvertToRational FSA table.
+
+
+Build #1427 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  After <PARSELINE_SCAN1>, check for VALUE and SYNTAX ERRORs and avoid reducing if present.
+
+
+Build #1426 -- Version 0.4.12.xx
+--------------------------------
+
+* Use Proper Macro On String To Get Sizeof
+
+Directory trunk:
+
+FH_PARSE.Y:
+PN_PARSE.Y:
+  In <fh_yyerror>and <pn_parse.y>, use macro <strsizeof> to get the sizeof not counting the trailing zero.
+
+MACROS.H:
+  Define macro <strsizeof> to get sizeof a string not counting the trailing zero.
+
+PN_PARSE.H:
+  Define common string names for error messages.
+
+
+Build #1425 -- Version 0.4.12.xx
+--------------------------------
+
+* Remove Spurious Trailing Digits From Display Of VFP Numbers
+
+Directory trunk:
+
+DISPLAY.C:
+  In <FormatAplVfpFC>, remove spurious trailing digits from the display of VFP numbers
+    in both mantissa and exponent.
+
+
+Build #1424 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer Cleanup
+
+Directory trunk:
+
+PARSELINE.C:
+  After <PARSELINE_ERROR>, be sure to cleanup the left stack on which there might be unfreed temps.
+
+VER.RC:
+  Increment version # to 0.4.12.xx.

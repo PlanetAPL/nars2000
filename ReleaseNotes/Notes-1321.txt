@@ -1,0 +1,16 @@
+Build #1321 -- Version 0.4.9.xx
+-------------------------------
+
+* Conform To New Bison Rules
+
+Directory trunk:
+
+CS_PARSE.PROTO:
+CS_PARSE.Y:
+FH_PARSE.PROTO:
+FH_PARSE.Y:
+PN_PARSE.PROTO:
+PN_PARSE.Y:
+  Update copyright year.
+  Change <%name-prefix=> to <%name-prefix> as per new Bison rules.
+  Define <XX_yyerror> arg as const as per new Bison rules.

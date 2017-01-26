@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -127,11 +127,11 @@ APLSTYPE PrimSpecColonBarStorageTypeMon
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
-    if (IsSimpleChar (*lpaplTypeRht)
-     || *lpaplTypeRht EQ ARRAY_LIST)
+    // Weed out chars & heteros
+    if (IsSimpleCH (*lpaplTypeRht))
         return ARRAY_ERROR;
 
     // The storage type of the result is
@@ -161,8 +161,8 @@ APLFLOAT PrimFnMonColonBarFisI
     if (aplIntegerRht EQ 0)
         return TranslateQuadICIndex (0,
                                      ICNDX_DIV0,
-                                     (APLFLOAT) aplIntegerRht);
-
+                          (APLFLOAT) aplIntegerRht,
+                                     FALSE);
     // The FPU handles overflow and underflow for us
     return (1 / (APLFLOAT) aplIntegerRht);
 } // End PrimFnMonColonBarFisI
@@ -183,14 +183,8 @@ APLFLOAT PrimFnMonColonBarFisF
     if (aplFloatRht EQ 0)
         return TranslateQuadICIndex (0,
                                      ICNDX_DIV0,
-                                     aplFloatRht);
-
-    // If the arg is PoM infinity, just return 0.
-    // If we don't, then the reciprocal of {neg}infinity
-    //   is {neg}0.
-    if (IsInfinity (aplFloatRht))
-        return 0;
-
+                                     aplFloatRht,
+                                     SIGN_APLFLOAT (aplFloatRht));
     // The FPU handles overflow and underflow for us
     return (1 / aplFloatRht);
 } // End PrimFnMonColonBarFisF
@@ -214,12 +208,20 @@ APLRAT PrimFnMonColonBarRisR
         return *mpq_QuadICValue (&aplRatRht,        // No left arg
                                   ICNDX_DIV0,
                                  &aplRatRht,
-                                 &mpqRes);
-    // Initialize the result
-    mpq_init (&mpqRes);
+                                 &mpqRes,
+                                  FALSE);
+    // Check for special case:  {div}{neg}{inf}x
+    if (IsMpqInfinity (&aplRatRht)
+     && mpq_sgn (&aplRatRht) < 0)
+        RaiseException (EXCEPTION_RESULT_VFP, 0, 0, NULL);
+    else
+    {
+        // Initialize the result
+        mpq_init (&mpqRes);
 
-    // Invert the Rational
-    mpq_inv (&mpqRes, &aplRatRht);
+        // Invert the Rational
+        mpq_inv (&mpqRes, &aplRatRht);
+    } // End IF/ELSE
 
     return mpqRes;
 } // End PrimFnMonColonBarRisR
@@ -243,12 +245,13 @@ APLVFP PrimFnMonColonBarVisV
         return *mpfr_QuadICValue (&aplVfpRht,       // No left arg
                                    ICNDX_DIV0,
                                   &aplVfpRht,
-                                  &mpfRes);
-    // Initialize the result
+                                  &mpfRes,
+                                   SIGN_APLVFP (&aplVfpRht));
+    // Initialize the result to 0
     mpfr_init0 (&mpfRes);
 
     // Invert the Variable FP
-    mpfr_ui_div (&mpfRes, 1, &aplVfpRht, MPFR_RNDN);
+    mpfr_inv (&mpfRes, &aplVfpRht, MPFR_RNDN);
 
     return mpfRes;
 } // End PrimFnMonColonBarVisV
@@ -272,12 +275,12 @@ APLSTYPE PrimSpecColonBarStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // Calculate the storage type of the result
@@ -338,9 +341,17 @@ APLFLOAT PrimFnDydColonBarFisIvI
     if (aplIntegerLft EQ 0
      && aplIntegerRht EQ 0)
         return TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-                                     ICNDX_0DIV0,
-                                     (APLFLOAT) aplIntegerRht);
-
+                                                ICNDX_0DIV0,
+                                     (APLFLOAT) aplIntegerRht,
+                                                FALSE);
+    // Check for indeterminates:  L {div} 0
+    if (aplIntegerRht EQ 0)
+        return TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
+                                                ICNDX_DIV0,
+                                     (APLFLOAT) aplIntegerRht,
+                                                gAllowNeg0
+                                             && (aplIntegerLft < 0) NE
+                                                (aplIntegerRht < 0));
     // The FPU handles overflow and underflow for us
     return (((APLFLOAT) aplIntegerLft) / (APLFLOAT) aplIntegerRht);
 } // End PrimFnDydColonBarFisIvI
@@ -363,20 +374,28 @@ APLFLOAT PrimFnDydColonBarFisFvF
      && aplFloatRht EQ 0)
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_0DIV0,
-                                     aplFloatRht);
-
+                                     aplFloatRht,
+                                     SIGN_APLFLOAT (aplFloatLft) NE SIGN_APLFLOAT (aplFloatRht));
+    // Check for indeterminates:  L {div} 0
+    if (aplFloatRht EQ 0)
+        return TranslateQuadICIndex (aplFloatLft,
+                                     ICNDX_DIV0,
+                                     aplFloatRht,
+                                     SIGN_APLFLOAT (aplFloatLft) NE SIGN_APLFLOAT (aplFloatRht));
     // Check for indeterminates:  _ {div} _ (same or different signs)
-    if (IsInfinity (aplFloatLft)
-     && IsInfinity (aplFloatRht))
+    if (IsFltInfinity (aplFloatLft)
+     && IsFltInfinity (aplFloatRht))
     {
         if (SIGN_APLFLOAT (aplFloatLft) EQ SIGN_APLFLOAT (aplFloatRht))
             return TranslateQuadICIndex (aplFloatLft,
                                          ICNDX_PiDIVPi,
-                                         aplFloatRht);
+                                         aplFloatRht,
+                                         FALSE);
         else
             return TranslateQuadICIndex (aplFloatLft,
                                          ICNDX_NiDIVPi,
-                                         aplFloatRht);
+                                         aplFloatRht,
+                                         FALSE);
     } // End IF
 
     // The FPU handles overflow and underflow for us
@@ -404,7 +423,15 @@ APLRAT PrimFnDydColonBarRisRvR
         return *mpq_QuadICValue (&aplRatLft,
                                   ICNDX_0DIV0,
                                  &aplRatRht,
-                                 &mpqRes);
+                                 &mpqRes,
+                                  FALSE);
+    // Check for indeterminates:  L {div} 0
+    if (IsMpq0 (&aplRatRht))
+        return *mpq_QuadICValue (&aplRatLft,
+                                  ICNDX_DIV0,
+                                 &aplRatRht,
+                                 &mpqRes,
+                                  FALSE);
     // Check for indeterminates:  _ {div} _ (same or different signs)
     if (mpq_inf_p (&aplRatLft)
      && mpq_inf_p (&aplRatRht))
@@ -413,12 +440,14 @@ APLRAT PrimFnDydColonBarRisRvR
             return *mpq_QuadICValue (&aplRatLft,
                                       ICNDX_PiDIVPi,
                                      &aplRatRht,
-                                     &mpqRes);
+                                     &mpqRes,
+                                      FALSE);
         else
             return *mpq_QuadICValue (&aplRatLft,
                                       ICNDX_NiDIVPi,
                                      &aplRatRht,
-                                     &mpqRes);
+                                     &mpqRes,
+                                      FALSE);
     } // End IF
 
     // Initialize the result
@@ -437,6 +466,8 @@ APLRAT PrimFnDydColonBarRisRvR
 //  Primitive scalar function dyadic ColonBar:  V {is} V fn V
 //***************************************************************************
 
+//#define DEBUG_FMT
+
 APLVFP PrimFnDydColonBarVisVvV
     (APLVFP     aplVfpLft,
      APLVFP     aplVfpRht,
@@ -444,6 +475,9 @@ APLVFP PrimFnDydColonBarVisVvV
 
 {
     APLVFP mpfRes = {0};
+#ifdef DEBUG_FMT
+    WCHAR wszTemp[512];
+#endif
 
     // Check for indeterminates:  0 {div} 0
     if (IsMpf0 (&aplVfpLft)
@@ -451,7 +485,17 @@ APLVFP PrimFnDydColonBarVisVvV
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_0DIV0,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   SIGN_APLVFP (&aplVfpLft) NE
+                                   SIGN_APLVFP (&aplVfpRht));
+    // Check for indeterminates:  L {div} 0
+    if (IsMpf0 (&aplVfpRht))
+        return *mpfr_QuadICValue (&aplVfpLft,
+                                   ICNDX_DIV0,
+                                  &aplVfpRht,
+                                  &mpfRes,
+                                   SIGN_APLVFP (&aplVfpLft) NE
+                                   SIGN_APLVFP (&aplVfpRht));
     // Check for indeterminates:  _ {div} _ (same or different signs)
     if (mpfr_inf_p (&aplVfpLft)
      && mpfr_inf_p (&aplVfpRht))
@@ -460,19 +504,27 @@ APLVFP PrimFnDydColonBarVisVvV
             return *mpfr_QuadICValue (&aplVfpLft,
                                        ICNDX_PiDIVPi,
                                       &aplVfpRht,
-                                      &mpfRes);
+                                      &mpfRes,
+                                       FALSE);
         else
             return *mpfr_QuadICValue (&aplVfpLft,
                                        ICNDX_NiDIVPi,
                                       &aplVfpRht,
-                                      &mpfRes);
+                                      &mpfRes,
+                                       FALSE);
     } // End IF
 
-    // Initialize the result
+    // Initialize the result to 0
     mpfr_init0 (&mpfRes);
 
-    // Divide the Variable FPs
+    // Divide the VFPs
     mpfr_div (&mpfRes, &aplVfpLft, &aplVfpRht, MPFR_RNDN);
+
+#ifdef DEBUG_FMT
+    strcpyW (wszTemp, L"L:  "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], aplVfpLft, 0) = WC_EOS; DbgMsgW (wszTemp);
+    strcpyW (wszTemp, L"R:  "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], aplVfpRht, 0) = WC_EOS; DbgMsgW (wszTemp);
+    strcpyW (wszTemp, L"Z:  "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfRes   , 0) = WC_EOS; DbgMsgW (wszTemp);
+#endif
 
     return mpfRes;
 } // End PrimFnDydColonBarVisVvV

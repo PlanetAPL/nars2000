@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -69,11 +69,14 @@ http://portal.acm.org/citation.cfm?id=3324
 //   the same hash value.
 #define DEF_HSHTAB_EPB         8
 
+// Hash table size multiplier
+#define HSHTABSIZE_MUL        (1024 * DEF_HSHTAB_EPB)
+
 // Maximum hash table size (# entries)
 #ifdef _WIN64
-  #define DEF_HSHTAB_MAXNELM  ( 256 * 1024 * DEF_HSHTAB_EPB)
+  #define DEF_HSHTAB_MAXNELM  ( 256 * HSHTABSIZE_MUL)
 #else
-  #define DEF_HSHTAB_MAXNELM  (  64 * 1024 * DEF_HSHTAB_EPB)
+  #define DEF_HSHTAB_MAXNELM  (  64 * HSHTABSIZE_MUL)
 #endif
 
 #define DEF_AFO_HSHTAB_MAXNELM      (256 * DEF_HSHTAB_EPB)
@@ -131,10 +134,10 @@ typedef struct tagHTFLAGS
 
 
 #ifdef DEBUG
-typedef struct tagAPLCHAR6
+typedef struct tagAPLCHAR16
 {
-    APLCHAR aplChar[6];
-} APLCHAR6, *LPAPLCHAR6;
+    APLCHAR aplChar[16];
+} APLCHAR16, *LPAPLCHAR16;
 #endif
 
 
@@ -152,7 +155,7 @@ typedef struct tagHSHENTRY
         HGLOBAL htGlbName;          // Use only if CharIsValid EQ FALSE
         LPWCHAR lpwCharName;        // Use only if CharIsValid EQ TRUE
 #ifdef DEBUG
-        LPAPLCHAR6 *lplpaplChar6;   // For debugging only
+        LPAPLCHAR16 lpaplChar16;    // For debugging only
 #endif
     };
     struct tagSYMENTRY
@@ -203,11 +206,14 @@ typedef struct tagHSHTABSTR
 
 //********************* SYMBOL TABLE ****************************************
 
+// Symbol table size multiplier
+#define SYMTABSIZE_MUL        (1024)
+
 // Maximum symbol table size (# entries)
 #ifdef _WIN64
-  #define DEF_SYMTAB_MAXNELM  ( 256*1024)
+  #define DEF_SYMTAB_MAXNELM  ( 256 * SYMTABSIZE_MUL)
 #else
-  #define DEF_SYMTAB_MAXNELM  (  64*1024)
+  #define DEF_SYMTAB_MAXNELM  (  64 * SYMTABSIZE_MUL)
 #endif
 
 #define DEF_AFO_SYMTAB_MAXNELM          256

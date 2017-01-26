@@ -1,0 +1,10 @@
+Build #1415 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Empty Indexing
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY>, (1 1{rho}2)[0{rho}{enclose}0 0] is mishandled by not
+    exiting after the index is validated vs. the array to be indexed.

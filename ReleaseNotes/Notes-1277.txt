@@ -1,0 +1,13 @@
+Build #1277 -- Version 0.4.9.xx
+-------------------------------
+
+* Disallow Attempt To Close Executing Tab
+
+Directory trunk:
+
+TABCTRL.C:
+  Disallow attempt to close an executing tab with a message box.
+  Move Reset Thread creation code to separate function to parallel other such thread handling.
+
+THREADS.H:
+  Fix typo in comment.

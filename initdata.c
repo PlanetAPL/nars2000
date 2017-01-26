@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -107,12 +107,17 @@ void InitConstants
     APLINT aplInteger;          // Temporary value
 
     // Create various floating point constants
-    aplInteger = POS_INFINITY; PosInfinity = *(LPAPLFLOAT) &aplInteger;
-                               __infinity  = PosInfinity;
-    aplInteger = NEG_INFINITY; NegInfinity = *(LPAPLFLOAT) &aplInteger;
-    aplInteger = FLOAT2POW53;  Float2Pow53 = *(LPAPLFLOAT) &aplInteger;
-    aplInteger = FLOATPI;      FloatPi     = *(LPAPLFLOAT) &aplInteger;
-    aplInteger = FLOATE;       FloatE      = *(LPAPLFLOAT) &aplInteger;
+    aplInteger = POS_INFINITY; fltPosInfinity = *(LPAPLFLOAT) &aplInteger;
+                                  __infinity  = fltPosInfinity;
+    aplInteger = NEG_INFINITY; fltNegInfinity = *(LPAPLFLOAT) &aplInteger;
+    aplInteger = FLOAT2POW53;  Float2Pow53    = *(LPAPLFLOAT) &aplInteger;
+    aplInteger = FLOATPI;      FloatPi        = *(LPAPLFLOAT) &aplInteger;
+    aplInteger = FLOATGAMMA;   FloatGamma     = *(LPAPLFLOAT) &aplInteger;
+    aplInteger = FLOATE;       FloatE         = *(LPAPLFLOAT) &aplInteger;
+
+    // Get # ticks per second to be used as a conversion
+    //   factor for QueryPerformanceCounter into seconds
+    QueryPerformanceFrequency (&liTicksPerSec);
 } // End InitConstants
 
 
@@ -143,12 +148,14 @@ void InitGlbNumConstants
     mpq_init_set_str  (&mpqMaxInt  ,  "9223372036854775807", 10);
     mpq_init_set_str  (&mpqMaxUInt , "18446744073709551615", 10);
     mpq_init_set_ui   (&mpqHalf    , 1, 2);
+    mpq_init          (&mpqZero);
     mpfr_init_set_str (&mpfMinInt  , "-9223372036854775808", 10, MPFR_RNDN);
     mpfr_init_set_str (&mpfMaxInt  ,  "9223372036854775807", 10, MPFR_RNDN);
     mpfr_init_set_str (&mpfMaxUInt , "18446744073709551615", 10, MPFR_RNDN);
     mpfr_set_inf      (&mpfPosInfinity                     ,  1);
     mpfr_set_inf      (&mpfNegInfinity                     , -1);
     mpfr_init_set_d   (&mpfHalf    , 0.5                       , MPFR_RNDN);
+    mpfr_init0        (&mpfZero);
 
     // Use our own invalid operation functions for MPIR/MPFR
     mp_set_invalid_functions (mpz_invalid, mpq_invalid, mpfr_invalid);
@@ -166,12 +173,14 @@ void UninitGlbNumConstants
 
 {
     // Uninitialize the MPI, RAT, and VFP constants
+    Myf_clear (&mpfZero    );
     Myf_clear (&mpfHalf    );
     Myf_clear (&mpfNegInfinity );
     Myf_clear (&mpfPosInfinity );
     Myf_clear (&mpfMaxUInt );
     Myf_clear (&mpfMaxInt  );
     Myf_clear (&mpfMinInt  );
+    Myq_clear (&mpqZero    );
     Myq_clear (&mpqHalf    );
     Myq_clear (&mpqMaxUInt );
     Myq_clear (&mpqMaxInt  );
@@ -194,11 +203,16 @@ void InitPTDVars
 {
     // Free these vars unless already free
     Myf_clear        (&lpMemPTD->mpfrPi);
+    Myf_clear        (&lpMemPTD->mpfrGamma);
     Myf_clear        (&lpMemPTD->mpfrE);
 
     // Create a local value for Pi
     mpfr_init0       (&lpMemPTD->mpfrPi);
     mpfr_const_pi    (&lpMemPTD->mpfrPi, MPFR_RNDN);
+
+    // Create a local value for Gamma
+    mpfr_init0       (&lpMemPTD->mpfrGamma);
+    mpfr_const_euler (&lpMemPTD->mpfrGamma, MPFR_RNDN);
 
     // Create a local value for e
     mpfr_init_set_ui (&lpMemPTD->mpfrE,                1, MPFR_RNDN);
@@ -373,7 +387,7 @@ void InitPrimFn
 
 {
     if (PrimFnsTab[PRIMTAB_MASK & wchFn])
-        DbgStop ();
+        DbgStop ();         // We should never get here
     else
         PrimFnsTab[PRIMTAB_MASK & wchFn] = lpPrimFn;
 } // End InitPrimFn
@@ -603,7 +617,7 @@ void InitPrimProtoFn
 
 {
     if (PrimProtoFnsTab[PRIMTAB_MASK & wchFn])
-        DbgStop ();
+        DbgStop ();         // We should never get here
     else
         PrimProtoFnsTab[PRIMTAB_MASK & wchFn] = lpPrimFn;
 } // End InitPrimProtoFn
@@ -621,7 +635,7 @@ void InitPrimProtoOp
 
 {
     if (PrimProtoOpsTab[PRIMTAB_MASK & wchFn])
-        DbgStop ();
+        DbgStop ();         // We should never get here
     else
         PrimProtoOpsTab[PRIMTAB_MASK & wchFn] = lpPrimOp;
 } // End InitPrimProtoOp
@@ -739,7 +753,7 @@ void Init1PrimSpec
 
 {
     if (PrimSpecTab[PRIMTAB_MASK & wchFn])
-        DbgStop ();
+        DbgStop ();         // We should never get here
     else
         PrimSpecTab[PRIMTAB_MASK & wchFn] = lpPrimSpec;
 } // End Init1PrimSpec
@@ -882,8 +896,8 @@ void InitIdentityElements
     Init1IdentityElement (PF_INDEX_MINUS   , 0.0);
     Init1IdentityElement (PF_INDEX_DIVIDE  , 1.0);
 
-    Init1IdentityElement (PF_INDEX_MIN     , PosInfinity);
-    Init1IdentityElement (PF_INDEX_MAX     , NegInfinity);
+    Init1IdentityElement (PF_INDEX_MIN     , fltPosInfinity);
+    Init1IdentityElement (PF_INDEX_MAX     , fltNegInfinity);
 
     Init1IdentityElement (PF_INDEX_AND     , 1.0);
     Init1IdentityElement (PF_INDEX_OR      , 0.0);

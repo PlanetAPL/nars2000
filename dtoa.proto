@@ -1,5 +1,5 @@
 double rnd_prod(double, double), rnd_quot(double, double);
-double strtod (CONST char *s00, char **se);
+double MyStrtod (CONST char *s00, char **se);
 ////_Check_return_ _CRTIMP double __cdecl strtod(_In_z_ const char * _Str, _Out_opt_ _Deref_post_z_ char ** _EndPtr);
 void freedtoa(char *s);
 char *dtoa (double d, int mode, int ndigits, int *decpt, int *sign, char **rve);

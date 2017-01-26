@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,6 +24,9 @@
 #include <windows.h>
 #include <math.h>
 #include "headers.h"
+#define EXTERN  extern
+#include "tokenso.h"
+#undef  EXTERN
 
 
 ////#define EXEC_TRACE
@@ -47,6 +50,8 @@ functions, etc. as necessary.
 #ifdef DEBUG
 UINT gInUse = 0;
 #endif
+
+extern TOKEN_SO tokenSo[];
 
 #define DEF_TOKEN_SIZE  1024    // Default initial amount of memory
                                 //   allocated for the tokenized line
@@ -152,7 +157,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , fnPointDone , fnCtrlDone  , scPointDone , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , fnPointDone , fnPrmDone   , scPointDone , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , fnPointDone , fnPrmDone   , scPointDone , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , fnPointDone , fnOp1Done   , scPointDone , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , fnPointDone , fnOp1Done   , scPointDone , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , fnPointDone , fnOp2Done   , scPointDone , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , fnPointDone , NULL        , scPointDone , scOp2DoneX  },     // Jot
   {TKROW_INIT      , fnPointDone , fnParInit   , scPointDone , scParInit   },     // Left paren
@@ -186,7 +191,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , fnPointDone , fnCtrlDone  , scPointDone , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , fnPointDone , fnPrmDone   , scPointDone , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , fnPointDone , fnPrmDone   , scPointDone , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , fnPointDone , fnOp1Done   , scPointDone , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , fnPointDone , fnOp1Done   , scPointDone , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , fnPointDone , fnOp2Done   , scPointDone , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , fnPointDone , NULL        , scPointDone , scOp2DoneX  },     // Jot
   {TKROW_INIT      , fnPointDone , fnParInit   , scPointDone , scParInit   },     // Left paren
@@ -220,7 +225,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , fnAlpDone   , fnCtrlDone  , scAlpDone   , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , fnAlpDone   , fnPrmDone   , scAlpDone   , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , fnAlpDone   , fnPrmDone   , scAlpDone   , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , fnAlpDone   , fnOp1Done   , scAlpDone   , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , fnAlpDone   , fnOp1Done   , scAlpDone   , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , fnAlpDone   , fnOp2Done   , scAlpDone   , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , fnAlpDone   , NULL        , scAlpDone   , scOp2DoneX  },     // Jot
   {TKROW_INIT      , fnAlpDone   , fnParInit   , scAlpDone   , scParInit   },     // Left paren
@@ -254,7 +259,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , fnSysDone   , fnCtrlDone  , scSysDone   , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , fnSysDone   , fnPrmDone   , scSysDone   , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , fnSysDone   , fnPrmDone   , scSysDone   , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , fnSysDone   , fnOp1Done   , scSysDone   , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , fnSysDone   , fnOp1Done   , scSysDone   , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , fnSysDone   , fnOp2Done   , scSysDone   , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , fnSysDone   , NULL        , scSysDone   , scOp2DoneX  },     // Jot
   {TKROW_INIT      , fnSysDone   , fnParInit   , scSysDone   , scParInit   },     // Left paren
@@ -288,7 +293,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_QUOTE1A   , fnQuo1Accum , NULL        , scQuo1Accum , NULL        },     // Control Structure
   {TKROW_QUOTE1A   , fnQuo1Accum , NULL        , scQuo1Accum , NULL        },     // Primitive monadic or dyadic function
   {TKROW_QUOTE1A   , fnQuo1Accum , NULL        , scQuo1Accum , NULL        },     // ...       niladic           ...
-  {TKROW_QUOTE1A   , fnQuo1Accum , NULL        , scQuo1Accum , NULL        },     // ...       monadic operator
+  {TKROW_QUOTE1A   , fnQuo1Accum , NULL        , scQuo1Accum , NULL        },     // ...       monadic/ambiguous operator
   {TKROW_QUOTE1A   , fnQuo1Accum , NULL        , scQuo1Accum , NULL        },     // ...       dyadic  ...
   {TKROW_QUOTE1A   , fnQuo1Accum , NULL        , scQuo1Accum , NULL        },     // Jot
   {TKROW_QUOTE1A   , fnQuo1Accum , NULL        , scQuo1Accum , NULL        },     // Left paren
@@ -314,7 +319,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_POINTNOT1 , fnQuo1Done  , fnPointAcc  , scQuo1Done  , scPointAcc  },     // Overbar
   {TKROW_INIT      , fnQuo1Done  , fnDirIdent  , scQuo1Done  , scDirIdent  },     // Alpha or Omega
   {TKROW_SYSNAME   , fnQuo1Done  , fnSysInit   , scQuo1Done  , scSysInit   },     // Quad
-  {TKROW_INIT      , fnQuo1Done  , fnAlpInit   , scQuo1Done  , scAlpInit   },     // Underbar
+  {TKROW_ALPHA     , fnQuo1Done  , fnAlpInit   , scQuo1Done  , scAlpInit   },     // Underbar
   {TKROW_POINTNOT1 , fnQuo1Done  , fnPointAcc  , scQuo1Done  , scPointAcc  },     // Infinity
   {TKROW_INIT      , fnQuo1Done  , fnAsnDone   , scQuo1Done  , scAsnDone   },     // Assignment symbol
   {TKROW_INIT      , fnQuo1Done  , fnLstDone   , scQuo1Done  , scLstDone   },     // Semicolon  ...
@@ -322,7 +327,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , fnQuo1Done  , fnCtrlDone  , scQuo1Done  , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , fnQuo1Done  , fnPrmDone   , scQuo1Done  , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , fnQuo1Done  , fnPrmDone   , scQuo1Done  , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , fnQuo1Done  , fnOp1Done   , scQuo1Done  , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , fnQuo1Done  , fnOp1Done   , scQuo1Done  , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , fnQuo1Done  , fnOp2Done   , scQuo1Done  , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , fnQuo1Done  , NULL        , scQuo1Done  , scOp2DoneX  },     // Jot
   {TKROW_INIT      , fnQuo1Done  , fnParInit   , scQuo1Done  , scParInit   },     // Left paren
@@ -356,7 +361,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_QUOTE2A   , fnQuo2Accum , NULL        , scQuo2Accum , NULL        },     // Control Structure
   {TKROW_QUOTE2A   , fnQuo2Accum , NULL        , scQuo2Accum , NULL        },     // Primitive monadic or dyadic function
   {TKROW_QUOTE2A   , fnQuo2Accum , NULL        , scQuo2Accum , NULL        },     // ...       niladic           ...
-  {TKROW_QUOTE2A   , fnQuo2Accum , NULL        , scQuo2Accum , NULL        },     // ...       monadic operator
+  {TKROW_QUOTE2A   , fnQuo2Accum , NULL        , scQuo2Accum , NULL        },     // ...       monadic/ambiguous operator
   {TKROW_QUOTE2A   , fnQuo2Accum , NULL        , scQuo2Accum , NULL        },     // ...       dyadic  ...
   {TKROW_QUOTE2A   , fnQuo2Accum , NULL        , scQuo2Accum , NULL        },     // Jot
   {TKROW_QUOTE2A   , fnQuo2Accum , NULL        , scQuo2Accum , NULL        },     // Left paren
@@ -382,7 +387,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_POINTNOT1 , fnQuo2Done  , fnPointAcc  , scQuo2Done  , scPointAcc  },     // Overbar
   {TKROW_INIT      , fnQuo2Done  , fnDirIdent  , scQuo2Done  , scDirIdent  },     // Alpha or Omega
   {TKROW_SYSNAME   , fnQuo2Done  , fnSysInit   , scQuo2Done  , scSysInit   },     // Quad
-  {TKROW_INIT      , fnQuo2Done  , fnAlpInit   , scQuo2Done  , scAlpInit   },     // Underbar
+  {TKROW_ALPHA     , fnQuo2Done  , fnAlpInit   , scQuo2Done  , scAlpInit   },     // Underbar
   {TKROW_POINTNOT1 , fnQuo2Done  , fnPointAcc  , scQuo2Done  , scPointAcc  },     // Infinity
   {TKROW_INIT      , fnQuo2Done  , fnAsnDone   , scQuo2Done  , scAsnDone   },     // Assignment symbol
   {TKROW_INIT      , fnQuo2Done  , fnLstDone   , scQuo2Done  , scLstDone   },     // Semicolon  ...
@@ -390,7 +395,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , fnQuo2Done  , fnCtrlDone  , scQuo2Done  , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , fnQuo2Done  , fnPrmDone   , scQuo2Done  , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , fnQuo2Done  , fnPrmDone   , scQuo2Done  , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , fnQuo2Done  , fnOp1Done   , scQuo2Done  , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , fnQuo2Done  , fnOp1Done   , scQuo2Done  , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , fnQuo2Done  , fnOp2Done   , scQuo2Done  , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , fnQuo2Done  , NULL        , scQuo2Done  , scOp2DoneX  },     // Jot
   {TKROW_INIT      , fnQuo2Done  , fnParInit   , scQuo2Done  , scParInit   },     // Left paren
@@ -416,7 +421,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_POINTNOT1 , fnDotDone   , fnPointAcc  , scDotDone   , scPointAcc  },     // Overbar
   {TKROW_INIT      , fnDotDone   , fnDirIdent  , scDotDone   , scDirIdent  },     // Alpha or Omega
   {TKROW_SYSNAME   , fnDotDone   , fnSysInit   , scDotDone   , scSysInit   },     // Quad
-  {TKROW_INIT      , fnDotDone   , fnAlpInit   , scDotDone   , scAlpInit   },     // Underbar
+  {TKROW_ALPHA     , fnDotDone   , fnAlpInit   , scDotDone   , scAlpInit   },     // Underbar
   {TKROW_POINTNOT1 , fnDotDone   , fnPointAcc  , scDotDone   , scPointAcc  },     // Infinity
   {TKROW_INIT      , fnDotDone   , fnAsnDone   , scDotDone   , scAsnDone   },     // Assignment symbol
   {TKROW_INIT      , fnDotDone   , fnLstDone   , scDotDone   , scLstDone   },     // Semicolon  ...
@@ -424,7 +429,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , fnDotDone   , fnCtrlDone  , scDotDone   , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , fnDotDone   , fnPrmDone   , scDotDone   , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , fnDotDone   , fnPrmDone   , scDotDone   , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , fnDotDone   , fnOp1Done   , scDotDone   , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , fnDotDone   , fnOp1Done   , scDotDone   , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , fnDotDone   , fnOp2Done   , scDotDone   , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , fnDotDone   , NULL        , scDotDone   , scOp2DoneX  },     // Jot
   {TKROW_INIT      , fnDotDone   , fnParInit   , scDotDone   , scParInit   },     // Left paren
@@ -450,7 +455,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_POINTNOT1 , fnJotDone   , fnPointAcc  , scJotDone   , scPointAcc  },     // Overbar
   {TKROW_INIT      , fnJotDone   , fnDirIdent  , scJotDone   , scDirIdent  },     // Alpha or Omega
   {TKROW_SYSNAME   , fnJotDone   , fnSysInit   , scJotDone   , scSysInit   },     // Quad
-  {TKROW_INIT      , fnJotDone   , fnAlpInit   , scJotDone   , scAlpInit   },     // Underbar
+  {TKROW_ALPHA     , fnJotDone   , fnAlpInit   , scJotDone   , scAlpInit   },     // Underbar
   {TKROW_POINTNOT1 , fnJotDone   , fnPointAcc  , scJotDone   , scPointAcc  },     // Infinity
   {TKROW_INIT      , fnJotDone   , fnAsnDone   , scJotDone   , scAsnDone   },     // Assignment symbol
   {TKROW_INIT      , fnJotDone   , fnLstDone   , scJotDone   , scLstDone   },     // Semicolon  ...
@@ -458,7 +463,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , fnJotDone   , fnCtrlDone  , scJotDone   , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , fnJotDone   , fnPrmDone   , scJotDone   , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , fnJotDone   , fnPrmDone   , scJotDone   , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , fnJotDone   , fnOp1Done   , scJotDone   , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , fnJotDone   , fnOp1Done   , scJotDone   , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , fnJotDone   , fnOp2Done   , scJotDone   , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , fnJotDone   , NULL        , scJotDone   , scOp2DoneX  },     // Jot
   {TKROW_INIT      , fnJotDone   , fnParInit   , scJotDone   , scParInit   },     // Left paren
@@ -484,7 +489,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_POINTNOT1 , fnOutDone   , fnPointAcc  , scOutDone   , scPointAcc  },     // Overbar
   {TKROW_INIT      , fnOutDone   , fnDirIdent  , scOutDone   , scDirIdent  },     // Alpha or Omega
   {TKROW_SYSNAME   , fnOutDone   , fnSysInit   , scOutDone   , scSysInit   },     // Quad
-  {TKROW_INIT      , fnOutDone   , fnAlpInit   , scOutDone   , scAlpInit   },     // Underbar
+  {TKROW_ALPHA     , fnOutDone   , fnAlpInit   , scOutDone   , scAlpInit   },     // Underbar
   {TKROW_POINTNOT1 , fnOutDone   , fnPointAcc  , scOutDone   , scPointAcc  },     // Infinity
   {TKROW_INIT      , fnOutDone   , fnAsnDone   , scOutDone   , scAsnDone   },     // Assignment symbol
   {TKROW_INIT      , fnOutDone   , fnLstDone   , scOutDone   , scLstDone   },     // Semicolon  ...
@@ -492,7 +497,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , fnOutDone   , fnCtrlDone  , scOutDone   , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , fnOutDone   , fnPrmDone   , scOutDone   , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , fnOutDone   , fnPrmDone   , scOutDone   , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , fnOutDone   , fnOp1Done   , scOutDone   , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , fnOutDone   , fnOp1Done   , scOutDone   , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , fnOutDone   , fnOp2Done   , scOutDone   , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , fnOutDone   , NULL        , scOutDone   , scOp2DoneX  },     // Jot
   {TKROW_INIT      , fnOutDone   , fnParInit   , scOutDone   , scParInit   },     // Left paren
@@ -518,7 +523,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_POINTNOT1 , NULL        , fnPointAcc  , NULL        , scPointAcc  },     // Overbar
   {TKROW_INIT      , NULL        , fnDirIdent  , NULL        , scDirIdent  },     // Alpha or Omega
   {TKROW_SYSNAME   , NULL        , fnSysInit   , NULL        , scSysInit   },     // Quad
-  {TKROW_INIT      , NULL        , fnAlpInit   , NULL        , scAlpInit   },     // Underbar
+  {TKROW_ALPHA     , NULL        , fnAlpInit   , NULL        , scAlpInit   },     // Underbar
   {TKROW_POINTNOT1 , NULL        , fnPointAcc  , NULL        , scPointAcc  },     // Infinity
   {TKROW_INIT      , NULL        , fnAsnDone   , NULL        , scAsnDone   },     // Assignment symbol
   {TKROW_INIT      , NULL        , fnLstDone   , NULL        , scLstDone   },     // Semicolon  ...
@@ -526,7 +531,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_INIT      , NULL        , fnCtrlDone  , NULL        , scCtrlDone  },     // Control Structure
   {TKROW_INIT      , NULL        , fnPrmDone   , NULL        , scPrmDone   },     // Primitive monadic or dyadic function
   {TKROW_INIT      , NULL        , fnPrmDone   , NULL        , scPrmDone   },     // ...       niladic           ...
-  {TKROW_INIT      , NULL        , fnOp1Done   , NULL        , scOp1Done   },     // ...       monadic operator
+  {TKROW_INIT      , NULL        , fnOp1Done   , NULL        , scOp1Done   },     // ...       monadic/ambiguous operator
   {TKROW_INIT      , NULL        , fnOp2Done   , NULL        , scOp2Done   },     // ...       dyadic  ...
   {TKROW_JOTAMBIG  , NULL        , fnPrmDone   , NULL        , scPrmDone   },     // Jot
   {TKROW_INIT      , NULL        , fnParInit   , NULL        , scParInit   },     // Left paren
@@ -560,7 +565,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // Control Structure
   {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // Primitive monadic or dyadic function
   {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // ...       niladic           ...
-  {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // ...       monadic operator
+  {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // ...       monadic/ambiguous operator
   {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // ...       dyadic  ...
   {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // Jot
   {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // Left paren
@@ -573,7 +578,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_LBR_Q1    , NULL        , NULL        , NULL        , NULL        },     // Single quote
   {TKROW_LBR_Q2    , NULL        , NULL        , NULL        , NULL        },     // Double ...
   {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // Diamond symbol
-  {TKROW_EXIT      , NULL        , fnUnkDone   , NULL        , scUnkDone   },     // Comment symbol
+  {TKROW_LBR_INIT  , NULL        , fnComDone   , NULL        , scComDone   },     // Comment symbol
   {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // System namespace
   {TKROW_LBR_INIT  , NULL        , NULL        , NULL        , NULL        },     // Del
   {TKROW_EXIT      , NULL        , fnUnkDone   , NULL        , scUnkDone   },     // EOL
@@ -594,7 +599,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_LBR_Q1    , NULL        , NULL        , NULL        , NULL        },     // Control Structure
   {TKROW_LBR_Q1    , NULL        , NULL        , NULL        , NULL        },     // Primitive monadic or dyadic function
   {TKROW_LBR_Q1    , NULL        , NULL        , NULL        , NULL        },     // ...       niladic           ...
-  {TKROW_LBR_Q1    , NULL        , NULL        , NULL        , NULL        },     // ...       monadic operator
+  {TKROW_LBR_Q1    , NULL        , NULL        , NULL        , NULL        },     // ...       monadic/ambiguous operator
   {TKROW_LBR_Q1    , NULL        , NULL        , NULL        , NULL        },     // ...       dyadic  ...
   {TKROW_LBR_Q1    , NULL        , NULL        , NULL        , NULL        },     // Jot
   {TKROW_LBR_Q1    , NULL        , NULL        , NULL        , NULL        },     // Left paren
@@ -628,7 +633,7 @@ TKACTSTR fsaActTableTK [][TKCOL_LENGTH]
   {TKROW_LBR_Q2    , NULL        , NULL        , NULL        , NULL        },     // Control Structure
   {TKROW_LBR_Q2    , NULL        , NULL        , NULL        , NULL        },     // Primitive monadic or dyadic function
   {TKROW_LBR_Q2    , NULL        , NULL        , NULL        , NULL        },     // ...       niladic           ...
-  {TKROW_LBR_Q2    , NULL        , NULL        , NULL        , NULL        },     // ...       monadic operator
+  {TKROW_LBR_Q2    , NULL        , NULL        , NULL        , NULL        },     // ...       monadic/ambiguous operator
   {TKROW_LBR_Q2    , NULL        , NULL        , NULL        , NULL        },     // ...       dyadic  ...
   {TKROW_LBR_Q2    , NULL        , NULL        , NULL        , NULL        },     // Jot
   {TKROW_LBR_Q2    , NULL        , NULL        , NULL        , NULL        },     // Left paren
@@ -664,7 +669,7 @@ void UTRelockAndSet
 
 {
     // Lock the memory to get a ptr to it
-    lptkLocalVars->lpHeader  = MyGlobalLock (lptkLocalVars->hGlbToken);
+    lptkLocalVars->lpHeader  = MyGlobalLockTkn (lptkLocalVars->hGlbToken);
     lptkLocalVars->lptkStart = TokenBaseToStart (lptkLocalVars->lpHeader);  // Skip over TOKEN_HEADER
     lptkLocalVars->lptkNext  = &lptkLocalVars->lptkStart[lptkLocalVars->lpHeader->TokenCnt];
 } // End UTRelockAndSet
@@ -714,9 +719,11 @@ UBOOL CheckResizeNum_EM
         iNumLim = lptkLocalVars->iNumLim + DEF_NUM_INCRNELM;
 
         // Attempt to realloc to that size
+        //   moving the old data to the new location, and
+        //   freeing the old global memory
         hGlbNum =
           MyGlobalReAlloc (lptkLocalVars->hGlbNum, iNumLim * sizeof (char), GMEM_MOVEABLE);
-        if (!hGlbNum)
+        if (hGlbNum EQ NULL)
             goto WSFULL_EXIT;
 
         // Save back in PTD var
@@ -772,9 +779,11 @@ UBOOL CheckResizeStr_EM
         iStrLim = lptkLocalVars->iStrLim + DEF_STR_INCRNELM;
 
         // Attempt to realloc to that size
+        //   moving the old data to the new location, and
+        //   freeing the old global memory
         hGlbStr =
           MyGlobalReAlloc (lptkLocalVars->hGlbStr, iStrLim * sizeof (APLCHAR), GMEM_MOVEABLE);
-        if (!hGlbStr)
+        if (hGlbStr EQ NULL)
             goto WSFULL_EXIT;
 
         // Save back in PTD var
@@ -803,7 +812,7 @@ NORMAL_EXIT:
 //***************************************************************************
 //  $IsLocalName
 //
-//  Determine whether or not a give name is local to a function header
+//  Determine whether or not a given name is local to a function header
 //***************************************************************************
 
 UBOOL IsLocalName
@@ -816,8 +825,8 @@ UBOOL IsLocalName
                                         // (may be NULL if position not desired)
 
 {
-    static LPWCHAR  lpwBrkLead = L"({[ ]});" WS_UTF16_LEFTARROW,
-                    lpwBrkTerm = L"({[ ]});" WS_UTF16_LEFTARROW WS_UTF16_LAMP;
+    static LPWCHAR  lpwBrkLead = L"({[ ]});" WS_UTF16_LEFTARROW WS_CRLF,
+                    lpwBrkTerm = L"({[ ]});" WS_UTF16_LEFTARROW WS_CRLF WS_UTF16_LAMP;
     LPWCHAR         wp;                         // Ptr to temp char
     APLU3264        uLineLen;                   // Line length
     int (*lpStrncmpW) (const WCHAR *, const WCHAR *, size_t);
@@ -827,17 +836,12 @@ UBOOL IsLocalName
         // The given name can't be local
         return FALSE;
 
-    // Tell EM_GETLINE maximum # chars in the buffer
-    lpwszTemp[0] = (WORD) SendMessageW (hWndEC, EM_LINELENGTH, 0, 0);
-
-    // Get the function header line
-    uLineLen = (APLU3264) SendMessageW (hWndEC, EM_GETLINE, 0, (LPARAM) lpwszTemp);
-
-    // Ensure the line is properly terminated
-    lpwszTemp[uLineLen] = WC_EOS;
+    // Copy the function header block
+    //   including a terminating zero if there's enough room
+    uLineLen = CopyBlockLines (hWndEC, 0, lpwszTemp);   // ***FIXME*** -- buffer overflow???
 
     // Append a trailing marker
-    lstrcatW (lpwszTemp, WS_UTF16_LAMP);
+    strcpyW (&lpwszTemp[uLineLen], WS_UTF16_LAMP);
 
     // Copy the base of the line
     wp = lpwszTemp;
@@ -866,7 +870,7 @@ UBOOL IsLocalName
           || strchrW (lpwBrkTerm, wp[iStrLen]) NE NULL))
         {
             // Mark as FOUND
-            if (lpPosition)
+            if (lpPosition NE NULL)
                *lpPosition = (UINT) (wp - lpwszTemp);
 
             return TRUE;
@@ -877,7 +881,7 @@ UBOOL IsLocalName
     } // End WHILE
 
     // If position is desired, ...
-    if (lpPosition)
+    if (lpPosition NE NULL)
     {
         // Remove the trailing lamp
         lpwszTemp[lstrlenW (lpwszTemp) - 1] = WC_EOS;
@@ -1132,7 +1136,7 @@ UBOOL fnAlpha
         goto ERROR_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpwszStr = MyGlobalLock (lptkLocalVars->hGlbStr);
+    lpwszStr = MyGlobalLockPad (lptkLocalVars->hGlbStr);
 
     // Save the current char
     lpwszStr[lptkLocalVars->iStrLen++] = *lptkLocalVars->lpwszCur;
@@ -1174,7 +1178,7 @@ UBOOL scAlpha
     lpMemPTD = lptkLocalVars->lpMemPTD; Assert (IsValidPtr (lpMemPTD, sizeof (lpMemPTD)));
 
     // Lock the memory to get a ptr to it
-    lpwszStr = MyGlobalLock (lptkLocalVars->hGlbStr);
+    lpwszStr = MyGlobalLockPad (lptkLocalVars->hGlbStr);
 
     // Check for need to resize hGlbStr
     bRet = CheckResizeStr_EM (lptkLocalVars);
@@ -1243,7 +1247,7 @@ UBOOL scAlpha
                                           lptkLocalVars->iStrLen,
                                          &stFlags);
                 // If there's a shadow entry, ...
-                if (lpSymEntry && lpSymEntry->stPrvEntry)
+                if (lpSymEntry NE NULL && lpSymEntry->stPrvEntry NE NULL)
                 {
                     // Save the color index
                     uClr = SC_LCLNAME;
@@ -1284,7 +1288,7 @@ UBOOL scAlpha
             *lptkLocalVars->lpMemClrNxt++;
 
             // If the STE is available, ...
-            if (lpSymEntry)
+            if (lpSymEntry NE NULL)
             {
                 // If it's not []Z or we're fixing a function via []TF, ...
                 if (lpSymEntry NE lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_Z]
@@ -1385,7 +1389,7 @@ UBOOL fnAlpDone
     lpMemPTD = lptkLocalVars->lpMemPTD; Assert (IsValidPtr (lpMemPTD, sizeof (lpMemPTD)));
 
     // Lock the memory to get a ptr to it
-    lpwszStr = MyGlobalLock (lptkLocalVars->hGlbStr);
+    lpwszStr = MyGlobalLockPad (lptkLocalVars->hGlbStr);
 
     // Check for Syntax Coloring
     Assert (lptkLocalVars->lpMemClrNxt EQ NULL);
@@ -1434,14 +1438,26 @@ UBOOL fnAlpDone
 
             // Lookup in the symbol table
             lpSymEntry =
-              _SymTabLookupNameLength (lpwszStr,                // Ptr to the name to lookup
-                                       lptkLocalVars->iStrLen,  // Length of the name
-                                      &stFlags,                 // Ptr to flags filter
-                                       FALSE,                   // TRUE iff the name is to be local to the given HTS
-                                       lptkLocalVars->lpHTS);   // Ptr to HshTab struc (may be NULL)
+              SymTabHTSLookupNameLength (lpwszStr,                  // Ptr to the name to lookup
+                                         lptkLocalVars->iStrLen,    // Length of the name
+                                        &stFlags,                   // Ptr to flags filter
+                                         FALSE,                     // TRUE iff the name is to be local to the given HTS
+                                         lptkLocalVars->lpHTS);     // Ptr to HshTab struc (may be NULL)
             // If it's not found, ...
-            if (!lpSymEntry)
-                lpSymEntry = lpMemPTD->lphtsPTD->steNoValue;
+            if (lpSymEntry EQ NULL)
+            {
+                // If we're inside an MFO, ...
+                if (lptkLocalVars->bMFO)
+                {
+                    // Call it a more serious error so we can fix
+                    //   it right away
+                    ErrorMessageIndirect (ERRMSG_SYNTAX_ERROR APPEND_NAME);
+
+                    goto ERROR_EXIT;
+                } else
+                    // Just call it NoValue
+                    lpSymEntry = lpMemPTD->lphtsPTD->steNoValue;
+            } // End IF
         } // End IF
     } else
     if (lptkLocalVars->lpSF_Fcns->bAFO)
@@ -1456,13 +1472,13 @@ UBOOL fnAlpDone
 
             // Lookup in the symbol table
             lpSymEntry =
-              _SymTabLookupNameLength (lpwszStr,                // Ptr to the name to lookup
-                                       lptkLocalVars->iStrLen,  // Length of the name
-                                      &stFlags,                 // Ptr to flags filter
-                                       FALSE,                   // TRUE iff the name is to be local to the given HTS
-                                       lpHTS);                  // Ptr to HshTab struc (may be NULL)
+              SymTabHTSLookupNameLength (lpwszStr,                  // Ptr to the name to lookup
+                                         lptkLocalVars->iStrLen,    // Length of the name
+                                        &stFlags,                   // Ptr to flags filter
+                                         FALSE,                     // TRUE iff the name is to be local to the given HTS
+                                         lpHTS);                    // Ptr to HshTab struc (may be NULL)
             // If it's not found, ...
-            if (!lpSymEntry)
+            if (lpSymEntry EQ NULL)
             {
                 // Save the last non-NULL HTS
                 lpLastHTS = lpHTS;
@@ -1473,10 +1489,10 @@ UBOOL fnAlpDone
             {
                 // Lookup in or append to the symbol table
                 lpSymEntry =
-                  _SymTabAppendName_EM (lpwszStr,               // Ptr to name
-                                        NULL,                   // Ptr to incoming stFlags (may be NULL)
-                                        FALSE,                  // TRUE iff the name is to be local to the given HTS
-                                        lpHTS);                 // Ptr to HshTab struc (may be NULL)
+                  SymTabHTSAppendName_EM (lpwszStr,         // Ptr to name
+                                          NULL,             // Ptr to incoming stFlags (may be NULL)
+                                          FALSE,            // TRUE iff the name is to be local to the given HTS
+                                          lpHTS);           // Ptr to HshTab struc (may be NULL)
                 break;
             } // End IF/ELSE
         } // End WHILE
@@ -1485,19 +1501,20 @@ UBOOL fnAlpDone
         if (lpHTS EQ NULL)
             // Lookup in or append to the symbol table
             lpSymEntry =
-              _SymTabAppendName_EM (lpwszStr,               // Ptr to name
-                                    NULL,                   // Ptr to incoming stFlags (may be NULL)
-                                    FALSE,                  // TRUE iff the name is to be local to the given HTS
-                                    lpLastHTS);             // Ptr to HshTab struc (may be NULL)
+              SymTabHTSAppendName_EM (lpwszStr,             // Ptr to name
+                                      NULL,                 // Ptr to incoming stFlags (may be NULL)
+                                      FALSE,                // TRUE iff the name is to be local to the given HTS
+                                      lpLastHTS);           // Ptr to HshTab struc (may be NULL)
     } else
         // Lookup in or append to the symbol table
         lpSymEntry =
-          _SymTabAppendName_EM (lpwszStr,               // Ptr to name
-                                NULL,                   // Ptr to incoming stFlags (may be NULL)
-                                FALSE,                  // TRUE iff the name is to be local to the given HTS
-                                lptkLocalVars->lpHTS);  // Ptr to HshTab struc (may be NULL)
+          SymTabHTSAppendName_EM (lpwszStr,                 // Ptr to name
+                                  NULL,                     // Ptr to incoming stFlags (may be NULL)
+                                  FALSE,                    // TRUE iff the name is to be local to the given HTS
+                                  lptkLocalVars->lpHTS);    // Ptr to HshTab struc (may be NULL)
+ERROR_EXIT:
     // If it's not found, ...
-    if (!lpSymEntry)
+    if (lpSymEntry EQ NULL)
         bRet = FALSE;
     else
     {
@@ -1581,7 +1598,7 @@ UBOOL fnDirIdent
     lpMemPTD = lptkLocalVars->lpMemPTD; Assert (IsValidPtr (lpMemPTD, sizeof (lpMemPTD)));
 
     // Lock the memory to get a ptr to it
-    lpwszStr = MyGlobalLock (lptkLocalVars->hGlbStr);
+    lpwszStr = MyGlobalLockPad (lptkLocalVars->hGlbStr);
 
     // Save the current character in the string
     lpwszStr[0] = lptkLocalVars->lpwszCur[0];
@@ -1615,22 +1632,30 @@ UBOOL fnDirIdent
      && lptkLocalVars->Orig.d.uLineNum NE 0)
     {
         // Is this name {alpha}?
-        if (lstrcmpW (lpwszStr, WS_UTF16_ALPHA) EQ 0)
-            lptkLocalVars->lpSF_Fcns->bRefAlpha = TRUE;
+        if (lstrcmpW (lpwszStr, $ALPHA) EQ 0)
+            lptkLocalVars->lpSF_Fcns->bRefAlpha   = TRUE;
+        else
+        // Is this name {alpha}{alpha}?
+        if (lstrcmpW (lpwszStr, $LOPER) EQ 0)
+            lptkLocalVars->lpSF_Fcns->bRefLftOper = TRUE;
         else
         // Is this name {omega}?
-        if (lstrcmpW (lpwszStr, WS_UTF16_OMEGA) EQ 0)
-            lptkLocalVars->lpSF_Fcns->bRefOmega = TRUE;
+        if (lstrcmpW (lpwszStr, $OMEGA) EQ 0)
+            lptkLocalVars->lpSF_Fcns->bRefOmega   = TRUE;
+        else
+        // Is this name {omega}{omega}?
+        if (lstrcmpW (lpwszStr, $ROPER) EQ 0)
+            lptkLocalVars->lpSF_Fcns->bRefRhtOper = TRUE;
     } // End IF
 
     // Lookup in or append to the symbol table
     lpSymEntry =
-      _SymTabAppendName_EM (lpwszStr,               // Ptr to name
-                            NULL,                   // Ptr to incoming stFlags (may be NULL)
-                            bAFO,                   // TRUE iff the name is to be local to the given HTS
-                            lptkLocalVars->lpHTS);  // Ptr to HshTab struc (may be NULL)
+      SymTabHTSAppendName_EM (lpwszStr,                 // Ptr to name
+                              NULL,                     // Ptr to incoming stFlags (may be NULL)
+                              bAFO,                     // TRUE iff the name is to be local to the given HTS
+                              lptkLocalVars->lpHTS);    // Ptr to HshTab struc (may be NULL)
     // If it's not found, ...
-    if (!lpSymEntry)
+    if (lpSymEntry EQ NULL)
         bRet = FALSE;
     else
     {
@@ -1703,6 +1728,7 @@ UBOOL fnAsnDone
 {
     TKFLAGS    tkFlags = {0};           // Token flags for AppendNewToken_EM
     TOKEN_DATA tkData = {0};            // Token data  ...
+    UBOOL      bAFO;                    // TRUE iff this stmt is in an AFO
 
 #if (defined (DEBUG)) && (defined (EXEC_TRACE))
     DbgMsgW (L"fnAsnDone");
@@ -1711,14 +1737,17 @@ UBOOL fnAsnDone
     // Check for Syntax Coloring
     Assert (lptkLocalVars->lpMemClrNxt EQ NULL);
 
-    // If we're in an AFO,
-    //   and not the function header, ...
+    // Are we in an AFO?
+    bAFO = lptkLocalVars->lpSF_Fcns->bAFO;
+
     // This code may be called from <savefcn.c> as well as <sc_load.c>.
-    if (lptkLocalVars->lpSF_Fcns->bAFO
-     && lptkLocalVars->Orig.d.uLineNum NE 0)
+
+    // If this is not the function header, ...
+    if (lptkLocalVars->Orig.d.uLineNum NE 0)
     {
         LPTOKEN lptkCur;            // Loop counter
-        UBOOL   bInStrand = FALSE;  // TRUE iff inside a strand of names, e.g. (A B C){is}...
+        UBOOL   bInStrand = FALSE,  // TRUE iff inside a strand of names, e.g. (A B C){is}...
+                b1stName  = TRUE;   // TRUE iff the first name
 
         // Loop backwards through the tokens
         for (lptkCur = &lptkLocalVars->lptkNext[-1];
@@ -1726,78 +1755,99 @@ UBOOL fnAsnDone
              lptkCur--)
         if (IsTknNamed (lptkCur))
         {
-            HGLOBAL hGlbName;
-            LPWCHAR lpwszName;
+            // If not the first name and not in a strand of names, ...
+            if (!b1stName
+             && !bInStrand)
+                break;
 
-            Assert (GetPtrTypeDir (lptkCur->tkData.tkVoid) EQ PTRTYPE_STCONST);
+            // Mark as assignment into this name for use in <ParseLine>
+            lptkCur->tkFlags.bAssignName = TRUE;
+            lptkCur->tkSynObj = soNAM;
 
-            // Get the name's global memory handle
-            hGlbName = lptkCur->tkData.tkSym->stHshEntry->htGlbName;
-
-            // Lock the memory to get a ptr to it
-            lpwszName = MyGlobalLock (hGlbName);
-
-            // Allow assignment into {alpha}, but none of the other special names
-            if (IsAfoName (lpwszName, lstrlenW (lpwszName))
-             && lstrcmpW (lpwszName, WS_UTF16_ALPHA) NE 0)
-                // Mark the stmt as a SYNTAX ERROR
-                lptkLocalVars->lptkLastEOS->tkFlags.bSyntErr = TRUE;
-            else
+            // If we're in an AFO, ...
+            if (bAFO)
             {
-                LPTOKEN lptkCur2;           // Loop counter
+                HGLOBAL hGlbName;
+                LPWCHAR lpwszName;
 
-                if (lstrcmpW (lpwszName, WS_UTF16_ALPHA) EQ 0)
-                {
-                    // Mark the stmt as assignment into {alpha}
-                    lptkLocalVars->lptkLastEOS->tkFlags.bSetAlpha = TRUE;
-                    if (lptkLocalVars->lpSF_Fcns->bAFO)
-                        lptkLocalVars->lpSF_Fcns->bSetAlpha = TRUE;
-                } // End IF
+                Assert (GetPtrTypeDir (lptkCur->tkData.tkVoid) EQ PTRTYPE_STCONST);
 
-                // Ensure that the SymEntry is local to lptkLocalVars->lpHTS
-                lptkCur->tkData.tkSym =
-                  _SymTabAppendName_EM (lpwszName,              // Ptr to name
-                                        NULL,                   // Ptr to incoming stFlags (may be NULL)
-                                        TRUE,                   // TRUE iff the name is to be local to the given HTS
-                                        lptkLocalVars->lpHTS);  // Ptr to HshTab struc (may be NULL)
-                if (lptkLocalVars->lpSF_Fcns->lplpLocalSTEs)
-                    // Save the LPSYMENTRY
-                    *lptkLocalVars->lpSF_Fcns->lplpLocalSTEs++ = lptkCur->tkData.tkSym;
+                // Get the name's global memory handle
+                hGlbName = lptkCur->tkData.tkSym->stHshEntry->htGlbName;
+
+                // Lock the memory to get a ptr to it
+                lpwszName = MyGlobalLockWsz (hGlbName);
+
+                // If this is []RL, ...
+                if (lstrcmpiW (lpwszName, $QUAD_RL) EQ 0)
+                    // Mark for later use
+                    lptkLocalVars->lpSF_Fcns->bLclRL = TRUE;
+
+                // Allow assignment into {alpha}, but none of the other special names
+                if (IsAfoName (lpwszName, lstrlenW (lpwszName))
+                 && lstrcmpW (lpwszName, WS_UTF16_ALPHA) NE 0)
+                    // Mark the stmt as a SYNTAX ERROR
+                    lptkLocalVars->lptkLastEOS->tkFlags.bSyntErr = TRUE;
                 else
-                    // Count in another name
-                    lptkLocalVars->lpSF_Fcns->numLocalsSTE++;
-
-                // In case this assignment is to the right of a reference to the same name
-                //   in the same stmt, we need to change that STE to the local name
-                // Loop backwards through the tokens
-                for (lptkCur2 = &lptkLocalVars->lptkNext[-1];
-                     lptkCur2 >= lptkLocalVars->lptkStart;
-                     lptkCur2--)
-                if (IsTknNamed (lptkCur2))
                 {
-                    HGLOBAL hGlbName2;
-                    LPWCHAR lpwszName2;
+                    LPTOKEN lptkCur2;           // Loop counter
 
-                    Assert (GetPtrTypeDir (lptkCur2->tkData.tkVoid) EQ PTRTYPE_STCONST);
+                    if (lstrcmpW (lpwszName, WS_UTF16_ALPHA) EQ 0)
+                    {
+                        // Mark the stmt as assignment into {alpha}
+                        lptkLocalVars->lptkLastEOS->tkFlags.bSetAlpha = TRUE;
+                        if (bAFO)
+                            lptkLocalVars->lpSF_Fcns->bSetAlpha = TRUE;
+                    } // End IF
 
-                    // Get the name's global memory handle
-                    hGlbName2 = lptkCur2->tkData.tkSym->stHshEntry->htGlbName;
+                    // Ensure that the SymEntry is local to lptkLocalVars->lpHTS
+                    lptkCur->tkData.tkSym =
+                      SymTabHTSAppendName_EM (lpwszName,                // Ptr to name
+                                              NULL,                     // Ptr to incoming stFlags (may be NULL)
+                                              TRUE,                     // TRUE iff the name is to be local to the given HTS
+                                              lptkLocalVars->lpHTS);    // Ptr to HshTab struc (may be NULL)
+                    if (lptkLocalVars->lpSF_Fcns->lplpLocalSTEs NE NULL)
+                        // Save the LPSYMENTRY
+                        *lptkLocalVars->lpSF_Fcns->lplpLocalSTEs++ = lptkCur->tkData.tkSym;
+                    else
+                        // Count in another name
+                        lptkLocalVars->lpSF_Fcns->numLocalsSTE++;
 
-                    // Lock the memory to get a ptr to it
-                    lpwszName2 = MyGlobalLock (hGlbName2);
+                    // In case this assignment is to the right of a reference to the same name
+                    //   in the same stmt, we need to change that STE to the local name
+                    // Loop backwards through the tokens
+                    for (lptkCur2 = &lptkLocalVars->lptkNext[-1];
+                         lptkCur2 >= lptkLocalVars->lptkStart;
+                         lptkCur2--)
+                    if (IsTknNamed (lptkCur2))
+                    {
+                        HGLOBAL hGlbName2;
+                        LPWCHAR lpwszName2;
 
-                    // If it's the same name, ...
-                    if (lstrcmpW (lpwszName, lpwszName2) EQ 0)
-                        // Ensure that the SymEntry is local to lptkLocalVars->lpHTS
-                        lptkCur2->tkData.tkSym = lptkCur->tkData.tkSym;
+                        Assert (GetPtrTypeDir (lptkCur2->tkData.tkVoid) EQ PTRTYPE_STCONST);
 
-                    // We no longer need this ptr
-                    MyGlobalUnlock (hGlbName2); lpwszName2 = NULL;
+                        // Get the name's global memory handle
+                        hGlbName2 = lptkCur2->tkData.tkSym->stHshEntry->htGlbName;
+
+                        // Lock the memory to get a ptr to it
+                        lpwszName2 = MyGlobalLockWsz (hGlbName2);
+
+                        // If it's the same name, ...
+                        if (lstrcmpW (lpwszName, lpwszName2) EQ 0)
+                            // Ensure that the SymEntry is local to lptkLocalVars->lpHTS
+                            lptkCur2->tkData.tkSym = lptkCur->tkData.tkSym;
+
+                        // We no longer need this ptr
+                        MyGlobalUnlock (hGlbName2); lpwszName2 = NULL;
+                    } // End IF
                 } // End IF
+
+                // We no longer need this ptr
+                MyGlobalUnlock (hGlbName); lpwszName = NULL;
             } // End IF
 
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbName); lpwszName = NULL;
+            // Mark as no longer the first name
+            b1stName = FALSE;
         } else
         if (lptkCur->tkFlags.TknType EQ TKT_RIGHTPAREN
          && !bInStrand)
@@ -1807,6 +1857,11 @@ UBOOL fnAsnDone
 
             // ***FIXME*** -- Should we localize a name in selective assignment???
         } else
+        if (lptkCur->tkFlags.TknType EQ TKT_RIGHTBRACKET
+         && !bInStrand)
+            // Skip to the matching left bracket
+            lptkCur = &lptkLocalVars->lptkStart[lptkCur->tkData.tkIndex];
+        else
             break;
     } // End IF
 
@@ -1950,13 +2005,23 @@ UBOOL fnClnDone
     // If the first token is a name, and
     //   this is the second token,
     //   then it's a label separator
-    if (lptkLocalVars->lptkStart[1].tkFlags.TknType EQ TKT_VARNAMED
-     && (lptkLocalVars->lptkNext - lptkLocalVars->lptkStart) EQ 2)
+    // OR
+    // This is an AFO, and
+    // If the first token is a NOP, and
+    //   the next token is a sys name, and
+    //   this is the third token,
+    //   then it's a label separator
+    if ((lptkLocalVars->lptkStart[1].tkFlags.TknType EQ TKT_VARNAMED
+      && (lptkLocalVars->lptkNext - lptkLocalVars->lptkStart) EQ 2)
+     || (lptkLocalVars->lpSF_Fcns->bAFO
+      && lptkLocalVars->lptkStart[1].tkFlags.TknType EQ TKT_NOP
+      && IsTknSysName (&lptkLocalVars->lptkStart[2], TRUE)
+      && (lptkLocalVars->lptkNext - lptkLocalVars->lptkStart) EQ 3))
     {
         // Mark the data as a label separator
         tkFlags.TknType = TKT_LABELSEP;
 
-        // Set the new state to TKROW_SOS so we can accept Control Strucures
+        // Set the new state to TKROW_SOS so we can accept Control Structures
         SetTokenStatesTK (lptkLocalVars, TKROW_SOS);
 
         // Save as index of new initial char
@@ -1975,8 +2040,8 @@ UBOOL fnClnDone
         bSyntErr = lptkLocalVars->lptkLastEOS->tkFlags.bGuardStmt;
 
         if (lptkLocalVars->lptkLastEOS[1].tkFlags.TknType EQ TKT_NOP)
-            // Change the token type from NOP to AFOGUARD
-            lptkLocalVars->lptkLastEOS[1].tkFlags.TknType = TKT_AFOGUARD;
+            // Change the token type from NOP to AFOGUARD and set the SYNOBJ
+            SetTknTypeSynObj (&lptkLocalVars->lptkLastEOS[1], TKT_AFOGUARD);
 
         // End the stmt
         if (!fnDiaDone (lptkLocalVars))
@@ -1984,7 +2049,7 @@ UBOOL fnClnDone
         Assert (lptkLocalVars->lptkLastEOS[1].tkFlags.TknType EQ TKT_NOP);
 
         // Change the token type to AFORETURN
-        lptkLocalVars->lptkLastEOS[1].tkFlags.TknType = TKT_AFORETURN;
+        SetTknTypeSynObj (&lptkLocalVars->lptkLastEOS[1], TKT_AFORETURN);
 
         // Mark as the previous stmt is a guard stmt
         lptkLocalVars->lptkLastEOS->tkFlags.bGuardStmt = TRUE;
@@ -2040,9 +2105,15 @@ UBOOL scClnDone
     // Putative start of label
     uLblIni = uVar;
 
-    // If the tokens up to this point have all been alpha, ...
+    // If the chars up to this point have all been alpha, ...
     for (        ; uVar < uLen; uVar++)
     if (lptkLocalVars->lpMemClrIni[uVar].colIndex NE TKCOL_ALPHA)
+        break;
+
+    // If we're not at the end and the remaining chars are spaces, ...
+    if (uVar < uLen)
+    for (        ; uVar < uLen; uVar++)
+    if (lptkLocalVars->lpMemClrIni[uVar].colIndex NE TKCOL_SPACE)
         break;
 
     // Save the column index
@@ -2061,7 +2132,7 @@ UBOOL scClnDone
             // Save the color (label separator)
             lptkLocalVars->lpMemClrIni[uVar].syntClr =
               gSyntaxColorName[SC_LABEL].syntClr;
-        // Set the new state to TKROW_SOS so we can accept Control Strucures
+        // Set the new state to TKROW_SOS so we can accept Control Structures
         SetTokenStatesTK (lptkLocalVars, TKROW_SOS);
     } else
     {
@@ -2084,6 +2155,12 @@ UBOOL scClnDone
 //  Done with this Control Structure
 //***************************************************************************
 
+#ifdef DEBUG
+#define APPEND_NAME     L" -- fnCtrlDone"
+#else
+#define APPEND_NAME
+#endif
+
 UBOOL fnCtrlDone
     (LPTKLOCALVARS lptkLocalVars)       // Ptr to Tokenize_EM local vars
 
@@ -2097,6 +2174,26 @@ UBOOL fnCtrlDone
 
     // Check for Syntax Coloring
     Assert (lptkLocalVars->lpMemClrNxt EQ NULL);
+
+    // For :IN, mark the previous name as to be assigned into
+    if (lptkLocalVars->CtrlStrucTknType EQ TKT_CS_IN)
+    {
+
+        // If the token is not named, or
+        //    the name is that of a SysVar, ...
+        if (lptkLocalVars->lptkNext[-1].tkFlags.TknType NE TKT_VARNAMED
+         || lptkLocalVars->lptkNext[-1].tkData.tkSym->stFlags.ObjName EQ OBJNAME_SYS)
+        {
+            // Set the error message
+            ErrorMessageIndirectToken (ERRMSG_SYNTAX_ERROR APPEND_NAME,
+                                      &lptkLocalVars->lptkNext[-1]);
+            return FALSE;
+        } // End IF
+
+        if (lptkLocalVars->lptkNext[-1].tkFlags.TknType EQ TKT_VARNAMED)
+            // Mark the previous token as to be assigned into
+            lptkLocalVars->lptkNext[-1].tkFlags.bAssignName = TRUE;
+    } // End IF
 
     // For selected CS tokens, prepend an additional special token
     if (lptkLocalVars->CtrlStrucTknType EQ TKT_CS_ELSEIF
@@ -2225,6 +2322,7 @@ UBOOL fnCtrlDone
     // Mark as successful
     return TRUE;
 } // End fnCtrlDone
+#undef  APPEND_NAME
 
 
 //***************************************************************************
@@ -2237,7 +2335,7 @@ UBOOL scCtrlDone
     (LPTKLOCALVARS lptkLocalVars)       // Ptr to Tokenize_EM local vars
 
 {
-    UINT uCnt;              // Loop counter
+    UINT uCnt;                          // Loop counter
 
 #if (defined (DEBUG)) && (defined (EXEC_TRACE))
     DbgMsgW (L"scCtrlDone");
@@ -2246,10 +2344,10 @@ UBOOL scCtrlDone
     // Check for Syntax Coloring
     Assert (lptkLocalVars->lpMemClrNxt NE NULL);
 
-    // Use the smaller of the name length and the # entries
+    // Use the smaller of the name length and the # entries remaining
     //   as we might be selecting a subset of the line
     lptkLocalVars->CtrlStrucStrLen =
-      min (lptkLocalVars->CtrlStrucStrLen, lptkLocalVars->uSyntClrLen);
+      min (lptkLocalVars->CtrlStrucStrLen, lptkLocalVars->uSyntClrLen - lptkLocalVars->uChar);
 
     // Loop through the chars
     for (uCnt = 0; uCnt < lptkLocalVars->CtrlStrucStrLen; uCnt++)
@@ -2260,7 +2358,7 @@ UBOOL scCtrlDone
         // Save the color
         lptkLocalVars->lpMemClrNxt++->syntClr =
           gSyntaxColorName[SC_CTRLSTRUC].syntClr;
-    } // End IF
+    } // End FOR
 
     // Skip over the name
     // ("- 1" to account for the ++ at the end of the FOR stmt)
@@ -2458,7 +2556,7 @@ UBOOL fnPointSub
 #endif
 
     // Lock the memory to get a ptr to it
-    lpszNum = MyGlobalLock (lptkLocalVars->hGlbNum);
+    lpszNum = MyGlobalLockPad (lptkLocalVars->hGlbNum);
 
     // Check for need to resize hGlbNum
     bRet = CheckResizeNum_EM (lptkLocalVars);
@@ -2480,6 +2578,12 @@ UBOOL fnPointSub
 //  A Point Notation symbol done
 //***************************************************************************
 
+#ifdef DEBUG
+#define APPEND_NAME     L" -- fnPointDone"
+#else
+#define APPEND_NAME
+#endif
+
 UBOOL fnPointDone
     (LPTKLOCALVARS lptkLocalVars)       // Ptr to Tokenize_EM local vars
 
@@ -2493,6 +2597,7 @@ UBOOL fnPointDone
     HGLOBAL      hGlbData;              // RatNum global memory handle
     APLSTYPE     aplTypeRes;            // Result storage type
     APLRANK      aplRankRes;            // ...    rank
+    char         cZap;                  // Temporary char
 
 #if (defined (DEBUG)) && (defined (EXEC_TRACE))
     DbgMsgW (L"fnPointDone");
@@ -2504,7 +2609,7 @@ UBOOL fnPointDone
     lpMemPTD = lptkLocalVars->lpMemPTD; Assert (IsValidPtr (lpMemPTD, sizeof (lpMemPTD)));
 
     // Lock the memory to get a ptr to it
-    lpszNum = MyGlobalLock (lptkLocalVars->hGlbNum);
+    lpszNum = MyGlobalLockPad (lptkLocalVars->hGlbNum);
 
     // Check for Syntax Coloring
     Assert (lptkLocalVars->lpMemClrNxt EQ NULL);
@@ -2520,112 +2625,135 @@ UBOOL fnPointDone
 ////pnLocalVars.hGlbRes       = NULL;           // Already zero from = {0}
     pnLocalVars.lptkLocalVars = lptkLocalVars;
 
+    // Ensure properly terminated
+    cZap = pnLocalVars.lpszStart[pnLocalVars.uNumLen];
+           pnLocalVars.lpszStart[pnLocalVars.uNumLen] = AC_EOS;
+
     // Call the parser to convert the PN to a number
     bRet = ParsePointNotation (&pnLocalVars);
+
+    // Restore zapped char
+    pnLocalVars.lpszStart[pnLocalVars.uNumLen] = cZap;
+
     if (bRet)
     {
-        // Get the attrs of a global
-        AttrsOfGlb (pnLocalVars.hGlbRes, &aplTypeRes, NULL, &aplRankRes, NULL);
-
-        // If the value is a scalar, ...
-        if (IsScalar (aplRankRes))
+        // Check for :CONSTANT during )COPY/)LOAD
+        if (!CheckConstantCopyLoad (lptkLocalVars, &pnLocalVars))
         {
-            LPVOID lpMemRes;
+            // Get the attrs of a global
+            AttrsOfGlb (pnLocalVars.hGlbRes, &aplTypeRes, NULL, &aplRankRes, NULL);
 
-            // Lock the memory to get a ptr to it
-            lpMemRes = MyGlobalLock (pnLocalVars.hGlbRes);
-
-            // Skip over the header and dimensions
-            lpMemRes = VarArrayDataFmBase (lpMemRes);
-
-            // Split cases based upon the result type
-            switch (aplTypeRes)
+            // If the value is a scalar, ...
+            if (IsScalar (aplRankRes))
             {
-                case ARRAY_BOOL:
-                    // Mark the data as an immediate Boolean variable
-                    tkFlags.TknType  = TKT_VARIMMED;
-                    tkFlags.ImmType  = IMMTYPE_BOOL;
+                LPVOID lpMemRes;
 
-                    // Get the value
-                    tkData.tkBoolean = *(LPAPLBOOL) lpMemRes;
+                // Lock the memory to get a ptr to it
+                lpMemRes = MyGlobalLockVar (pnLocalVars.hGlbRes);
 
-                    break;
+                // Skip over the header and dimensions
+                lpMemRes = VarArrayDataFmBase (lpMemRes);
 
-                case ARRAY_INT:
-                    // Mark the data as an immediate integer variable
-                    tkFlags.TknType  = TKT_VARIMMED;
-                    tkFlags.ImmType  = IMMTYPE_INT;
+                // Split cases based upon the result type
+                switch (aplTypeRes)
+                {
+                    case ARRAY_BOOL:
+                        // Mark the data as an immediate Boolean variable
+                        tkFlags.TknType  = TKT_VARIMMED;
+                        tkFlags.ImmType  = IMMTYPE_BOOL;
 
-                    // Get the value
-                    tkData.tkInteger = *(LPAPLINT) lpMemRes;
+                        // Get the value
+                        tkData.tkBoolean = *(LPAPLBOOL) lpMemRes;
 
-                    break;
+                        break;
 
-                case ARRAY_FLOAT:
-                    // Mark the data as an immediate float variable
-                    tkFlags.TknType  = TKT_VARIMMED;
-                    tkFlags.ImmType  = IMMTYPE_FLOAT;
+                    case ARRAY_INT:
+                        // Mark the data as an immediate integer variable
+                        tkFlags.TknType  = TKT_VARIMMED;
+                        tkFlags.ImmType  = IMMTYPE_INT;
 
-                    // Get the value
-                    tkData.tkFloat   = *(LPAPLFLOAT) lpMemRes;
+                        // Get the value
+                        tkData.tkInteger = *(LPAPLINT) lpMemRes;
 
-                    break;
+                        break;
 
-                case ARRAY_RAT:
-                    hGlbData =
-                      MakeGlbEntry_EM (ARRAY_RAT,               // Entry type
-                                       lpMemRes,                // Ptr to the value
-                                       FALSE,                   // TRUE iff we should initialize the target first
-                                       NULL);                   // Ptr to function token
-                    // If the allocate failed, ...
-                    if (!hGlbData)
-                        goto ERROR_EXIT;
+                    case ARRAY_FLOAT:
+                        // Mark the data as an immediate float variable
+                        tkFlags.TknType  = TKT_VARIMMED;
+                        tkFlags.ImmType  = IMMTYPE_FLOAT;
 
-                    // Mark the data as a (scalar) array
-                    tkFlags.TknType  = TKT_NUMSCALAR;
-                    tkData.tkGlbData = hGlbData;
+                        // Get the value
+                        tkData.tkFloat   = *(LPAPLFLOAT) lpMemRes;
 
-                    break;
+                        break;
 
-                case ARRAY_VFP:
-                    hGlbData =
-                      MakeGlbEntry_EM (ARRAY_VFP,               // Entry type
-                                       lpMemRes,                // Ptr to the value
-                                       FALSE,                   // TRUE iff we should initialize the target first
-                                       NULL);                   // Ptr to function token
-                    // If the allocate failed, ...
-                    if (!hGlbData)
-                        goto ERROR_EXIT;
+                    case ARRAY_RAT:
+                        hGlbData =
+                          MakeGlbEntry_EM (ARRAY_RAT,               // Entry type
+                                           lpMemRes,                // Ptr to the value
+                                           FALSE,                   // TRUE iff we should initialize the target first
+                                           NULL);                   // Ptr to function token
+                        // If the allocate failed, ...
+                        if (hGlbData EQ NULL)
+                            goto ERROR_EXIT;
 
-                    // Mark the data as a (scalar) array
-                    tkFlags.TknType  = TKT_NUMSCALAR;
-                    tkData.tkGlbData = hGlbData;
+                        // Mark the data as a (scalar) array
+                        tkFlags.TknType  = TKT_NUMSCALAR;
+                        tkData.tkGlbData = hGlbData;
 
-                    break;
+                        break;
 
-                defstop
-                    break;
-            } // End SWITCH
+                    case ARRAY_VFP:
+                        hGlbData =
+                          MakeGlbEntry_EM (ARRAY_VFP,               // Entry type
+                                           lpMemRes,                // Ptr to the value
+                                           FALSE,                   // TRUE iff we should initialize the target first
+                                           NULL);                   // Ptr to function token
+                        // If the allocate failed, ...
+                        if (hGlbData EQ NULL)
+                            goto ERROR_EXIT;
 
-            // We no longer need this ptr
-            MyGlobalUnlock (pnLocalVars.hGlbRes); lpMemRes = NULL;
+                        // Mark the data as a (scalar) array
+                        tkFlags.TknType  = TKT_NUMSCALAR;
+                        tkData.tkGlbData = hGlbData;
 
-            // We no longer need this storage
-            MyGlobalFree (pnLocalVars.hGlbRes); pnLocalVars.hGlbRes = NULL;
+                        break;
+
+                    defstop
+                        break;
+                } // End SWITCH
+
+                // We no longer need this ptr
+                MyGlobalUnlock (pnLocalVars.hGlbRes); lpMemRes = NULL;
+
+                // We no longer need this storage
+                DbgGlobalFree (pnLocalVars.hGlbRes); pnLocalVars.hGlbRes = NULL;
+            } else
+            {
+                // Setup the flags and global data handle
+                tkFlags.TknType  = TKT_NUMSTRAND;
+                tkFlags.ImmType  = TranslateArrayTypeToImmType (aplTypeRes);
+                tkData.tkGlbData = MakePtrTypeGlb (pnLocalVars.hGlbRes);
+            } // End IF/ELSE
+
+            // Attempt to append as new token, check for TOKEN TABLE FULL,
+            //   and resize as necessary.
+            bRet = AppendNewToken_EM (lptkLocalVars,
+                                     &tkFlags,
+                                     &tkData,
+                                      0);
         } else
         {
-            // Setup the flags and global data handle
-            tkFlags.TknType  = TKT_NUMSTRAND;
-            tkFlags.ImmType  = TranslateArrayTypeToImmType (aplTypeRes);
-            tkData.tkGlbData = MakePtrTypeGlb (pnLocalVars.hGlbRes);
-        } // End IF/ELSE
+            // Get the attrs of a global
+            AttrsOfGlb (pnLocalVars.hGlbRes, &aplTypeRes, NULL, &aplRankRes, NULL);
 
-        // Attempt to append as new token, check for TOKEN TABLE FULL,
-        //   and resize as necessary.
-        bRet = AppendNewToken_EM (lptkLocalVars,
-                                 &tkFlags,
-                                 &tkData,
-                                  0);
+            // If the value is a scalar, ...
+            if (IsScalar (aplRankRes))
+            {
+                // We no longer need this storage
+                DbgGlobalFree (pnLocalVars.hGlbRes); pnLocalVars.hGlbRes = NULL;
+            } // End IF
+        } // End IF/ELSE/...
     } else
         // Mark as a SYNTAX ERROR
         bRet =
@@ -2643,6 +2771,122 @@ ERROR_EXIT:
 
     return bRet;
 } // End fnPointDone
+#undef  APPEND_NAME
+
+
+//***************************************************************************
+//  $CheckConstantCopyLoad
+//
+//  Check for :CONSTANT during )COPY/)LOAD
+//***************************************************************************
+
+UBOOL CheckConstantCopyLoad
+    (LPTKLOCALVARS lptkLocalVars,       // Ptr to Tokenize_EM local vars
+     LPPNLOCALVARS lppnLocalVars)       // Ptr to PNLOCALVARS global memory
+
+{
+    LPTOKEN lptkPrv;                    // Ptr to previous token
+
+    // Get a ptr to the previous token (if any)
+    lptkPrv = &lptkLocalVars->lptkNext[-1];
+
+    // Check for :CONSTANT during )COPY/)LOAD
+    if (lptkLocalVars->lpHeader->TokenCnt > 0
+     && lptkPrv->tkFlags.TknType EQ TKT_COLON
+     && lptkLocalVars->lpMemPTD->lpLoadWsGlbVarConv)
+    {
+        HGLOBAL      hGlbObj;           // Object global memory handle
+        LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
+
+        // Get ptr to PerTabData global memory
+        lpMemPTD = lptkLocalVars->lpMemPTD; Assert (IsValidPtr (lpMemPTD, sizeof (lpMemPTD)));
+
+        // Convert the :CONSTANT to an HGLOBAL
+        hGlbObj =
+          (*lpMemPTD->lpLoadWsGlbVarConv) ((UINT) lppnLocalVars->at.aplInteger,
+                                           lpMemPTD->lpLoadWsGlbVarParm);
+        // Split cases based upon the global memory signature
+        switch (GetSignatureGlb (hGlbObj))
+        {
+            case VARARRAY_HEADER_SIGNATURE:
+                // Fill in the result token
+                lptkPrv->tkFlags.TknType   = TKT_VARARRAY;
+////////////////lptkPrv->tkFlags.ImmType   =        // Same as for TKT_COLON
+                lptkPrv->tkFlags.NoDisplay = FALSE;
+                lptkPrv->tkData.tkGlbData  = MakePtrTypeGlb (hGlbObj);
+////////////////lptkPrv->tkCharIndex       =        // Same as for TKT_COLON
+                lptkPrv->tkSynObj          = soA;
+
+                break;
+
+            case FCNARRAY_HEADER_SIGNATURE:
+                // This DEBUG stmt probably never is triggered because
+                //    UnFcnStrand converts all named or unnamed function array items to inline items
+#ifdef DEBUG
+                DbgStop ();         // ***Probably never executed***
+#endif
+                break;
+
+            case DFN_HEADER_SIGNATURE:
+            {
+                LPDFN_HEADER lpMemDfnHdr;
+
+                // Lock the memory to get a ptr to it
+                lpMemDfnHdr = MyGlobalLockDfn (hGlbObj);
+
+                // Set the tkSynObj value from the UDFO header
+                lptkPrv->tkSynObj = TranslateDfnTypeToSOType (lpMemDfnHdr);
+
+                // Split cases based upon the Dfn type
+                switch (lpMemDfnHdr->DfnType)
+                {
+                    case DFNTYPE_OP1:
+                        // Fill in the result token
+                        lptkPrv->tkFlags.TknType = TKT_OP1NAMED;
+
+                        break;
+
+                    case DFNTYPE_OP2:
+                        // Fill in the result token
+                        lptkPrv->tkFlags.TknType = TKT_OP2NAMED;
+
+                        break;
+
+                    case DFNTYPE_FCN:
+                        // Fill in the result token
+                        lptkPrv->tkFlags.TknType = TKT_FCNNAMED;
+
+                        break;
+
+                    defstop
+                        break;
+                } // End SWITCH
+
+                // Fill in the result token
+////////////////lptkPrv->tkFlags.ImmType   =        // Same as for TKT_COLON
+                lptkPrv->tkFlags.NoDisplay = FALSE;
+////            lptkPrv->tkData.tkGlbData  = lpMemDfnHdr->steFcnName;
+                lptkPrv->tkData.tkGlbData  = MakePtrTypeGlb (hGlbObj);
+////////////////lptkPrv->tkCharIndex       =        // Same as for TKT_COLON
+
+                // We no longer need this ptr
+                MyGlobalUnlock (hGlbObj); lpMemDfnHdr = NULL;
+
+                break;
+            } // End DFN_HEADER_SIGNATURE
+
+            defstop
+                break;
+        } // End SWITCH
+
+        // Count in two more references to this object
+        DbgIncrRefCntDir_PTB (MakePtrTypeGlb (hGlbObj));    // Matched by Untokenize
+        DbgIncrRefCntDir_PTB (MakePtrTypeGlb (hGlbObj));    // Matched by DeleteGlolbalLinks
+
+        return TRUE;
+    } else
+        return FALSE;
+} // End CheckConstantCopyLoad
 
 
 //***************************************************************************
@@ -2668,7 +2912,7 @@ UBOOL scPointDone
     Assert (lptkLocalVars->lpMemClrNxt NE NULL);
 
     // Lock the memory to get a ptr to it
-    lpszNum = MyGlobalLock (lptkLocalVars->hGlbNum);
+    lpszNum = MyGlobalLockPad (lptkLocalVars->hGlbNum);
 
     // Get the number of chars
     uLen = lptkLocalVars->iNumLen;
@@ -2683,13 +2927,14 @@ UBOOL scPointDone
         //   to get the syntax color type
         switch (lpszNum[uVar])
         {
-            case 'b':
-            case DEF_EXPONENT_LC:
-            case DEF_EXPONENT_UC:
-            case 'p':
-            case DEF_RATSEP:
-            case DEF_VFPSEP:
-            case 'x':
+            case 'b':               // Base Point Notation
+            case DEF_EXPONENT_LC:   // Exponential ...
+            case DEF_EXPONENT_UC:   // ...
+            case 'g':               // Gamma ...
+            case 'p':               // Pi ...
+            case DEF_RATSEP:        // Rational
+            case DEF_VFPSEP:        // VFP
+            case 'x':               // Euler ...
                 // Point notation separator
                 scType = SC_PNSEP;
 
@@ -2898,18 +3143,7 @@ UBOOL fnDelDone
 #endif
 
     // Check for Syntax Coloring
-    if (lptkLocalVars->lpMemClrNxt)
-    {
-        // Save the column index
-        lptkLocalVars->lpMemClrNxt->colIndex = TKCOL_DEL;
-
-        // Save the color
-        lptkLocalVars->lpMemClrNxt++->syntClr =
-          gSyntaxColorName[SC_PRIMFCN].syntClr;
-
-        // Mark as successful
-        return TRUE;
-    } // End IF
+    Assert (lptkLocalVars->lpMemClrNxt EQ NULL);
 
     // Get ptr to PerTabData global memory
     lpMemPTD = lptkLocalVars->lpMemPTD; Assert (IsValidPtr (lpMemPTD, sizeof (lpMemPTD)));
@@ -2934,9 +3168,6 @@ UBOOL fnDelDone
         lptkLocalVars->uChar++;
     } else
     {
-        if (!fnGroupInitSub (lptkLocalVars, TKT_LEFTPAREN))
-            return FALSE;
-
         // Mark the data as a del
         tkFlags.TknType = TKT_DEL;              // Always a function
 ////////tkFlags.ImmType = IMMTYPE_ERROR;        // Already zero from {0}
@@ -2946,13 +3177,11 @@ UBOOL fnDelDone
 
         // Attempt to append as new token, check for TOKEN TABLE FULL,
         //   and resize as necessary.
-        if (!AppendNewToken_EM (lptkLocalVars,
-                               &tkFlags,
-                               &tkData,
-                                0))
-            return FALSE;
-
-        bRet = fnGroupDoneSub (lptkLocalVars, TKT_RIGHTPAREN, TKT_LEFTPAREN);
+        return
+          AppendNewToken_EM (lptkLocalVars,
+                            &tkFlags,
+                            &tkData,
+                             0);
     } // End IF/ELSE
 
     return bRet;
@@ -3311,14 +3540,14 @@ UBOOL fnComDone
     //   and thus have embedded WS_CRLF in it, we need to use the smaller of the
     //   lstrlenW length and the first occurrence of WC_CR or WC_LF.
     wp = strpbrkW (lptkLocalVars->lpwszCur, WS_CRLF);
-    if (wp)
+    if (wp NE NULL)
         iLen = min (iLen, (APLI3264) (wp - lptkLocalVars->lpwszCur));
 
     // Check for Syntax Coloring
     Assert (lptkLocalVars->lpMemClrNxt EQ NULL);
 
     wp = strpbrkW (&lptkLocalVars->lpwszCur[1], WS_LF);
-    if (wp)
+    if (wp NE NULL)
     {
         int iLen2;
 
@@ -3361,7 +3590,7 @@ UBOOL scComDone
     //   and thus have embedded WS_CRLF in it, we need to use the smaller of the
     //   lstrlenW length and the first occurrence of WC_CR or WC_LF.
     wp = strpbrkW (lptkLocalVars->lpwszCur, WS_CRLF);
-    if (wp)
+    if (wp NE NULL)
         iLen = min (iLen, (APLI3264) (wp - lptkLocalVars->lpwszCur));
 
     // Check for Syntax Coloring
@@ -3572,7 +3801,7 @@ UBOOL fnQuoAccumSub
     if (bRet)
     {
         // Lock the memory to get a ptr to it
-        lpwszStr = MyGlobalLock (lptkLocalVars->hGlbStr);
+        lpwszStr = MyGlobalLockPad (lptkLocalVars->hGlbStr);
 
         // Save the current char
         lpwszStr[lptkLocalVars->iStrLen++] = *lptkLocalVars->lpwszCur;
@@ -3794,7 +4023,7 @@ UBOOL fnQuoDoneSub
     lpMemPTD = lptkLocalVars->lpMemPTD; Assert (IsValidPtr (lpMemPTD, sizeof (lpMemPTD)));
 
     // Lock the memory to get a ptr to it
-    lpwszStr = MyGlobalLock (lptkLocalVars->hGlbStr);
+    lpwszStr = MyGlobalLockPad (lptkLocalVars->hGlbStr);
 
     // Check for Syntax Coloring
     Assert (lptkLocalVars->lpMemClrNxt EQ NULL);
@@ -3862,12 +4091,12 @@ UBOOL fnQuoDoneSub
         //   one dimension (it's a vector), and the string
         //   excluding the terminating zero.
         //***************************************************************
-        hGlb = MyGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlb)
+        hGlb = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
+        if (hGlb EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpwsz = MyGlobalLock (hGlb);
+        lpwsz = MyGlobalLock000 (hGlb);
 
         // Setup the header, and copy
         //   the string to the global memory
@@ -4447,7 +4676,8 @@ UBOOL fnDiaDone
 
 {
     TKFLAGS    tkFlags = {0};           // Token flags for AppendNewToken_EM
-    TOKEN_DATA tkData = {0};            // Token data  ...
+    TOKEN_DATA tkData  = {0};           // Token data  ...
+    UINT       uChar;                   // Index to current char
 
 #if (defined (DEBUG)) && (defined (EXEC_TRACE))
     DbgMsgW (L"fnDiaDone");
@@ -4457,32 +4687,45 @@ UBOOL fnDiaDone
     Assert (lptkLocalVars->lpMemClrNxt EQ NULL);
 
     // Test for mismatched or improperly nested grouping symbols
-    if (!CheckGroupSymbols_EM (lptkLocalVars))
-        return FALSE;
+    CheckGroupSymbols_EM (lptkLocalVars);
 
-    // Mark as an SOS
-    tkFlags.TknType = TKT_SOS;
+    // Get the index to the char after the diamond
+    uChar = lptkLocalVars->uChar + 1;
 
-    // Attempt to append as new token, check for TOKEN TABLE FULL,
-    //   and resize as necessary.
-    if (!AppendNewToken_EM (lptkLocalVars,
-                           &tkFlags,
-                           &tkData,
-                            0))
-        return FALSE;
+    // Skip over leading blanks and diamonds after the diamond
+    while (IsWhiteW (lptkLocalVars->lpwszOrig[uChar])
+        || IsAPLCharDiamond (lptkLocalVars->lpwszOrig[uChar]))
+        uChar++;
 
-    // Count in another stmt
-    lptkLocalVars->Orig.d.uStmtNum++;
+    // If we are not at the EOL, ...
+    if (!IsAPLCharDiamond (lptkLocalVars->lpwszOrig[lptkLocalVars->uChar])
+     || lptkLocalVars->lpwszOrig[uChar] NE WC_EOS)
+    {
+        // Mark as an SOS
+        tkFlags.TknType = TKT_SOS;
 
-    // Start the initial char over again
-    lptkLocalVars->uCharIni = lptkLocalVars->uChar + 1;
+        // Attempt to append as new token, check for TOKEN TABLE FULL,
+        //   and resize as necessary.
+        if (!AppendNewToken_EM (lptkLocalVars,
+                               &tkFlags,
+                               &tkData,
+                                0))
+            return FALSE;
 
-    // Skip over leading blanks
-    while (IsWhiteW (lptkLocalVars->lpwszOrig[lptkLocalVars->uCharIni]))
-        lptkLocalVars->uCharIni++;
+        // Count in another stmt
+        lptkLocalVars->Orig.d.uStmtNum++;
 
-    // Append the EOS token
-    return AppendEOSToken_EM (lptkLocalVars, TRUE);
+        // Start the initial char over again
+        lptkLocalVars->uCharIni = lptkLocalVars->uChar + 1;
+
+        // Skip over leading blanks
+        while (IsWhiteW (lptkLocalVars->lpwszOrig[lptkLocalVars->uCharIni]))
+            lptkLocalVars->uCharIni++;
+
+        // Append the EOS token
+        return AppendEOSToken_EM (lptkLocalVars, TRUE);
+    } else
+        return TRUE;
 } // End fnDiaDone
 
 
@@ -5056,8 +5299,9 @@ HGLOBAL Tokenize_EM
 #ifdef DEBUG
     // Check for re-entrant
     if (gInUse)
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
     else
+        // Mark as now in use
         gInUse++;
 #endif
 
@@ -5100,7 +5344,7 @@ __try
     //   might free this line by being called from the Master Frame
     //   via a system command, in which case there is
     //   no PTD for that thread.
-    tkLocalVars.hGlbToken = MyGlobalAlloc (GHND, DEF_TOKEN_SIZE * sizeof (TOKEN));
+    tkLocalVars.hGlbToken = DbgGlobalAlloc (GHND, DEF_TOKEN_SIZE * sizeof (TOKEN));
     if (!tkLocalVars.hGlbToken)
     {
         // Mark as no caret
@@ -5110,7 +5354,7 @@ __try
     } // End IF
 
     // Lock the memory to get a ptr to it
-    tkLocalVars.lpHeader  = MyGlobalLock (tkLocalVars.hGlbToken);
+    tkLocalVars.lpHeader  = MyGlobalLock000 (tkLocalVars.hGlbToken);
 
     // Set variables in the token header
     tkLocalVars.lpHeader->Sig.nature = TOKEN_HEADER_SIGNATURE;
@@ -5130,7 +5374,7 @@ __try
 
     // Allocate storage for hGlbNum
     tkLocalVars.hGlbNum =
-      MyGlobalAlloc (GHND, tkLocalVars.iNumLim * sizeof (char));
+      DbgGlobalAlloc (GHND, tkLocalVars.iNumLim * sizeof (char));
     if (!tkLocalVars.hGlbNum)
         goto ERROR_EXIT;
 
@@ -5139,7 +5383,7 @@ __try
 
     // Allocate storage for hGlbStr
     tkLocalVars.hGlbStr =
-      MyGlobalAlloc (GHND, tkLocalVars.iStrLim * sizeof (APLCHAR));
+      DbgGlobalAlloc (GHND, tkLocalVars.iStrLim * sizeof (APLCHAR));
     if (!tkLocalVars.hGlbStr)
         goto ERROR_EXIT;
 
@@ -5150,7 +5394,7 @@ __try
 #endif
 
     // Set the HTS
-    if (lpSF_Fcns->lpHTS)
+    if (lpSF_Fcns->lpHTS NE NULL)
         tkLocalVars.lpHTS = lpSF_Fcns->lpHTS;
     else
         tkLocalVars.lpHTS = lpMemPTD->lphtsPTD;
@@ -5178,6 +5422,10 @@ __try
     tkLocalVars.uCharIni   = uChar;
     tkLocalVars.uActLen    = (UINT) aplNELM;
 
+    // Clear the caret position associated with lpwszErrorMessage
+    //   so that we can tell if it has been set by an error message
+    ErrorMessageSetToken (NULL);
+
     for (     ; uChar <= aplNELM; uChar++)
     {
         // Use a FSA to tokenize the line
@@ -5203,13 +5451,17 @@ __try
         else
             wchOrig = lpwszLine[uChar];
 
-        // Check for line continuation char
-        if (wchOrig EQ AC_LF
-         && tkLocalVars.State[0] NE TKROW_QUOTE1A
-         && tkLocalVars.State[0] NE TKROW_QUOTE2A)
+        // Check for Line Continuation
+        if (lpwszLine[uChar + 0] EQ WC_CR
+         && lpwszLine[uChar + 1] EQ WC_CR
+         && lpwszLine[uChar + 2] EQ WC_LF)
         {
             TKFLAGS    tkFlags = {0};           // Token flags for AppendNewToken_EM
             TOKEN_DATA tkData = {0};            // Token data  ...
+
+            // Skip over the CRCRLF ("- 1" because the FOR loop increments uChar)
+            uChar += strcountof (WS_CRCRLF) - 1;
+////////////tkLocalVars.uChar = uChar;          // Unnecessary as we "continue" from here
 
             // Mark as a symbol table constant
             tkFlags.TknType = TKT_LINECONT;
@@ -5235,16 +5487,17 @@ __try
         tkLocalVars.colIndex = colIndex;
 
 #if (defined (DEBUG)) && (defined (EXEC_TRACE))
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"wchO = %c (%d), wchT = %s (%d), CS = %d, NS = %d, Act1 = %p, Act2 = %p",
-                   wchOrig ? wchOrig : UTF16_HORIZELLIPSIS,
-                   wchOrig,
-                   GetColName (colIndex),
-                   colIndex,
-                   tkLocalVars.State[0],
-                   fsaActTableTK[tkLocalVars.State[0]][colIndex].iNewState,
-                   fsaActTableTK[tkLocalVars.State[0]][colIndex].fnAction1,
-                   fsaActTableTK[tkLocalVars.State[0]][colIndex].fnAction2);
+                    wchOrig ? wchOrig : UTF16_HORIZELLIPSIS,
+                    wchOrig,
+                    GetColName (colIndex),
+                    colIndex,
+                    tkLocalVars.State[0],
+                    fsaActTableTK[tkLocalVars.State[0]][colIndex].iNewState,
+                    fsaActTableTK[tkLocalVars.State[0]][colIndex].fnAction1,
+                    fsaActTableTK[tkLocalVars.State[0]][colIndex].fnAction2);
         DbgMsgW (wszTemp);
 #endif
 
@@ -5279,8 +5532,7 @@ __try
                 TOKEN_DATA tkData = {0};        // Token data
 
                 // Test for mismatched or improperly nested grouping symbols
-                if (!CheckGroupSymbols_EM (&tkLocalVars))
-                    goto ERROR_EXIT;
+                CheckGroupSymbols_EM (&tkLocalVars);
 
                 // Mark as an SOS
                 tkFlags.TknType = TKT_SOS;
@@ -5309,7 +5561,7 @@ __try
                     tkLocalVars.lptkLastEOS = NULL;
                 } // End IF
 
-                // Reallocate the tokenized line to the actual size
+                // Reallocate the tokenized line down to the actual size
                 tkLocalVars.hGlbToken =
                   MyGlobalReAlloc (tkLocalVars.hGlbToken,
                                    sizeof (TOKEN_HEADER)
@@ -5342,8 +5594,18 @@ NONCE_EXIT:
 
 ERROR_EXIT:
     // Signal an error
-    if (lpErrHandFn)
-        (*lpErrHandFn) (lpMemPTD->lpwszErrorMessage, lpwszLine, tkLocalVars.uChar);
+    if (lpErrHandFn NE NULL)
+    {
+        UINT uErrorCharIndex;
+
+        // If the error character index is valid, ...
+        if (ErrorMessageGetCharIndex () NE NEG1U)
+            uErrorCharIndex = lpMemPTD->tkErrorCharIndex;
+        else
+            uErrorCharIndex = tkLocalVars.uChar;
+
+        (*lpErrHandFn) (lpMemPTD->lpwszErrorMessage, lpwszLine, uErrorCharIndex);
+    } // End IF
 
     if (tkLocalVars.hGlbToken)
     {
@@ -5359,7 +5621,7 @@ ERROR_EXIT:
         } // End IF
 
         // Free the handle
-        MyGlobalFree (tkLocalVars.hGlbToken); tkLocalVars.hGlbToken = NULL;
+        DbgGlobalFree (tkLocalVars.hGlbToken); tkLocalVars.hGlbToken = NULL;
     } // End IF
 
     goto FREED_EXIT;
@@ -5377,13 +5639,13 @@ FREED_EXIT:
     // Free the global memory:  hGlbNum
     if (tkLocalVars.hGlbNum)
     {
-        MyGlobalFree (tkLocalVars.hGlbNum); tkLocalVars.hGlbNum = NULL;
+        DbgGlobalFree (tkLocalVars.hGlbNum); tkLocalVars.hGlbNum = NULL;
     } // End IF
 
     // Free the global memory:  hGlbStr
     if (tkLocalVars.hGlbStr)
     {
-        MyGlobalFree (tkLocalVars.hGlbStr); tkLocalVars.hGlbStr = NULL;
+        DbgGlobalFree (tkLocalVars.hGlbStr); tkLocalVars.hGlbStr = NULL;
     } // End IF
 
     // If this is the function header, ...
@@ -5402,19 +5664,19 @@ FREED_EXIT:
         tkLocalVars.lptkLastEOS = NULL;
 
         // Free the handle
-        MyGlobalFree (tkLocalVars.hGlbToken); tkLocalVars.hGlbToken = NULL;
+        DbgGlobalFree (tkLocalVars.hGlbToken); tkLocalVars.hGlbToken = NULL;
     } // End IF
 
     // Free the global memory:  hGlbNum
     if (tkLocalVars.hGlbNum)
     {
-        MyGlobalFree (tkLocalVars.hGlbNum); tkLocalVars.hGlbNum = NULL;
+        DbgGlobalFree (tkLocalVars.hGlbNum); tkLocalVars.hGlbNum = NULL;
     } // End IF
 
     // Free the global memory:  hGlbStr
     if (tkLocalVars.hGlbStr)
     {
-        MyGlobalFree (tkLocalVars.hGlbStr); tkLocalVars.hGlbStr = NULL;
+        DbgGlobalFree (tkLocalVars.hGlbStr); tkLocalVars.hGlbStr = NULL;
     } // End IF
 #ifdef DEBUG
     // Mark as no longer in use
@@ -5432,7 +5694,7 @@ FREED_EXIT:
 #ifdef DEBUG
     // Ensure numeric length has been reset
     if (tkLocalVars.iNumLen NE 0)
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
     // Mark as no longer in use
     gInUse--;
 #endif
@@ -5453,13 +5715,7 @@ FREED_EXIT:
 //  Check for mismatched or improperly nested grouping symbols
 //***************************************************************************
 
-#ifdef DEBUG
-#define APPEND_NAME     L" -- CheckGroupSymbols_EM"
-#else
-#define APPEND_NAME
-#endif
-
-UBOOL CheckGroupSymbols_EM
+void CheckGroupSymbols_EM
     (LPTKLOCALVARS lptkLocalVars)       // Ptr to Tokenize_EM local vars
 
 {
@@ -5467,9 +5723,7 @@ UBOOL CheckGroupSymbols_EM
      && lptkLocalVars->lpHeader->PrevGroup NE NO_PREVIOUS_GROUPING_SYMBOL)
         // Mark as a SYNTAX ERROR
         lptkLocalVars->lptkLastEOS->tkFlags.bSyntErr = TRUE;
-    return TRUE;
 } // End CheckGroupSymbols_EM
-#undef  APPEND_NAME
 
 
 //***************************************************************************
@@ -5516,7 +5770,7 @@ void Untokenize
 
         case TKT_GLBDFN:            // Placeholder for hGlbDfnHdr
             // Free the AFO
-            if (lpToken->tkData.tkGlbData
+            if (lpToken->tkData.tkGlbData NE NULL
              && FreeResultGlobalDfn (lpToken->tkData.tkGlbData))
             {
 #ifdef DEBUG_ZAP
@@ -5551,7 +5805,7 @@ void Untokenize
         case TKT_LABELSEP:          // Label ...         (...     ':')
         case TKT_COLON:             // Colon             (...     ':')
         case TKT_VARIMMED:          // Immediate data (data is immediate)
-        case TKT_FCNIMMED:          // Immediate primitive function (any valence) (data is UTF16_***)
+        case TKT_FCNIMMED:          // Immediate primitive function (any # args) (data is UTF16_***)
         case TKT_OP1IMMED:          // ...       Monadic primitive operator (data is UTF16_***)
         case TKT_OP2IMMED:          // ...       Dyadic  ...
         case TKT_OP3IMMED:          // ...       Ambiguous  ...
@@ -5627,9 +5881,10 @@ void Untokenize
         {
             WCHAR wszTemp[1024];    // Ptr to temporary output area
 
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"Untokenize:  *** Unknown Token Value:  %d",
-                       lpToken->tkFlags.TknType);
+                        lpToken->tkFlags.TknType);
             DbgMsgW (wszTemp);
         }
 #endif
@@ -5806,16 +6061,19 @@ UBOOL AppendNewToken_EM
         uOldSize = MyGlobalSize (lptkLocalVars->hGlbToken);
 
         // Increase the size by DEF_TOKEN_RESIZE
-        hGlbToken = MyGlobalReAlloc (lptkLocalVars->hGlbToken,
-                                     uOldSize + DEF_TOKEN_RESIZE,
-                                     GMEM_ZEROINIT);
+        //   moving the old data to the new location, and
+        //   freeing the old global memory
+        hGlbToken =
+          MyGlobalReAlloc (lptkLocalVars->hGlbToken,
+                           uOldSize + DEF_TOKEN_RESIZE,
+                           GMEM_ZEROINIT);
         if (hGlbToken EQ NULL)
         {
             LPVOID lpMemOld,        // Temp ptrs
                    lpMemNew;        // ...
 
             // Increase the size by DEF_TOKEN_RESIZE
-            hGlbToken = MyGlobalAlloc (GHND, uOldSize + DEF_TOKEN_RESIZE);
+            hGlbToken = DbgGlobalAlloc (GHND, uOldSize + DEF_TOKEN_RESIZE);
 
             if (hGlbToken EQ NULL)
             {
@@ -5827,8 +6085,8 @@ UBOOL AppendNewToken_EM
             } // End IF
 
             // Lock the memory to get a ptr to it
-            lpMemOld = MyGlobalLock (lptkLocalVars->hGlbToken);
-            lpMemNew = MyGlobalLock (hGlbToken);
+            lpMemOld = MyGlobalLockTkn (lptkLocalVars->hGlbToken);
+            lpMemNew = MyGlobalLock000 (hGlbToken);
 
             // Copy the old data to the new location
             CopyMemory (lpMemNew, lpMemOld, uOldSize);
@@ -5844,11 +6102,11 @@ UBOOL AppendNewToken_EM
     } // End IF
 
     // Insert this token into the stream:
-    if (lptkData)
+    if (lptkData NE NULL)
         lptkLocalVars->lptkNext->tkData.tkCtrlStruc = lptkData->tkCtrlStruc;
     else
-        lptkLocalVars->lptkNext->tkData.tkLongest = 0;
-    lptkLocalVars->lptkNext->tkFlags        = *lptkFlags;   // Append the flags
+        lptkLocalVars->lptkNext->tkData.tkLongest   = 0;
+    lptkLocalVars->lptkNext->tkFlags                = *lptkFlags;   // Append the flags
 
     // Save index in input line of this token
     lptkLocalVars->lptkNext->tkCharIndex = iCharOffset + (UINT) (lptkLocalVars->lpwszCur - lptkLocalVars->lpwszOrig);
@@ -5859,6 +6117,17 @@ UBOOL AppendNewToken_EM
      && lptkLocalVars->lptkLastEOS->tkFlags.bSetAlpha)
         // Save the offset backwards to the LastEOS/EOL
         lptkLocalVars->lptkNext->tkData.tkIndex = (UINT) (lptkLocalVars->lptkNext - lptkLocalVars->lptkLastEOS);
+
+    Assert (lptkFlags->TknType < tokenSoLen);
+
+    // If this token is a right arrow, ...
+    if (lptkFlags->TknType EQ TKT_FCNIMMED
+     && lptkData ->tkChar  EQ UTF16_RIGHTARROW)
+        // Set the appropriate Syntax Object value
+        lptkLocalVars->lptkNext->tkSynObj = soGO;
+    else
+        // Set the appropriate Syntax Object value
+        lptkLocalVars->lptkNext->tkSynObj = tokenSo[lptkFlags->TknType].tkSynObj;
 
     // Count in another token
     lptkLocalVars->lpHeader->TokenCnt++;
@@ -5890,7 +6159,6 @@ UBOOL AppendNewToken_EM
         case TKT_RIGHTBRACKET  :
         case TKT_LEFTBRACE     :
         case TKT_RIGHTBRACE    :
-        case TKT_LINECONT      :
         case TKT_INPOUT        :
         case TKT_VARARRAY      :
         case TKT_SYS_NS        :
@@ -5979,6 +6247,8 @@ UBOOL AppendNewToken_EM
         case TKT_CS_RETURN     :
         case TKT_NOP           :
         case TKT_AFOGUARD      :
+        case TKT_AFORETURN     :
+        case TKT_LINECONT      :
             break;
 
         case TKT_CS_NEC        :
@@ -6194,9 +6464,9 @@ TKCOLINDICES CharTransTK
             if (lptkLocalVars->lpwszCur[1] EQ UTF16_DOT)
             {
                 // If we're not Syntax Coloring and we're not in a char string, ...
-                if (!lptkLocalVars->lpMemClrNxt
-                 &&  lptkLocalVars->State[0] NE TKROW_QUOTE1A
-                 &&  lptkLocalVars->State[0] NE TKROW_QUOTE2A
+                if (lptkLocalVars->lpMemClrNxt EQ NULL
+                 && lptkLocalVars->State[0] NE TKROW_QUOTE1A
+                 && lptkLocalVars->State[0] NE TKROW_QUOTE2A
                    )
                     // Skip over it
                     lptkLocalVars->uChar++;
@@ -6408,6 +6678,7 @@ TKCOLINDICES CharTransTK
         case UTF16_DIAMOND:             // Alt-'`' - diamond
         case UTF16_DIAMOND2:            // Diamond2
         case UTF16_DIAMOND3:            // Diamond3
+        case UTF16_DIAMOND4:            // Diamond4
             return TKCOL_DIAMOND;
 
         case UTF16_ZILDE:               // Alt-'}' - zilde
@@ -6508,10 +6779,11 @@ TKCOLINDICES CharTransTK
         {
             WCHAR wszTemp[64];
 
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"CharTransTK:  Unknown char: %c (%d)",
-                       wchOrig,
-                       wchOrig);
+                        wchOrig,
+                        wchOrig);
             DbgMsgW (wszTemp);
         }
 #endif
@@ -6618,9 +6890,10 @@ static COLNAMES colNames[] =
     {
         static WCHAR wszTemp[64];
 
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"GetColName:  *** Unknown Column Number:  %d",
-                   colIndex);
+                    colIndex);
         return wszTemp;
     } // End IF/ELSE
 } // End GetColName
@@ -6639,8 +6912,10 @@ void InitFsaTabs
 
 {
     // Ensure we calculated the lengths properly
-    InitFsaTabTK ();
-    InitFsaTabFS ();
+    InitFsaTabTK  ();
+    InitFsaTabFS  ();
+    InitFsaTabCR  ();
+    InitFsaTabAFO ();
 } // End InitFsaTabs
 #endif
 
@@ -6684,6 +6959,25 @@ void SetTokenStatesTK
     // Save the current state
     lptkLocalVars->State[0] = curState;
 } // End SetTokenStatesTK
+
+
+//***************************************************************************
+//  $SetTknTypeSynObj
+//
+//  Set the token type and SYNOBJ
+//***************************************************************************
+
+void SetTknTypeSynObj
+    (LPTOKEN     lptkCur,               // Ptr to token to set
+     TOKEN_TYPES tknType)               // Token type
+
+{
+    // Set the token type
+    lptkCur->tkFlags.TknType = tknType;
+
+    // Set the appropriate Syntax Object value
+    lptkCur->tkSynObj        = tokenSo[tknType].tkSynObj;
+} // End SetTknTypeSynObj
 
 
 //***************************************************************************

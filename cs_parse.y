@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ TOKEN       tkTmp;
 %}
 
 %pure-parser
-%name-prefix="cs_yy"
+%name-prefix "cs_yy"
 %parse-param {LPCSLOCALVARS lpcsLocalVars}
 %lex-param   {LPCSLOCALVARS lpcsLocalVars}
 %token  ANDIF
@@ -1114,6 +1114,27 @@ ElseIfRec:
     ElseIf                                                      {DbgMsgWP (L"%%ElseIfRec:  ElseIf");
                                                                     $$ = $1;
                                                                 }
+  | ElseIfRec       ElseIf                                      {DbgMsgWP (L"%%ElseIfRec:  ElseIfRec ElseIf");
+                                                                    // Chain together the last token in ElseIfRec and the first token in ElseIf
+                                                                    CS_ChainTokens (lpcsLocalVars, &$1.lptkCur->tkData, $2.lptkIF1st);
+
+                                                                    // If $2 has an unmatched Continue, ...
+                                                                    if ($2.lptk1st)
+                                                                    // Loop through $2's tokens converting that token's .uCLIndex to $1's
+                                                                    for (lptk1st = $2.lptk1st; lptk1st <= $2.lptkCur; lptk1st++)
+                                                                    // If it's the same .uCLIndex
+                                                                    if (lptk1st->tkData.uCLIndex EQ $2.uCLIndex)
+                                                                        lptk1st->tkData.uCLIndex = $1.uCLIndex;
+
+                                                                    // In this partial sequence, pass on down a ptr to the first entry
+                                                                    $2.lptkIF1st                = $1.lptkIF1st;
+                                                                    $2.lptkCL1st                =
+                                                                    $2.lptk1st                  = $1.lptkCL1st;
+                                                                    $2.uCLIndex                 =
+                                                                    $2.lptkCur->tkData.uCLIndex = $1.uCLIndex;
+
+                                                                    $$ = $2;
+                                                                }
   | ElseIfRec CSRec ElseIf                                      {DbgMsgWP (L"%%ElseIfRec:  ElseIfRec CSRec ElseIf");
                                                                     // If $1 has an unmatched ContinueLeave, ...
                                                                     if ($1.lptkCL1st)
@@ -1751,7 +1772,7 @@ CCListRec:
                                                                     } // End IF
 
                                                                     // If $2 has an unmatched CONTINUE, ...
-                                                                    if ($2.lptk1st)
+                                                                    if ($2.lptkCL1st)
                                                                     // Loop through $2's unmatched Continue
                                                                     for (lptk1st = $2.lptk1st; lptk1st <= $2.lptkCur; lptk1st++)
                                                                     // If it's in the same sequence, ...
@@ -1908,11 +1929,14 @@ SelectStmt:
                                                                     // If it's in the same sequence, ...
                                                                     if (lptk1st->tkData.uCLIndex EQ $3.uCLIndex)
                                                                     {
-                                                                        Assert (lptk1st->tkFlags.TknType EQ TKT_CS_CASE
-                                                                             || lptk1st->tkFlags.TknType EQ TKT_CS_CASELIST
-                                                                             || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVE
-                                                                             || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVEIF);
-
+                                                                        // The following commented out code is a bandaid covering the
+                                                                        //   fact that the CS parsing code doesn't handle certain cases
+                                                                        //   such as an :if ... :end stmt in a :case stmt.
+////////////////////////////////////////////////////////////////////////Assert (lptk1st->tkFlags.TknType EQ TKT_CS_CASE
+////////////////////////////////////////////////////////////////////////     || lptk1st->tkFlags.TknType EQ TKT_CS_CASELIST
+////////////////////////////////////////////////////////////////////////     || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVE
+////////////////////////////////////////////////////////////////////////     || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVEIF);
+////////////////////////////////////////////////////////////////////////
                                                                         // If it's LEAVE or LEAVEIF, ...
                                                                         if (lptk1st->tkFlags.TknType EQ TKT_CS_LEAVE
                                                                          || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVEIF)
@@ -1962,11 +1986,14 @@ SelectStmt:
                                                                     // If it's in the same sequence, ...
                                                                     if (lptk1st->tkData.uCLIndex EQ $3.uCLIndex)
                                                                     {
-                                                                        Assert (lptk1st->tkFlags.TknType EQ TKT_CS_CASE
-                                                                             || lptk1st->tkFlags.TknType EQ TKT_CS_CASELIST
-                                                                             || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVE
-                                                                             || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVEIF);
-
+                                                                        // The following commented out code is a bandaid covering the
+                                                                        //   fact that the CS parsing code doesn't handle certain cases
+                                                                        //   such as an :if ... :end stmt in a :case stmt.
+////////////////////////////////////////////////////////////////////////Assert (lptk1st->tkFlags.TknType EQ TKT_CS_CASE
+////////////////////////////////////////////////////////////////////////     || lptk1st->tkFlags.TknType EQ TKT_CS_CASELIST
+////////////////////////////////////////////////////////////////////////     || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVE
+////////////////////////////////////////////////////////////////////////     || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVEIF);
+////////////////////////////////////////////////////////////////////////
                                                                         // If it's LEAVE or LEAVEIF, ...
                                                                         if (lptk1st->tkFlags.TknType EQ TKT_CS_LEAVE
                                                                          || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVEIF)
@@ -2026,11 +2053,14 @@ SelectStmt:
                                                                     // If it's in the same sequence, ...
                                                                     if (lptk1st->tkData.uCLIndex EQ $3.uCLIndex)
                                                                     {
-                                                                        Assert (lptk1st->tkFlags.TknType EQ TKT_CS_CASE
-                                                                             || lptk1st->tkFlags.TknType EQ TKT_CS_CASELIST
-                                                                             || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVE
-                                                                             || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVEIF);
-
+                                                                        // The following commented out code is a bandaid covering the
+                                                                        //   fact that the CS parsing code doesn't handle certain cases
+                                                                        //   such as an :if ... :end stmt in a :case stmt.
+////////////////////////////////////////////////////////////////////////Assert (lptk1st->tkFlags.TknType EQ TKT_CS_CASE
+////////////////////////////////////////////////////////////////////////     || lptk1st->tkFlags.TknType EQ TKT_CS_CASELIST
+////////////////////////////////////////////////////////////////////////     || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVE
+////////////////////////////////////////////////////////////////////////     || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVEIF);
+////////////////////////////////////////////////////////////////////////
                                                                         // If it's LEAVE or LEAVEIF, ...
                                                                         if (lptk1st->tkFlags.TknType EQ TKT_CS_LEAVE
                                                                          || lptk1st->tkFlags.TknType EQ TKT_CS_LEAVEIF)
@@ -2630,7 +2660,7 @@ CS_YYLEX_START:
 
 void cs_yyerror                         // Called for Bison syntax error
     (LPCSLOCALVARS lpcsLocalVars,       // Ptr to Ctrl Struc Local vars
-     LPCHAR        s)                   // Ptr to error msg
+     const char   *s)                   // Ptr to error msg
 
 {
     char szTemp[1024], *p;
@@ -2638,7 +2668,7 @@ void cs_yyerror                         // Called for Bison syntax error
          uLinePos;
 
 #ifdef DEBUG
-    DbgMsg (s);
+    DbgMsg ((char *) s);
 #endif
 
     // If the error token is not already set, ...
@@ -2654,7 +2684,7 @@ void cs_yyerror                         // Called for Bison syntax error
     {
         // Check for SYNTAX ERROR
 #define ERR     "syntax error"
-        lstrcpyn (szTemp, s, sizeof (ERR));     // Note: Terminates the string, too
+        strcpyn (szTemp, s, sizeof (ERR));      // Note: Terminates the string, too
         if (lstrcmp (szTemp, ERR) EQ 0)
         {
             wsprintf (szTemp,
@@ -2669,7 +2699,7 @@ void cs_yyerror                         // Called for Bison syntax error
 
         // Check for VALUE ERROR
 #define ERR     "value error"
-        lstrcpyn (szTemp, s, sizeof (ERR));     // Note: Terminates the string, too
+        strcpyn (szTemp, s, sizeof (ERR));      // Note: Terminates the string, too
         if (lstrcmp (szTemp, ERR) EQ 0)
         {
             wsprintf (szTemp,
@@ -2684,7 +2714,7 @@ void cs_yyerror                         // Called for Bison syntax error
 
         // Check for LENGTH ERROR
 #define ERR     "length error"
-        lstrcpyn (szTemp, s, sizeof (ERR));     // Note: Terminates the string, too
+        strcpyn (szTemp, s, sizeof (ERR));      // Note: Terminates the string, too
         if (lstrcmp (szTemp, ERR) EQ 0)
         {
             wsprintf (szTemp,
@@ -2700,7 +2730,7 @@ void cs_yyerror                         // Called for Bison syntax error
         return;
 
 #define ERR     "memory exhausted"
-    lstrcpyn (szTemp, s, sizeof (ERR));     // Note: Terminates the string, too
+    strcpyn (szTemp, s, sizeof (ERR));      // Note: Terminates the string, too
     if (lstrcmp (szTemp, ERR) EQ 0)
     {
         wsprintf (szTemp,
@@ -2712,19 +2742,19 @@ void cs_yyerror                         // Called for Bison syntax error
     } // End IF
 
     // Use the error message as given
-    p = s;
+    p = (char *) s;
 
     goto DISPLAY;
 
 DISPLAYCAT:
 #ifdef DEBUG
-    lstrcat (szTemp, "(");
-    lstrcat (szTemp,  s );
-    lstrcat (szTemp, ")");
+    MyStrcat (szTemp, sizeof (szTemp), "(");
+    MyStrcat (szTemp, sizeof (szTemp),  s );
+    MyStrcat (szTemp, sizeof (szTemp), ")");
 #endif
 DISPLAY:
     // Display a message box
-    MessageBox (lpcsLocalVars->hWndEC,
+    MessageBox (hWndMF,
                 p,
                 lpszAppName,
                 MB_OK | MB_ICONWARNING | MB_APPLMODAL);
@@ -2745,32 +2775,29 @@ void cs_yyfprintf
 
 {
 #if (defined (DEBUG)) && (defined (YYFPRINTF_DEBUG))
+    HRESULT  hResult;       // The result of <StringCbVPrintf>
     va_list  vl;
-    APLU3264 i1,
-             i2,
-             i3;
-    static  char szTemp[256] = {'\0'};
+    APLU3264 i1;
+    static   char szTemp[256] = {'\0'};
 
+    // Initialize the variable list
     va_start (vl, lpszFmt);
-
-    // Bison uses no more than three arguments.
-    // Note we must grab them separately this way
-    //   as using va_arg in the argument list to
-    //   wsprintf pushes the arguments in reverse
-    //   order.
-    i1 = va_arg (vl, APLU3264);
-    i2 = va_arg (vl, APLU3264);
-    i3 = va_arg (vl, APLU3264);
-
-    va_end (vl);
 
     // Accumulate into local buffer because
     //   Bison calls this function multiple
     //   times for the same line, terminating
     //   the last call for the line with a LF.
-    wsprintf (&szTemp[lstrlen (szTemp)],
-              lpszFmt,
-              i1, i2, i3);
+    hResult = StringCbVPrintf (&szTemp[lstrlen (szTemp)],
+                                sizeof (szTemp),
+                                lpszFmt,
+                                vl);
+    // End the variable list
+    va_end (vl);
+
+    // If it failed, ...
+    if (FAILED (hResult))
+        DbgBrk ();                  // #ifdef DEBUG
+
     // Check last character.
     i1 = lstrlen (szTemp);
 

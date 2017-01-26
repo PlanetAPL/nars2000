@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -116,26 +116,28 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
      LPTOKEN lptkAxis)                  // Ptr to axis token (may be NULL)
 
 {
-    LPPERTABDATA   lpMemPTD;            // Ptr to PerTabData global memory
-    LPWCHAR        lpwszTemp;           // Ptr to temporary storage
-    APLSTYPE       aplTypeRht,          // Right arg storage type
-                   aplTypeRes;          // Result    ...
-    APLNELM        aplNELMRht,          // Right arg NELM
-                   aplNELMRes;          // Result    ...
-    APLRANK        aplRankRht;          // Right arg rank
-    HGLOBAL        hGlbRht = NULL,      // Right arg global memory handle
-                   hGlbRes = NULL,      // Result    ...
-                   hGlbData = NULL,     // Data      ...
-                   hGlbTxtLine;         // Line text ...
-    LPAPLCHAR      lpMemRht = NULL;     // Ptr to right arg global memory
-    LPVOID         lpMemRes = NULL,     // Ptr to result    ...
-                   lpMemData = NULL;    // Ptr to function data ...
-    LPMEMTXT_UNION lpMemTxtLine;        // Ptr to header/line text global memory
-    UINT           uRes;                // Loop counter
-    APLLONGEST     aplLongestRht;       // Right arg longest if immediate
-    LPSYMENTRY     lpSymEntry;          // Ptr to SYMENTRY
-    STFLAGS        stFlags = {0};       // STE flags
-    LPPL_YYSTYPE   lpYYRes = NULL;      // Ptr to the result
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    LPWCHAR           lpwszTemp,            // Ptr to temporary storage
+                      lpwszLine;            // Ptr to line text
+    APLSTYPE          aplTypeRht,           // Right arg storage type
+                      aplTypeRes;           // Result    ...
+    APLNELM           aplNELMRht,           // Right arg NELM
+                      aplNELMRes;           // Result    ...
+    APLRANK           aplRankRht;           // Right arg rank
+    HGLOBAL           hGlbRht = NULL,       // Right arg global memory handle
+                      hGlbRes = NULL,       // Result    ...
+                      hGlbFcn = NULL,       // Function  ...
+                      hGlbTxtLine;          // Line text ...
+    LPVARARRAY_HEADER lpMemHdrRht = NULL,   // Ptr to right arg header
+                      lpMemHdrRes = NULL;   // ...    result    ...
+    LPVOID            lpMemHdrFcn = NULL;   // ...    function  ...
+    LPAPLCHAR         lpMemRht;             // Ptr to right arg global memory
+    LPVOID            lpMemRes;             // Ptr to result    ...
+    LPMEMTXT_UNION    lpMemTxtLine;         // Ptr to header/line text global memory
+    APLLONGEST        aplLongestRht;        // Right arg longest if immediate
+    LPSYMENTRY        lpSymEntry;           // Ptr to SYMENTRY
+    STFLAGS           stFlags = {0};        // STE flags
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
     VARS_TEMP_OPEN
 
     // Get ptr to PerTabData global memory
@@ -158,12 +160,12 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
         goto RIGHT_DOMAIN_EXIT;
 
     // Get right arg's global ptrs
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the right arg is global, ...
-    if (hGlbRht)
+    if (hGlbRht NE NULL)
         // Skip over the header and dimensions to the data
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     else
         // Point to the right arg data
         lpMemRht = (LPAPLCHAR) &aplLongestRht;
@@ -193,7 +195,7 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
     //   or it's a System Name,
     //   or without a value,
     //   return empty vector or 0 x 0 char matrix
-    if (!lpSymEntry
+    if (lpSymEntry EQ NULL
      ||  lpSymEntry->stFlags.ObjName EQ OBJNAME_SYS
      || !lpSymEntry->stFlags.Value)
         // Not the signature of anything we know
@@ -217,20 +219,20 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
         } else
         {
             // Get the global memory ptr
-            hGlbData = lpSymEntry->stData.stGlbData;
+            hGlbFcn = lpSymEntry->stData.stGlbData;
 
             // Lock the memory to get a ptr to it
-            lpMemData = MyGlobalLock (hGlbData);
+            lpMemHdrFcn = MyGlobalLock (hGlbFcn);
 
             // Split cases based upon the array type
-            switch (GetSignatureMem (lpMemData))
+            switch (GetSignatureMem (lpMemHdrFcn))
             {
                 case FCNARRAY_HEADER_SIGNATURE:
                     // Get the line text global memory handle
-                    hGlbTxtLine = ((LPFCNARRAY_HEADER) lpMemData)->hGlbTxtLine;
+                    hGlbTxtLine = ((LPFCNARRAY_HEADER) lpMemHdrFcn)->hGlbTxtLine;
 
                     // Lock the memory to get a ptr to it
-                    lpMemTxtLine = MyGlobalLock (hGlbTxtLine);
+                    lpMemTxtLine = MyGlobalLockTxt (hGlbTxtLine);
 
                     // Get the length of the line text
                     aplNELMRes = lpMemTxtLine->U;
@@ -256,53 +258,80 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
                     APLUINT       ByteRes;          // # bytes in the result
 
                     // Get ptr to user-defined function/operator header
-                    lpMemDfnHdr = (LPDFN_HEADER) lpMemData;
+                    lpMemDfnHdr = (LPDFN_HEADER) lpMemHdrFcn;
+
+                    // Get # function lines
+                    uNumLines = lpMemDfnHdr->numFcnLines;
+
+                    // Get ptr to array of function line structs (FCNLINE[numFcnLines])
+                    lpFcnLines = (LPFCNLINE) ByteAddr (lpMemDfnHdr, lpMemDfnHdr->offFcnLines);
 
                     // If this is an AFO, ...
                     if (lpMemDfnHdr->bAFO)
                     {
-                        // Get ptr to array of function line structs (FCNLINE[numFcnLines])
-                        lpFcnLines = (LPFCNLINE) ByteAddr (lpMemDfnHdr, lpMemDfnHdr->offFcnLines);
+                        // Copy temp ptr
+                        lpwszLine = lpwszTemp;
 
-                        // Get the line text global memory handle
-                        hGlbTxtLine = lpFcnLines->hGlbTxtLine;
+                        // Append the function name from the symbol table
+                        lpwszLine = CopySteName (lpwszLine, lpSymEntry, NULL);
 
-                        // Lock the memory to get a ptr to it
-                        lpMemTxtLine = MyGlobalLock (hGlbTxtLine);
+                        // Next a left arrow
+                        *lpwszLine++ = UTF16_LEFTARROW;
 
-                        // Get the length of the line text
-                        aplNELMRes = lpMemTxtLine->U;
+                        // Next a leading left brace
+                        *lpwszLine++ = UTF16_LEFTBRACE;
 
-                        // Start with a leading left brace
-                        lpwszTemp[0] = UTF16_LEFTBRACE;
+                        // Run through the function lines copying each line text to the result
+                        for (uLine = 0; uLine < uNumLines; uLine++)
+                        {
+                            // Get the line text global memory handle
+                            hGlbTxtLine = lpFcnLines->hGlbTxtLine;
 
-                        // Copy the function line text to global memory
-                        CopyMemoryW (&lpwszTemp[1], &lpMemTxtLine->C, (APLU3264) aplNELMRes);
+                            // Lock the memory to get a ptr to it
+                            lpMemTxtLine = MyGlobalLockTxt (hGlbTxtLine);
+
+                            // If this isn't the first line, ...
+                            if (uLine > 0)
+                            {
+                                CopyMemoryW (lpwszLine, WS_CRLF, strcountof (WS_CRLF));
+
+                                // Skip over the text
+                                lpwszLine += strcountof (WS_CRLF);
+                            } // End IF
+
+                            // Copy the function line text to global memory
+                            CopyMemoryW (lpwszLine, &lpMemTxtLine->C, (APLU3264) lpMemTxtLine->U);
+
+                            // Skip over the text
+                            lpwszLine += lpMemTxtLine->U;
+
+                            // Skip to the next struct
+                            lpFcnLines++;
+                        } // End FOR
 
                         // End with a trailing right brace
-                        lpwszTemp[1 + aplNELMRes] = UTF16_RIGHTBRACE;
+                        //   and terminating zero
+                        *lpwszLine++ = UTF16_RIGHTBRACE;
+                        lpwszLine[0] = WC_EOS;
 
                         // We no longer need this ptr
                         MyGlobalUnlock (hGlbTxtLine); lpMemTxtLine = NULL;
 
+                        // Calculate the text length
+                        aplNELMRes = lpwszLine - lpwszTemp;
+
                         // Finish the job via subroutine
-                        hGlbRes = SysFnMonCR_ALLOC_EM (aplNELMRes + 2, aplRankRes, lpwszTemp, lptkFunc);
+                        hGlbRes = SysFnMonCR_ALLOC_EM (aplNELMRes, aplRankRes, lpwszTemp, lptkFunc);
                     } else
                     {
                         // Lock the memory to get a ptr to it
-                        lpMemTxtLine = MyGlobalLock (lpMemDfnHdr->hGlbTxtHdr);
+                        lpMemTxtLine = MyGlobalLockTxt (lpMemDfnHdr->hGlbTxtHdr);
 
                         // Get the length of the function header text
                         uMaxLineLen = lpMemTxtLine->U;
 
                         // We no longer need this ptr
                         MyGlobalUnlock (lpMemDfnHdr->hGlbTxtHdr); lpMemTxtLine = NULL;
-
-                        // Get ptr to array of function line structs (FCNLINE[numFcnLines])
-                        lpFcnLines = (LPFCNLINE) ByteAddr (lpMemDfnHdr, lpMemDfnHdr->offFcnLines);
-
-                        // Get # function lines
-                        uNumLines = lpMemDfnHdr->numFcnLines;
 
                         // If the result is a matrix, ...
                         if (IsMatrix (aplRankRes))
@@ -313,10 +342,10 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
                                 // Get the line text global memory handle
                                 hGlbTxtLine = lpFcnLines->hGlbTxtLine;
 
-                                if (hGlbTxtLine)
+                                if (hGlbTxtLine NE NULL)
                                 {
                                     // Lock the memory to get a ptr to it
-                                    lpMemTxtLine = MyGlobalLock (hGlbTxtLine);
+                                    lpMemTxtLine = MyGlobalLockTxt (hGlbTxtLine);
 
                                     // Find the length of the longest line
                                     uMaxLineLen = max (uMaxLineLen, lpMemTxtLine->U);
@@ -345,13 +374,13 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
 
                         // Allocate space for the result
                         hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-                        if (!hGlbRes)
+                        if (hGlbRes EQ NULL)
                             goto WSFULL_EXIT;
 
                         // Lock the memory to get a ptr to it
-                        lpMemRes = MyGlobalLock (hGlbRes);
+                        lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader        lpMemHdrRes
                         // Fill in the header
                         lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
                         lpHeader->ArrType    = aplTypeRes;
@@ -363,19 +392,13 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
 #undef  lpHeader
 
                         // Save the dimensions in the result ("1 +" includes the header)
-                        (VarArrayBaseToDim (lpMemRes))[0] = 1 + uNumLines;
+                        (VarArrayBaseToDim (lpMemHdrRes))[0] = 1 + uNumLines;
                         if (IsMatrix (aplRankRes))
-                            (VarArrayBaseToDim (lpMemRes))[1] = uMaxLineLen;
+                            (VarArrayBaseToDim (lpMemHdrRes))[1] = uMaxLineLen;
 
 #define lpMemResChar    ((LPAPLCHAR) lpMemRes)
                         // Skip over the header and dimensions to the data
-                        lpMemResChar = VarArrayDataFmBase (lpMemRes);
-
-                        // If this is a nested result, fill it in PTR_REUSED
-                        //   in case we fail along the way
-                        if (IsVector (aplRankRes))
-                        for (uRes = 0; uRes < aplNELMRes; uRes++)
-                            ((LPAPLNESTED) lpMemResChar)[uRes] = PTR_REUSED;
+                        lpMemResChar = VarArrayDataFmBase (lpMemHdrRes);
 
                         // Copy the header to the result as either a row or as an allocated HGLOBAL
                         lpMemResChar = SysFnCR_Copy_EM (aplRankRes, lpMemResChar, lpMemDfnHdr->hGlbTxtHdr, uMaxLineLen, lptkFunc);
@@ -391,7 +414,7 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
                             // Get the line text global memory handle
                             hGlbTxtLine = lpFcnLines->hGlbTxtLine;
 
-                            if (hGlbTxtLine)
+                            if (hGlbTxtLine NE NULL)
                             {
                                 // Copy the line text to the result as either a row or as an allocated HGLOBAL
                                 lpMemResChar = SysFnCR_Copy_EM (aplRankRes, lpMemResChar, hGlbTxtLine, uMaxLineLen, lptkFunc);
@@ -418,11 +441,11 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
             } // End SWITCH
 
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbData); lpMemData = NULL;
+            MyGlobalUnlock (hGlbFcn); lpMemHdrFcn = NULL;
         } // End IF/ELSE
     } // End IF/ELSE
 
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto ERROR_EXIT;
 
     // Allocate a new YYRes
@@ -435,10 +458,10 @@ LPPL_YYSTYPE SysFnCR_Common_EM_YY
     lpYYRes->tkToken.tkData.tkGlbData  = MakePtrTypeGlb (hGlbRes);
     lpYYRes->tkToken.tkCharIndex       = lptkFunc->tkCharIndex;
 
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
     goto NORMAL_EXIT;
@@ -459,28 +482,28 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbData && lpMemData)
+    if (hGlbFcn NE NULL && lpMemHdrFcn NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbData); lpMemData = NULL;
+        MyGlobalUnlock (hGlbFcn); lpMemHdrFcn = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
     EXIT_TEMP_OPEN
@@ -510,14 +533,15 @@ LPVOID SysFnCR_Copy_EM
      LPTOKEN lptkFunc)                      // Ptr to function token
 
 {
-    LPMEMTXT_UNION lpMemTxtLine;        // Ptr to header/line text global memory
-    UINT           uLineLen;            // Length of a text line
-    HGLOBAL        hGlbCpy;             // Copy of header/line text global memory handle
-    LPVOID         lpMemCpy;            // Ptr to header/line text global memory
-    APLUINT        ByteRes;             // # bytes in the result
+    LPMEMTXT_UNION    lpMemTxtLine;         // Ptr to header/line text global memory
+    UINT              uLineLen;             // Length of a text line
+    HGLOBAL           hGlbCpy;              // Copy of header/line text global memory handle
+    LPVARARRAY_HEADER lpMemHdrCpy = NULL;   // Ptr to copy of header/line header
+    LPVOID            lpMemCpy;             // Ptr to header/line text global memory
+    APLUINT           ByteRes;              // # bytes in the result
 
     // Lock the memory to get a ptr to it
-    lpMemTxtLine = MyGlobalLock (hGlbTxt);
+    lpMemTxtLine = MyGlobalLockTxt (hGlbTxt);
 
     // Split cases based upon the result rank (1 or 2)
     if (IsVector (aplRankRes))
@@ -531,13 +555,13 @@ LPVOID SysFnCR_Copy_EM
 
         // Allocate space for the result.
         hGlbCpy = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbCpy)
+        if (hGlbCpy EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemCpy = MyGlobalLock (hGlbCpy);
+        lpMemHdrCpy = MyGlobalLock000 (hGlbCpy);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemCpy)
+#define lpHeader        lpMemHdrCpy
         // Fill in the header
         lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
         lpHeader->ArrType    = ARRAY_CHAR;
@@ -549,16 +573,16 @@ LPVOID SysFnCR_Copy_EM
 #undef  lpHeader
 
         // Save the dimension
-        *VarArrayBaseToDim (lpMemCpy) = lpMemTxtLine->U;
+        *VarArrayBaseToDim (lpMemHdrCpy) = lpMemTxtLine->U;
 
         // Skip over the header and dimensions to the data
-        lpMemCpy = VarArrayDataFmBase (lpMemCpy);
+        lpMemCpy = VarArrayDataFmBase (lpMemHdrCpy);
 
         // Copy the text
         CopyMemoryW (lpMemCpy, &lpMemTxtLine->C, lpMemTxtLine->U);
 
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbCpy); lpMemCpy = NULL;
+        MyGlobalUnlock (hGlbCpy); lpMemHdrCpy = NULL;
 
         // Save the HGLOBAL in the result and skip over it
         *((LPAPLNESTED) lpMemRes)++ = MakePtrTypeGlb (hGlbCpy);
@@ -619,10 +643,11 @@ HGLOBAL SysFnMonCR_ALLOC_EM
      LPTOKEN   lptkFunc)        // Ptr to function token
 
 {
-    APLSTYPE   aplTypeRes;      // Result storage type
-    HGLOBAL    hGlbRes;         // Result global memory handle
-    LPVOID     lpMemRes;        // Ptr to result    ...
-    APLUINT    ByteRes;         // # bytes in the result
+    APLSTYPE          aplTypeRes;           // Result storage type
+    HGLOBAL           hGlbRes;              // Result global memory handle
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // Ptr to result header
+    LPVOID            lpMemRes;             // Ptr to result    ...
+    APLUINT           ByteRes;              // # bytes in the result
 
     // If the result is an empty vector, ...
     if (IsEmpty (aplNELMRes)
@@ -642,13 +667,13 @@ HGLOBAL SysFnMonCR_ALLOC_EM
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader        lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = aplTypeRes;
@@ -665,19 +690,19 @@ HGLOBAL SysFnMonCR_ALLOC_EM
      && !IsEmpty (aplNELMRes))
     {
         // Save the dimension in the result
-        (VarArrayBaseToDim (lpMemRes))[0] = 1;
+        (VarArrayBaseToDim (lpMemHdrRes))[0] = 1;
 
         // Save the dimension in the result
-        (VarArrayBaseToDim (lpMemRes))[1] = aplNELMRes;
+        (VarArrayBaseToDim (lpMemHdrRes))[1] = aplNELMRes;
     } else
         // Save the dimension in the result
-        *VarArrayBaseToDim (lpMemRes) = aplNELMRes;
+        *VarArrayBaseToDim (lpMemHdrRes) = aplNELMRes;
 
     // Skip over the header and dimensions to the result
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // Ensure the source is valid
-    if (lpw)
+    if (lpw NE NULL)
         // Copy the function text to the result
         CopyMemoryW (lpMemRes, lpw, (APLU3264) aplNELMRes);
     else
@@ -686,7 +711,7 @@ HGLOBAL SysFnMonCR_ALLOC_EM
         *((LPAPLNESTED) lpMemRes) = MakePtrTypeGlb (hGlbV0Char);
 
     // We no longer need this ptr
-    MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
     return hGlbRes;
 
@@ -718,7 +743,7 @@ LPAPLCHAR CopySteName
     Assert (IsValidHandle (lpSymEntry->stHshEntry->htGlbName                                 ));
 
     // Lock the memory to get a ptr to it
-    lpMemName = MyGlobalLock (lpSymEntry->stHshEntry->htGlbName);
+    lpMemName = MyGlobalLockWsz (lpSymEntry->stHshEntry->htGlbName);
 
     // Get the name length
     uNameLen = lstrlenW (lpMemName);
@@ -730,7 +755,7 @@ LPAPLCHAR CopySteName
     lpMemRes += uNameLen;
 
     // Return the name length, if requested
-    if (lpaplNELM)
+    if (lpaplNELM NE NULL)
         *lpaplNELM = uNameLen;
 
     // We no longer need this ptr
@@ -761,7 +786,7 @@ LPAPLCHAR ConvSteName
     Assert (IsValidHandle (lpSymEntry->stHshEntry->htGlbName                                 ));
 
     // Lock the memory to get a ptr to it
-    lpMemName = MyGlobalLock (lpSymEntry->stHshEntry->htGlbName);
+    lpMemName = MyGlobalLockWsz (lpSymEntry->stHshEntry->htGlbName);
 
     // Get the name length
     uNameLen = lstrlenW (lpMemName);
@@ -774,7 +799,7 @@ LPAPLCHAR ConvSteName
                                lpMemName,   // Ptr to incoming chars
                                uNameLen);   // # chars to convert
     // Return the name length, if requested
-    if (lpaplNELM)
+    if (lpaplNELM NE NULL)
         *lpaplNELM = lstrlenW (lpMemRes);
 
     // We no longer need this ptr
@@ -832,7 +857,7 @@ LPPL_YYSTYPE SysFnDydCR_EM_YY
     aplLongestLft = GetGlbPtrs (lptkLftArg, &hGlbLft);
 
     // If the left arg is a global, ...
-    if (hGlbLft)
+    if (hGlbLft NE NULL)
         // Set the ptr type bits
         hGlbLft = MakePtrTypeGlb (hGlbLft);
 

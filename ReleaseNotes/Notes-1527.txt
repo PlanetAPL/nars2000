@@ -1,0 +1,24 @@
+Build #1527 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In )RESET Not Being Passed Up The Line
+* Fix Bugs In <ParseLine> On Error
+* Fix Bug In f/ When Promoting Floating Point Numbers
+
+Directory trunk:
+
+EXECDFN.C:
+  Handle )RESET in <ExecuteFunction_EM_YY> which causes it not to be passed up the line.
+
+PARSELINE.C:
+  Fix bug in <ParseLine> to check for SYNTAX & VALUE ERRORs before EOS/EOS so as to signal those errors first.
+  Fix bug in <ParseLine> after executing []ELX to display the result instead of passing on the result to an AFO.
+
+PO_SLASH.C:
+  Delete spurious call to <aTypeActPromote>.
+  Remove suprious DEBUG stmt.
+  Fix bug in <PrimOpMonSlashCommon_EM_YY> when calling <aTypeActPromote> to use the correct datatype (ARRAY_FLOAT).
+  Delete unused <aplTypeTmp>.
+
+RESDEBUG.C:
+  Remove #define to debug the heap to save some time when running in DEBUG mode.

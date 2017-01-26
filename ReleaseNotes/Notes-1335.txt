@@ -1,0 +1,9 @@
+Build #1335 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Promoting A FLT To A FLT
+
+Directory trunk:
+
+TYPEMOTE.C:
+  Fix bug when promoting a FLT to a FLT (missing case).

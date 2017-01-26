@@ -1,0 +1,65 @@
+Build #1387 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In lstrcpy/lstrcpyn/lstrcat Functions
+
+Directory trunk:
+
+COMMON.C:
+  Define additional helper functions.
+  Fix typo in comment.
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.
+
+CS_PARSE.Y:
+CUSTOMIZE.C:
+DISPDBG.C:
+DISPLAY.C:
+EDITFCN.C:
+EXCEPT.C:
+FH_PARSE.Y:
+INIFILE.C:
+MAIN.C:
+MPFNS.C:
+PARSELINE.C:
+PF_CSTAR.C:
+PF_DSTILE.C:
+PN_PARSE.Y:
+PN_PROC.C:
+PRIMSPEC.C:
+QF_DR.C:
+QF_FMT.C:
+QF_SYSVER.C:
+SC_COMMON.C:
+SC_COPY.C:
+SC_DROP.C:
+SC_IN.C:
+SC_INASCII.C:
+SC_LIB.C:
+SC_LOAD.C:
+SC_OUT.C:
+SC_SAVE.C:
+SESSMAN.C:
+SYMTAB.C:
+TABCTRL.C:
+TOKENIZE.C:
+UPDATES.C:
+VER.C:
+WEBCOLORS.C:
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.
+
+ERRMSG.C:
+  Update copyright notice.
+  In <BreakMessage>, ensure that the SIS layer and the function name is valid before using.
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.
+
+SAVEFCN.C:
+  Update copyright notice.
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.
+  In <SaveFunctionCom>, check for valid ptr before using.
+
+
+Directory trunk\WineHQ:
+
+EDITCTRL.C:
+LOCAL.H:
+  Define and use local strcpyW/strcpyn/strcpnW/strcatW functions.

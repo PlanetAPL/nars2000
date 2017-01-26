@@ -1,0 +1,11 @@
+Build #1458 -- Version 0.4.13.xx
+--------------------------------
+
+* Ensure The Result Of Primitive Monadic Function Has The PTB Bits Set
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Improve comments.
+  Remove <DBGENTER> and <DBGLEAVE> macros as they are no longer relevant.
+  In <PrimFnMonGlb_EM>, ensure valid results have the PTB set.

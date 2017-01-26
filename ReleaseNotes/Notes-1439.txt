@@ -1,0 +1,18 @@
+Build #1439 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug Not Handling Modify Assignments Into A Name
+
+Directory trunk:
+
+PARSELINE.C:
+  Rename DEBUG2 toDEBUG_TRACE.
+  Undefine DEBUG_START to shorten run time of long functions.
+  Clean up <MessageBox> display for ASSERTION ERROR.
+  Improve comments.
+  Refactor locals in <GetLftSynObj>.
+  Clean up code in <pl_yylexCOM> at switch/TKT_VARNAMED/NAMETYPE_VAR which
+    handles late catch of modify assignments into a name.
+
+PARSELINE.H:
+  Revert to previous handling of MOP/MOPN HY.

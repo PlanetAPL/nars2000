@@ -1,0 +1,10 @@
+Build #1547 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Display Of Certain Derived Functions
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnSub>, fix the poor handling of monadic and dyadic operators as
+    well as the axis operator when combined with the same objects.

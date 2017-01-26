@@ -1,0 +1,9 @@
+Build #1367 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In VS2013 Solution File
+
+Directory trunk:
+
+NARS2000.SLN:
+  Load the .vcproj (not .vcxproj) file so as to go through the One-Time Upgrade.

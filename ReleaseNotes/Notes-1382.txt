@@ -1,0 +1,9 @@
+Build #1382 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In []EC '{goto}1'
+
+Directory trunk:
+
+PRIMFNS.C::
+  In <GetSISLayer>, don't skip over ErrCtrl SIS layers as {goto} needs to modify the []EC layer, not the calling layer.

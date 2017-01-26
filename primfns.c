@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,6 +26,104 @@
 #include "headers.h"
 
 static APLINT mod64 (APLINT, APLINT);
+
+/// // These macros were taken (and adapted) from
+/// //   http://www.fefe.de/intof.html
+///
+/// #define __HALF_MAX_SIGNED_APLINT ((APLINT)1 << (sizeof(APLINT)*8-2))
+/// #define __MAX_SIGNED_APLINT (__HALF_MAX_SIGNED_APLINT - 1 + __HALF_MAX_SIGNED_APLINT)
+/// #define __MIN_SIGNED_APLINT (-1 - __MAX_SIGNED_APLINT)
+///
+/// #define __MIN_APLINT ((APLINT)-1 < 1?__MIN_SIGNED_APLINT:(APLINT)0)
+/// #define __MAX_APLINT ((APLINT)~__MIN_APLINT)
+///
+/// #define add_of(c,__a,__b)  \
+///   ((__b) < 1) ? \
+///     ((__MIN_APLINT - (__b)) <= (__a) ? c = __a + __b, 1 : 0) : \
+///     ((__MAX_APLINT - (__b)) >= (__a) ? c = __a + __b, 1 : 0);
+///
+///
+/// #define sub_of(c,__a,__b)  \
+///   ((__b) < 1) ? \
+///     ((__MAX_APLINT + (__b)) >= (__a) ? c = __a - __b, 1 : 0) : \
+///     ((__MIN_APLINT + (__b)) <= (__a) ? c = __a - __b, 1 : 0);
+
+
+//***************************************************************************
+//  $IsTknOp1
+//
+//  Is the token a monadic operator?
+//***************************************************************************
+
+UBOOL IsTknOp1
+    (LPTOKEN lptkFcnOpr)            // Ptr to token
+
+{
+    return GetTknOpType (lptkFcnOpr, IMMTYPE_PRIMOP1, DFNTYPE_OP1);
+} // End IsTknOp1
+
+
+//***************************************************************************
+//  $IsTknOp2
+//
+//  Is the token a dyadic operator?
+//***************************************************************************
+
+UBOOL IsTknOp2
+    (LPTOKEN lptkFcnOpr)            // Ptr to token
+
+{
+    return GetTknOpType (lptkFcnOpr, IMMTYPE_PRIMOP2, DFNTYPE_OP2);
+} // End IsTknOp2
+
+
+//***************************************************************************
+//  $GetTknOpType
+//
+//  Is the token a monadic operator?
+//***************************************************************************
+
+UBOOL GetTknOpType
+    (LPTOKEN   lptkFcnOpr,          // Ptr to token
+     IMM_TYPES immType,             // Immediate type
+     DFN_TYPES dfnType)             // UDFO type
+
+{
+    UBOOL         bRet = FALSE;     // TRUE iff the result is valid
+
+    // If the token is a function/operator, ...
+    if (IsTknFcnOpr (lptkFcnOpr))
+    {
+        // If the token is immediate, ...
+        if (IsTknImmed (lptkFcnOpr))
+            // Check the immediate type
+            bRet = (GetImmedType (lptkFcnOpr) EQ immType);
+        else
+        {
+            HGLOBAL hGlbData;
+
+            // Get the global handle
+            hGlbData = GetGlbHandle (lptkFcnOpr);
+
+            // Check the signature for UDFO
+            if (GetSignatureGlb_PTB (hGlbData) EQ DFN_HEADER_SIGNATURE)
+            {
+                LPDFN_HEADER  lpMemDfnHdr;      // Ptr to user-defined function/operator header ...
+
+                // Lock the memory to get a ptr to it
+                lpMemDfnHdr = MyGlobalLockDfn (hGlbData);
+
+                // Get the DFNTYPE_xxx
+                bRet = (lpMemDfnHdr->DfnType EQ dfnType);
+
+                // We no longer need this ptr
+                MyGlobalUnlock (hGlbData); lpMemDfnHdr = NULL;
+            } // End IF/ELSE
+        } // End IF/ELSE
+    } // End IF
+
+    return bRet;
+} // End GetTknOpType
 
 
 //***************************************************************************
@@ -50,6 +148,7 @@ UBOOL IsTknFcnOpr
             return FALSE;
 
         defstop
+        case '?':
             return 0;
     } // End SWITCH
 } // End IsTknFcnOpr
@@ -123,7 +222,7 @@ char TokenTypeFV
             lpSISCur = SrchSISForDfn (GetMemPTD ());
 
             // If the ptr is valid, ...
-            if (lpSISCur)
+            if (lpSISCur NE NULL)
             {
                 // Split case based upon the function type
                 switch (lpSISCur->DfnType)
@@ -147,8 +246,6 @@ char TokenTypeFV
         case TKT_SYNTERR:
         case TKT_SETALPHA:
         case TKT_GLBDFN:
-            return '?';
-
         case TKT_ASSIGN:
         case TKT_LISTSEP:
         case TKT_LABELSEP:
@@ -168,6 +265,7 @@ char TokenTypeFV
         case TKT_LSTMULT:
         case TKT_STRNAMED:
         case TKT_CS_ANDIF:                  // Control structure:  ANDIF     (Data is Line/Stmt #)
+        case TKT_CS_ASSERT:                 // ...                 ASSERT
         case TKT_CS_CASE:                   // ...                 CASE
         case TKT_CS_CASELIST:               // ...                 CASELIST
         case TKT_CS_CONTINUE:               // ...                 CONTINUE
@@ -204,6 +302,8 @@ char TokenTypeFV
         case TKT_NOP:                       // NOP
         case TKT_AFOGUARD:                  // AFO guard
         case TKT_AFORETURN:                 // AFO return
+            return '?';
+
         defstop
             return '?';
     } // End SWITCH
@@ -220,19 +320,17 @@ APLRANK RankOfGlb
     (HGLOBAL hGlb)
 
 {
-    LPVOID  lpMem;
-    APLRANK aplRank;
+    LPVARARRAY_HEADER lpMemHdr;
+    APLRANK           aplRank;
 
     // Lock the memory to get a ptr to it
-    lpMem = MyGlobalLock (hGlb);
+    lpMemHdr = MyGlobalLockVar (hGlb);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMem)
     // Get the Rank
-    aplRank = lpHeader->Rank;
-#undef  lpHeader
+    aplRank = lpMemHdr->Rank;
 
     // We no longer need this ptr
-    MyGlobalUnlock (hGlb); lpMem = NULL;
+    MyGlobalUnlock (hGlb); lpMemHdr = NULL;
 
     return aplRank;
 } // End RankOfGlb
@@ -273,26 +371,26 @@ void AttrsOfToken
                 break;      // Continue with HGLOBAL case
             } // End IF
 
-            if (lpaplType)
+            if (lpaplType NE NULL)
                 *lpaplType = TranslateImmTypeToArrayType (lpToken->tkData.tkSym->stFlags.ImmType);
-            if (lpaplNELM)
+            if (lpaplNELM NE NULL)
                 *lpaplNELM = 1;
-            if (lpaplRank)
+            if (lpaplRank NE NULL)
                 *lpaplRank = 0;
-            if (lpaplCols)
+            if (lpaplCols NE NULL)
                 *lpaplCols = 1;
             return;
 
         case TKT_VARIMMED:
         case TKT_LSTIMMED:
         case TKT_AXISIMMED:
-            if (lpaplType)
+            if (lpaplType NE NULL)
                 *lpaplType = TranslateImmTypeToArrayType (lpToken->tkFlags.ImmType);
-            if (lpaplNELM)
+            if (lpaplNELM NE NULL)
                 *lpaplNELM = 1;
-            if (lpaplRank)
+            if (lpaplRank NE NULL)
                 *lpaplRank = 0;
-            if (lpaplCols)
+            if (lpaplCols NE NULL)
                 *lpaplCols = 1;
             return;
 
@@ -346,7 +444,7 @@ void AttrsOfGlb
     LPVOID  lpMemData;          // Ptr to global memory
 
     // Lock the memory to get a ptr to it
-    lpMemData = MyGlobalLock (hGlbData);
+    lpMemData = MyGlobalLock (hGlbData);    // LST, VAR
 
     // Split cases based upon the array signature
     switch (GetSignatureMem (lpMemData))
@@ -358,13 +456,13 @@ void AttrsOfGlb
 #else
   #define lpHeader    ((LPLSTARRAY_HEADER) lpMemData)
 #endif
-            if (lpaplType)
+            if (lpaplType NE NULL)
                 *lpaplType = ARRAY_LIST;
-            if (lpaplNELM)
+            if (lpaplNELM NE NULL)
                 *lpaplNELM = lpHeader->NELM;
-            if (lpaplRank)
+            if (lpaplRank NE NULL)
                 *lpaplRank = 1;
-            if (lpaplCols)
+            if (lpaplCols NE NULL)
                 *lpaplCols = lpHeader->NELM;
 
             break;
@@ -380,17 +478,17 @@ void AttrsOfGlb
 #else
   #define lpHeader    ((LPVARARRAY_HEADER) lpMemData)
 #endif
-            if (lpaplType)
+            if (lpaplType NE NULL)
                 *lpaplType = lpHeader->ArrType;
-            if (lpaplNELM)
+            if (lpaplNELM NE NULL)
                 *lpaplNELM = lpHeader->NELM;
-            if (lpaplRank)
+            if (lpaplRank NE NULL)
                 *lpaplRank = lpHeader->Rank;
-            if (lpaplCols)
+            if (lpaplCols NE NULL)
             {
                 if (!IsScalar (lpHeader->Rank))
                     // Skip over the header to the dimensions
-                    *lpaplCols = (VarArrayBaseToDim (lpMemData))[lpHeader->Rank - 1];
+                    *lpaplCols = (VarArrayBaseToDim (lpHeader))[lpHeader->Rank - 1];
                 else
                     *lpaplCols = 1;
             } // End IF
@@ -507,17 +605,17 @@ UBOOL IncrOdometer
     // Note we use a signed index variable because we're
     //   walking backwards and the test against zero must be
     //   made as a signed variable.
-    if (lpMemAxisHead)
+    if (lpMemAxisHead NE NULL)
     {
         for (iOdo = aplRank - 1; iOdo >= 0; iOdo--)
-        if (++lpMemOdo[iOdo] EQ lpMemDim[lpMemAxisHead[iOdo]])
+        if (++lpMemOdo[iOdo] >= lpMemDim[lpMemAxisHead[iOdo]])
             lpMemOdo[iOdo] = 0;
         else
             return FALSE;
     } else
     {
         for (iOdo = aplRank - 1; iOdo >= 0; iOdo--)
-        if (++lpMemOdo[iOdo] EQ lpMemDim[iOdo])
+        if (++lpMemOdo[iOdo] >= lpMemDim[iOdo])
             lpMemOdo[iOdo] = 0;
         else
             return FALSE;
@@ -540,31 +638,31 @@ UBOOL IncrOdometer
 #endif
 
 UBOOL PrimScalarFnDydAllocate_EM
-    (LPTOKEN    lptkFunc,       // Ptr to function token
+    (LPTOKEN           lptkFunc,        // Ptr to function token
 
-     HGLOBAL   *lphGlbRes,      // Return HGLOBAL of the result
+     HGLOBAL          *lphGlbRes,       // Return HGLOBAL of the result
 
-     LPVOID     lpMemLft,       // Ptr to left arg memory (may be NULL if monadic)
-     LPVOID     lpMemRht,       // ...    right ...
+     LPVARARRAY_HEADER lpMemHdrLft,     // Ptr to left arg memory (may be NULL if monadic)
+     LPVARARRAY_HEADER lpMemHdrRht,     // ...    right ...
 
-     APLRANK    aplRankLft,     // Left arg rank
-     APLRANK    aplRankRht,     // Right ...
-     LPAPLRANK  lpaplRankRes,   // Ptr to result rank
+     APLRANK           aplRankLft,      // Left arg rank
+     APLRANK           aplRankRht,      // Right ...
+     LPAPLRANK         lpaplRankRes,    // Ptr to result rank
 
-     APLSTYPE   aplTypeRes,     // Result type
+     APLSTYPE          aplTypeRes,      // Result type
 
-     UBOOL      bLftIdent,      // TRUE iff the function has a left identity element and the Axis tail is valid
-     UBOOL      bRhtIdent,      // ...                         right ...
+     UBOOL             bLftIdent,       // TRUE iff the function has a left identity element and the Axis tail is valid
+     UBOOL             bRhtIdent,       // ...                         right ...
 
-     APLNELM    aplNELMLft,     // Left arg NELM
-     APLNELM    aplNELMRht,     // Right ...
-     APLNELM    aplNELMRes)     // Result ...
+     APLNELM           aplNELMLft,      // Left arg NELM
+     APLNELM           aplNELMRht,      // Right ...
+     APLNELM           aplNELMRes)      // Result ...
 
 {
-    APLUINT  ByteRes;           // # bytes in the result
-    LPVOID   lpMemRes;          // Ptr to locked memory in result
-    LPAPLDIM lpMemDimArg;       // Ptr to the arg dimensions
-    APLUINT  uRes;              // Loop counter
+    APLUINT           ByteRes;          // # bytes in the result
+    LPVARARRAY_HEADER lpMemHdrRes,      // Ptr to result header
+                      lpMemHdrCom;      // Ptr to common header
+    APLUINT           uRes;             // Loop counter
 
     // Initialize the result
     *lphGlbRes = NULL;
@@ -619,13 +717,13 @@ UBOOL PrimScalarFnDydAllocate_EM
 
     // Allocate space for the result.
     *lphGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!*lphGlbRes)
+    if (*lphGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (*lphGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (*lphGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = aplTypeRes;
@@ -642,48 +740,48 @@ UBOOL PrimScalarFnDydAllocate_EM
     {
         // Fill in the dimensions (all 1)
         for (uRes = 0; uRes < *lpaplRankRes; uRes++)
-            (VarArrayBaseToDim (lpMemRes))[uRes] = 1;
+            (VarArrayBaseToDim (lpMemHdrRes))[uRes] = 1;
     } else
     if (IsSingleton (aplNELMLft)
      || IsSingleton (aplNELMRht))
     {
         // Copy the ptr of the non-singleton argument
         if (!IsSingleton (aplNELMLft))
-            lpMemDimArg = lpMemLft;
+            lpMemHdrCom = lpMemHdrLft;
         else
-            lpMemDimArg = lpMemRht;
+            lpMemHdrCom = lpMemHdrRht;
 
         // Copy the dimensions from the non-singleton arg
         //   to the result
         for (uRes = 0; uRes < *lpaplRankRes; uRes++)
-            (VarArrayBaseToDim (lpMemRes))[uRes] = (VarArrayBaseToDim (lpMemDimArg))[uRes];
+            (VarArrayBaseToDim (lpMemHdrRes))[uRes] = (VarArrayBaseToDim (lpMemHdrCom))[uRes];
     } else
     {
         // Get the higher rank's pointer
         //   to copy its dimensions to the result
         if (aplRankLft > aplRankRht)
-            lpMemDimArg = lpMemLft;
+            lpMemHdrCom = lpMemHdrLft;
         else
         if (aplRankLft < aplRankRht)
-            lpMemDimArg = lpMemRht;
+            lpMemHdrCom = lpMemHdrRht;
         else
         {
             // If there's right identity element only, ...
             if (!bLftIdent && bRhtIdent)
                 // Copy the left arg dimensions
-                lpMemDimArg = lpMemLft;
+                lpMemHdrCom = lpMemHdrLft;
             else
                 // Otherwise, copy the right arg dimensions
-                lpMemDimArg = lpMemRht;
+                lpMemHdrCom = lpMemHdrRht;
         } // End IF/ELSE/...
 
         // Copy the dimensions to the result
         for (uRes = 0; uRes < *lpaplRankRes; uRes++)
-            (VarArrayBaseToDim (lpMemRes))[uRes] = (VarArrayBaseToDim (lpMemDimArg))[uRes];
+            (VarArrayBaseToDim (lpMemHdrRes))[uRes] = (VarArrayBaseToDim (lpMemHdrCom))[uRes];
     } // End IF/ELSE/...
 
     // We no longer need this ptr
-    MyGlobalUnlock (*lphGlbRes); lpMemRes = NULL;
+    MyGlobalUnlock (*lphGlbRes); lpMemHdrRes =  NULL;
 
     return TRUE;
 
@@ -715,25 +813,24 @@ HGLOBAL MakeMonPrototype_EM_PTB
      MAKE_PROTO mpEnum)             // See MAKE_PROTO
 
 {
-    HGLOBAL      hGlbTmp,           // Temporary global memory handle
-                 hGlbRes,           // Result    ...
-                 hSymGlbProto;      // Prototype ...
-    LPVOID       lpMemArr = NULL,   // Ptr to array global memory
-                 lpMemRes,          // ...
-                 lpMemTmp = NULL;   // Ptr to tmp global memory
-    LPVARARRAY_HEADER lpHeader;
-    APLSTYPE     aplType;
-    APLNELM      aplNELM;
-    APLRANK      aplRank;
-    UINT         u;
-    APLNELM      uLen;
-    UBOOL        bRet = TRUE;       // TRUE iff result is valid
-    APLUINT      ByteRes;           // # bytes in the result
-    LPSYMENTRY   lpSymArr,
-                 lpSymRes;
-    LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
-
-    DBGENTER;
+    HGLOBAL           hGlbTmp,              // Temporary global memory handle
+                      hGlbRes,              // Result    ...
+                      hSymGlbProto;         // Prototype ...
+    LPVARARRAY_HEADER lpMemHdrArr = NULL,   // Ptr to array header
+                      lpMemHdrRes = NULL,   // ...    result ...
+                      lpMemHdrTmp = NULL;   // ...    temp   ...
+    LPVOID            lpMemArr,             // Ptr to array global memory
+                      lpMemRes;             // ...
+    APLSTYPE          aplType;
+    APLNELM           aplNELM;
+    APLRANK           aplRank;
+    UINT              u;
+    APLNELM           uLen;
+    UBOOL             bRet = TRUE;          // TRUE iff result is valid
+    APLUINT           ByteRes;              // # bytes in the result
+    LPSYMENTRY        lpSymArr,
+                      lpSymRes;
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
@@ -744,9 +841,9 @@ HGLOBAL MakeMonPrototype_EM_PTB
         case PTRTYPE_STCONST:
             // If it's numeric, ...
             if (IsImmNum (((LPSYMENTRY) hGlbArr)->stFlags.ImmType))
-                return lpMemPTD->lphtsPTD->steZero;
+                return lpMemPTD->lphtsGLB->steZero;
             else
-                return lpMemPTD->lphtsPTD->steBlank;
+                return lpMemPTD->lphtsGLB->steBlank;
 
         case PTRTYPE_HGLOBAL:
             break;
@@ -758,18 +855,20 @@ HGLOBAL MakeMonPrototype_EM_PTB
     // Make a copy of the array as we're changing it
     hGlbArr = CopyArray_EM (hGlbArr,
                             lptkFunc);
-    if (!hGlbArr)
+    if (hGlbArr EQ NULL)
         return NULL;
 
     // Lock the memory to get a ptr to it
-    lpMemArr = lpHeader = MyGlobalLock (hGlbArr);
+    lpMemHdrArr = MyGlobalLockVar (hGlbArr);
 
+#define lpHeader        lpMemHdrArr
     aplType = lpHeader->ArrType;
     aplNELM = lpHeader->NELM;
     aplRank = lpHeader->Rank;
+#undef  lpHeader
 
     // Point to the data
-    lpMemArr = VarArrayBaseToData (lpMemArr, aplRank);
+    lpMemArr = VarArrayDataFmBase (lpMemHdrArr);
 
     // Split cases based upon the array type
     switch (aplType)
@@ -808,7 +907,7 @@ HGLOBAL MakeMonPrototype_EM_PTB
                         goto DOMAIN_ERROR_EXIT;
 
                     // Change the storage type to Boolean
-                    lpHeader->ArrType = ARRAY_BOOL;
+                    lpMemHdrArr->ArrType = ARRAY_BOOL;
 
                     break;
 
@@ -826,13 +925,13 @@ HGLOBAL MakeMonPrototype_EM_PTB
 
                     // Allocate space for the result.
                     hGlbTmp = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-                    if (!hGlbTmp)
+                    if (hGlbTmp EQ NULL)
                         goto WSFULL_EXIT;
 
                     // Lock the memory to get a ptr to it
-                    lpMemTmp = MyGlobalLock (hGlbTmp);
+                    lpMemHdrTmp = MyGlobalLock000 (hGlbTmp);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemTmp)
+#define lpHeader    lpMemHdrTmp
                     // Fill in the header
                     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
                     lpHeader->ArrType    = ARRAY_BOOL;
@@ -844,15 +943,15 @@ HGLOBAL MakeMonPrototype_EM_PTB
 #undef  lpHeader
 
                     // Copy the dimensions to the result
-                    CopyMemory (VarArrayBaseToDim (lpMemTmp),
-                                VarArrayBaseToDim (lpHeader),
+                    CopyMemory (VarArrayBaseToDim (lpMemHdrTmp),
+                                VarArrayBaseToDim (lpMemHdrArr),
                                 (APLU3264) aplRank * sizeof (APLDIM));
 
                     // We no longer need this ptr
-                    MyGlobalUnlock (hGlbTmp); lpMemTmp = NULL;
+                    MyGlobalUnlock (hGlbTmp); lpMemHdrTmp = NULL;
 
                     // We no longer need this ptr
-                    MyGlobalUnlock (hGlbArr); lpMemArr = NULL;
+                    MyGlobalUnlock (hGlbArr); lpMemHdrArr = NULL;
 
                     // We no longer need this storage
                     FreeResultGlobalVar (hGlbArr); hGlbArr = NULL;
@@ -907,7 +1006,7 @@ HGLOBAL MakeMonPrototype_EM_PTB
                         case IMMTYPE_BOOL:
                         case IMMTYPE_INT:
                         case IMMTYPE_FLOAT:
-                            lpSymRes = lpMemPTD->lphtsPTD->steZero;
+                            lpSymRes = lpMemPTD->lphtsGLB->steZero;
 
                             break;
 
@@ -916,7 +1015,7 @@ HGLOBAL MakeMonPrototype_EM_PTB
                             switch (mpEnum)
                             {
                                 case MP_CHARS:
-                                    lpSymRes = lpMemPTD->lphtsPTD->steBlank;
+                                    lpSymRes = lpMemPTD->lphtsGLB->steBlank;
 
                                     break;
 
@@ -926,7 +1025,7 @@ HGLOBAL MakeMonPrototype_EM_PTB
                                     break;
 
                                 case MP_NUMCONV:
-                                    lpSymRes = lpMemPTD->lphtsPTD->steZero;
+                                    lpSymRes = lpMemPTD->lphtsGLB->steZero;
 
                                     break;
 
@@ -940,7 +1039,7 @@ HGLOBAL MakeMonPrototype_EM_PTB
                             goto ERROR_EXIT;
                     } // End SWITCH
 
-                    if (lpSymRes)
+                    if (lpSymRes NE NULL)
                         // Save back into array
                         *((LPAPLHETERO) lpMemArr)++ = MakePtrTypeSym (lpSymRes);
                     else
@@ -957,7 +1056,7 @@ HGLOBAL MakeMonPrototype_EM_PTB
                       MakeMonPrototype_EM_PTB (*(LPAPLNESTED) lpMemArr, // Proto arg handle
                                                lptkFunc,                // Ptr to function token
                                                mpEnum);                 // Pass flag through
-                    if (hSymGlbProto)
+                    if (hSymGlbProto NE NULL)
                     {
                         // We no longer need this storage
                         FreeResultGlobalIncompleteVar (ClrPtrTypeInd (lpMemArr)); *((LPAPLNESTED) lpMemArr) = NULL;
@@ -976,7 +1075,7 @@ HGLOBAL MakeMonPrototype_EM_PTB
         case ARRAY_RAT:
         case ARRAY_VFP:
             // Calculate space needed for the result
-            ByteRes = CalcArraySize (ARRAY_BOOL, aplNELM, aplRank);
+            ByteRes = CalcArraySize (aplType, aplNELM, aplRank);
 
             // Check for overflow
             if (ByteRes NE (APLU3264) ByteRes)
@@ -984,16 +1083,16 @@ HGLOBAL MakeMonPrototype_EM_PTB
 
             // Allocate space for the result.
             hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-            if (!hGlbRes)
+            if (hGlbRes EQ NULL)
                 goto WSFULL_EXIT;
 
             // Lock the memory to get a ptr to it
-            lpMemRes = MyGlobalLock (hGlbRes);
+            lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
             // Fill in the header
             lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
-            lpHeader->ArrType    = ARRAY_BOOL;
+            lpHeader->ArrType    = aplType;
 ////////////lpHeader->PermNdx    = PERMNDX_NONE;    // Already zero from GHND
 ////////////lpHeader->SysVar     = FALSE;           // Already zero from GHND
             lpHeader->RefCnt     = 1;
@@ -1001,16 +1100,38 @@ HGLOBAL MakeMonPrototype_EM_PTB
             lpHeader->Rank       = aplRank;
 #undef  lpHeader
             // Skip over the header to the dimensions
-            lpMemRes = VarArrayBaseToDim (lpMemRes);
+            lpMemRes = VarArrayBaseToDim (lpMemHdrRes);
 
             // Copy the dimensions
-            CopyMemory (lpMemRes, VarArrayBaseToDim (lpHeader), (APLU3264) aplRank * sizeof (APLRANK));
+            CopyMemory (lpMemRes, VarArrayBaseToDim (lpMemHdrArr), (APLU3264) aplRank * sizeof (APLRANK));
 
-            // The data is already zero from GHND
+            // Skip over the dimensions to the data
+            lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
+
+            // Loop through the result setting it to zero
+            for (u = 0; u < aplNELM; u++)
+            // Split cases based upon the storage type
+            switch (aplType)
+            {
+                case ARRAY_RAT:
+                    // Initialize to 0/1
+                    mpq_init   (((LPAPLRAT) lpMemRes)++);
+
+                    break;
+
+                case ARRAY_VFP:
+                    // Initialize to 0
+                    mpfr_init0 (((LPAPLVFP) lpMemRes)++);
+
+                    break;
+
+                defstop
+                    break;
+            } // End FOR/SWITCH
 
             // We no longer need these ptrs
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
-            MyGlobalUnlock (hGlbArr); lpMemArr = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
+            MyGlobalUnlock (hGlbArr); lpMemHdrArr = NULL;
 
             // We no longer need this storage
             FreeResultGlobalVar (hGlbArr); hGlbArr = NULL;
@@ -1044,10 +1165,10 @@ WSFULL_EXIT:
 ERROR_EXIT:
     bRet = FALSE;
 NORMAL_EXIT:
-    if (hGlbArr && lpMemArr)
+    if (hGlbArr NE NULL && lpMemHdrArr NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbArr); lpMemArr = NULL;
+        MyGlobalUnlock (hGlbArr); lpMemHdrArr = NULL;
     } // End IF
 
     if (!bRet)
@@ -1056,9 +1177,7 @@ NORMAL_EXIT:
         FreeResultGlobalIncompleteVar (hGlbArr); hGlbArr = NULL;
     } // End IF
 
-    DBGLEAVE;
-
-    if (hGlbArr)
+    if (hGlbArr NE NULL)
         return MakePtrTypeGlb (hGlbArr);
     else
         return hGlbArr;
@@ -1100,43 +1219,46 @@ HGLOBAL MakeDydPrototype_EM_PTB
      LPTOKEN   lptkAxis)                // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE    aplTypeLft,             // Left arg storage type
-                aplTypeRht,             // Right ...
-                aplTypeRes;             // Result ...
-    APLNELM     aplNELMLft,             // Left arg NELM
-                aplNELMRht,             // Right ...
-                aplNELMRes,             // Result   ...
-                aplNELMAxis;            // Axis value ...
-    APLRANK     aplRankLft,             // Left arg rank
-                aplRankRht,             // Right ...
-                aplRankRes;             // Result ...
-    HGLOBAL     hGlbRes = NULL,         // Result global memory handle
-                hGlbAxis = NULL,        // Axis value ...
-                hGlbWVec = NULL,        // Weighting vector ...
-                hGlbOdo = NULL,         // Odometer ...
-                hGlbSub;                // Subarray ...
-    LPAPLNESTED lpMemLft = NULL,        // Ptr to left arg global memory
-                lpMemRht = NULL,        // Ptr to right ...
-                lpMemRes = NULL;        // Ptr to result   ...
-    LPAPLDIM    lpMemDimRes;            // Ptr to result dimensions
-    APLUINT     ByteRes,                // # bytes in the result
-                uLft,                   // Loop counter
-                uRht,                   // Loop counter
-                uRes;                   // Loop counter
-    APLINT      iDim;                   // Dimension loop counter
-    UBOOL       bBoolFn,                // TRUE iff the function is equal or not-equal
-                bLftIdent,              // TRUE iff the function has a left identity element and the Axis tail is valid
-                bRhtIdent;              // ...                         right ...
-    LPPRIMSPEC  lpPrimSpec;             // Ptr to local PRIMSPEC
-    LPAPLUINT   lpMemAxisHead = NULL,   // Ptr to axis values, fleshed out by CheckAxis_EM
-                lpMemAxisTail = NULL,   // Ptr to grade up of AxisHead
-                lpMemOdo = NULL,        // Ptr to odometer global memory
-                lpMemWVec = NULL;       // Ptr to weighting vector ...
-    LPPRIMFLAGS lpPrimFlags;            // Ptr to function PrimFlags entry
+    APLSTYPE          aplTypeLft,           // Left arg storage type
+                      aplTypeRht,           // Right ...
+                      aplTypeRes;           // Result ...
+    APLNELM           aplNELMLft,           // Left arg NELM
+                      aplNELMRht,           // Right ...
+                      aplNELMRes,           // Result   ...
+                      aplNELMAxis;          // Axis value ...
+    APLRANK           aplRankLft,           // Left arg rank
+                      aplRankRht,           // Right ...
+                      aplRankRes;           // Result ...
+    HGLOBAL           hGlbRes = NULL,       // Result global memory handle
+                      hGlbAxis = NULL,      // Axis value ...
+                      hGlbWVec = NULL,      // Weighting vector ...
+                      hGlbOdo = NULL,       // Odometer ...
+                      hGlbSub;              // Subarray ...
+    LPVARARRAY_HEADER lpMemHdrLft = NULL,   // Ptr to left arg header
+                      lpMemHdrRht = NULL,   // ...    right ...
+                      lpMemHdrRes = NULL;   // ...    result ...
+    LPAPLNESTED       lpMemLft,             // Ptr to left arg global memory
+                      lpMemRht,             // Ptr to right ...
+                      lpMemRes;             // Ptr to result   ...
+    LPAPLDIM          lpMemDimRes;          // Ptr to result dimensions
+    APLUINT           ByteRes,              // # bytes in the result
+                      uLft,                 // Loop counter
+                      uRht,                 // Loop counter
+                      uRes;                 // Loop counter
+    APLINT            iDim;                 // Dimension loop counter
+    UBOOL             bBoolFn,              // TRUE iff the function is equal or not-equal
+                      bLftIdent,            // TRUE iff the function has a left identity element and the Axis tail is valid
+                      bRhtIdent;            // ...                         right ...
+    LPPRIMSPEC        lpPrimSpec;           // Ptr to local PRIMSPEC
+    LPAPLUINT         lpMemAxisHead = NULL, // Ptr to axis values, fleshed out by CheckAxis_EM
+                      lpMemAxisTail = NULL, // Ptr to grade up of AxisHead
+                      lpMemOdo = NULL,      // Ptr to odometer global memory
+                      lpMemWVec = NULL;     // Ptr to weighting vector ...
+    LPPRIMFLAGS       lpPrimFlags;          // Ptr to function PrimFlags entry
 
     // Get the attributes (Type, NELM, and Rank)
     //   of the left arg
-    if (hGlbLft)        // If not immediate, ...
+    if (hGlbLft NE NULL)        // If not immediate, ...
         AttrsOfGlb (hGlbLft, &aplTypeLft, &aplNELMLft, &aplRankLft, NULL);
     else
     {
@@ -1147,7 +1269,7 @@ HGLOBAL MakeDydPrototype_EM_PTB
 
     // Get the attributes (Type, NELM, and Rank)
     //   of the right arg
-    if (hGlbRht)        // If not immediate, ...
+    if (hGlbRht NE NULL)        // If not immediate, ...
         AttrsOfGlb (hGlbRht, &aplTypeRht, &aplNELMRht, &aplRankRht, NULL);
     else
     {
@@ -1191,7 +1313,7 @@ HGLOBAL MakeDydPrototype_EM_PTB
             return NULL;
 
         // Lock the memory to get a ptr to it
-        lpMemAxisHead = MyGlobalLock (hGlbAxis);
+        lpMemAxisHead = MyGlobalLockInt (hGlbAxis);
 
         // Get pointer to the axis tail (where the [X] values are)
         lpMemAxisTail = &lpMemAxisHead[aplRankRes - aplNELMAxis];
@@ -1215,12 +1337,12 @@ HGLOBAL MakeDydPrototype_EM_PTB
          || IsNested (aplTypeRes));
 
     // Lock the memory to get a ptr to it
-    if (hGlbLft)
-        lpMemLft = MyGlobalLock (hGlbLft);
+    if (hGlbLft NE NULL)
+        lpMemHdrLft = MyGlobalLockVar (hGlbLft);
 
     // Lock the memory to get a ptr to it
-    if (hGlbRht)
-        lpMemRht = MyGlobalLock (hGlbRht);
+    if (hGlbRht NE NULL)
+        lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
     // Get a ptr to the Primitive Function Flags
     lpPrimFlags = GetPrimFlagsPtr (lptkFunc);
@@ -1235,10 +1357,10 @@ HGLOBAL MakeDydPrototype_EM_PTB
     if (!CheckRankLengthError_EM (aplRankRes,       // Result rank
                                   aplRankLft,       // Left arg rank
                                   aplNELMLft,       // Left arg NELM
-                                  lpMemLft,         // Ptr to left arg global memory
+                                  lpMemHdrLft,      // Ptr to left arg global memory
                                   aplRankRht,       // Right arg rank
                                   aplNELMRht,       // Right arg NELM
-                                  lpMemRht,         // Ptr to right arg global memory
+                                  lpMemHdrRht,      // Ptr to right arg global memory
                                   aplNELMAxis,      // Axis NELM
                                   lpMemAxisTail,    // Ptr to grade up of AxisHead
                                   bLftIdent,        // TRUE iff the function has a left identity element
@@ -1265,13 +1387,13 @@ HGLOBAL MakeDydPrototype_EM_PTB
 
         // Allocate space for the result.
         hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRes)
+        if (hGlbRes EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemRes = MyGlobalLock (hGlbRes);
+        lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
         // Fill in the header
         lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
         lpHeader->ArrType    = aplTypeRes;
@@ -1285,32 +1407,32 @@ HGLOBAL MakeDydPrototype_EM_PTB
         // Copy the dimensions to the result
         if (aplRankLft < aplRankRht)
             // Copy from the right
-            CopyMemory (VarArrayBaseToDim (lpMemRes),
-                        VarArrayBaseToDim (lpMemRht),
+            CopyMemory (VarArrayBaseToDim (lpMemHdrRes),
+                        VarArrayBaseToDim (lpMemHdrRht),
                         (APLU3264) aplNELMRes * sizeof (APLDIM));
         else
         if (aplRankLft > aplRankRht)
             // Copy from the left
-            CopyMemory (VarArrayBaseToDim (lpMemRes),
-                        VarArrayBaseToDim (lpMemLft),
+            CopyMemory (VarArrayBaseToDim (lpMemHdrRes),
+                        VarArrayBaseToDim (lpMemHdrLft),
                         (APLU3264) aplNELMRes * sizeof (APLDIM));
         else
         {
             // If the function has a right-hand identity element only, ...
             if (bRhtIdent && !bLftIdent)
                 // Copy from the left
-                CopyMemory (VarArrayBaseToDim (lpMemRes),
-                            VarArrayBaseToDim (lpMemLft),
+                CopyMemory (VarArrayBaseToDim (lpMemHdrRes),
+                            VarArrayBaseToDim (lpMemHdrLft),
                             (APLU3264) aplNELMRes * sizeof (APLDIM));
             else
                 // Copy from the right
-                CopyMemory (VarArrayBaseToDim (lpMemRes),
-                            VarArrayBaseToDim (lpMemRht),
+                CopyMemory (VarArrayBaseToDim (lpMemHdrRes),
+                            VarArrayBaseToDim (lpMemHdrRht),
                             (APLU3264) aplNELMRes * sizeof (APLDIM));
         } // End IF/ELSE/...
 
         // Skip over the header and dimensions to the data
-        lpMemRes = VarArrayBaseToData (lpMemRes, aplRankRes);
+        lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
 #define lpAPA       ((LPAPLAPA) lpMemRes)
         // To make a prototype APA, set its
@@ -1320,7 +1442,7 @@ HGLOBAL MakeDydPrototype_EM_PTB
 #undef  lpAPA
 
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = (LPVOID) lpMemRes = NULL;
 
         // Set the ptr type bits
         hGlbRes = MakePtrTypeGlb (hGlbRes);
@@ -1356,8 +1478,8 @@ HGLOBAL MakeDydPrototype_EM_PTB
         // Allocate space for result
         if (!PrimScalarFnDydAllocate_EM (lptkFunc,
                                         &hGlbRes,
-                                         lpMemLft,
-                                         lpMemRht,
+                                         lpMemHdrLft,
+                                         lpMemHdrRht,
                                          aplRankLft,
                                          aplRankRht,
                                         &aplRankRes,
@@ -1378,20 +1500,20 @@ HGLOBAL MakeDydPrototype_EM_PTB
             aplNELMRes = max (aplNELMRes, 1);
 
         // Lock the memory to get a ptr to it
-        lpMemRes = MyGlobalLock (hGlbRes);      // ***FIXME*** -- Why???
+        lpMemHdrRes = MyGlobalLockVar (hGlbRes);
 
         // Skip over the header to the dimensions
-        lpMemDimRes = VarArrayBaseToDim (lpMemRes);
+        lpMemDimRes = VarArrayBaseToDim (lpMemHdrRes);
 
         // Skip over the header and dimensions to the data
-        lpMemLft = VarArrayBaseToData (lpMemLft, aplRankLft);
-        lpMemRht = VarArrayBaseToData (lpMemRht, aplRankRht);
-        lpMemRes = VarArrayBaseToData (lpMemRes, aplRankRes);
+        lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
+        lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
-        // If either arg is not simple, loop through the result
+        // If either arg is neither simple nor global numeric, loop through the result
         // Otherwise, the result is all zero (already filled in by GHND).
-        if (!IsSimple (aplTypeLft)
-         || !IsSimple (aplTypeRht))
+        if (!IsSimpleGlbNum (aplTypeLft)
+         || !IsSimpleGlbNum (aplTypeRht))
         {
             // Handle axis if present
             if (aplNELMAxis NE aplRankRes)
@@ -1408,11 +1530,11 @@ HGLOBAL MakeDydPrototype_EM_PTB
                 //   {times}{backscan}1{drop}({rho}Z),1
                 //***************************************************************
                 hGlbWVec = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-                if (!hGlbWVec)
+                if (hGlbWVec EQ NULL)
                     goto WSFULL_EXIT;
 
                 // Lock the memory to get a ptr to it
-                lpMemWVec = MyGlobalLock (hGlbWVec);
+                lpMemWVec = MyGlobalLock000 (hGlbWVec);
 
                 // Loop through the dimensions of the result in reverse
                 //   order {backscan} and compute the cumulative product
@@ -1438,18 +1560,18 @@ HGLOBAL MakeDydPrototype_EM_PTB
                 //   in the right arg, with values initially all zero (thanks to GHND).
                 //***************************************************************
                 hGlbOdo = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-                if (!hGlbOdo)
+                if (hGlbOdo EQ NULL)
                     goto WSFULL_EXIT;
 
                 // Lock the memory to get a ptr to it
-                lpMemOdo = MyGlobalLock (hGlbOdo);
+                lpMemOdo = MyGlobalLock000 (hGlbOdo);
             } // End IF
 
             // Loop through the elements of the result
             for (uRes = 0; uRes < aplNELMRes; uRes++)
             {
                 // If there's an axis, ...
-                if (lptkAxis
+                if (lptkAxis NE NULL
                  && aplNELMAxis NE aplRankRes)
                 {
                     APLUINT uArg;       // Loop counter
@@ -1491,7 +1613,7 @@ HGLOBAL MakeDydPrototype_EM_PTB
                       MakeMonPrototype_EM_PTB (lpMemRht[uRht],                  // Proto arg handle
                                                lptkFunc,                        // Ptr to function token
                                                bBoolFn ? MP_NUMCONV : MP_NUMONLY);
-                    if (!hGlbSub)
+                    if (hGlbSub EQ NULL)
                         goto ERROR_EXIT;
                     *lpMemRes++ = hGlbSub;
                 } else
@@ -1505,7 +1627,7 @@ HGLOBAL MakeDydPrototype_EM_PTB
                       MakeMonPrototype_EM_PTB (lpMemLft[uLft],                  // Proto arg handle
                                                lptkFunc,                        // Ptr to function token
                                                bBoolFn ? MP_NUMCONV : MP_NUMONLY);
-                    if (!hGlbSub)
+                    if (hGlbSub EQ NULL)
                         goto ERROR_EXIT;
                     *lpMemRes++ = hGlbSub;
                 } else
@@ -1518,7 +1640,7 @@ HGLOBAL MakeDydPrototype_EM_PTB
                                                lpMemRht[uRht],  // Right arg proto handle
                                                0,               // Right arg immediate type (irrelevant as it's an HGLOBAL)
                                                NULL);           // Ptr to axis token (may be NULL)
-                    if (!hGlbSub)
+                    if (hGlbSub EQ NULL)
                         goto ERROR_EXIT;
                     *lpMemRes++ = hGlbSub;
                 } // End IF/ELSE/...
@@ -1526,7 +1648,7 @@ HGLOBAL MakeDydPrototype_EM_PTB
         } // End IF
 
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
         // Set the ptr type bits
         hGlbRes = MakePtrTypeGlb (hGlbRes);
@@ -1545,71 +1667,44 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (hGlbLft && lpMemLft)
+    if (hGlbLft NE NULL && lpMemHdrLft NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
+        MyGlobalUnlock (hGlbLft); lpMemHdrLft = NULL;
     } // End IF
 
-    if (hGlbWVec)
-    {
-        if (lpMemWVec)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbWVec); lpMemWVec = NULL;
-        } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWVec, lpMemWVec);
 
-        // We no longer need this storage
-        DbgGlobalFree (hGlbWVec); hGlbWVec = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdo, lpMemOdo);
 
-    if (hGlbOdo)
-    {
-        if (lpMemOdo)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbOdo); lpMemOdo = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbOdo); hGlbOdo = NULL;
-    } // End IF
-
-    if (hGlbAxis)
-    {
-        if (lpMemAxisHead)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbAxis); lpMemAxisHead = lpMemAxisTail = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbAxis); hGlbAxis = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbAxis, lpMemAxisHead);
 
     return hGlbRes;
 } // End MakeDydPrototype_EM_PTB
@@ -1627,20 +1722,21 @@ UBOOL IsFirstSimpleGlb
      LPAPLSTYPE lpaplTypeRes)
 
 {
-    LPVOID     lpMemRht;
-    APLSTYPE   aplTypeRht;
-    APLRANK    aplRankRht;
-    UBOOL      bRet = TRUE;
-    LPSYMENTRY lpSym;
-    HGLOBAL    hGlbFirst;
+    LPVARARRAY_HEADER lpMemHdrRht = NULL;
+    LPVOID            lpMemRht;
+    APLSTYPE          aplTypeRht;
+    APLRANK           aplRankRht;
+    UBOOL             bRet = TRUE;
+    LPSYMENTRY        lpSym;
+    HGLOBAL           hGlbFirst;
 
     // It's a valid HGLOBAL array
     Assert (IsGlbTypeVarDir_PTB (*lphGlbRht));
 
     // Lock the memory to get a ptr to it
-    lpMemRht = MyGlobalLock (*lphGlbRht);
+    lpMemHdrRht = MyGlobalLockVar (*lphGlbRht);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRht)
+#define lpHeader        lpMemHdrRht
     // Get the Array Type and Rank
     aplTypeRht = lpHeader->ArrType;
     aplRankRht = lpHeader->Rank;
@@ -1650,7 +1746,7 @@ UBOOL IsFirstSimpleGlb
     Assert (IsNested (aplTypeRht));
 
     // Point to the data
-    lpMemRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+    lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
 
     // Split cases based upon the element's ptr type
     switch (GetPtrTypeInd (lpMemRht))
@@ -1677,7 +1773,7 @@ UBOOL IsFirstSimpleGlb
     } // End SWITCH
 
     // We no longer need this ptr
-    MyGlobalUnlock (*lphGlbRht); lpMemRht = NULL;
+    MyGlobalUnlock (*lphGlbRht); lpMemHdrRht = NULL;
 
     // If not simple, return the HGLOBAL of the first element
     if (!bRet)
@@ -1714,7 +1810,7 @@ HGLOBAL CopySymGlbDir_PTB
                 return lpSymGlb->stData.stGlbData;
 
             // If the SYMENTRY is named, ...
-            if (lpSymGlb->stHshEntry->htGlbName)
+            if (lpSymGlb->stHshEntry->htGlbName NE NULL)
                 // Copy it to an unnamed value-specific entry
                 lpSymGlb =
                   CopyImmSymEntry_EM (lpSymGlb,
@@ -1724,7 +1820,7 @@ HGLOBAL CopySymGlbDir_PTB
 
         case PTRTYPE_HGLOBAL:
             // Increment the reference count in global memory
-            DbgIncrRefCntDir_PTB ((HGLOBAL) lpSymGlb);
+            DbgIncrRefCntDir_PTB ((HGLOBAL) lpSymGlb);  // EXAMPLE:  {iota}2 3
 
             return lpSymGlb;
 
@@ -1774,7 +1870,7 @@ HGLOBAL CopySymGlbNumDir_PTB
                     return lpSymGlb->stData.stGlbData;
 
                 // If the SYMENTRY is named, ...
-                if (lpSymGlb->stHshEntry->htGlbName)
+                if (lpSymGlb->stHshEntry->htGlbName NE NULL)
                     // Copy it to an unnamed value-specific entry
                     lpSymGlb =
                       CopyImmSymEntry_EM (lpSymGlb,
@@ -1786,7 +1882,7 @@ HGLOBAL CopySymGlbNumDir_PTB
 
         case PTRTYPE_HGLOBAL:
             // Increment the reference count in global memory
-            DbgIncrRefCntDir_PTB ((HGLOBAL) lpSymGlb);
+            DbgIncrRefCntDir_PTB ((HGLOBAL) lpSymGlb);  // EXAMPLE:  {disclose} NestedArray
 
             return MakePtrTypeGlb (lpSymGlb);
 
@@ -1815,8 +1911,8 @@ HGLOBAL CopyArray_EM
 
 {
     SIZE_T       dwSize;
-    LPVOID       lpMemSrc, lpMemSrcBase,
-                 lpMemDst, lpMemDstBase;
+    LPVOID       lpMemSrc,
+                 lpMemDst;
     HGLOBAL      hGlbDst,                   // Dest global memory handle
                  hGlbItm;                   // Item ...
     APLSTYPE     aplType;
@@ -1834,17 +1930,17 @@ HGLOBAL CopyArray_EM
 
     // Allocate storage for the copy of the array
     hGlbDst = DbgGlobalAlloc (GHND, dwSize);
-    if (hGlbDst)
+    if (hGlbDst NE NULL)
     {
 #ifdef DEBUG
         VFOHDRPTRS vfoHdrPtrs;
 #endif
 #ifdef DEBUG
-        vfoHdrPtrs.lpMemVar =
+        vfoHdrPtrs.lpMemVFO =
 #endif
         // Lock both memory blocks
-        lpMemDst = MyGlobalLock (hGlbDst);
-        lpMemSrc = MyGlobalLock (hGlbSrc);
+        lpMemDst = MyGlobalLock000 (hGlbDst);
+        lpMemSrc = MyGlobalLock    (hGlbSrc);   // VAR, FCN, DFN
 
         // Copy source to destin
         CopyMemory (lpMemDst, lpMemSrc, dwSize);
@@ -1862,9 +1958,6 @@ HGLOBAL CopyArray_EM
 #else
   #define lpHeader    ((LPVARARRAY_HEADER) lpMemDst)
 #endif
-                // Clear the SkipRefCnt flag
-                lpHeader->SkipRefCntIncr = FALSE;
-
                 // Clear the PermNdx flags
                 lpHeader->PermNdx = PERMNDX_NONE;
 
@@ -1881,8 +1974,8 @@ HGLOBAL CopyArray_EM
                 aplNELM = lpHeader->NELM;
                 aplRank = lpHeader->Rank;
 #undef  lpHeader
-                lpMemDstBase = lpMemDst = VarArrayBaseToData (lpMemDst, aplRank);
-                lpMemSrcBase = lpMemSrc = VarArrayBaseToData (lpMemSrc, aplRank);
+                lpMemDst = VarArrayDataFmBase (lpMemDst);
+                lpMemSrc = VarArrayDataFmBase (lpMemSrc);
 
                 // Split cases based upon the array type
                 switch (aplType)
@@ -1898,14 +1991,6 @@ HGLOBAL CopyArray_EM
                     case ARRAY_NESTED:
                         // Handle the empty case
                         aplNELM = max (aplNELM, 1);
-
-                        // Fill nested result with PTR_REUSED
-                        //   in case we fail part way through
-                        for (u = 0; u < aplNELM; u++)
-                            *((LPAPLNESTED) lpMemDst)++ = PTR_REUSED;
-
-                        // Start the destin ptr over again
-                        lpMemDst = lpMemDstBase;
 
                         // Loop through the source and destin arrays
                         for (u = 0;
@@ -1925,7 +2010,7 @@ HGLOBAL CopyArray_EM
                                   CopyImmSymEntry_EM (lpSymSrc,
                                                       IMMTYPE_SAME,
                                                       lptkFunc);
-                                if (lpSymDst)
+                                if (lpSymDst NE NULL)
                                     // Save into the destin
                                     *((LPAPLHETERO) lpMemDst) = MakePtrTypeSym (lpSymDst);
                                 else
@@ -1941,7 +2026,7 @@ HGLOBAL CopyArray_EM
                                 // Copy the array
                                 hGlbItm = CopyArray_EM (*(LPAPLNESTED) lpMemSrc,
                                                         lptkFunc);
-                                if (hGlbItm)
+                                if (hGlbItm NE NULL)
                                     // Save into the destin
                                     *((LPAPLNESTED) lpMemDst) = MakePtrTypeGlb (hGlbItm);
                                 else
@@ -2003,7 +2088,7 @@ HGLOBAL CopyArray_EM
                 aplNELM = lpHeader->tknNELM;
 
                 // If there is a line text global memory handle, ...
-                if (lpHeader->hGlbTxtLine)
+                if (lpHeader->hGlbTxtLine NE NULL)
                     lpHeader->hGlbTxtLine =
                       // Copy the memory to a new handle, ignoring failure
                       CopyGlbMemory (lpHeader->hGlbTxtLine, TRUE);
@@ -2030,13 +2115,19 @@ HGLOBAL CopyArray_EM
 
                         // If it's a UDFO, ...
                         if (GetSignatureGlb (hGlbItm) EQ DFN_HEADER_SIGNATURE)
+                        {
+                            // This DEBUG stmt probably never is triggered because
+                            //    CopyArray_EM is never used on any form of function.
+#ifdef DEBUG
+                            DbgStop ();         // ***Probably never executed***
+#endif
                             // No need to copy the UDFO body, just increment the RefCnt
-                            DbgIncrRefCntDir_PTB (hGlbItm);
-                        else
+                            DbgIncrRefCntDir_PTB (hGlbItm); // EXAMPLE:  ***Probably never executed***
+                        } else
                             // Copy the array
                             hGlbItm = CopyArray_EM (hGlbItm,
                                                     lptkFunc);
-                        if (hGlbItm)
+                        if (hGlbItm NE NULL)
                             // Save back into the destin
                             lpMemFcn->tkToken.tkData.tkGlbData = MakePtrTypeGlb (hGlbItm);
                         else
@@ -2057,6 +2148,11 @@ HGLOBAL CopyArray_EM
                         // tkData is a LPSYMENTRY
                         Assert (GetPtrTypeDir (lpMemFcn->tkToken.tkData.tkVoid) EQ PTRTYPE_STCONST);
 
+                        // This DEBUG stmt probably never is triggered because
+                        //    pl_yylex converts all unassigned named vars to temps
+#ifdef DEBUG
+                        DbgStop ();             // ***Probably never executed***
+#endif
                         // If the named var is not immediate, ...
                         if (!lpMemFcn->tkToken.tkData.tkSym->stFlags.Imm)
                         {
@@ -2064,7 +2160,7 @@ HGLOBAL CopyArray_EM
                             hGlbItm = lpMemFcn->tkToken.tkData.tkSym->stData.stGlbData;
 
                             // It's a var, so just increment the RefCnt
-                            DbgIncrRefCntDir_PTB (hGlbItm);
+                            DbgIncrRefCntDir_PTB (hGlbItm); // EXAMPLE:  ***Probably never executed***
                         } // End IF/ELSE
 
                         break;
@@ -2078,13 +2174,19 @@ HGLOBAL CopyArray_EM
 
                         // If it's a UDFO, ...
                         if (lpMemFcn->tkToken.tkData.tkSym->stFlags.UsrDfn)
+                        {
+                            // This DEBUG stmt probably never is triggered because
+                            //    CopyArray_EM is never used on any form of function.
+#ifdef DEBUG
+                            DbgStop ();         // ***Probably never executed***
+#endif
                             // No need to copy the UDFO body, just increment the RefCnt
-                            DbgIncrRefCntDir_PTB (hGlbItm);
-                        else
+                            DbgIncrRefCntDir_PTB (hGlbItm); // EXAMPLE:  ***Probably never executed***
+                        } else
                             // Copy the array
                             hGlbItm = CopyArray_EM (hGlbItm,
                                                     lptkFunc);
-                        if (hGlbItm)
+                        if (hGlbItm NE NULL)
                         {
                             // Save back into the destin
                             lpMemFcn->tkToken.tkData.tkGlbData = MakePtrTypeGlb (hGlbItm);
@@ -2103,8 +2205,13 @@ HGLOBAL CopyArray_EM
                 break;
 
             case DFN_HEADER_SIGNATURE:
+                // This DEBUG stmt probably never is triggered because
+                //    CopyArray_EM is never used on any form of function.
+#ifdef DEBUG
+                DbgStop ();         // ***Probably never executed***
+#endif
                 // Increment the reference count
-                DbgIncrRefCntDir_PTB (MakePtrTypeGlb (hGlbDst));
+                DbgIncrRefCntDir_PTB (MakePtrTypeGlb (hGlbDst));    // EXAMPLE:  ***Probably never executed***
 
                 break;
 
@@ -2144,33 +2251,35 @@ HGLOBAL CopyArray_EM
 #endif
 
 HGLOBAL CopyGlbAsType_EM
-    (HGLOBAL  hGlbArg,                  // Arg global memory handle
-     APLSTYPE aplTypeRes,               // Result storage type
-     LPTOKEN  lptkFunc)                 // Ptr to function token
+    (HGLOBAL  hGlbArg,                      // Arg global memory handle
+     APLSTYPE aplTypeRes,                   // Result storage type
+     LPTOKEN  lptkFunc)                     // Ptr to function token
 
 {
-    APLSTYPE     aplTypeArg;            // Arg storage type
-    APLNELM      aplNELMArg;            // Arg/result NELM
-    APLRANK      aplRankArg;            // Arg/result rank
-    APLUINT      ByteRes;               // # bytes in the result
-    HGLOBAL      hGlbRes = NULL;        // Result global memory handle
-    LPVOID       lpMemArg = NULL,       // Ptr to arg global memory
-                 lpMemRes = NULL;       // Ptr to result ...
-    APLUINT      uArg;                  // Loop counter
-    UINT         uBitMask;              // Bit mask for looping through Booleans
-    APLINT       apaOffArg,             // Arg APA offset
-                 apaMulArg,             // ...     multiplier
-                 aplInteger;            // Temporary integer
-    LPPERTABDATA lpMemPTD;              // Ptr to PerTabData global memory
-    LPSYMENTRY   lpSym0,                // LPSYMENTRY for constant zero
-                 lpSym1,                // ...                     one
-                 lpSymTmp;              // Ptr to temporary LPSYMENTRY
+    APLSTYPE          aplTypeArg;           // Arg storage type
+    APLNELM           aplNELMArg;           // Arg/result NELM
+    APLRANK           aplRankArg;           // Arg/result rank
+    APLUINT           ByteRes;              // # bytes in the result
+    HGLOBAL           hGlbRes = NULL;       // Result global memory handle
+    LPVARARRAY_HEADER lpMemHdrArg = NULL,   // Ptr to arg header
+                      lpMemHdrRes = NULL;   // ...    result ...
+    LPVOID            lpMemArg,             // Ptr to arg global memory
+                      lpMemRes;             // Ptr to result ...
+    APLUINT           uArg;                 // Loop counter
+    UINT              uBitMask;             // Bit mask for looping through Booleans
+    APLINT            apaOffArg,            // Arg APA offset
+                      apaMulArg,            // ...     multiplier
+                      aplInteger;           // Temporary integer
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    LPSYMENTRY        lpSym0,               // LPSYMENTRY for constant zero
+                      lpSym1,               // ...                     one
+                      lpSymTmp;             // Ptr to temporary LPSYMENTRY
 
     // Get the attributes (Type, NELM, and Rank) of the arg
     AttrsOfGlb (hGlbArg, &aplTypeArg, &aplNELMArg, &aplRankArg, NULL);
 
     // Lock the memory to get a ptr to it
-    lpMemArg = MyGlobalLock (hGlbArg);
+    lpMemHdrArg = MyGlobalLockVar (hGlbArg);
 
     // Calculate space for the result
     ByteRes = CalcArraySize (aplTypeRes, aplNELMArg, aplRankArg);
@@ -2181,13 +2290,13 @@ HGLOBAL CopyGlbAsType_EM
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader        lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = aplTypeRes;
@@ -2199,12 +2308,12 @@ HGLOBAL CopyGlbAsType_EM
 #undef  lpHeader
 
     // Copy the dimensions
-    CopyMemory (VarArrayBaseToDim (lpMemRes),
-                VarArrayBaseToDim (lpMemArg),
+    CopyMemory (VarArrayBaseToDim (lpMemHdrRes),
+                VarArrayBaseToDim (lpMemHdrArg),
                 (APLU3264) aplRankArg * sizeof (APLDIM));
     // Skip over the header to the data
-    lpMemArg = VarArrayBaseToData (lpMemArg, aplRankArg);
-    lpMemRes = VarArrayBaseToData (lpMemRes, aplRankArg);
+    lpMemArg = VarArrayDataFmBase (lpMemHdrArg);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // Copy the existing named values to the result
     // Split cases based upon the result storage type
@@ -2230,7 +2339,7 @@ HGLOBAL CopyGlbAsType_EM
                         goto DOMAIN_EXIT;
 
                     // Do something only for 1s
-                    if (apaOffArg)
+                    if (apaOffArg NE 0)
                         FillBitMemory (lpMemRes, aplNELMArg);
                     break;
 
@@ -2269,8 +2378,8 @@ HGLOBAL CopyGlbAsType_EM
                     // Get ptr to PerTabData global memory
                     lpMemPTD = GetMemPTD ();
 
-                    lpSym0 = lpMemPTD->lphtsPTD->steZero;
-                    lpSym1 = lpMemPTD->lphtsPTD->steOne;
+                    lpSym0 = lpMemPTD->lphtsGLB->steZero;
+                    lpSym1 = lpMemPTD->lphtsGLB->steOne;
 
                     uBitMask = BIT0;
 
@@ -2304,7 +2413,7 @@ HGLOBAL CopyGlbAsType_EM
                           MakeSymEntry_EM (IMMTYPE_INT,                 // Immediate type
                                            ((LPAPLINT) lpMemArg)++,     // Ptr to immediate value
                                            lptkFunc);                   // Ptr to function token
-                        if (!lpSymTmp)
+                        if (lpSymTmp EQ NULL)
                             goto ERROR_EXIT;
                     } // End IF
 
@@ -2328,7 +2437,7 @@ HGLOBAL CopyGlbAsType_EM
                           MakeSymEntry_EM (IMMTYPE_INT,                 // Immediate type
                                           &aplInteger,                  // Ptr to immediate value
                                            lptkFunc);                   // Ptr to function token
-                        if (!lpSymTmp)
+                        if (lpSymTmp EQ NULL)
                             goto ERROR_EXIT;
                     } // End FOR
 
@@ -2344,7 +2453,7 @@ HGLOBAL CopyGlbAsType_EM
                           MakeSymEntry_EM (IMMTYPE_FLOAT,               // Immediate type
                             (LPAPLLONGEST) ((LPAPLFLOAT) lpMemArg)++,   // Ptr to immediate value
                                            lptkFunc);                   // Ptr to function token
-                        if (!lpSymTmp)
+                        if (lpSymTmp EQ NULL)
                             goto ERROR_EXIT;
                     } // End FOR
 
@@ -2360,7 +2469,7 @@ HGLOBAL CopyGlbAsType_EM
                           MakeSymEntry_EM (IMMTYPE_CHAR,                // Immediate type
                             (LPAPLLONGEST) ((LPAPLCHAR) lpMemArg)++,    // Ptr to immediate value
                                            lptkFunc);                   // Ptr to function token
-                        if (!lpSymTmp)
+                        if (lpSymTmp EQ NULL)
                             goto ERROR_EXIT;
                     } // End FOR
 
@@ -2385,7 +2494,7 @@ HGLOBAL CopyGlbAsType_EM
 
                             // Because we just made a copy, we need to increment the RefCnt
                             // Increment the reference count in global memory
-                            DbgIncrRefCntDir_PTB (((LPAPLNESTED) lpMemArg)[uArg]);
+                            DbgIncrRefCntDir_PTB (((LPAPLNESTED) lpMemArg)[uArg]);  // EXAMPLE a{is}1 2x 'a' {diamond} a[1]{is}{enclose}'abc;
 
                             break;
 
@@ -2430,28 +2539,28 @@ DOMAIN_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this resource
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbArg && lpMemArg)
+    if (hGlbArg NE NULL && lpMemHdrArg NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbArg); lpMemArg = NULL;
+        MyGlobalUnlock (hGlbArg); lpMemHdrArg = NULL;
     } // End IF
 
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
     return hGlbRes;
@@ -2472,7 +2581,7 @@ UBOOL IsGlobalTypeArray_PTB
 
 {
     LPVOID lpMem;
-    UBOOL  bRet = TRUE;
+    UBOOL  bRet;
 
     // It's an HGLOBAL
     switch (GetPtrTypeDir (hGlb))
@@ -2488,18 +2597,28 @@ UBOOL IsGlobalTypeArray_PTB
     } // End SWITCH
 
     // It's a valid handle
-    bRet = bRet && IsValidHandle (hGlb);
+    bRet = IsValidHandle (hGlb);
 
     if (bRet)
     {
+#ifdef DEBUG
+        VFOHDRPTRS vfoHdrPtrs;
+#endif
+#ifdef DEBUG
+        vfoHdrPtrs.lpMemVFO =
+#endif
         // Lock the memory to get a ptr to it
-        lpMem = MyGlobalLock (hGlb); Assert (lpMem NE NULL);
+        lpMem = MyGlobalLock (hGlb); Assert (lpMem NE NULL);    // DFN, FCN, LST, VAR, VNM
 
         // Split cases based upon the signature
         switch (GetSignatureMem (lpMem))
         {
             case DFN_HEADER_SIGNATURE:
-#define lpHeader    ((LPDFN_HEADER) lpMem)
+#ifdef DEBUG
+  #define lpHeader vfoHdrPtrs.lpMemDfn
+#else
+  #define lpHeader    ((LPDFN_HEADER) lpMem)
+#endif
                 // Ensure it has the correct signature
                 bRet = (lpHeader->Sig.nature EQ Signature
                      && lpHeader->RefCnt > 0);
@@ -2507,7 +2626,11 @@ UBOOL IsGlobalTypeArray_PTB
                 break;
 
             case FCNARRAY_HEADER_SIGNATURE:
-#define lpHeader    ((LPFCNARRAY_HEADER) lpMem)
+#ifdef DEBUG
+  #define lpHeader vfoHdrPtrs.lpMemFcn
+#else
+  #define lpHeader    ((LPFCNARRAY_HEADER) lpMem)
+#endif
                 // Ensure it has the correct signature
                 bRet = (lpHeader->Sig.nature EQ Signature
                      && lpHeader->RefCnt > 0);
@@ -2515,14 +2638,22 @@ UBOOL IsGlobalTypeArray_PTB
                 break;
 
             case LSTARRAY_HEADER_SIGNATURE:
-#define lpHeader    ((LPLSTARRAY_HEADER) lpMem)
+#ifdef DEBUG
+  #define lpHeader vfoHdrPtrs.lpMemLst
+#else
+  #define lpHeader    ((LPLSTARRAY_HEADER) lpMem)
+#endif
                 // Ensure it has the correct signature
                 bRet = (lpHeader->Sig.nature EQ Signature);
 #undef  lpHeader
                 break;
 
             case VARARRAY_HEADER_SIGNATURE:
-#define lpHeader    ((LPVARARRAY_HEADER) lpMem)
+#ifdef DEBUG
+  #define lpHeader vfoHdrPtrs.lpMemVar
+#else
+  #define lpHeader    ((LPVARARRAY_HEADER) lpMem)
+#endif
                 // Ensure it has the correct signature
                 bRet = (lpHeader->Sig.nature EQ Signature)
                     && ((lpHeader->PermNdx NE PERMNDX_NONE) || (lpHeader->RefCnt > 0));
@@ -2530,7 +2661,11 @@ UBOOL IsGlobalTypeArray_PTB
                 break;
 
             case VARNAMED_HEADER_SIGNATURE:
-#define lpHeader    ((LPVARNAMED_HEADER) lpMem)
+#ifdef DEBUG
+  #define lpHeader vfoHdrPtrs.lpMemNam
+#else
+  #define lpHeader    ((LPVARNAMED_HEADER) lpMem)
+#endif
                 // Ensure it has the correct signature
                 bRet = (lpHeader->Sig.nature EQ Signature);
 #undef  lpHeader
@@ -2549,6 +2684,20 @@ UBOOL IsGlobalTypeArray_PTB
 
 
 //***************************************************************************
+//  $IsGlbFcnArray
+//
+//  Determine if a global memory handle is that of a function array
+//***************************************************************************
+
+UBOOL IsGlbFcnArray
+    (HGLOBAL hGlbFcn)
+
+{
+    return (GetSignatureGlb (hGlbFcn) EQ FCNARRAY_HEADER_SIGNATURE);
+} // End IsGlbFcnArray
+
+
+//***************************************************************************
 //  $CheckRankLengthError_EM
 //
 //  Check a dyadic scalar function for RANK and LENGTH ERRORs
@@ -2561,18 +2710,18 @@ UBOOL IsGlobalTypeArray_PTB
 #endif
 
 UBOOL CheckRankLengthError_EM
-    (APLRANK   aplRankRes,          // Result rank
-     APLRANK   aplRankLft,          // Left arg ...
-     APLNELM   aplNELMLft,          // ...      NELM
-     LPVOID    lpMemLft,            // Ptr to left arg memory
-     APLRANK   aplRankRht,          // Right arg rank
-     APLNELM   aplNELMRht,          // ...       NELM
-     LPVOID    lpMemRht,            // Ptr to right arg memory
-     APLNELM   aplNELMAxis,         // Axis NELM
-     LPAPLUINT lpMemAxisTail,       // Ptr to grade up of AxisHead
-     UBOOL     bLftIdent,           // TRUE iff the function has a left identity element and the Axis tail is valid
-     UBOOL     bRhtIdent,           // ...                         right ...
-     LPTOKEN   lptkFunc)            // Ptr to function token
+    (APLRANK           aplRankRes,      // Result rank
+     APLRANK           aplRankLft,      // Left arg ...
+     APLNELM           aplNELMLft,      // ...      NELM
+     LPVARARRAY_HEADER lpMemHdrLft,     // Ptr to left arg header
+     APLRANK           aplRankRht,      // Right arg rank
+     APLNELM           aplNELMRht,      // ...       NELM
+     LPVARARRAY_HEADER lpMemHdrRht,     // Ptr to right arg header
+     APLNELM           aplNELMAxis,     // Axis NELM
+     LPAPLUINT         lpMemAxisTail,   // Ptr to grade up of AxisHead
+     UBOOL             bLftIdent,       // TRUE iff the function has a left identity element and the Axis tail is valid
+     UBOOL             bRhtIdent,       // ...                         right ...
+     LPTOKEN           lptkFunc)        // Ptr to function token
 
 {
     APLINT uRes;
@@ -2614,8 +2763,8 @@ UBOOL CheckRankLengthError_EM
             {
                 // Check for OUTER LENGTH ERROR
                 for (uRes = 0; uRes < (APLRANKSIGN) aplRankLft; uRes++)
-                if ((VarArrayBaseToDim (lpMemLft))[uRes] !=
-                    (VarArrayBaseToDim (lpMemRht))[lpMemAxisTail[uRes]])
+                if ((VarArrayBaseToDim (lpMemHdrLft))[uRes] !=
+                    (VarArrayBaseToDim (lpMemHdrRht))[lpMemAxisTail[uRes]])
                 {
                     uRes = (APLINT) -1; // Mark as in error
 
@@ -2626,8 +2775,8 @@ UBOOL CheckRankLengthError_EM
             {
                 // Check for OUTER LENGTH ERROR
                 for (uRes = 0; uRes < (APLRANKSIGN) aplRankRht; uRes++)
-                if ((VarArrayBaseToDim (lpMemLft))[lpMemAxisTail[uRes]] !=
-                    (VarArrayBaseToDim (lpMemRht))[uRes])
+                if ((VarArrayBaseToDim (lpMemHdrLft))[lpMemAxisTail[uRes]] !=
+                    (VarArrayBaseToDim (lpMemHdrRht))[uRes])
                 {
                     uRes = (APLINT) -1; // Mark as in error
 
@@ -2644,8 +2793,8 @@ UBOOL CheckRankLengthError_EM
             {
                 // Check for OUTER LENGTH ERROR
                 for (uRes = 0; uRes < (APLRANKSIGN) aplRankRes; uRes++)
-                if ((VarArrayBaseToDim (lpMemLft))[uRes] !=
-                    (VarArrayBaseToDim (lpMemRht))[uRes])
+                if ((VarArrayBaseToDim (lpMemHdrLft))[uRes] !=
+                    (VarArrayBaseToDim (lpMemHdrRht))[uRes])
                 {
                     uRes = (APLINT) -1; // Mark as in error
 
@@ -2657,8 +2806,8 @@ UBOOL CheckRankLengthError_EM
             {
                 // Check for OUTER LENGTH ERROR
                 for (uRes = 0; uRes < (APLRANKSIGN) aplRankRes; uRes++)
-                if ((VarArrayBaseToDim (lpMemLft))[lpMemAxisTail[uRes]] !=
-                    (VarArrayBaseToDim (lpMemRht))[uRes])
+                if ((VarArrayBaseToDim (lpMemHdrLft))[lpMemAxisTail[uRes]] !=
+                    (VarArrayBaseToDim (lpMemHdrRht))[uRes])
                 {
                     uRes = (APLINT) -1; // Mark as in error
 
@@ -2670,8 +2819,8 @@ UBOOL CheckRankLengthError_EM
             // If the function has a left- or right-hand or both identity elements
                 // Check for OUTER LENGTH ERROR
                 for (uRes = 0; uRes < (APLRANKSIGN) aplRankRes; uRes++)
-                if ((VarArrayBaseToDim (lpMemLft))[uRes] !=
-                    (VarArrayBaseToDim (lpMemRht))[lpMemAxisTail[uRes]])
+                if ((VarArrayBaseToDim (lpMemHdrLft))[uRes] !=
+                    (VarArrayBaseToDim (lpMemHdrRht))[lpMemAxisTail[uRes]])
                 {
                     uRes = (APLINT) -1; // Mark as in error
 
@@ -2787,18 +2936,23 @@ APLINT abs64
     (APLINT aplInt)
 
 {
-    return (aplInt >= 0) ? aplInt : -aplInt;
+    // If the arg is the smallest (signed) APLINT, ...
+    if (aplInt EQ MIN_APLINT)
+        // Raise an exception because we can't represent the absolute value as an integer
+        RaiseException (EXCEPTION_RESULT_FLOAT, 0, 0, NULL);
+////else
+        return (aplInt >= 0) ? aplInt : -aplInt;
 } // End abs64
 
 
 //***************************************************************************
-//  $_iadd64
+//  $iadd64
 //
 //  Add two 64-bit integers retaining maximum precision
 //    while handling overflow.
 //***************************************************************************
 
-APLINT _iadd64
+APLINT iadd64
     (APLINT  aplLft,            // Left arg
      APLINT  aplRht,            // Right ...
      LPUBOOL lpbRet)            // Is the result valid?? (may be NULL)
@@ -2807,11 +2961,13 @@ APLINT _iadd64
     APLINT aplRes;              // The result
     UBOOL  bRet;                // TRUE iff the result is valid
 
+////// Call a routine to detect inexact precision result
+////bRet = add_of (aplRes, aplLft, aplRht);
     // Call an assembler routine
     bRet = iAsmAdd64 (&aplRes, aplLft, aplRht);
 
     // If the caller handles the overflow, tell 'em whether or not it did
-    if (lpbRet)
+    if (lpbRet NE NULL)
         *lpbRet = bRet;
     else
     // Otherwise, if it overflowed, ...
@@ -2819,17 +2975,17 @@ APLINT _iadd64
         RaiseException (EXCEPTION_RESULT_FLOAT, 0, 0, NULL);
 
     return aplRes;
-} // End _iadd64
+} // End iadd64
 
 
 //***************************************************************************
-//  $_isub64
+//  $isub64
 //
 //  Subtract two 64-bit integers retaining maximum precision
 //    while handling overflow.
 //***************************************************************************
 
-APLINT _isub64
+APLINT isub64
     (APLINT  aplLft,            // Left arg
      APLINT  aplRht,            // Right ...
      LPUBOOL lpbRet)            // Is the result valid?? (may be NULL)
@@ -2838,11 +2994,13 @@ APLINT _isub64
     APLINT aplRes;              // The result
     UBOOL  bRet;                // TRUE iff the result is valid
 
+////// Call a routine to detect inexact precision result
+////bRet = sub_of (aplRes, aplLft, aplRht);
     // Call an assembler routine
     bRet = iAsmSub64 (&aplRes, aplLft, aplRht);
 
     // If the caller handles the overflow, tell 'em whether or not it did
-    if (lpbRet)
+    if (lpbRet NE NULL)
         *lpbRet = bRet;
     else
     // Otherwise, if it overflowed, ...
@@ -2850,17 +3008,17 @@ APLINT _isub64
         RaiseException (EXCEPTION_RESULT_FLOAT, 0, 0, NULL);
 
     return aplRes;
-} // End _isub64
+} // End isub64
 
 
 //***************************************************************************
-//  $_imul64
+//  $imul64
 //
 //  Multiply two 64-bit integers retaining maximum precision
 //    while handling overflow.
 //***************************************************************************
 
-APLINT _imul64
+APLINT imul64
     (APLINT  aplLft,            // Left arg
      APLINT  aplRht,            // Right ...
      LPUBOOL lpbRet)            // Is the result valid?? (may be NULL)
@@ -2873,14 +3031,14 @@ APLINT _imul64
     bRet = iAsmMul64 (&aplRes, aplLft, aplRht);
 
     // If the caller handles the overflow, tell 'em whether or not it did
-    if (lpbRet)
+    if (lpbRet NE NULL)
         *lpbRet = bRet;
     else
     // Otherwise, if it overflowed, ...
     if (!bRet)
         RaiseException (EXCEPTION_RESULT_FLOAT, 0, 0, NULL);
     return aplRes;
-} // End _imul64
+} // End imul64
 
 
 //***************************************************************************
@@ -2901,40 +3059,40 @@ APLUINT CalcDataSize
     switch (aplType)
     {
         case ARRAY_BOOL:
-            return _imul64 (sizeof (APLBOOL)   , RoundUpBitsInArray (aplNELM), lpbRet);
+            return imul64 (sizeof (APLBOOL)   , RoundUpBitsInArray (aplNELM), lpbRet);
 
         case ARRAY_INT:
-            return _imul64 (sizeof (APLINT)    , aplNELM                     , lpbRet);
+            return imul64 (sizeof (APLINT)    , aplNELM                     , lpbRet);
 
         case ARRAY_FLOAT:
-            return _imul64 (sizeof (APLFLOAT)  , aplNELM                     , lpbRet);
+            return imul64 (sizeof (APLFLOAT)  , aplNELM                     , lpbRet);
 
         case ARRAY_CHAR:
             // Add in one element so we always have
             //   a zero-terminated string
-            return _imul64 (sizeof (APLCHAR)   , aplNELM + 1                 , lpbRet);
+            return imul64 (sizeof (APLCHAR)   , aplNELM + 1                 , lpbRet);
 
         case ARRAY_APA:
-            return _imul64 (sizeof (APLAPA)    , 1                           , lpbRet);
+            return imul64 (sizeof (APLAPA)    , 1                           , lpbRet);
 
         case ARRAY_HETERO:
-            return _imul64 (sizeof (APLHETERO) , aplNELM                     , lpbRet);
+            return imul64 (sizeof (APLHETERO) , aplNELM                     , lpbRet);
 
         case ARRAY_LIST:
-            ByteRes = _imul64 (sizeof (APLLIST)   , aplNELM                  , lpbRet);
+            ByteRes = imul64 (sizeof (APLLIST)   , aplNELM                  , lpbRet);
             if (*lpbRet)
-                ByteRes = _iadd64 (ByteRes, sizeof (LSTARRAY_HEADER)         , lpbRet);
+                ByteRes = iadd64 (ByteRes, sizeof (LSTARRAY_HEADER)         , lpbRet);
             return ByteRes;
 
         case ARRAY_NESTED:
             // Make room for the prototype
-            return _imul64 (sizeof (APLNESTED) , max (aplNELM, 1)            , lpbRet);
+            return imul64 (sizeof (APLNESTED) , max (aplNELM, 1)            , lpbRet);
 
         case ARRAY_RAT:
-            return _imul64 (sizeof (APLRAT)    , aplNELM                     , lpbRet);
+            return imul64 (sizeof (APLRAT)    , aplNELM                     , lpbRet);
 
         case ARRAY_VFP:
-            return _imul64 (sizeof (APLVFP)    , aplNELM                     , lpbRet);
+            return imul64 (sizeof (APLVFP)    , aplNELM                     , lpbRet);
 
         defstop
             return MAX_APLINT;
@@ -2962,7 +3120,7 @@ APLUINT CalcArraySize
 
     if (bRet && aplType NE ARRAY_LIST)
         // Add in the size of the header and dimension
-        ByteRes = _iadd64 (ByteRes, CalcHeaderSize (aplRank), &bRet);
+        ByteRes = iadd64 (ByteRes, CalcHeaderSize (aplRank), &bRet);
 
     return bRet ? ByteRes : MAX_APLINT;
 } // End CalcArraySize
@@ -3004,7 +3162,7 @@ APLUINT CalcFcnSize
 //***************************************************************************
 
 LPPL_YYSTYPE MakeNoValue_YY
-    (LPTOKEN lptkFunc)
+    (LPTOKEN lptkFunc)          // Ptr to function token (may be NULL)
 
 {
     LPPERTABDATA lpMemPTD;      // Ptr to PerTabData global memory
@@ -3021,7 +3179,9 @@ LPPL_YYSTYPE MakeNoValue_YY
 ////lpYYRes->tkToken.tkFlags.ImmType   = IMMTYPE_ERROR; // Already zero from YYAlloc
     lpYYRes->tkToken.tkFlags.NoDisplay = TRUE;
     lpYYRes->tkToken.tkData.tkSym      = lpMemPTD->lphtsPTD->steNoValue;
-    lpYYRes->tkToken.tkCharIndex       = lptkFunc->tkCharIndex;
+    lpYYRes->tkToken.tkCharIndex       = (lptkFunc NE NULL) ? lptkFunc->tkCharIndex
+                                                            : -1;
+    lpYYRes->tkToken.tkSynObj          = soNVAL;
 
     return lpYYRes;
 } // End MakeNoValue_YY
@@ -3057,9 +3217,9 @@ void FillSISNxt
      HANDLE       hSemaphore,           // Semaphore handle
      DFN_TYPES    DfnType,              // DFNTYPE_xxx
      FCN_VALENCES FcnValence,           // FCNVALENCE_xxx
-     UBOOL        Suspended,            // TRUE iff starts Suspended
-     UBOOL        Restartable,          // TRUE iff restartable
-     UBOOL        LinkIntoChain)        // TRUE iff we should link this entry into the SIS chain
+     UBOOL        bSuspended,           // TRUE iff starts Suspended
+     UBOOL        bRestartable,         // TRUE iff restartable
+     UBOOL        bLinkIntoChain)       // TRUE iff we should link this entry into the SIS chain
 
 {
     lpMemPTD->SILevel++;
@@ -3074,30 +3234,36 @@ void FillSISNxt
 ////lpMemPTD->lpSISNxt->hGlbDfnHdr    = NULL;           // Already zero from ZeroMemory
 ////lpMemPTD->lpSISNxt->hGlbFcnName   = NULL;           // Already zero from ZeroMemory
     lpMemPTD->lpSISNxt->hGlbQuadEM    = hGlbQuadEM_DEF;
+////lpMemPTD->lpSISNxt->lpSymGlbGoto  = NULL;           // ALready zero from ZeroMemory
     lpMemPTD->lpSISNxt->DfnType       = DfnType;
     lpMemPTD->lpSISNxt->FcnValence    = FcnValence;
 ////lpMemPTD->lpSISNxt->DfnAxis       = FALSE;          // Already zero from ZeroMemory
-    lpMemPTD->lpSISNxt->Suspended     = Suspended;
+    lpMemPTD->lpSISNxt->bSuspended    = bSuspended;
 ////lpMemPTD->lpSISNxt->ResetFlag     = RESETFLAG_NONE; // Already zero from ZeroMemory
-////lpMemPTD->lpSISNxt->PermFn        = FALSE;          // Already zero from ZeroMemory
-    lpMemPTD->lpSISNxt->Restartable   = Restartable;
-////lpMemPTD->lpSISNxt->Unwind        = FALSE;          // Already zero from ZeroMemory
-////lpMemPTD->lpSISNxt->Avail         = 0;              // Already zero from ZeroMemory
+    lpMemPTD->lpSISNxt->bRestartable  = bRestartable;
+////lpMemPTD->lpSISNxt->bUnwind       = FALSE;          // Already zero from ZeroMemory
+////lpMemPTD->lpSISNxt->bItsEC        = FALSE;          // Already zero from ZeroMemory
+////lpMemPTD->lpSISNxt->bAFO          = FALSE;          // Already zero from ZeroMemory
+////lpMemPTD->lpSISNxt->bMFO          = FALSE;          // Already zero from ZeroMemory
 ////lpMemPTD->lpSISNxt->EventType     = MAKE_ET (0, 0); // Already zero from ZeroMemory
 ////lpMemPTD->lpSISNxt->CurLineNum    = 0;              // Already zero from ZeroMemory
 ////lpMemPTD->lpSISNxt->NxtLineNum    = 0;              // Already zero from ZeroMemory
 ////lpMemPTD->lpSISNxt->NxtTknNum     = 0;              // Already zero from ZeroMemory
 ////lpMemPTD->lpSISNxt->numLabels     = 0;              // Already zero from ZeroMemory
 ////lpMemPTD->lpSISNxt->numFcnLines   = 0;              // Already zero from ZeroMemory
+////lpMemPTD->lpSISNxt->numSymEntries = 0;              // Already zero from ZeroMemory
 ////lpMemPTD->lpSISNxt->QQPromptLen   = 0;              // Already zero from ZeroMemory
 ////lpMemPTD->lpSISNxt->ErrorCode     = ERRORCODE_NONE; // Already zero from ZeroMemory
+////lpMemPTD->lpSISNxt->lpSISErrCtrl  =                 // Set in the code below
     lpMemPTD->lpSISNxt->lpSISPrv      = lpMemPTD->lpSISCur;
     lpMemPTD->lpSISNxt->lpSISNxt      = (LPSIS_HEADER) ByteAddr (lpMemPTD->lpSISNxt, sizeof (SIS_HEADER));
 ////lpMemPTD->lpSISNxt->lptkFunc      = NULL;           // Already zero from ZeroMemory
+////lpMemPTD->lpSISNxt->lpForStmtBase =                 // Set in the code below
+////lpMemPTD->lpSISNxt->lpForStmtNext =                 // Set in the code below
 
     // If the outgoing header is from []EA/[]EC,
     //   and this header is not []EA/[]EC, ...
-    if (lpMemPTD->lpSISCur
+    if (lpMemPTD->lpSISCur NE NULL
      && lpMemPTD->lpSISCur->DfnType EQ DFNTYPE_ERRCTRL
      && DfnType NE DFNTYPE_ERRCTRL)
         lpMemPTD->lpSISNxt->lpSISErrCtrl = lpMemPTD->lpSISCur;
@@ -3111,7 +3277,7 @@ void FillSISNxt
         lpMemPTD->lpSISNxt->lpSISErrCtrl = lpMemPTD->lpSISCur->lpSISErrCtrl;
 
     // Fill in the FORSTMT ptr
-    if (lpMemPTD->lpSISCur)
+    if (lpMemPTD->lpSISCur NE NULL)
         lpMemPTD->lpSISNxt->lpForStmtBase =
         lpMemPTD->lpSISNxt->lpForStmtNext = lpMemPTD->lpSISCur->lpForStmtNext;
     else
@@ -3121,9 +3287,9 @@ void FillSISNxt
     dprintfWL9 (L"~~Localize:    %p (%s)", lpMemPTD->lpSISNxt, L"FillSISNxt");
 
     // Link this SIS into the chain, if requested
-    if (LinkIntoChain)
+    if (bLinkIntoChain)
     {
-        if (lpMemPTD->lpSISCur)
+        if (lpMemPTD->lpSISCur NE NULL)
             lpMemPTD->lpSISCur->lpSISNxt = lpMemPTD->lpSISNxt;
         lpMemPTD->lpSISCur = lpMemPTD->lpSISNxt;
         lpMemPTD->lpSISNxt = lpMemPTD->lpSISNxt->lpSISNxt;
@@ -3141,7 +3307,7 @@ LPSIS_HEADER PassSigaphore
     (LPPERTABDATA lpMemPTD,
      HANDLE       hSigaphore)
 {
-    if (hSigaphore
+    if (hSigaphore NE NULL
      && lpMemPTD->lpSISCur
      && hSigaphore NE lpMemPTD->lpSISCur->hSemaphore)
     {
@@ -3174,6 +3340,8 @@ UBOOL IsTknNamed
         case TKT_OP1NAMED:
         case TKT_OP2NAMED:
         case TKT_OP3NAMED:
+        case TKT_DEL:
+        case TKT_DELDEL:
             return TRUE;
 
         case TKT_FCNAFO:
@@ -3244,27 +3412,125 @@ UBOOL IsTknNamedFcnOpr
 
 
 //***************************************************************************
-//  $IsTknTypeAFO
+//  $IsTknTypeAxis
 //
-//  Return TRUE iff the given token type is an AFO
+//  Return TRUE iff the given token type is an Axis operand
 //***************************************************************************
 
-UBOOL IsTknTypeAFO
+UBOOL IsTknTypeAxis
     (TOKEN_TYPES tknType)
 
 {
     // Split cases based upon the token type
     switch (tknType)
     {
-        case TKT_FCNAFO:
-        case TKT_OP1AFO:
-        case TKT_OP2AFO:
+        case TKT_AXISIMMED:
+        case TKT_AXISARRAY:
             return TRUE;
 
         default:
             return FALSE;
     } // End SWITCH
-} // End IsTknTypeAFO
+} // End IsTknTypeAxis
+
+
+//***************************************************************************
+//  $IsTknAFO
+//
+//  Return TRUE iff the given token is an AFO
+//***************************************************************************
+
+UBOOL IsTknAFO
+    (LPTOKEN lpToken)           // Ptr to the token to test
+
+{
+    HGLOBAL      hGlbFcn;       // Global memory handle
+    VFOHDRPTRS   vfoHdrPtrs;    // Ptr to global memory
+    UBOOL        bRet;          // TRUE iff the function is an AFO
+
+    // Split cases based upon the token type
+    switch (lpToken->tkFlags.TknType)
+    {
+        case TKT_DELAFO:
+        case TKT_FCNAFO:
+        case TKT_OP1AFO:
+        case TKT_OP2AFO:
+            return TRUE;
+
+        case TKT_OP1NAMED:
+        case TKT_OP2NAMED:
+            // Get the global memory handle
+            hGlbFcn = GetGlbHandle (lpToken);
+
+            Assert (hGlbFcn NE NULL);
+
+            // Lock the memory to get a ptr to it
+            vfoHdrPtrs.lpMemVFO = MyGlobalLock (hGlbFcn);
+
+            switch (GetSignatureMem (vfoHdrPtrs.lpMemVFO))
+            {
+                case DFN_HEADER_SIGNATURE:
+                    // Copy the AFO flag
+                    bRet = vfoHdrPtrs.lpMemDfn->bAFO;
+
+                    break;
+
+                case FCNARRAY_HEADER_SIGNATURE:
+                    bRet = FALSE;
+
+                    break;
+
+                defstop
+                    break;
+            } // End SWITCH
+
+            // We no longer need this ptr
+            MyGlobalUnlock (hGlbFcn); vfoHdrPtrs.lpMemVFO = NULL;
+
+            return bRet;
+
+        default:
+            return FALSE;
+    } // End SWITCH
+} // End IsTknAFO
+
+
+//***************************************************************************
+//  $IsTknTrain
+//
+//  Return TRUE iff the given token is a Train
+//***************************************************************************
+
+UBOOL IsTknTrain
+    (LPTOKEN lpToken)           // Ptr to the token to test
+
+{
+    HGLOBAL           hGlbFcn;      // Global memory handle
+    LPFCNARRAY_HEADER lpMemHdrFcn;  // Ptr to global memory header
+    UBOOL             bRet;         // TRUE iff the token is a Train
+
+    // Get the global memory handle
+    hGlbFcn = GetGlbHandle (lpToken);
+
+    // If there is a global handle,
+    //   and it's a function array, ...
+    if (hGlbFcn NE NULL
+     && IsTknFcnArray (lpToken))
+    {
+        // Lock the memory to get a ptr to it
+        lpMemHdrFcn = MyGlobalLockFcn (hGlbFcn);
+
+        // Is the token a Train?
+        bRet = (lpMemHdrFcn->fnNameType EQ NAMETYPE_TRN);
+
+        // We no longer need this ptr
+        MyGlobalUnlock (hGlbFcn); lpMemHdrFcn = NULL;
+    } else
+        // Mark as not a Train
+        bRet = FALSE;
+
+    return bRet;
+} // End IsTknTrain
 
 
 //***************************************************************************
@@ -3321,6 +3587,7 @@ UBOOL IsTknTypeVar
         case TKT_VARIMMED:
         case TKT_VARARRAY:
         case TKT_AXISARRAY:
+        case TKT_STRAND:
             return TRUE;
 
         default:
@@ -3384,7 +3651,7 @@ UBOOL IsTknUsrDfn
 //***************************************************************************
 
 UBOOL IsTknImmed
-    (LPTOKEN lptkVar)                       // Ptr to var token
+    (LPTOKEN lptkVar)                       // Ptr to token
 
 {
     // Split cases based upon the token type
@@ -3405,6 +3672,7 @@ UBOOL IsTknImmed
         case TKT_FCNNAMED:
         case TKT_OP1NAMED:
         case TKT_OP2NAMED:
+        case TKT_OP3NAMED:
             // tkData is an LPSYMENTRY
             Assert (GetPtrTypeDir (lptkVar->tkData.tkVoid) EQ PTRTYPE_STCONST);
 
@@ -3417,184 +3685,66 @@ UBOOL IsTknImmed
 
 
 //***************************************************************************
-//  $SetVFOArraySRCIFlag
+//  $IsTknHybrid
 //
-//  Set SkipRefCntIncr flag in a variable/function/operator array.
+//  Return TRUE iff the given token is a hybrid
 //***************************************************************************
 
-#ifdef DEBUG
-#define APPEND_NAME     L" -- SetVFOArraySRCIFlag"
-#else
-#define APPEND_NAME
-#endif
-
-void SetVFOArraySRCIFlag
-    (LPTOKEN lptkVFO)                   // Ptr to var/fcn/opr token
+UBOOL IsTknHybrid
+    (LPTOKEN lptkVar)                       // Ptr to token
 
 {
-    HGLOBAL    hGlbVFO;
-    VFOHDRPTRS vfoHdrPtrs;
-
-    // If the token is named and has no value, ...
-    if (IsTknNamed   (lptkVFO)
-     && IsSymNoValue (lptkVFO->tkData.tkSym))
-        return;
-
-    // If the token is immediate, ...
-    if (IsTknImmed (lptkVFO))
-        return;
-
-    // Get the array's global ptrs (if any)
-    //   and lock it
-    GetGlbPtrs_LOCK (lptkVFO, &hGlbVFO, &vfoHdrPtrs.lpMemVFO);
-
-    // Is the array global?
-    if (hGlbVFO)
+    // Split cases based upon the token type
+    switch (lptkVar->tkFlags.TknType)
     {
-        // If the array is a UDFO, ...
-        if (IsTknUsrDfn (lptkVFO))
-            // Set the UDFO flag which says to skip the next
-            //   IncrRefCnt
-            vfoHdrPtrs.lpMemDfn->SkipRefCntIncr = TRUE;
-        else
-        // If the array is a fcn/opr, ...
-        if (IsTknTypeFcnOpr (lptkVFO->tkFlags.TknType))
-            // Set the Function Array flag which says to skip the next
-            //   IncrRefCnt
-            vfoHdrPtrs.lpMemFcn->SkipRefCntIncr = TRUE;
-        else
-        // If the array is a var?
-        if (IsTknTypeVar (lptkVFO->tkFlags.TknType))
-        {
-            // Set the Variable flag which says to skip the next
-            //   IncrRefCnt
-            vfoHdrPtrs.lpMemVar->SkipRefCntIncr = TRUE;
-#ifdef DEBUG_REFCNT
-            dprintfWL0 (L"  RefCnt&& in " APPEND_NAME L":     %p(res=%d) (%S#%d)", hGlbVFO, vfoHdrPtrs.lpMemVar->RefCnt, FNLN);
-#endif
-        } else
-            DbgStop ();
+        case TKT_OP3IMMED:
+        case TKT_OP3NAMED:
+            return TRUE;
 
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbVFO); vfoHdrPtrs.lpMemVFO = NULL;
-    } // End IF
-} // End SetVFOArraySRCIFlag
-#undef  APPEND_NAME
+        default:
+            return FALSE;
+    } // End SWITCH
+} // End IsTknHybrid
 
 
-#ifdef DEBUG
 //***************************************************************************
-//  $GetVFOArraySRCIFlag
+//  $IsTknSysName
 //
-//  Get the SkipRefCntIncr flag in a variable/function/operator array.
+//  Return TRUE iff the given token is a []name, except possibly for []Z
 //***************************************************************************
 
-UBOOL GetVFOArraySRCIFlag
-    (LPTOKEN lptkVFO)                   // Ptr to var/fcn/opr token
+UBOOL IsTknSysName
+    (LPTOKEN lptkVar,                       // Ptr to token
+     UBOOL   bExcludeQuadZ)                 // TRUE iff we should exclude []Z as a SysName
 
 {
-    HGLOBAL    hGlbVFO;
-    VFOHDRPTRS vfoHdrPtrs;
-    UBOOL      bRet = FALSE;        // Return value
+    HGLOBAL   htGlbName;                    // SYMENTRY name global memory handle
+    LPAPLCHAR lpMemName;                    // Ptr to var name
+    UBOOL     bRet;                         // TRUE iff the name starts with a Quad or Quote-quad
 
-    // If the token is named and has no value, ...
-    if (IsTknNamed   (lptkVFO)
-     && IsSymNoValue (lptkVFO->tkData.tkSym))
+    // If it's not named, ...
+    if (!IsTknNamed (lptkVar))
         return FALSE;
 
-    // If the token is immediate, ...
-    if (IsTknImmed (lptkVFO))
-        return FALSE;
+    // Get the HshEntry name's global memory handle
+    htGlbName = lptkVar->tkData.tkSym->stHshEntry->htGlbName;
 
-    // Get the array's global ptrs (if any)
-    //   and lock it
-    GetGlbPtrs_LOCK (lptkVFO, &hGlbVFO, &vfoHdrPtrs.lpMemVFO);
+    // Lock the memory to get a ptr to it
+    lpMemName = MyGlobalLockWsz (htGlbName);
 
-    // Is the array global?
-    if (hGlbVFO)
-    {
-        // If the array is a UDFO, ...
-        if (IsTknUsrDfn (lptkVFO))
-            // Set the UDFO flag which says to skip the next
-            //   IncrRefCnt
-            bRet = vfoHdrPtrs.lpMemDfn->SkipRefCntIncr;
-        else
-        // If the array is a fcn/opr, ...
-        if (IsTknTypeFcnOpr (lptkVFO->tkFlags.TknType))
-            // Set the Function Array flag which says to skip the next
-            //   IncrRefCnt
-            bRet = vfoHdrPtrs.lpMemFcn->SkipRefCntIncr;
-        else
-        // If the array is a var?
-        if (IsTknTypeVar (lptkVFO->tkFlags.TknType))
-            // Set the Variable flag which says to skip the next
-            //   IncrRefCnt
-            bRet = vfoHdrPtrs.lpMemVar->SkipRefCntIncr;
-        else
-            DbgStop ();
+    // Izit a sys name?
+    bRet = IsSysName (lpMemName);
 
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbVFO); vfoHdrPtrs.lpMemVFO = NULL;
-    } // End IF
+    // If we should exclude []Z as a SysName, ...
+    if (bExcludeQuadZ
+     && lstrcmpiW (lpMemName, $AFORESULT) EQ 0)
+        bRet = FALSE;
+
+    // We no longer need this ptr
+    MyGlobalUnlock (htGlbName); lpMemName = NULL;
 
     return bRet;
-} // End GetVFOArraySRCIFlag
-#endif
-
-
-//***************************************************************************
-//  $ClrVFOArraySRCIFlag
-//
-//  Clear SkipRefCntIncr flag in a variable/function/operator array.
-//***************************************************************************
-
-void ClrVFOArraySRCIFlag
-    (LPTOKEN lptkVFO)                   // Ptr to var/fcn/opr token
-
-{
-    HGLOBAL    hGlbVFO;
-    VFOHDRPTRS vfoHdrPtrs;
-
-    // If the token is named and has no value, ...
-    if (IsTknNamed   (lptkVFO)
-     && IsSymNoValue (lptkVFO->tkData.tkSym))
-        return;
-
-    // If the token is immediate, ...
-    if (IsTknImmed (lptkVFO))
-        return;
-
-    // Get the array's global ptrs (if any)
-    //   and lock it
-    GetGlbPtrs_LOCK (lptkVFO, &hGlbVFO, &vfoHdrPtrs.lpMemVFO);
-
-    // Is the array global?
-    if (hGlbVFO)
-    {
-        // If the array is a UDFO, ...
-        if (IsTknUsrDfn (lptkVFO))
-            // Set the UDFO flag which says to skip the next
-            //   IncrRefCnt
-            vfoHdrPtrs.lpMemDfn->SkipRefCntIncr = FALSE;
-        else
-        // If the array is a fcn/opr, ...
-        if (IsTknTypeFcnOpr (lptkVFO->tkFlags.TknType))
-            // Set the Function Array flag which says to skip the next
-            //   IncrRefCnt
-            vfoHdrPtrs.lpMemFcn->SkipRefCntIncr = FALSE;
-        else
-        // If the array is a var?
-        if (IsTknTypeVar (lptkVFO->tkFlags.TknType))
-            // Set the Variable flag which says to skip the next
-            //   IncrRefCnt
-            vfoHdrPtrs.lpMemVar->SkipRefCntIncr = FALSE;
-        else
-            DbgStop ();
-
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbVFO); vfoHdrPtrs.lpMemVFO = NULL;
-    } // End IF
-} // End ClrVFOArraySRCIFlag
+} // End IsTknSysName
 
 
 //***************************************************************************
@@ -3614,7 +3764,7 @@ static APLINT mod64
      APLINT aplRht)             // Right arg (the modulus)
 
 {
-    if (aplRht)
+    if (aplRht NE 0)
         return aplLft % aplRht;
     else
         return aplLft;

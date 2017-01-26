@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -116,12 +116,14 @@ void SetStatusParts
     STATUSPARTS iCnt;           // Loop counter
     SIZE        sText;
     HWND        hWndEC;         // Edit Ctrl window handle
+    HFONT       oldhFont;       // Previous HFONT
 
     // Get a Client Area DC for the Status Window
     hDC = MyGetDC (hWndStatus);
 
     // Copy the Status Window font
-    SelectObject (hDC, (HFONT) SendMessageW (hWndStatus, WM_GETFONT, 0, 0));
+    oldhFont =
+      SelectObject (hDC, (HFONT) SendMessageW (hWndStatus, WM_GETFONT, 0, 0));
 
 #define GRIPPER_WIDTH       20
 #define SP_BORDER_EXTRA      5
@@ -228,6 +230,9 @@ void SetStatusParts
     // Tell the status window about the new Status Parts right edge
     SendStatusMsg (SB_SETPARTS, SP_LENGTH, (LPARAM) lclStatusPartsRight);
 
+    // Restore the old HFONT
+    SelectObject (hDC, oldhFont);
+
     // We no longer need this resource
     MyReleaseDC (hWndStatus, hDC); hDC = NULL;
 
@@ -312,11 +317,11 @@ void SetStatusPos
     (HWND hWndEC)               // Edit Ctrl window handle
 
 {
-    APLU3264 uCharPos,              // Character position (origin-0), initially from start
+    APLU3264 uCharPos = 0,          // Character position (origin-0), initially from start
                                     //   of buffer then eventually from the start of the line
              uLineNum,              // Line # (origin-0)
              uLinePos;              // Line position from start of buffer
-    WCHAR    szTemp[32];            // Temp format save area
+    WCHAR    wszTemp[32];           // Temp format save area
 
     // Get the indices of the selected text (if any)
     SendMessageW (hWndEC, EM_GETSEL, (WPARAM) &uCharPos, 0);
@@ -331,16 +336,18 @@ void SetStatusPos
     uCharPos -= uLinePos;
 
     // Format the line #
-    wsprintfW (szTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%u",
-               uLineNum);
-    SendStatusMsg (SB_SETTEXTW, SP_LINEPOS, (LPARAM) szTemp);
+                uLineNum);
+    SendStatusMsg (SB_SETTEXTW, SP_LINEPOS, (LPARAM) wszTemp);
 
     // Format the char #
-    wsprintfW (szTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"%u",
-               uCharPos);
-    SendStatusMsg (SB_SETTEXTW, SP_CHARPOS, (LPARAM) szTemp);
+                uCharPos);
+    SendStatusMsg (SB_SETTEXTW, SP_CHARPOS, (LPARAM) wszTemp);
 } // End SetStatusPos
 
 
@@ -368,24 +375,28 @@ void SetStatusTimer
 
     // Format the number
     if (hrs)
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                 //   00:00:99:999 ms
                    L"%u:%02u:%02u:%03u ms",
-                   hrs, mins, secs, ms);
+                    hrs, mins, secs, ms);
     else
     if (mins)
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                 //   00:00:99:999 ms
                    L"   %2u:%02u:%03u ms",
                         mins, secs, ms);
     else
     if (secs)
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                 //   00:00:99:999 ms
                    L"      %2u:%03u ms",
                               secs, ms);
     else
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                 //   00:00:00:999 ms
                    L"         %3u ms",
                                     ms);
@@ -404,15 +415,11 @@ void UpdateStatusTimer
     (LPPERTABDATA lpMemPTD)     // Ptr to PerTabData global memory
 
 {
-    LARGE_INTEGER liTickCnt,            // Current tick count
-                  liTicksPerSec;        // # ticks per second
+    LARGE_INTEGER liTickCnt;            // Current tick count
     APLFLOAT      aplScale;             // Scale factor
 
     // Get current tick count
     QueryPerformanceCounter (&liTickCnt);
-
-    // Get # ticks per second
-    QueryPerformanceFrequency (&liTicksPerSec);
 
     // Calculate the scale factor for milliseconds
     aplScale = 1000.0 / (APLFLOAT) (APLINT) liTicksPerSec.QuadPart;

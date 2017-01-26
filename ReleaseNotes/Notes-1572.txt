@@ -1,0 +1,25 @@
+Build #1572--Version0.4.18.xx
+--------------------------------
+
+* Fix Bug Of Passing Too Large A Limit To UpDown Control For []PP
+
+Directory trunk:
+
+CUSTOMIZE.C:
+  Change DEF_MAX_QUADPPxxx names so as to better reflect on their usage as well as make them more readable.
+  Use UDM_SETPOS32 instead of UDM_SETPOS and UDM_SETRANGE32 instead of UDM_SETRANGE to be consistent.
+  Use special value of DEF_MAX_QUADPP_UDM for UDM_SETRANGE32 for []PP to workaround a bug in the UpDown Control.
+
+DISPLAY.C:
+GETFNS.C:
+INIFILE.C:
+PO_VARIANT.C:
+QF_TF.C:
+SC_SAVE.C:
+SYSVARS.C:
+SYSVARS.H:
+  Change DEF_MAX_QUADPPxxx names so as to better reflect on their usage as well as make them more readable.
+
+MAIN.C:
+REBAR.C:
+  Use UDM_SETPOS32 instead of UDM_SETPOS and UDM_SETRANGE32 instead of UDM_SETRANGE to be consistent.

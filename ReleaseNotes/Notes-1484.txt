@@ -1,0 +1,9 @@
+Build #1484 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug With Absolute Value of Minimum Negative Integer
+
+Directory trunk:
+
+PF_STILE.C:
+  Fix bug with absolute value of minimum negative integer.

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -173,11 +173,11 @@ APLSTYPE PrimSpecQueryStorageTypeMon
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
-    if (IsSimpleChar (*lpaplTypeRht)
-     || *lpaplTypeRht EQ ARRAY_LIST)
+    // Weed out chars & heteros
+    if (IsSimpleCH (*lpaplTypeRht))
         return ARRAY_ERROR;
 
     // The storage type of the result is
@@ -211,7 +211,7 @@ APLINT PrimFnMonQueryIisI
 
     // Get the current value of []IO & []RL
     bQuadIO = GetQuadIO ();
-    uQuadRL = lpPrimSpec->QuadRL;
+    uQuadRL = lpPrimSpec->uQuadRL;
 
     // Check for DOMAIN ERROR
     if (aplIntegerRht < bQuadIO)
@@ -221,7 +221,7 @@ APLINT PrimFnMonQueryIisI
     uQuadRL = NextQuadRL (uQuadRL);
 
     // Save uQuadRL back into lpPrimSpec
-    lpPrimSpec->QuadRL = uQuadRL;
+    lpPrimSpec->uQuadRL = uQuadRL;
 
     return bQuadIO + GetRandomNum (aplIntegerRht, uQuadRL, GetMemPTD ());
 } // End PrimFnMonQueryIisI
@@ -702,11 +702,11 @@ LPPL_YYSTYPE PrimFnDydQuery_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header

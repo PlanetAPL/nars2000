@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -140,12 +140,12 @@ APLSTYPE PrimSpecUpCaretStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // Calculate the storage type of the result
@@ -175,13 +175,11 @@ APLINT lcmAplInt
 
     // Calculate the GCD
     aplTmp = gcdAplInt (aplLft, aplRht, lpPrimSpec);
-    if (aplTmp EQ 0)
-        return aplTmp;
+    if (aplTmp NE 0)
+        aplTmp = aplLft * (aplRht / aplTmp);
 
-    aplTmp = aplLft * (aplRht / aplTmp);
-
-    // The sign of the result is the sign of the left argument
-    if (aplIntegerLft < 0)
+    // The sign of the result is the product of the signs of the arguments
+    if ((signumint (aplIntegerLft) * signumint (aplIntegerRht)) < 0)
         return -aplTmp;
     else
         return  aplTmp;
@@ -208,13 +206,11 @@ APLFLOAT lcmAplFloat
 
     // Calculate the GCD
     aplTmp = gcdAplFloat (aplLft, aplRht, lpPrimSpec);
-    if (fabs (aplTmp) < SYS_CT)
-        return aplTmp;
+    if (aplTmp >= GCD_CT)
+        aplTmp = aplLft * (aplRht / aplTmp);
 
-    aplTmp = aplLft * (aplRht / aplTmp);
-
-    // The sign of the result is the sign of the left argument
-    if (aplFloatLft < 0)
+    // The sign of the result is the product of the signs of the arguments
+    if ((signumflt (aplFloatLft) * signumflt (aplFloatRht)) < 0)
         return -aplTmp;
     else
         return  aplTmp;
@@ -249,11 +245,11 @@ APLRAT lcmAplRat
 
         mpq_div (&aplTmp, &aplRht, &aplTmp);
         mpq_mul (&aplTmp, &aplLft, &aplTmp);
-
-        // The sign of the result is the sign of the left argument
-        if (mpq_sgn (&aplRatLft) < 0)
-            mpq_neg (&aplTmp, &aplTmp);
     } // End IF
+
+    // The sign of the result is the product of the signs of the arguments
+    if ((signumrat (&aplRatLft) * signumrat (&aplRatRht)) < 0)
+        mpq_neg (&aplTmp, &aplTmp);
 
     return aplTmp;
 } // End lcmAplRat
@@ -287,11 +283,11 @@ APLVFP lcmAplVfp
 
         mpfr_div (&aplTmp, &aplRht, &aplTmp, MPFR_RNDN);
         mpfr_mul (&aplTmp, &aplLft, &aplTmp, MPFR_RNDN);
-
-        // The sign of the result is the sign of the left argument
-        if (mpfr_sgn (&aplVfpLft) < 0)
-            mpfr_neg0 (&aplTmp, &aplTmp, MPFR_RNDN);
     } // End IF
+
+    // The sign of the result is the product of the signs of the arguments
+    if ((signumvfp (&aplVfpLft) * signumvfp (&aplVfpRht)) < 0)
+        mpfr_neg (&aplTmp, &aplTmp, MPFR_RNDN);
 
     return aplTmp;
 } // End lcmAplVfp
@@ -422,14 +418,15 @@ APLFLOAT PrimFnDydUpCaretFisFvF
 
 {
     // Check for indeterminates:  lcm (PoM_, 0)  or  lcm (0, PoM_)
-    if ((IsInfinity (aplFloatLft) && (aplFloatRht EQ 0))
-     || (IsInfinity (aplFloatRht) && (aplFloatLft EQ 0)))
+    if ((IsFltInfinity (aplFloatLft) && (aplFloatRht EQ 0))
+     || (IsFltInfinity (aplFloatRht) && (aplFloatLft EQ 0)))
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_0LCMInf,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     SIGN_APLFLOAT (aplFloatLft));
     // Check for special cases:  lcm (PoM_, N)  or  lcm (N, PoM_)
-    if (IsInfinity (aplFloatLft)
-     || IsInfinity (aplFloatRht))
+    if (IsFltInfinity (aplFloatLft)
+     || IsFltInfinity (aplFloatRht))
         RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
 
     return lcmAplFloat (aplFloatLft, aplFloatRht, lpPrimSpec);
@@ -456,7 +453,8 @@ APLRAT PrimFnDydUpCaretRisRvR
         return *mpq_QuadICValue (&aplRatLft,
                                   ICNDX_0LCMInf,
                                  &aplRatRht,
-                                 &aplTmp);
+                                 &aplTmp,
+                                  mpq_sgn (&aplRatLft) EQ -1);
     // Check for special cases:  lcm (PoM_, N)  or  lcm (N, PoM_)
     if (mpq_inf_p (&aplRatLft)
      || mpq_inf_p (&aplRatRht))
@@ -475,8 +473,8 @@ APLRAT PrimFnDydUpCaretRisRvR
         mpz_lcm (mpq_numref (&mpqRes),
                  mpq_numref (&aplRatLft),
                  mpq_numref (&aplRatRht));
-        // The sign of the result is the sign of the left arg
-        if (mpz_sgn (mpq_numref (&aplRatLft)) EQ -1)
+        // The sign of the result is the product of the signs of the arguments
+        if ((signumrat (&aplRatLft) * signumrat (&aplRatRht)) < 0)
             mpz_neg (mpq_numref (&mpqRes), mpq_numref (&mpqRes));
         // Set the denominator to 1
         mpz_set_ui (mpq_denref (&mpqRes), 1);
@@ -507,7 +505,8 @@ APLVFP PrimFnDydUpCaretVisVvV
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_0LCMInf,
                                   &aplVfpRht,
-                                  &aplTmp);
+                                  &aplTmp,
+                                   SIGN_APLVFP (&aplVfpLft));
     // Check for special cases:  lcm (PoM_, N)  or  lcm (N, PoM_)
     if (mpfr_inf_p (&aplVfpLft)
      || mpfr_inf_p (&aplVfpRht))

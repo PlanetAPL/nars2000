@@ -1,0 +1,12 @@
+Build #1294 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug With Trains
+
+Directory trunk:
+
+PARSELINE.C:
+  In <plRedCom_RP>, if incoming fcn is in the process of being stranded, convert it into a function strand before passing it on to the caller.
+
+STRAND.C:
+  In <PushFcnStrand>, ensure incoming fcn not already being stranded.

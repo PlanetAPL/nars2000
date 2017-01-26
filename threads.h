@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2009 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,18 +39,26 @@ typedef struct tagIE_THREAD         // Thread struct for ImmExecStmtInThread
     LPWCHAR      lpwszCompLine;     // 08:  Ptr to complete line
     APLNELM      aplNELM;           // 0C:  NELM of lpwszCompLine
     HGLOBAL      hGlbWFSO;          // 10:  WaitForSingleObject callback global memory handle
-    UBOOL        bFreeLine,         // 14:  TRUE iff we should free lpwszCompLine on completion
-                 bWaitUntilFini,    // 18:  TRUE iff wait until finished
-                 bActOnErrors;      // 1C:  TRUE iff errors are acted upon
-                                    // 20:  Length
+    UBOOL        bFreeLine,         // 14:  TRUE iff we should VirtualFree lpwszCompLine on completion
+                 bActOnErrors;      // 18:  TRUE iff errors are acted upon
+                                    // 1C:  Length
 } IE_THREAD, *LPIE_THREAD;
 
 
-typedef struct tagCDB_THREAD        // Thread strucr for CreateDebuggerInThread
+typedef struct tagCDB_THREAD        // Thread struct for CreateDebuggerInThread
 {
     LPPERTABDATA lpMemPTD;          // 00:  Ptr to PerTabData global memory
                                     // 04:  Length
 } CDB_THREAD, *LPCDB_THREAD;
+
+
+typedef struct tagCR_THREAD         // Thread struct for CreateResetInThread
+{
+    LPPERTABDATA lpMemPTD;          // 00:  Ptr to PerTabData global memory
+    HANDLE       hThread;           // 04:  Handle to the current thread
+    DWORD        dwThreadId;        // 08:  Thread Id
+                                    // 0C:  Length
+} CR_THREAD, *LPCR_THREAD;
 
 
 //***************************************************************************

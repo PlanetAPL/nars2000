@@ -1,0 +1,10 @@
+Build #1343 -- Version 0.4.9.xx
+-------------------------------
+
+* Copy Back Point Notation Result For :CONSTANT During )LOAD/)COPY
+
+Directory trunk:
+
+PN_PROC.C:
+  In <PN_VectorRes>, copy back the last result in case it's a scalar and we're
+    calculating :CONSTANT during )LOAD/)COPY.

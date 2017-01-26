@@ -1,0 +1,15 @@
+Build #1262 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug Accounting For Trains
+
+Directory trunk:
+
+PRIMFNS.C:
+  In <IsFcnStrDirect>, if the argument is a function array and a Train,
+    return TRUE so it is handled correctly by <MakeFcnStrand>.
+
+YYFNS.C:
+  In <YYAlloc>, include comments on how to debug <YYResIsEmpty> memory leaks.
+  In <YYCountFcnStr>, if the item is a Train count it as a single element as
+    that's the way it is treated in <YYCountFcnGlb>.

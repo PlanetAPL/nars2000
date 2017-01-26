@@ -1,0 +1,10 @@
+Build #1492 -- Version 0.4.14.xx
+--------------------------------
+
+* Compare Ptrs Against NULL
+
+Directory trunk:
+
+PO_DIERESIS.C:
+PRIMSPEC.C:
+  In IF stmts always compare ptr against NULL.

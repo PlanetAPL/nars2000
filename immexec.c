@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -98,19 +98,199 @@ VOID CALLBACK WaitForImmExecStmt
       UnregisterWait (lpMemWFSO->WaitHandle); lpMemWFSO->WaitHandle = NULL;
     Assert (dwRet EQ 0 || dwRet EQ ERROR_IO_PENDING);
 
-    // Signal the next level (if appropriate)
+    // If there's a next level up, ...
     if (lpMemWFSO->hSigaphore)
+        // Signal the next level
         MyReleaseSemaphore (lpMemWFSO->hSigaphore, 1, NULL);
     else
+    // If the current SIS level is not Quad input, ...
+    if (lpMemPTD->lpSISCur EQ NULL
+     || lpMemPTD->lpSISCur->DfnType NE DFNTYPE_QUAD)
+        // Display the default prompt
         DisplayPrompt (lpMemWFSO->hWndEC, 10);
-    // We no longer need this ptr
-    MyGlobalUnlock (hGlbWFSO); lpMemWFSO = NULL;
 
-    // Free the allocated memory
-    DbgGlobalFree (hGlbWFSO); hGlbWFSO = NULL;
+    // Free the MPFR cache
+    mpfr_free_cache ();
+
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWFSO, lpMemWFSO);
 #undef  hGlbWFSO
 } // End WaitForImmExecStmt
 #undef  APPEND_NAME
+
+
+//***************************************************************************
+//  $GetBlockStartLine
+//
+//  Return the starting line of a block of continued lines
+//***************************************************************************
+
+UINT GetBlockStartLine
+    (HWND hWndEC,                           // Handle of Edit Ctrl window
+     UINT uLineNum)                         // Line #
+
+{
+    // While the preceding physical line continues to the current line, ...
+    while (uLineNum NE 0
+        && SendMessageW (hWndEC, MYEM_ISLINECONT, uLineNum - 1, 0) EQ TRUE)
+        // Back off to previous line #
+        uLineNum--;
+
+    return uLineNum;
+} // End GetBlockStartLine
+
+
+//***************************************************************************
+//  $GetBlockEndLine
+//
+//  Return the ending line of a block of continued lines
+//***************************************************************************
+
+UINT GetBlockEndLine
+    (HWND hWndEC,                           // Handle of Edit Ctrl window
+     UINT uLineNum)                         // Line #
+
+{
+    // While the current physical line continues to the next line, ...
+    while (SendMessageW (hWndEC, MYEM_ISLINECONT, uLineNum, 0) EQ TRUE)
+        // Skip to next line #
+        uLineNum++;
+
+    return uLineNum;
+} // End GetBlockEndLine
+
+
+//***************************************************************************
+//  $GetBlockLength
+//
+//  Return the length in WCHARs of a block including CR/CR/LFs
+//
+//  Note that this function does not include a terminating zero
+//    in the returned length
+//***************************************************************************
+
+UINT GetBlockLength
+    (HWND hWndEC,           // Handle of Edit Ctrl window
+     UINT uLineNum)         // Starting line #
+
+{
+    UINT uLinePos,          // Char position of start of line
+         uLineLen = 0;      // Line length
+
+    // While the current physical line continues to the next line, ...
+    while (SendMessageW (hWndEC, MYEM_ISLINECONT, uLineNum, 0) EQ TRUE)
+    {
+        // Get the position of the start of the line
+        uLinePos = (UINT) SendMessageW (hWndEC, EM_LINEINDEX, uLineNum, 0);
+
+        // Get the line length including the trailing WS_CRCRLF
+        uLineLen += strcountof (WS_CRCRLF) + (UINT) SendMessageW (hWndEC, EM_LINELENGTH, uLinePos, 0);
+
+        // Skip to the next line
+        uLineNum++;
+    } // End WHILE
+
+    // Once more to get the length of the last (non-continued) line
+
+    // Get the position of the start of the line
+    uLinePos = (UINT) SendMessageW (hWndEC, EM_LINEINDEX, uLineNum, 0);
+
+    // Get the line length
+    uLineLen += (UINT) SendMessageW (hWndEC, EM_LINELENGTH, uLinePos, 0);
+
+    return uLineLen;
+} // End GetBlockLength
+
+
+//***************************************************************************
+//  $GetLogicalLineCountFE
+//
+//  Return the # logical lines in a function (excluding the header
+//    which might itself take up more than one line)
+//***************************************************************************
+
+UINT GetLogicalLineCountFE
+    (HWND    hWndEC)                        // Handle of FE Edit Ctrl window
+
+{
+    UINT    uLineNum = 0,                   // Line # counter
+            uLineCnt,                       // # physical lines in the function
+            uLineLog = 0;                   // # logical lines in the function
+
+    Assert (IzitFE (GetParent (hWndEC)));
+
+    // Get the # physical lines in the function including the header
+    uLineCnt = (UINT) SendMessageW (hWndEC, EM_GETLINECOUNT, 0, 0);
+
+    // Loop through the physical lines
+    for (uLineNum = 0; uLineNum < uLineCnt; uLineNum++)
+    // If the current physical line does not continue to the next line, ...
+    if (SendMessageW (hWndEC, MYEM_ISLINECONT, uLineNum, 0) EQ FALSE)
+        uLineLog++;
+
+    return uLineLog - 1;
+} // End GetLogicalLineCountFE
+
+
+//***************************************************************************
+//  $CopyBlockLines
+//
+//  Copy a block of lines
+//
+//  Note that this function copies a terminating zero if there's enough room
+//    but it is not included in the returned length
+//***************************************************************************
+
+UINT CopyBlockLines
+    (HWND    hWndEC,                        // Handle of Edit Ctrl window
+     UINT    uLineNum,                      // Starting line #
+     LPWCHAR lpwszLine)                     // Ptr to output buffer
+
+{
+    UINT uLineLen,                          // Line length
+         uBlockLen = 0;                     // Block length
+
+    Assert (IzitSM (GetParent (hWndEC)) || IzitFE (GetParent (hWndEC)));
+
+    // While the current physical line continues to the next line, ...
+    while (SendMessageW (hWndEC, MYEM_ISLINECONT, uLineNum, 0) EQ TRUE)
+    {
+        // Tell EM_GETLINE maximum # chars in the buffer
+        // Because we allocated space for the terminating zero,
+        //   we don't have to worry about overwriting the
+        //   allocation limits of the buffer
+        ((LPWORD) lpwszLine)[0] = (WORD) -1;
+
+        // Get the contents of the line
+        uLineLen = (UINT) SendMessageW (hWndEC, EM_GETLINE, uLineNum, (LPARAM) lpwszLine);
+
+        // Skip to the next line ptr
+        lpwszLine = &lpwszLine[uLineLen];
+
+        // Append and skip over a Line Continuation marker
+        lstrcpyW (lpwszLine, WS_CRCRLF); lpwszLine += strcountof (WS_CRCRLF);
+
+        // Accumulate in result
+        uBlockLen += uLineLen + strcountof (WS_CRCRLF);
+
+        // Skip to the next line
+        uLineNum++;
+    } // End WHILE
+
+    // Once more to get the contents of the last (non-continued) line
+
+    // Tell EM_GETLINE maximum # chars in the buffer
+    // Because we allocated space for the terminating zero,
+    //   we don't have to worry about overwriting the
+    //   allocation limits of the buffer
+    ((LPWORD) lpwszLine)[0] = (WORD) -1;
+
+    // Get the contents of the line
+    uLineLen = (UINT) SendMessageW (hWndEC, EM_GETLINE, uLineNum, (LPARAM) lpwszLine);
+
+    // Accumulate in result
+    return uBlockLen + uLineLen;
+} // End CopyBlockLines
 
 
 //***************************************************************************
@@ -127,33 +307,34 @@ VOID CALLBACK WaitForImmExecStmt
 #endif
 
 void ImmExecLine
-    (UINT uLineNum,                         // Line #
-     HWND hWndEC)                           // Handle of Edit Ctrl window
+    (HWND hWndEC,                           // Handle of Edit Ctrl window
+     UINT uLineNum)                         // Line #
 
 {
     LPPERTABDATA lpMemPTD;                  // Ptr to PerTabData global memory
     LPWCHAR      lpwszCompLine,             // Ptr to complete line
                  lpwszLine;                 // Ptr to line following leading blanks
-    UINT         uLinePos,                  // Char position of start of line
-                 uLineLen;                  // Line length
+    UINT         uLineBeg,                  // Line # of start of continuation
+                 uLineLen = 0;              // Line length
     SYSCMDS_ENUM sysCmdEnum = SYSCMD_None;  // Type of system command (if any)
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
 
-    // Get the position of the start of the line
-    uLinePos = (UINT) SendMessageW (hWndEC, EM_LINEINDEX, uLineNum, 0);
+    // Get the line # of the start of a block of a Line Continuations
+    uLineBeg = GetBlockStartLine (hWndEC, uLineNum);
 
-    // Get the line length
-    uLineLen = (UINT) SendMessageW (hWndEC, EM_LINELENGTH, uLinePos, 0);
+    // Get the overall block length
+    //   not including a terminating zero
+    uLineLen = GetBlockLength (hWndEC, uLineBeg);
 
     // Allocate virtual memory for the line (along with its continuations)
     lpwszCompLine =
       MyVirtualAlloc (NULL,             // Any address (FIXED SIZE)
-                      (uLineLen + 1) * sizeof (WCHAR),  // "+ 1" for the terminating zero
+                      (uLineLen + 1) * sizeof (lpwszCompLine[0]),   // "+ 1" for the terminating zero
                       MEM_COMMIT | MEM_TOP_DOWN,
                       PAGE_READWRITE);
-    if (!lpwszCompLine)
+    if (lpwszCompLine EQ NULL)
     {
         // ***FIXME*** -- WS FULL before we got started???
         DbgMsgW (L"ImmExecLine:  VirtualAlloc for <lpwszCompLine> failed");
@@ -161,14 +342,9 @@ void ImmExecLine
         return;                 // Mark as failed
     } // End IF
 
-    // Tell EM_GETLINE maximum # chars in the buffer
-    // Because we allocated space for the terminating zero,
-    //   we don't have to worry about overwriting the
-    //   allocation limits of the buffer
-    ((LPWORD) lpwszCompLine)[0] = (WORD) uLineLen;
-
-    // Get the contents of the line
-    SendMessageW (hWndEC, EM_GETLINE, uLineNum, (LPARAM) lpwszCompLine);
+    // Copy a block of lines
+    //   including a terminating zero if there's enough room
+    CopyBlockLines (hWndEC, uLineBeg, lpwszCompLine);
 
     // Ensure properly terminated
     lpwszCompLine[uLineLen] = WC_EOS;
@@ -227,8 +403,7 @@ void ImmExecLine
             // Execute the statement
             ImmExecStmt (lpwszCompLine,             // Ptr to line to execute
                          lstrlenW (lpwszCompLine),  // NELM of lpwszCompLine
-                         TRUE,                      // TRUE iff free lpwszCompLine on completion
-                         FALSE,                     // TRUE iff wait until finished
+                         TRUE,                      // TRUE iff we should VirtualFree lpwszCompLine on completion
                          hWndEC,                    // Edit Ctrl window handle
                          TRUE);                     // TRUE iff errors are acted upon
             return;
@@ -263,8 +438,7 @@ void ImmExecLine
 EXIT_TYPES ImmExecStmt
     (LPWCHAR lpwszCompLine,     // Ptr to line to execute
      APLNELM aplNELM,           // NELM of lpwszCompLine
-     UBOOL   bFreeLine,         // TRUE iff free lpwszCompLine on completion
-     UBOOL   bWaitUntilFini,    // TRUE iff wait until finished
+     UBOOL   bFreeLine,         // TRUE iff we should VirtualFree lpwszCompLine on completion
      HWND    hWndEC,            // Edit Ctrl window handle
      UBOOL   bActOnErrors)      // TRUE iff errors are acted upon
 
@@ -286,11 +460,10 @@ EXIT_TYPES ImmExecStmt
     ieThread.aplNELM        = aplNELM;
     ieThread.hGlbWFSO       = hGlbWFSO;
     ieThread.bFreeLine      = bFreeLine;
-    ieThread.bWaitUntilFini = bWaitUntilFini;
     ieThread.bActOnErrors   = bActOnErrors;
 
     // Lock the memory to get a ptr to it
-    lpMemWFSO = MyGlobalLock (hGlbWFSO);
+    lpMemWFSO = MyGlobalLock000 (hGlbWFSO);
 
     // Fill in the struct
     lpMemWFSO->lpMemPTD = ieThread.lpMemPTD;
@@ -313,43 +486,25 @@ EXIT_TYPES ImmExecStmt
     if (hThread EQ NULL)
         goto LIMIT_EXIT;
 
-    // Should we wait until finished?
-    if (bWaitUntilFini)
-    {
-        // Start 'er up
-        ResumeThread (hThread);
+    dprintfWL9 (L"~~RegisterWaitForSingleObject (%p) (%S#%d)", hThread, FNLN);
 
-        dprintfWL9 (L"~~WaitForSingleObject (ENTRY):  %p -- %s (%S#%d)", hThread, L"ImmExecStmt", FNLN);
+    // Lock the memory to get a ptr to it
+    lpMemWFSO = MyGlobalLock (hGlbWFSO);
 
-        // Wait until this thread terminates
-        WaitForSingleObject (hThread,              // Handle to wait on
-                             INFINITE);            // Wait time in milliseconds
-        dprintfWL9 (L"~~WaitForSingleObject (EXIT):   %p -- %s (%S#%d)", hThread, L"ImmExecStmt", FNLN);
+    // Tell W to callback when this thread terminates
+    RegisterWaitForSingleObject (&lpMemWFSO->WaitHandle,// Return wait handle
+                                  hThread,              // Handle to wait on
+                                 &WaitForImmExecStmt,   // Callback function
+                                  hGlbWFSO,             // Callback function parameter
+                                  INFINITE,             // Wait time in milliseconds
+                                  WT_EXECUTEONLYONCE);  // Options
+    // We no longer need this ptr
+    MyGlobalUnlock (hGlbWFSO); lpMemWFSO = NULL;
 
-        // Get the exit code
-        GetExitCodeThread (hThread, (LPDWORD) &exitType);
-    } else
-    {
-        dprintfWL9 (L"~~RegisterWaitForSingleObject (%p) (%S#%d)", hThread, FNLN);
+    // Start 'er up
+    ResumeThread (hThread);
 
-        // Lock the memory to get a ptr to it
-        lpMemWFSO = MyGlobalLock (hGlbWFSO);
-
-        // Tell W to callback when this thread terminates
-        RegisterWaitForSingleObject (&lpMemWFSO->WaitHandle,// Return wait handle
-                                      hThread,              // Handle to wait on
-                                     &WaitForImmExecStmt,   // Callback function
-                                      hGlbWFSO,             // Callback function parameter
-                                      INFINITE,             // Wait time in milliseconds
-                                      WT_EXECUTEONLYONCE);  // Options
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbWFSO); lpMemWFSO = NULL;
-
-        // Start 'er up
-        ResumeThread (hThread);
-
-        exitType = EXITTYPE_NONE;
-    } // End IF/ELSE
+    exitType = EXITTYPE_NONE;
 
     goto NORMAL_EXIT;
 
@@ -365,6 +520,24 @@ NORMAL_EXIT:
     return exitType;
 } // End ImmExecStmt
 #undef  APPEND_NAME
+
+
+//***************************************************************************
+//  $InitPerThreadVars
+//
+//  Initialize per-thread vars
+//***************************************************************************
+
+void InitPerThreadVars
+    (LPPERTABDATA lpMemPTD)                 // Ptr to PerTabData global memory
+
+{
+    // Set the MPFR default precision
+    mpfr_set_default_prec ((mpfr_prec_t) lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_FPC]->stData.stInteger);
+
+    // Set the MPFR default rounding mode
+    mpfr_set_default_rounding_mode (MPFR_RNDN);
+} // InitPerThreadVars
 
 
 //***************************************************************************
@@ -393,8 +566,7 @@ DWORD WINAPI ImmExecStmtInThread
                    hWndSM;              // ...       Session Manager ...
     LPPERTABDATA   lpMemPTD;            // Ptr to this window's PerTabData
     RESET_FLAGS    resetFlag;           // Reset flag (see RESET_FLAGS)
-    UBOOL          bFreeLine,           // TRUE iff we should free lpszCompLine on completion
-                   bWaitUntilFini,      // TRUE iff wait until finished
+    UBOOL          bFreeLine,           // TRUE iff we should VirtualFree lpszCompLine on completion
                    bResetAll = FALSE,   // TRUE iff )RESET about to finish
                    bActOnErrors;        // TRUE iff errors are acted upon
     EXIT_TYPES     exitType;            // Return code from ParseLine
@@ -416,11 +588,13 @@ DWORD WINAPI ImmExecStmtInThread
         aplNELM        = lpieThread->aplNELM;
         hGlbWFSO       = lpieThread->hGlbWFSO;
         bFreeLine      = lpieThread->bFreeLine;
-        bWaitUntilFini = lpieThread->bWaitUntilFini;
         bActOnErrors   = lpieThread->bActOnErrors;
 
         // Save ptr to PerTabData global memory
         TlsSetValue (dwTlsPerTabData, lpMemPTD);
+
+        // Initialize per-thread vars
+        InitPerThreadVars (lpMemPTD);
 
         dprintfWL9 (L"--Starting thread in <ImmExecStmtInThread>.");
 
@@ -477,12 +651,13 @@ DWORD WINAPI ImmExecStmtInThread
             WCHAR wszTemp[1024];
 
             // Format the error message
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"%s -- Line %d statement %d",
-                       csLocalVars.lpwszErrMsg,
-                       csLocalVars.tkCSErr.tkData.Orig.c.uLineNum,
-                       csLocalVars.tkCSErr.tkData.Orig.c.uStmtNum + 1);
-            // Set the error message
+                        csLocalVars.lpwszErrMsg,
+                        csLocalVars.tkCSErr.tkData.Orig.c.uLineNum,
+                        csLocalVars.tkCSErr.tkData.Orig.c.uStmtNum + 1);
+            // Create []DM & []EM
             ErrorMessageDirect (wszTemp,                            // Ptr to error message text
                                 lpwszCompLine,                      // Ptr to the line which generated the error
                                 csLocalVars.tkCSErr.tkCharIndex);   // Position of caret (origin-0)
@@ -492,15 +667,13 @@ DWORD WINAPI ImmExecStmtInThread
             goto UNTOKENIZE_EXIT;
         } // End IF
 
-        // If we're not waiting until finished, ...
-        // (in other words, we're called from LoadWorkspaceGlobal_EM
-        //  and we can't send a message to another thread.)
-        if (!bWaitUntilFini)
-            // Set the cursor to indicate the new state
-            ForceSendCursorMsg (hWndEC, TRUE);
+        // If we're called from LoadWorkspaceGlobal_EM
+        //  and we can't send a message to another thread.
+        // Set the cursor to indicate the new state
+        ForceSendCursorMsg (hWndEC, TRUE);
 
         // Lock the memory to get a ptr to it
-        lpMemTknHdr = MyGlobalLock (hGlbTknHdr);
+        lpMemTknHdr = MyGlobalLockTkn (hGlbTknHdr);
 
         // Execute the line
         exitType =
@@ -511,7 +684,9 @@ DWORD WINAPI ImmExecStmtInThread
                      lpMemPTD,              // Ptr to PerTabData global memory
                      1,                     // Function line #  (1 for execute or immexec)
                      0,                     // Starting token # in the above function line
+                     FALSE,                 // TRUE iff we're tracing this line
                      NULL,                  // User-defined function/operator global memory handle (NULL = execute/immexec)
+                     NULL,                  // Ptr to function token used for AFO function name
                      bActOnErrors,          // TRUE iff errors are acted upon
                      FALSE,                 // TRUE iff executing only one stmt
                      FALSE);                // TRUE iff we're to skip the depth check
@@ -539,7 +714,7 @@ DWORD WINAPI ImmExecStmtInThread
                 {
                     // ***FIXME*** -- Set the tkCharIndex for the error???
 
-                    // Set the error message
+                    // Create []DM & []EM
                     ErrorMessageDirect (lpMemPTD->lpwszErrorMessage,    // Ptr to error message text
                                         lpwszCompLine,                  // Ptr to the line which generated the error
                                         lpMemPTD->tkErrorCharIndex);    // Position of caret (origin-0)
@@ -560,13 +735,6 @@ DWORD WINAPI ImmExecStmtInThread
                                               TRUE,                                                         // TRUE iff last line has CR
                                              &bCtrlBreak,                                                   // Ptr to Ctrl-Break flag
                                               NULL);                                                        // Ptr to function token
-////////////////////////////// Execute the statement (display []DM)
-////////////////////////////ImmExecStmt (DISP_QUAD_DM_TXT,          // Ptr to line to execute
-////////////////////////////             DISP_QUAD_DM_LEN,          // NELM of lpwszCompLine
-////////////////////////////             FALSE,                     // TRUE iff free lpwszCompLine on completion
-////////////////////////////             TRUE,                      // TRUE iff wait until finished
-////////////////////////////             hWndEC,                    // Edit Ctrl window handle
-////////////////////////////             FALSE);                    // TRUE iff errors are acted upon
                         } else
                         {
                             // Execute []ELX
@@ -577,6 +745,7 @@ DWORD WINAPI ImmExecStmtInThread
                                                            EXEC_QUAD_ELX_LEN,   // Length of the line to execute
                                                            TRUE,                // TRUE iff we should act on errors
                                                            FALSE,               // TRUE iff we're to skip the depth check
+                                                           DFNTYPE_EXEC,        // DfnType for FillSISNxt
                                                            NULL);               // Ptr to function token
                         } // End IF/ELSE
                     } // End IF
@@ -622,6 +791,7 @@ DWORD WINAPI ImmExecStmtInThread
                                                    EXEC_QUAD_ELX_LEN,                       // Length of the line to execute
                                                    TRUE,                                    // TRUE iff we should act on errors
                                                    FALSE,                                   // TRUE iff we're to skip the depth check
+                                                   DFNTYPE_EXEC,                            // DfnType for FillSISNxt
                                                    NULL);                                   // Ptr to function token
                 // Set the reset flag
                 lpMemPTD->lpSISCur->ResetFlag = RESETFLAG_NONE;
@@ -725,27 +895,24 @@ DWORD WINAPI ImmExecStmtInThread
         resetFlag = lpMemPTD->lpSISCur->ResetFlag;
 UNTOKENIZE_EXIT:
         // Lock the memory to get a ptr to it
-        lpMemTknHdr = MyGlobalLock (hGlbTknHdr);
+        lpMemTknHdr = MyGlobalLockTkn (hGlbTknHdr);
 
         // Free the tokens
         Untokenize (lpMemTknHdr);
 
-        // We no Longer need this ptr
-        MyGlobalUnlock (hGlbTknHdr); lpMemTknHdr = NULL;
-
-        // We no Longer need this storage
-        MyGlobalFree (hGlbTknHdr); hGlbTknHdr = NULL;
+        // Unlock and free (and set to NULL) a global name and ptr
+        UnlFreeGlbName (hGlbTknHdr, lpMemTknHdr);
 ERROR_EXIT:
         // Unlocalize the STEs on the innermost level
         //   and strip off one level
-        UnlocalizeSTEs ();
+        UnlocalizeSTEs (NULL);
 
         dprintfWL9 (L"--Ending   thread in <ImmExecStmtInThread>.");
 
         // Restore the ptr to the next token on the CS stack
         lpMemPTD->lptkCSNxt = lptkCSBeg;
 
-        // Free the virtual memory for the complete line
+        // If we should free the virtual memory for the complete line, ...
         if (bFreeLine)
         {
             MyVirtualFree (lpwszCompLine, 0, MEM_RELEASE); lpwszCompLine = NULL;
@@ -790,6 +957,7 @@ EXIT_TYPES ActOnError
                                    EXEC_QUAD_ELX_LEN,                       // Length of the line to execute
                                    TRUE,                                    // TRUE iff we should act on errors
                                    FALSE,                                   // TRUE iff we're to skip the depth check
+                                   DFNTYPE_EXEC,                            // DfnType for FillSISNxt
                                    NULL);                                   // Ptr to function token
     // Split cases based upon the exit type
     switch (exitType)
@@ -804,7 +972,7 @@ EXIT_TYPES ActOnError
         case EXITTYPE_NODISPLAY:        // Display the result (if any)
         case EXITTYPE_DISPLAY:          // ...
             // If the Execute/Quad result is present, display it
-            if (lpMemPTD->YYResExec.tkToken.tkFlags.TknType)
+            if (lpMemPTD->YYResExec.tkToken.tkFlags.TknType NE TKT_UNUSED)
             {
                 // Display the result
                 ArrayDisplay_EM (&lpMemPTD->YYResExec.tkToken, TRUE, &bFALSE);

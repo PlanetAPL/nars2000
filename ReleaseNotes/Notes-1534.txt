@@ -1,0 +1,9 @@
+Build #1534 -- Version 0.4.15.xx
+--------------------------------
+
+* Display {cr} And {lf} In Workspace Plaintext Instead Of The Hex Equivalent
+
+Directory trunk:
+
+SYMBOLNAMES.H:
+  Define {cr} and {lf} as names for \r and \n.

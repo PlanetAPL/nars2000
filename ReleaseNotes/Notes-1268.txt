@@ -1,0 +1,9 @@
+Build #1268 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Syntax Coloring Of Line Labels With Spaces
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <scClnDone>, handle spaces between the line label and the separating colon.

@@ -1,0 +1,10 @@
+Build #1251 -- Version 0.4.9.xx
+-------------------------------
+
+* Enable Debugging Of Semaphores
+
+Directory trunk:
+
+RESDEBUG.C:
+RESDEBUG.H:
+  Display a debugging message when creating, closing, or releasing a semaphore.

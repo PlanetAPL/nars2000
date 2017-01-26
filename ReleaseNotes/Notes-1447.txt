@@ -1,0 +1,23 @@
+Build #1447 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Point Notation To Handle 2x3
+* Catch More Occurrences Of -0
+
+CR_PROC.C:
+  In <crExit> and <crEndSeg>, check for -0.
+
+CR_PROC.H:
+  Define return code for when the result is -0.
+
+MACROS.H:
+  Delete unused macros.
+
+PN_PARSE.H:
+  Improve comments.
+  Define macros for PN_NUMTYPE_BOOL testing.
+
+PN_PROC.C:
+  In <PN_MakeRatPoint>, handle -0 result.
+  Use common macros for PN_NUMTYPE_xxx testing.
+  In <PN_VectorAcc>, redo test for expressible as integer and/or rational to handle 2x3.

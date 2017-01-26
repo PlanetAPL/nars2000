@@ -1,0 +1,10 @@
+Build #1505 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In 2 +/0 1.5 2.5 Same As In Scan With Demotion Of Temporary Float
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix bug in <PrimOpDydSlashCommon_EM_YY> where a temporary float result is demoted to integer
+    but stored as if it were a float.

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -383,11 +383,11 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
 
         // Now we can allocate the storage for the result
         hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRes)
+        if (hGlbRes EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemRes = MyGlobalLock (hGlbRes);
+        lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
         // Fill in the header
@@ -420,7 +420,7 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
         LPSYMENTRY     lpSymEntry;          // Ptr to SYMENTRY for name lookup
         LPWCHAR        lpwName;             // Ptr to name portion of array
         HGLOBAL        hGlbTxtLine;         // Line text ...
-        LPFCNLINE      lpFcnLines;          // Ptr to array of function line structs (FCNLINE[numFcnLines])
+        LPFCNLINE      lpFcnLines;          // Ptr to array of function line structs (FCNLINE[numLogLines])
         UINT           uNumLines,           // # function lines
                        uLine,               // Loop counter
                        uMaxLineLen;         // Length of the longest line
@@ -455,7 +455,7 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
 
         // Look up the name
         lpSymEntry = SymTabLookupName (lpwName, &stFlags);
-        if (!lpSymEntry)
+        if (lpSymEntry EQ NULL)
             goto EMPTY_EXIT;
 
         // Search for the global entry
@@ -479,7 +479,7 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
                     hGlbItm = lpSymEntry->stData.stGlbData;
 
                     // Lock the memory to get a ptr to it
-                    lpMemItm = MyGlobalLock (hGlbItm);
+                    lpMemItm = MyGlobalLockVar (hGlbItm);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemItm)
                     // Get the type, NELM, and Rank
@@ -522,29 +522,29 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
                             // Format and save the value
                             if (IsImmInt (lpSymEntry->stFlags.ImmType))
                                 lpwszTemp =
-                                  FormatAplintFC (lpwszTemp,                    // Ptr to output save area
+                                  FormatAplIntFC (lpwszTemp,                    // Ptr to output save area
                                                   lpSymEntry->stData.stLongest, // The value to format
                                                   UTF16_OVERBAR);               // Char to use as overbar
                             else
                                 lpwszTemp =
-                                  FormatFloatFC (lpwszTemp,                     // Ptr to output save area
-                                                 lpSymEntry->stData.stFloat,    // The value to format
-                                                 DEF_MAX_QUADPP64,              // Precision to use
-                                                 L'.',                          // Char to use as decimal separator
-                                                 UTF16_OVERBAR,                 // Char to use as overbar
-                                                 FLTDISPFMT_RAWFLT,             // Float display format
-                                                 FALSE);                        // TRUE iff we're to substitute text for infinity
+                                  FormatAplFltFC (lpwszTemp,                    // Ptr to output save area
+                                                  lpSymEntry->stData.stFloat,   // The value to format
+                                                  DEF_MAX_QUADPP_IEEE,          // Precision to use
+                                                  L'.',                         // Char to use as decimal separator
+                                                  UTF16_OVERBAR,                // Char to use as overbar
+                                                  FLTDISPFMT_RAWFLT,            // Float display format
+                                                  FALSE);                       // TRUE iff we're to substitute text for infinity
                         } else
                         {
                             // Format & save the rank
                             lpwszTemp =
-                              FormatAplintFC (lpwszTemp,                        // Ptr to output save area
+                              FormatAplIntFC (lpwszTemp,                        // Ptr to output save area
                                               aplRankItm,                       // The value to format
                                               UTF16_OVERBAR);                   // Char to use as overbar
                             // Format & save the shape
                             for (uCnt = 0; uCnt < aplRankItm; uCnt++)
                                 lpwszTemp =
-                                  FormatAplintFC (lpwszTemp,                    // Ptr to output save area
+                                  FormatAplIntFC (lpwszTemp,                    // Ptr to output save area
                                                   *((LPAPLDIM) lpMemItm)++,     // The value to format
                                                   UTF16_OVERBAR);               // Char to use as overbar
                             // Loop through the elements formatting and saving them
@@ -552,24 +552,25 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
                             {
                                 GetNextValueMem (lpMemItm,          // Ptr to item global memory data
                                                  aplTypeItm,        // Item storage type
+                                                 aplNELMItm,        // Item NELM
                                                  uCnt,              // Index into item
                                                  NULL,              // Ptr to result LPSYMENTRY or HGLOBAL (may be NULL)
                                                 &aplLongestItm,     // Ptr to result immediate value (may be NULL)
                                                  NULL);             // Ptr to result immediate type (see IMM_TYPES) (may be NULL)
                                 if (IsSimpleInt (aplTypeItm))
                                     lpwszTemp =
-                                      FormatAplintFC (lpwszTemp,                // Ptr to output save area
+                                      FormatAplIntFC (lpwszTemp,                // Ptr to output save area
                                                       aplLongestItm,            // The value to format
                                                       UTF16_OVERBAR);           // Char to use as overbar
                                 else
                                     lpwszTemp =
-                                      FormatFloatFC (lpwszTemp,                     // Ptr to output save area
+                                      FormatAplFltFC (lpwszTemp,                    // Ptr to output save area
                                                      *(LPAPLFLOAT) &aplLongestItm,  // The value to format
-                                                     DEF_MAX_QUADPP64,              // Precision to use
-                                                     L'.',                          // Char to use as decimal separator
-                                                     UTF16_OVERBAR,                 // Char to use as overbar
-                                                     FLTDISPFMT_RAWFLT,             // Float display format
-                                                     FALSE);                        // TRUE iff we're to substitute text for infinity
+                                                      DEF_MAX_QUADPP_IEEE,          // Precision to use
+                                                      L'.',                         // Char to use as decimal separator
+                                                      UTF16_OVERBAR,                // Char to use as overbar
+                                                      FLTDISPFMT_RAWFLT,            // Float display format
+                                                      FALSE);                       // TRUE iff we're to substitute text for infinity
                             } // End FOR
                         } // End IF/ELSE
 
@@ -602,13 +603,13 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
                         {
                             // Format & save the rank
                             lpwszTemp =
-                              FormatAplintFC (lpwszTemp,                        // Ptr to output save area
+                              FormatAplIntFC (lpwszTemp,                        // Ptr to output save area
                                               aplRankItm,                       // The value to format
                                               UTF16_OVERBAR);                   // Char to use as overbar
                             // Format & save the shape
                             for (uCnt = 0; uCnt < aplRankItm; uCnt++)
                                 lpwszTemp =
-                                  FormatAplintFC (lpwszTemp,                    // Ptr to output save area
+                                  FormatAplIntFC (lpwszTemp,                    // Ptr to output save area
                                                   *((LPAPLDIM) lpMemItm)++,     // The value to format
                                                   UTF16_OVERBAR);               // Char to use as overbar
                             // Copy the values to temp storage
@@ -666,10 +667,10 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
                 hGlbDfnHdr = lpSymEntry->stData.stGlbData;
 
                 // Lock the memory to get a ptr to it
-                lpMemDfnHdr = MyGlobalLock (hGlbDfnHdr);
+                lpMemDfnHdr = MyGlobalLockDfn (hGlbDfnHdr);
 
                 // Lock the memory to get a ptr to it
-                lpMemTxtLine = MyGlobalLock (lpMemDfnHdr->hGlbTxtHdr);
+                lpMemTxtLine = MyGlobalLock000 (lpMemDfnHdr->hGlbTxtHdr);   // ->U not assigned as yet
 
                 // Get the length of the function header text
                 uMaxLineLen = lpMemTxtLine->U;
@@ -677,10 +678,10 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
                 // We no longer need this ptr
                 MyGlobalUnlock (lpMemDfnHdr->hGlbTxtHdr); lpMemTxtLine = NULL;
 
-                // Get ptr to array of function line structs (FCNLINE[numFcnLines])
+                // Get ptr to array of function line structs (FCNLINE[numLogLines])
                 lpFcnLines = (LPFCNLINE) ByteAddr (lpMemDfnHdr, lpMemDfnHdr->offFcnLines);
 
-                // Get # function lines
+                // Get # logical function lines
                 uNumLines = lpMemDfnHdr->numFcnLines;
 
                 // Run through the function lines looking for the longest
@@ -692,7 +693,7 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
                     if (hGlbTxtLine)
                     {
                         // Lock the memory to get a ptr to it
-                        lpMemTxtLine = MyGlobalLock (hGlbTxtLine);
+                        lpMemTxtLine = MyGlobalLockTxt (hGlbTxtLine);
 
                         // Find the length of the longest line
                         uMaxLineLen = max (uMaxLineLen, lpMemTxtLine->U);
@@ -711,12 +712,12 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
 
                 // Format & save the # rows
                 lpwszTemp =
-                  FormatAplintFC (lpwszTemp,                                    // Ptr to output save area
+                  FormatAplIntFC (lpwszTemp,                                    // Ptr to output save area
                                   uNumLines + 1,                                // The value to format
                                   UTF16_OVERBAR);                               // Char to use as overbar
                 // Format & save the # cols
                 lpwszTemp =
-                  FormatAplintFC (lpwszTemp,                                    // Ptr to output save area
+                  FormatAplIntFC (lpwszTemp,                                    // Ptr to output save area
                                   uMaxLineLen,                                  // The value to format
                                   UTF16_OVERBAR);                               // Char to use as overbar
                 // Copy the header to the result as either a row or as an allocated HGLOBAL
@@ -724,7 +725,7 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
                 if (lpwszTemp EQ NULL)
                     goto ERROR_EXIT;
 
-                // Get ptr to array of function line structs (FCNLINE[numFcnLines])
+                // Get ptr to array of function line structs (FCNLINE[numLogLines])
                 lpFcnLines = (LPFCNLINE) ByteAddr (lpMemDfnHdr, lpMemDfnHdr->offFcnLines);
 
                 // Run through the function lines copying each line text to the result
@@ -766,11 +767,11 @@ LPPL_YYSTYPE SysFnDydTF1_EM_YY
 
         // Now we can allocate the storage for the result
         hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRes)
+        if (hGlbRes EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemRes = MyGlobalLock (hGlbRes);
+        lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
         // Fill in the header
@@ -931,7 +932,7 @@ LPPL_YYSTYPE SysFnDydTF2_EM_YY
 
         // Look up the name
         lpSymEntry = SymTabLookupName (lpwszTemp, &stFlags);
-        if (!lpSymEntry)
+        if (lpSymEntry EQ NULL)
             goto EMPTY_EXIT;
 
         // Split cases based upon the name type
@@ -1024,7 +1025,7 @@ LPPL_YYSTYPE SysFnDydTF2_EM_YY
 
             // Look up the name
             lpSymEntry = SymTabLookupName (lpwszTemp, &stFlags);
-            if (!lpSymEntry)
+            if (lpSymEntry EQ NULL)
                 goto EMPTY_EXIT;
 
             // Save the STE to restore later
@@ -1085,11 +1086,11 @@ LPPL_YYSTYPE SysFnDydTF2_EM_YY
 
     // Now we can allocate the storage for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -1136,7 +1137,7 @@ YYALLOC_EXIT:
     goto NORMAL_EXIT;
 
 WSFULL_EXIT:
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
         AppendLine (ERRMSG_WS_FULL APPEND_NAME, FALSE, TRUE);
 
     goto ERROR_EXIT;
@@ -1214,9 +1215,9 @@ UBOOL TransferInverseFcn1_EM
 
     // Search for the blank which marks the end of the name
     lpwData = SkipToCharW (lpwName, L' ');
-    if (!lpwData)
+    if (lpwData EQ NULL)
     {
-////////if (!lptkFunc)
+////////if (lptkFunc EQ NULL)
 ////////{
 ////////    // Format the error message
 ////////    wsprintfW (lpwszFormat,
@@ -1257,13 +1258,13 @@ UBOOL TransferInverseFcn1_EM
 
     // Look up the name
     lpSymEntry = SymTabLookupName (lpwName, &stFlags);
-    if (!lpSymEntry)
+    if (lpSymEntry EQ NULL)
     {
         // If it's a system name and it's not found, then we don't support it
         if (IsSysName (lpwName))
             goto INVALIDSYSNAME_EXIT;
         lpSymEntry = SymTabAppendNewName_EM (lpwName, &stFlags);
-        if (!lpSymEntry)
+        if (lpSymEntry EQ NULL)
             goto STFULL_EXIT;
 
         // As this is a system command, we change the global values only
@@ -1312,10 +1313,13 @@ UBOOL TransferInverseFcn1_EM
     // Fill in common values
     SF_Fcns.SF_LineLen      = SF_LineLenTF1;        // Ptr to line length function
     SF_Fcns.SF_ReadLine     = SF_ReadLineTF1;       // Ptr to read line function
-    SF_Fcns.SF_NumLines     = SF_NumLinesTF1;       // Ptr to # lines function
+    SF_Fcns.SF_IsLineCont   = SF_IsLineContTF1;     // Ptr to Is Line Continued function
+    SF_Fcns.SF_NumPhyLines  = SF_NumPhyLinesTF1;    // Ptr to # physical lines function
+    SF_Fcns.SF_NumLogLines  = SF_NumLogLinesTF1;    // Ptr to # logical  ...
     SF_Fcns.SF_CreationTime = SF_CreationTimeTF1;   // Ptr to get function creation time
     SF_Fcns.SF_LastModTime  = SF_LastModTimeTF1;    // Ptr to get function last modification time
     SF_Fcns.SF_UndoBuffer   = SF_UndoBufferTF1;     // Ptr to get function Undo Buffer global memory handle
+    SF_Fcns.sfTypes         = SFTYPES_TF;           // Caller type
 
     // Save ptr to local parameters
     SF_Fcns.LclParams = &TF1_Params;
@@ -1327,7 +1331,7 @@ UBOOL TransferInverseFcn1_EM
         goto NORMAL_EXIT;
 
 INVALIDSYSNAME_EXIT:
-////if (!lptkFunc)
+////if (lptkFunc EQ NULL)
 ////{
 ////    // Format the error message
 ////    wsprintfW (lpwszFormat,
@@ -1342,7 +1346,7 @@ INVALIDSYSNAME_EXIT:
     goto ERROR_EXIT;
 
 STFULL_EXIT:
-////if (!lptkFunc)
+////if (lptkFunc EQ NULL)
 ////    AppendLine (ERRMSG_SYMBOL_TABLE_FULL APPEND_NAME, FALSE, TRUE);
 
     goto ERROR_EXIT;

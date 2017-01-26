@@ -1,0 +1,12 @@
+Build #1455 -- Version 0.4.13.xx
+--------------------------------
+
+* Fix Bug In []EC R If Error Executing R
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+QF_EC.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <SysFnMonEC_EM_YY>, after executing the right arg, clear the <ExitType> in the caller's <plLocalVars>.
+    Without this fix, the function that calls []EC suspends.

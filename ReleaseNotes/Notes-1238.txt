@@ -1,0 +1,9 @@
+Build #1238 -- Version 0.4.7.xx
+-------------------------------
+
+* Force Decimal Point In Numeric Constant To Return Float
+
+Directory trunk:
+
+PN_PARSE.Y:
+  In the grammar, force a decimal point in a numeric constant to return a float.

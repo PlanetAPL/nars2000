@@ -1,0 +1,12 @@
+Build #1573--Version0.4.18.xx
+--------------------------------
+
+* Fix Bug When Creating Fallback Font
+
+Directory trunk:
+
+EDITFCN.C:
+  In <LclEditCtrlWndProc>/WM_SETFONT, I mistyped the test for the Function Editor window causing it not to be found.
+
+MAIN.C:
+  In <CreateNewFontCom>, test for failure of that function when calling itself for Fallback fonts.

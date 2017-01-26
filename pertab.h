@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #define INIT_PERTABVARS                                     \
     lpMemPTD->Sig.nature    = ' DTP';                       \
     lpMemPTD->uQuadMF       = uQuadMF_CWS;                  \
-    SetCurrentFeatureCWS (lpMemPTD);                        \
+    SetCurrentFeatureFromCWS (lpMemPTD);                    \
     lpMemPTD->hGlbQuadEM    = hGlbQuadEM_DEF;               \
     gmp_randinit_default (lpMemPTD->randState);             \
 
@@ -55,6 +55,7 @@
 #define DESTROY_PERTABVARS                          \
     gmp_randclear (lpMemPTD->randState);            \
     Myf_clear (&lpMemPTD->mpfrPi);                  \
+    Myf_clear (&lpMemPTD->mpfrGamma);               \
     Myf_clear (&lpMemPTD->mpfrE);                   \
     gsl_rng_free (lpMemPTD->gslRNG);                \
 
@@ -66,7 +67,8 @@ typedef struct tagPERTABDATA
     UINT         numYYRes;                  // # YYRes elements in the array
                                             //   pointed to by lpYYRes
     // Symbol & hash table variables
-    LPHSHTABSTR  lphtsPTD;                  // Ptr to current HTS
+    LPHSHTABSTR  lphtsPTD,                  // Ptr to current HTS
+                 lphtsGLB;                  // ...    global  ...
     UINT         tkErrorCharIndex;          // Char index for lpwszQuadErrorMsg if ImmExec
 
     HWND         hWndMC,                    // MDI Client window handle
@@ -80,9 +82,13 @@ typedef struct tagPERTABDATA
                  bTempOpen:1,               // 00000010:  TRUE if lpwszTemp is open and open-ended
                  :27;                       // FFFFFFE0:  Available bits
     HGLOBAL      hGlbCurLine;               // Current line global memory handle
-    LPWCHAR      lpwszTempName;             // Ptr to current name with lpwszTemp open
-    LPWCHAR      lpwszErrorMessage;         // Ptr to error message to signal
-    LPWCHAR      lpwszQuadErrorMsg;         // Used for []ERROR/[]ES messages
+#ifdef DEBUG
+    LPWCHAR      lpwszTempName,             // Ptr to current name with lpwszTemp open
+                 lpwszFILE,                 // Ptr to current __FILE__ for lpwszTemp open
+                 lpwszLINE;                 // Ptr to current __LINE__ for lpwszTemp open
+#endif
+    LPWCHAR      lpwszErrorMessage,         // Ptr to error message to signal
+                 lpwszQuadErrorMsg;         // Used for []ERROR/[]ES messages
     UINT         uCaret;                    // Position of the caret in the current line on error
     int          crIndex;                   // Tab's color index
     APLINT       uQuadMF;                   // []MF timer value (8 bytes)
@@ -114,14 +120,16 @@ typedef struct tagPERTABDATA
     LPWCHAR      lpwszFormat,               // Ptr to formatting save area
                  lpwszBaseTemp,             // Ptr to base of lpwszTemp
                  lpwszTemp;                 // Ptr to temporary  ...
-    UINT         uTempMaxSize,              // Maximum size of lpwszTemp
-                 uExecDepth,                // Execution depth
+    APLI3264     iTempMaxSize;              // Maximum size of lpwszTemp
+    UINT         uExecDepth,                // Execution depth
                  uErrLine;                  // Error line # from []FX for )IN
     APLU3264     RegisterEBP;               // Register EBP/RBP from an exception
     LPTOKEN      lptkCSIni,                 // Ptr to start of CtrlStruc token stack (static)
                  lptkCSNxt;                 // Ptr to next available slot in CS ...  (dynamic)
     struct tagFORSTMT *
                  lpForStmtBase;             // Ptr to base of FORSTMT stack
+    PL_YYSTYPE   ForToken,                  // Temporary ptr to :FOR or :FORLCL token
+                 ForName;                   // ...               NAM in :FOR NAM :IN A
 #ifndef UNISCRIBE
     IMLangFontLink
                 *lpFontLink;                // Ptr to FontLink struc
@@ -137,10 +145,15 @@ typedef struct tagPERTABDATA
     APLINT       aplCurrentFEATURE[FEATURENDX_LENGTH];  // Current values for []FEATURE
     gmp_randstate_t randState;              // MPIR random number state for Query
     APLVFP       mpfrPi,                    // MPFR value for Pi
-                 mpfrE;                     // MPFR value for e
+                 mpfrGamma,                 // ...            Gamma
+                 mpfrE;                     // ...            e
     HGLOBAL      hGlbNfns;                  // Global memory handle for []Nfns data
     LPVOID       gslRNG;                    // Ptr to GSL random number generator
     LARGE_INTEGER liTickCnt;                // Performance counter
+    LPPL_YYSTYPE *lpplLftStk,               // Ptr to ptr to left stack used by 2by2
+                 *lpplOrgLftStk,            // ...           base of ...
+                 *lpplRhtStk,               // ...           right ...
+                 *lpplOrgRhtStk;            // ...           base of ...
 } PERTABDATA, *LPPERTABDATA;
 
 

@@ -1,0 +1,26 @@
+Build #1444 -- Version 0.4.12.xx
+--------------------------------
+
+* Prepare For Use Of <aTypeFree>
+
+DATATYPE.H:
+  Note that changes in <ARRAY_TYPES> enum must be reflected in <aTypeFree>.
+
+EXTERNS.H:
+  Move prototypes of TypeMote functions from <typemote.h> to <externs.h>.
+
+MACROS.H:
+  Define macro <FreeYYRes> as a shorter form of the whole thing.
+
+MAIN.C:
+  Replace <symbolnames.h> with <typemote.h> as vars defined in <main.c>.
+
+SYMBOLNAMES.H:
+  Remove <DEFINE_VALUES> defines as this file is no longer included in <main.c>.
+
+TYPEMOTE.C:
+  Define the <TPF> functions.
+
+TYPEMOTE.H:
+  Document the TypeMote prototype functions.
+  Define the <TPF> functions.

@@ -1,0 +1,9 @@
+Build #1391 -- Version 0.4.11.xx
+--------------------------------
+
+* Clean Up Code For []NL
+
+Directory trunk:
+
+QF_NL.C:
+  Clean up code for []NL.

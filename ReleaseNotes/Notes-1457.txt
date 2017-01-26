@@ -1,0 +1,14 @@
+Build #1457 -- Version 0.4.13.xx
+--------------------------------
+
+* Name Assignment of A Niladic AFO Is Saved As A Niladic AFO, Not Evaluated To A Variable
+* Fix Bug In Syntax Analyzer When Unwinding Left And Right Stacks
+
+Directory trunk:
+
+MAKEFILE.INC:
+  When producing a prototype file, don't bother to display the filename.
+
+PARSELINE.C:
+  In <plRedNAM_SPNF>, if the function is an AFO, assign it as a NF rather than evaluate it as a var.
+  After <PARSELINE_ERROR:> when unwinding the left and right stacks, do not free <soEOS> and <soSOS> tokens.

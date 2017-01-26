@@ -1,0 +1,9 @@
+Build #1412 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Memory Leak In Name Assignment On Error
+
+Directory trunk:
+
+PARSELINE.C:
+  In <plRedNAM_SPCom>, if the assignment ends in error, be sure to free the right arg.

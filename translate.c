@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,6 +26,144 @@
 #include <math.h>
 #include "headers.h"
 #include "qf_ec.h"
+
+
+//***************************************************************************
+//  $TranslateSOTypeToNameType
+//
+//  Translate a SynObj type (see SO_ENUM)
+//    to a function type (see NAME_TYPES).
+//***************************************************************************
+
+NAME_TYPES TranslateSOTypeToNameType
+    (SO_ENUM soType)            // SynObj type
+
+{
+    // Split cases based upon the Syntax Object type
+    switch (soType)
+    {
+        // Flavors of vars
+        case soA:
+        case soSA:
+        case soSPA:
+        case soIDX:
+            return NAMETYPE_VAR;
+
+        // Flavors of monadic/dyadic functions
+        case soF:
+        case soFR:
+        case soFFR:
+        case soSPF:
+        case soSPFR:
+        case soMF:
+            return NAMETYPE_FN12;
+
+        // Flavors of niladic functions
+        case soNF:
+        case soSPNF:
+            return NAMETYPE_FN0;
+
+        // Flavors of monadic operators
+        case soMOP:
+        case soMOPN:
+        case soJD:
+        case soSPM:
+        case soSPMN:
+        case soSPMR:
+            return NAMETYPE_OP1;
+
+        // Flavors of dyadic operators
+        case soDOP:
+        case soDOPN:
+        case soSPD:
+        case soSPDN:
+        case soSPDR:
+            return NAMETYPE_OP2;
+
+        // Flavors of hybrids
+        case soHY:
+        case soSPHY:
+        case soSPHR:
+            return NAMETYPE_OP3;
+
+        defstop
+            return NAMETYPE_UNK;
+    } // End SWITCH
+} // End TranslateSOTypeToNameType
+
+
+//***************************************************************************
+//  $TranslateNameTypeToSOType
+//
+//  Translate a function type (see NAME_TYPES).
+//    to a SynObj type (see SO_ENUM)
+//***************************************************************************
+
+SO_ENUM TranslateNameTypeToSOType
+    (NAME_TYPES nameType)
+
+{
+    // Split cases based upon the name type
+    switch (nameType)
+    {
+        case NAMETYPE_VAR:
+            return soA;
+
+        case NAMETYPE_FN0:
+            return soNF;
+
+        case NAMETYPE_FN12:
+        case NAMETYPE_TRN:
+            return soF;
+
+        case NAMETYPE_OP1:
+            return soMOP;
+
+        case NAMETYPE_OP2:
+            return soDOP;
+
+        case NAMETYPE_OP3:
+            return soHY;
+
+        case NAMETYPE_UNK:
+        case NAMETYPE_LST:
+
+        defstop
+            return soUNK;
+    } // End SWITCH
+} // End TranslateNameTypeToSOType
+
+
+//***************************************************************************
+//  $TranslateDfnTypeToSOType
+//
+//  Translate a UDFO type (see FH_PARSE.H)
+//    to a SynObj type (see SO_ENUM)
+//***************************************************************************
+
+SO_ENUM TranslateDfnTypeToSOType
+    (LPDFN_HEADER lpMemDfnHdr)
+
+{
+    Assert (GetSignatureMem (lpMemDfnHdr) EQ DFN_HEADER_SIGNATURE);
+
+    // Split cases based upon the DfnType
+    switch (lpMemDfnHdr->DfnType)
+    {
+        case DFNTYPE_OP1:
+            return (lpMemDfnHdr->FcnValence EQ FCNVALENCE_NIL) ? soMOPN : soMOP;
+
+        case DFNTYPE_OP2:
+            return (lpMemDfnHdr->FcnValence EQ FCNVALENCE_NIL) ? soDOPN : soDOP;
+
+        case DFNTYPE_FCN:
+            return (lpMemDfnHdr->FcnValence EQ FCNVALENCE_NIL) ? soNF   : soF  ;
+
+        case DFNTYPE_UNK:
+        defstop
+            return soUNK;
+    } // End SWITCH
+} // End TranslateDfnTypeToSOType
 
 
 //***************************************************************************
@@ -78,7 +216,7 @@ TOKEN_TYPES TranslateTknTypeToTknTypeNamed
 
 NAME_TYPES TranslateDfnToNameType
     (DFN_TYPES    dfnType,      // User-defined function/operator type (see DFN_TYPES)
-     FCN_VALENCES fcnValence)   // Function valance (see FCN_VALENCES)
+     FCN_VALENCES fcnValence)   // Function valence (see FCN_VALENCES)
 
 {
     // Split cases based upon the user-defined function/operator type
@@ -186,7 +324,7 @@ TOKEN_TYPES TranslateImmTypeToTknType
             return TKT_VARARRAY;
 
         defstop
-            return -1;              // To keep the compiler happy
+            return IMMTYPE_ERROR;   // To keep the compiler happy
     } // End SWITCH
 } // End TranslateImmTypeToTknType
 
@@ -349,6 +487,51 @@ STRAND_TYPES TranslateArrayTypeToStrandType
             return -1;              // To keep the compiler happy
     } // End SWITCH
 } // End TranslateArrayTypeToStrandType
+
+
+//***************************************************************************
+//  $TranslateArrayTypeToSizeof
+//
+//  Translate an array type (see ARRAY_TYPES) to
+//    a sizeof ().
+//***************************************************************************
+
+APLI3264 TranslateArrayTypeToSizeof
+    (ARRAY_TYPES arrayType)
+
+{
+    switch (arrayType)
+    {
+        case ARRAY_BOOL:
+            return sizeof (APLBOOL);
+
+        case ARRAY_INT:
+        case ARRAY_APA:
+            return sizeof (APLINT);
+
+        case ARRAY_FLOAT:
+            return sizeof (APLFLOAT);
+
+        case ARRAY_CHAR:
+            return sizeof (APLCHAR);
+
+        case ARRAY_RAT:
+            return sizeof (APLRAT);
+
+        case ARRAY_VFP:
+            return sizeof (APLVFP);
+
+        case ARRAY_NESTED:
+        case ARRAY_HETERO:
+            return sizeof (LPVOID);
+
+        case ARRAY_LIST:
+            return -1;
+
+        defstop
+            return -1;                     // To keep the compiler happy
+    } // End SWITCH
+} // End TranslateArrayTypeToSizeof
 
 
 //***************************************************************************
@@ -754,10 +937,10 @@ UINT TranslateExitTypeToReturnCode
             return EC_RETCODE_NOVALUE;
 
         case EXITTYPE_RESET_ONE_INIT:
+        case EXITTYPE_RESET_ONE:
             return EC_RETCODE_RESET_ONE;
 
         case EXITTYPE_NONE:
-        case EXITTYPE_RESET_ONE:
         case EXITTYPE_RESET_ALL:
         case EXITTYPE_QUADERROR_EXEC:
         case EXITTYPE_STOP:
@@ -774,40 +957,41 @@ UINT TranslateExitTypeToReturnCode
 //***************************************************************************
 
 APLFLOAT TranslateQuadICIndex
-    (APLFLOAT   aplFloatLft,
-     IC_INDICES icIndex,
-     APLFLOAT   aplFloatRht)
+    (APLFLOAT   aplFloatLft,        // Left arg
+     IC_INDICES icIndex,            // []IC index
+     APLFLOAT   aplFloatRht,        // Right arg
+     UBOOL      bNegate)            // TRUE iff we should negate result
 
 {
     // Split cases based upon the []IC index value
     switch (GetQuadICValue (icIndex))
     {
         case ICVAL_NEG1:
-            return -1;
+            return bNegate ? 1 : -1;
 
         case ICVAL_ZERO:
-            return 0;
+            return (gAllowNeg0 && bNegate) ? -0.0 : 0.0;
 
         case ICVAL_ONE:
-            return 1;
+            return bNegate ? -1 : 1;
 
         case ICVAL_DOMAIN_ERROR:
             RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
 
         case ICVAL_POS_INFINITY:
-            return PosInfinity;
+            return bNegate ? fltNegInfinity : fltPosInfinity;
 
         case ICVAL_NEG_INFINITY:
-            return NegInfinity;
+            return bNegate ? fltPosInfinity : fltNegInfinity;
 
         case ICVAL_LEFT:
-            return aplFloatLft;
+            return bNegate ? -aplFloatLft : aplFloatLft;
 
         case ICVAL_RIGHT:
-            return aplFloatRht;
+            return bNegate ? -aplFloatRht : aplFloatRht;
 
         defstop
-            return 0;
+            return (gAllowNeg0 && bNegate) ? -0.0 : 0.0;
     } // End SWITCH
 } // TranslateQuadICIndex
 

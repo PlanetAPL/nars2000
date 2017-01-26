@@ -1,0 +1,15 @@
+Build #1552 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Subroutine To []SYSID
+
+Directory trunk:
+
+QF_SYSID.C:
+  Fix bug of using the wrong macro <countof> instead of <strcountof>.
+
+YYFNS.C:
+  Fix bug in <YYAllocGlb> to mark the global handle as such.
+
+VER.RC:
+  Increment version # to 0.4.17.xx.

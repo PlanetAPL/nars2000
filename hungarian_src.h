@@ -153,13 +153,14 @@ LPROWCOL SUFF (kuhn_match) (cell *table, long n, long m)
 
         for (i = 0; i < n; i++)
         {
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"%d %d %d %d %d",
-                       marks[i][0],
-                       marks[i][1],
-                       marks[i][2],
-                       marks[i][3],
-                       marks[i][4]);
+                        marks[i][0],
+                        marks[i][1],
+                        marks[i][2],
+                        marks[i][3],
+                        marks[i][4]);
             DbgMsgW (wszTemp);
         } // End FOR
     }

@@ -1,0 +1,26 @@
+Build #1322 -- Version 0.4.9.xx
+-------------------------------
+
+* Miscellaneous DEBUG And Build Changes
+
+Directory trunk:
+
+AFOFNS.C:
+  Update copyright notice.
+  Improve comments.
+  Omit unneeded call to <nop>.
+
+COMMON.C:
+  Mark as DEBUG-only the definition of <nop> and <DbgNop>.
+
+DICTIONARY.C:
+  Mark as DEBUG-only the declaration of <nop>.
+
+MACROS.H:
+  Define <nop> and <DbgNop> as no-ops if non-DEBUG.
+
+MAKEFILE.INC:
+  Don't display Bison execution lines.
+
+WCOM.BAT:
+  Note Cygwin is now 64-bit.

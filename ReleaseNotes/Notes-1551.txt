@@ -1,0 +1,9 @@
+Build #1551 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Subroutine To []SYSID
+
+Directory trunk:
+
+YYFNS.C:
+  Fix bug in <YYAllocGlb> to mark the global handle as such.

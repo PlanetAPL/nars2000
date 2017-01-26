@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2012 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -185,21 +185,21 @@ UBOOL IsWhite
     (char c)
 
 {
-    return (c EQ ' ' || c EQ '\t') ? TRUE : FALSE;
+    return (c EQ ' ' || c EQ '\t');
 } // End IsWhite
 
 
 //****************************************************************************
 //  $IsWhiteW
 //
-//  Determine if a char is white space
+//  Determine if a wide char is white space
 //****************************************************************************
 
 UBOOL IsWhiteW
     (WCHAR wc)
 
 {
-    return (wc EQ L' ' || wc EQ WC_HT) ? TRUE : FALSE;
+    return (wc EQ L' ' || wc EQ WC_HT);
 } // End IsWhiteW
 
 
@@ -249,7 +249,7 @@ LPWCHAR SkipBlackW
     (LPWCHAR lpw)
 
 {
-    // Skip over white space
+    // Skip over non-white space
     while (*lpw && !IsWhiteW (*lpw))
         lpw++;
 
@@ -279,6 +279,30 @@ LPWCHAR SkipToCharW
 
     return lpw;
 } // End SkipToCharW
+
+
+//************************************************************************
+//  $SkipToStrW
+//
+//  Skip to the first in a given set of WCHARs taking into account EOL
+//************************************************************************
+
+LPWCHAR SkipToStrW
+    (LPWCHAR lpwChar,
+     LPWCHAR lpwSet)
+
+{
+    LPWCHAR lpw;        // Temporary ptr
+
+    // Find the char
+    lpw = strpbrkW (lpwChar, lpwSet);
+
+    // If it's not found (EOL instead), ...
+    if (lpw EQ NULL)
+        lpw = &lpwChar[lstrlenW (lpwChar)];
+
+    return lpw;
+} // End SkipToStrW
 
 
 //************************************************************************
@@ -351,6 +375,107 @@ LPWCHAR SkipPastCharW
 } // End SkipPastCharW
 
 
+//************************************************************************
+//  $SkipPastStr
+//
+//  Skip past a given set of chars taking into account EOL
+//************************************************************************
+
+LPCHAR SkipPastStr
+    (LPCHAR lpChar,
+     LPCHAR lpStr)
+
+{
+    LPCHAR lp;          // Temporary ptr
+    size_t iSpn;
+
+    // Find the span of the set of chars
+    iSpn = strspn (lpChar, lpStr);
+
+    // If it's not found (EOL instead), ...
+    if (iSpn EQ 0)
+        // Point to the trailing zero
+        lp = &lpChar[lstrlen (lpChar)];
+    else
+        // Skip over the trailing chars
+        lp = &lpChar[iSpn];
+
+    return lp;
+} // End SkipPastChar
+
+
+//************************************************************************
+//  $SkipPastStrW
+//
+//  Skip past a given set of WCHARs taking into account EOL
+//************************************************************************
+
+LPWCHAR SkipPastStrW
+    (LPWCHAR lpwChar,
+     LPWCHAR lpwStr)
+
+{
+    LPWCHAR lpw;        // Temporary ptr
+    size_t  iSpn;
+
+    // Find the span of the set of WCHARs
+    iSpn = strspnW (lpwChar, lpwStr);
+
+    // If it's not found (EOL instead), ...
+    if (iSpn EQ 0)
+        // Point to the trailing zero
+        lpw = &lpwChar[lstrlenW (lpwChar)];
+    else
+        // Skip over the trailing chars
+        lpw = &lpwChar[iSpn];
+
+    return lpw;
+} // End SkipPastCharW
+
+
+//***************************************************************************
+//  $StripDQ
+//
+//  Strip off leading/trailing DQs
+//***************************************************************************
+
+LPWCHAR StripDQ
+    (LPWCHAR lpwszTail)
+
+{
+    LPWCHAR lpwTemp;
+    UINT    uLen;
+
+    if (lpwszTail[0] EQ WC_DQ)
+    {
+        // Skip over it
+        lpwszTail++;
+
+        // Skip over leading blanks
+        lpwszTail = SkipWhiteW (lpwszTail);
+
+        // Find the matching DQ
+        lpwTemp = strchrW (lpwszTail, WC_DQ);
+
+        // If present, ...
+        if (lpwTemp)
+            // Zap it
+           *lpwTemp = WC_EOS;
+
+        // Get the string length
+        uLen = lstrlenW (lpwszTail);
+
+        // Skip back over trailing white space
+        while (uLen && IsWhiteW (lpwszTail[uLen - 1]))
+            uLen --;
+        // Zap the trailing white space
+        lpwszTail[uLen] = WC_EOS;
+    } // End IF
+
+    return lpwszTail;
+} // End StripDQ
+
+
 //***************************************************************************
 //  $GetModuleFileNames
 //
@@ -378,10 +503,10 @@ void GetModuleFileNames
         _wmakepath  (wszFntDPFE, wszDrive, wszDir, DEF_APLFONT_EXTNAME, DEF_APLFONT_EXT);
 
         // Read in the application's File Version String
-        LclFileVersionStrW (wszAppDPFE, wszFileVer);
+        LclFileVersionStrW (wszAppDPFE, wszFileVer, sizeof (wszFileVer));
 
         // Read in the COMCTL32.DLL File Version String
-        LclFileVersionStrW (L"comctl32.dll", wszComctl32FileVer);
+        LclFileVersionStrW (L"comctl32.dll", wszComctl32FileVer, sizeof (wszComctl32FileVer));
 
         // Get the Comctl32.dll major and minor file version #s
         sscanfW (wszComctl32FileVer,
@@ -480,6 +605,25 @@ void FillBitMemory
 } // End FillBitMemory
 
 
+#ifdef NEED_IOB_FUNC
+//***************************************************************************
+//  $__iob_func
+//***************************************************************************
+
+//FILE _iob[] = {*stdin, *stdout, *stderr};
+
+FILE * __cdecl __iob_func
+    (void)
+
+{
+    DbgStop ();
+    return NULL;
+////return _iob;
+} // End __iob_func
+#endif
+
+
+#ifdef DEBUG
 //***************************************************************************
 //  $nop
 //***************************************************************************
@@ -489,25 +633,21 @@ void nop
 
 {
 } // End nop
+#endif
 
 
+#ifdef DEBUG
 //***************************************************************************
-//  $EnumCallbackRemoveProp
-//
-//  Callback function to remove all window properties
+//  $DbgNop
 //***************************************************************************
 
-UBOOL CALLBACK EnumCallbackRemoveProp
-    (HWND    hWnd,          // Handle of window with property
-     LPCWSTR lpwszString,   // Property string or atom
-     HANDLE  hData)         // Data handle
+void DbgNop
+    (void)
+
 {
-    // Remove the property
-    RemovePropW (hWnd, lpwszString);
-
-    // Continue enumerating
-    return TRUE;
-} // End EnumCallbackRemoveProp
+    DbgBrk ();          // #ifdef DEBUG
+} // End DbgNop
+#endif
 
 
 //***************************************************************************
@@ -593,7 +733,7 @@ SIZE GetDlgUnitsInPixels
 
 void DrawBitmap
     (HDC     hDC,           // Destination DC
-     HBITMAP hBitMap,       // The bitmap to draw
+     HBITMAP hBitmap,       // The bitmap to draw
      UINT    xDstOrg,       // Destin bit origin
      UINT    yDstOrg)       // ...
 
@@ -601,19 +741,19 @@ void DrawBitmap
     BITMAP  bm;
     HDC     hDCMem;
     POINT   ptSize, ptOrg;
-    HBITMAP hOldBitmap;
+    HBITMAP hBitmapOld;
 
     // Get a Client Area DC for the bitmap
     hDCMem = MyCreateCompatibleDC (hDC);
 
     // Select the bitmap into the DC
-    hOldBitmap = SelectObject (hDCMem, hBitMap);
+    hBitmapOld = SelectObject (hDCMem, hBitmap);
 
     // Copy the mapping mode from the original DC
     SetMapMode (hDCMem, GetMapMode (hDC));
 
     // Get the size of the bitmap
-    GetObjectA (hBitMap, sizeof (BITMAP), (LPSTR) &bm);
+    GetObjectA (hBitmap, sizeof (BITMAP), (LPSTR) &bm);
 
     // Save it as a POINT
     ptSize.x = bm.bmWidth;
@@ -636,7 +776,7 @@ void DrawBitmap
             ptOrg.x, ptOrg.y,
             SRCCOPY);
     // Restore the old object
-    SelectObject (hDCMem, hOldBitmap);
+    SelectObject (hDCMem, hBitmapOld);
 
     // We no longer need this resource
     MyDeleteDC (hDCMem); hDCMem = NULL;
@@ -646,7 +786,7 @@ void DrawBitmap
 //***************************************************************************
 //  $signum
 //
-//  Return -1, 0, +1 depending upon the sign of a give integer
+//  Return -1, 0, +1 depending upon the sign of a given integer
 //***************************************************************************
 
 int signum
@@ -661,26 +801,58 @@ int signum
 
 
 //***************************************************************************
-//  $signumf
+//  $signumint
 //
-//  Return -1, 0, +1 depending upon the sign of a give float
+//  Return -1, 0, +1 depending upon the sign of a given integer
 //***************************************************************************
 
-int signumf
+int signumint
+    (APLINT val)                // Source
+
+{
+    return (val < 0) ? -1 : (val > 0);
+} // End signumint
+
+
+//***************************************************************************
+//  $signumflt
+//
+//  Return -1, 0, +1 depending upon the sign of a given float
+//***************************************************************************
+
+int signumflt
     (APLFLOAT val)
 
 {
-    if (val < 0)
-        return -1;
-    else
-       return (val > 0);
-} // End signumf
+    return SIGN_APLFLOAT (val) ? -1 : (val > 0);
+} // End signumflt
+
+
+//***************************************************************************
+//  $signumrat
+//
+//  Is an alias for mpq_sgn which already returns -1, 0, or 1.
+//***************************************************************************
+
+
+//***************************************************************************
+//  $signumvfp
+//
+//  Return -1, 0, +1 depending upon the sign of a given VFP
+//***************************************************************************
+
+int signumvfp
+    (LPAPLVFP val)
+
+{
+    return (SIGN_APLVFP (val) ? -1 : mpfr_sgn (val) > 0);
+} // End signumvfp
 
 
 //***************************************************************************
 //  $GetSystemDate
 //
-//  Fill in teh system date with the time set to zero
+//  Fill in the system date with the time set to zero
 //***************************************************************************
 
 void GetSystemDate
@@ -754,8 +926,8 @@ APLINT GetDlgItemInt64
 void CharFromPos
     (HWND    hWndEC,            // Edit Ctrl window handle
      LRESULT lResult,           // The result from SendMessage
-     LPLONG  lplLineNum,        // Ptr to Line #
-     LPLONG  lplCharPos)        // Ptr to Char Position
+     LPLONG  lplLineNum,        // Ptr to Line # (may be NULL)
+     LPLONG  lplCharPos)        // Ptr to Char Position (may be NULL)
 
 {
     LONG lLineNum,              // The line #
@@ -781,9 +953,402 @@ void CharFromPos
     } // End IF
 
     // Return the values
-    *lplLineNum = lLineNum;
-    *lplCharPos = lCharPos;
+    if (lplLineNum NE NULL)
+        *lplLineNum = lLineNum;
+    if (lplCharPos NE NULL)
+        *lplCharPos = lCharPos;
 } // End CharFromPos
+
+
+//***************************************************************************
+//  $MySprintf
+//
+//  String safe version of <wsprintf>
+//***************************************************************************
+
+int MySprintf
+    (LPCHAR lpBuffer,       // Ptr to buffer
+     size_t iCount,         // Size of buffer (in bytes)
+     LPCHAR lpszFmt,        // Ptr to format string
+            ...)            // The variable list
+
+{
+    HRESULT  hResult;       // The result of <StringCbVPrintfW>
+    va_list  vl;            // Ptr to variable list
+
+    // Initialize the variable list
+    va_start (vl, lpszFmt);
+
+    // wsprintfW the list
+    hResult = StringCbVPrintf (lpBuffer,
+                               iCount,
+                               lpszFmt,
+                               vl);
+    // End the variable list
+    va_end (vl);
+
+#ifdef DEBUG
+    // If it failed, ...
+    if (FAILED (hResult))
+        DbgBrk ();          // #ifdef DEBUG
+#endif
+
+    return lstrlen (lpBuffer);
+} // End MySprintf
+
+
+//***************************************************************************
+//  $MySprintfW
+//
+//  String safe version of <wsprintfW>
+//***************************************************************************
+
+int MySprintfW
+    (LPWCHAR lpwBuffer,     // Ptr to buffer
+     size_t  iCount,        // Size of buffer (in bytes)
+     LPWCHAR lpwszFmt,      // Ptr to format string
+             ...)           // The variable list
+
+{
+    HRESULT  hResult;       // The result of <StringCbVPrintfW>
+    va_list  vl;            // Ptr to variable list
+
+    // Initialize the variable list
+    va_start (vl, lpwszFmt);
+
+    // wsprintfW the list
+    hResult = StringCbVPrintfW (lpwBuffer,
+                                iCount,
+                                lpwszFmt,
+                                vl);
+    // End the variable list
+    va_end (vl);
+
+#ifdef DEBUG
+    // If it failed, ...
+    if (FAILED (hResult))
+        DbgBrk ();          // #ifdef DEBUG
+#endif
+
+    return lstrlenW (lpwBuffer);
+} // End MySprintfW
+
+
+//***************************************************************************
+//  $strncmpWA
+//
+//  String compare at length between WCHAR and char
+//***************************************************************************
+
+int strncmpWA
+    (LPWCHAR lpwLft,        // Left arg as WCHAR
+     LPCHAR  lpRht,         // Right arg as CHAR
+     int     iLenLft)       // Length of left arg in WCHARs
+
+{
+    int i;
+
+    // Loop through all of the WCHARs
+    for (i = 0; i < iLenLft; i++)
+    if (lpwLft[i] NE lpRht[i])
+        return signumint (lpwLft[i] - lpRht[i]);
+
+    // The strings are equal
+    return 0;
+} // End strncmpWA
+
+
+//***************************************************************************
+//  $WriteFileWA
+//
+//  WriteFile of a WCHAR string to a char
+//***************************************************************************
+
+void WriteFileWA
+    (HANDLE  hFile,             // File handle
+     LPWCHAR lpwChar,           // Ptr to string to write out
+     int     iLen,              // # WCHARs in the above string
+     LPDWORD lpdwBytesOut,
+     LPVOID  lpVoid)
+
+{
+    WCHAR wszTemp[1024];
+    int   iChunkLen,            // Chunk length in WCHARs
+          i;
+    DWORD dwBytesOut = 0;
+
+    // Initialize the dwBytesOut
+    *lpdwBytesOut = 0;
+
+    // Loop through the file chunks
+    while (iLen)
+    {
+        // Calculate the chunk length in WCHARs
+        iChunkLen = min (countof (wszTemp), iLen);
+
+        // Move it down to strip out the high-order zeros
+        for (i = 0; i < iChunkLen; i++)
+            ((LPCHAR) wszTemp)[i] = ((LPCHAR) lpwChar)[2 * i];
+
+        // Write out the char string
+        WriteFile (hFile, wszTemp, iChunkLen, &dwBytesOut, lpVoid);
+
+        // Account for it
+        lpwChar += iChunkLen;
+        iLen -= iChunkLen;
+        *lpdwBytesOut += dwBytesOut;
+    } // End WHILE
+} // End WriteFileWA
+
+
+//***************************************************************************
+//  $strcpyW
+//
+//  Same as lstrcpyW but checks the return code and handles page faults
+//    however, unlike lstrcpyW, it has no return value.
+//***************************************************************************
+
+void strcpyW
+    (LPWSTR       lpwDst,       // Ptr to destination
+     const WCHAR *lpwSrc)       // Ptr to source
+
+{
+    if (FAILED (StringCchCopyW (lpwDst,
+                                lstrlenW (lpwSrc) + 1,
+                                lpwSrc)))
+        Assert (FALSE);
+} // End strcpyW
+
+
+//***************************************************************************
+//  $strcatW
+//
+//  Same as lstrcatW but checks the return code and handles page faults
+//    however, unlike lstrcatW, it has no return value.
+//***************************************************************************
+
+void strcatW
+    (LPWSTR       lpwDst,       // Ptr to destination
+     const WCHAR *lpwSrc)       // Ptr to source
+
+{
+    if (FAILED (StringCbCatW (lpwDst,
+                              (lstrlenW (lpwDst)
+                             + lstrlenW (lpwSrc)
+                             + 1) * sizeof (WCHAR),
+                              lpwSrc)))
+        Assert (FALSE);
+} // End strcatW
+
+
+//***************************************************************************
+//  $strcpyn
+//
+//  Same as lstrcpyn but checks the return code and handles page faults
+//    however, unlike lstrcpyn, it has no return value.
+//***************************************************************************
+
+void strcpyn
+    (LPSTR       lpDst,         // Ptr to destination
+     const char *lpSrc,         // Ptr to source
+     int         iMaxLength)    // Length in bytes including terminating EOS
+
+{
+    // Copy source to destination
+    CopyMemory (lpDst,
+                lpSrc,
+                iMaxLength - 1);
+    // Ensure properly terminated
+    lpDst[iMaxLength - 1] = AC_EOS;
+} // End strcpyn
+
+
+//***************************************************************************
+//  $strcpynW
+//
+//  Same as lstrcpynW but checks the return code and handles page faults
+//    however, unlike lstrcpynW, it has no return value.
+//***************************************************************************
+
+void strcpynW
+    (LPWSTR       lpwDst,       // Ptr to destination
+     const WCHAR *lpwSrc,       // Ptr to source
+     int          iMaxLength)   // Length in WCHARs including terminating EOS
+
+{
+    // Copy source to destination
+    CopyMemoryW (lpwDst,
+                 lpwSrc,
+                 iMaxLength - 1);
+    // Ensure properly terminated
+    lpwDst[iMaxLength - 1] = WC_EOS;
+} // End strcpynW
+
+
+//***************************************************************************
+//  $MyStrcpyW
+//
+//  Same as lstrcpyW but checks the return code and handles page faults
+//    however, unlike lstrcpyW, it has no return value.
+//***************************************************************************
+
+void MyStrcpyW
+    (LPWSTR       lpwDst,       // Ptr to dest buffer
+     size_t       cbDest,       // Size of dest buffer in bytes
+     const WCHAR *lpwSrc)       // Ptr to source
+
+{
+    // Copy source to destination
+    if (FAILED (StringCbCopyW (lpwDst,      // Ptr to dest buffer
+                               cbDest,      // Size of dest buffer in bytes
+                               lpwSrc)))    // Ptr to source
+        Assert (FALSE);
+} // End MyStrcpyW
+
+
+//***************************************************************************
+//  $MyStrcat
+//
+//  Same as lstrcat but checks the return code and handles page faults
+//    however, unlike lstrcat, it has no return value.
+//***************************************************************************
+
+void MyStrcat
+    (LPSTR       lpDst,         // Ptr to dest buffer
+     size_t      cbDest,        // Size of dest buffer in bytes
+     const char *lpSrc)         // Ptr to source
+
+{
+    // Catenate source to destination
+    if (FAILED (StringCbCat (lpDst,         // Ptr to dest buffer
+                             cbDest,        // Size of dest buffer in bytes
+                             lpSrc)))       // Ptr to source
+        Assert (FALSE);
+} // End MyStrcat
+
+
+//***************************************************************************
+//  $MyStrcatW
+//
+//  Same as lstrcatW but checks the return code and handles page faults
+//    however, unlike lstrcatW, it has no return value.
+//***************************************************************************
+
+void MyStrcatW
+    (LPWSTR       lpwDst,       // Ptr to dest buffer
+     size_t       cbDest,       // Size of dest buffer in bytes
+     const WCHAR *lpwSrc)       // Ptr to source
+
+{
+    // Catenate source to destination
+    if (FAILED (StringCbCatW (lpwDst,       // Ptr to dest buffer
+                               cbDest,      // Size of dest buffer in bytes
+                              lpwSrc)))     // Ptr to source
+        Assert (FALSE);
+} // End MyStrcatW
+
+
+//***************************************************************************
+//  $MyStrcpyn
+//
+//  Same as lstrcpyn but checks the return code and handles page faults
+//    however, unlike lstrcpyn, it has no return value.
+//***************************************************************************
+
+void MyStrcpyn
+    (LPSTR       lpDst,         // Ptr to destination
+     size_t      cbDest,        // Size of dest buffer in bytes including terminating NULL
+     const char *lpSrc,         // Ptr to source (must be NULL-terminated)
+     size_t      cbSrc)         // Maximum # bytes to be copied from source
+
+{
+    // Copy source to destination
+    if (FAILED (StringCbCopyN (lpDst,
+                               cbDest,
+                               lpSrc,
+                               cbSrc)))
+        Assert (FALSE);
+} // End MyStrcpyn
+
+
+//***************************************************************************
+//  $MyStrcpynW
+//
+//  Same as lstrcpynW but checks the return code and handles page faults
+//    however, unlike lstrcpynW, it has no return value.
+//***************************************************************************
+
+void MyStrcpynW
+    (LPWSTR       lpwDst,       // Ptr to destination
+     size_t       cbDest,       // Size of dest buffer in bytes including terminating NULL
+     const WCHAR *lpwSrc,       // Ptr to source (must be NULL-terminated)
+     size_t       cbSrc)        // Maximum # bytes to be copied from source
+
+{
+    // Copy source to destination
+    if (FAILED (StringCbCopyNW (lpwDst,
+                                cbDest,
+                                lpwSrc,
+                                cbSrc)))
+        Assert (FALSE);
+} // End MyStrcpynW
+
+
+//***************************************************************************
+//  $AllocateGlobalArray
+//
+//  Allocate a global array
+//***************************************************************************
+
+HGLOBAL AllocateGlobalArray
+    (APLSTYPE aplTypeRes,       // Result storage type
+     APLNELM  aplNELMRes,       // ...    NELM
+     APLRANK  aplRankRes,       // ...    Rank
+     LPAPLDIM lpaplDimRes)      // Ptr to result dimension(s)
+                                // (may be NULL for scalar or temporary APV)
+
+{
+    APLUINT           ByteRes;              // # bytes in result
+    HGLOBAL           hGlbRes = NULL;       // Result global memory handle
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // Ptr to result global memory data
+
+    // Allocate space for this array
+    ByteRes = CalcArraySize (aplTypeRes, aplNELMRes, aplRankRes);
+
+    // Check for overflow
+    if (ByteRes NE (APLU3264) ByteRes)
+        goto WSFULL_EXIT;
+
+    // Allocate space for the result
+    hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
+    if (hGlbRes EQ NULL)
+        goto WSFULL_EXIT;
+
+    // Lock the memory to get a ptr to it
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
+
+#define lpHeader    lpMemHdrRes
+    // Fill in the header
+    lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
+    lpHeader->ArrType    = aplTypeRes;
+////lpHeader->PermNdx    = PERMNDX_NONE;    // Already zero from GHND
+////lpHeader->SysVar     = FALSE;           // Already zero from GHND
+    lpHeader->RefCnt     = 1;
+    lpHeader->NELM       = aplNELMRes;
+    lpHeader->Rank       = aplRankRes;
+#undef  lpHeader
+
+    // If the dimension ptr is valid, ...
+    if (lpaplDimRes NE NULL)
+        // Fill in the dimension(s)
+        CopyMemory (VarArrayBaseToDim (lpMemHdrRes),
+                    lpaplDimRes,
+                    (APLU3264) (aplRankRes * sizeof (lpaplDimRes[0])));
+    // We no longer need this ptr
+    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
+WSFULL_EXIT:
+    return hGlbRes;
+} // End AllocateGlobalArray
 
 
 //***************************************************************************

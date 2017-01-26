@@ -1,0 +1,10 @@
+Build #1596 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug With Function Erased While Editing, Part 2
+
+Directory trunk:
+
+SAVEFCN.C:
+  In <SaveFunctionCom> if there's a previous function, when erasing it be sure to zap
+    the saved previous function handle in the window extra bytes.

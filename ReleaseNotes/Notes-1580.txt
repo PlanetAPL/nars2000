@@ -1,0 +1,28 @@
+Build #1580 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement []NINFO
+
+Directory trunk:
+
+COMMON.C:
+  Fix minor bug in <AllocateGlobalArray>.
+
+QF_NFNS.C:
+  Define enum for File Types.
+  Implement []NINFO.
+  Include additional parameter in <SysFnCreateTie_EM_YY> to handle special cases.
+  Reduce storage size of <AccessMode> and <ShareMode> to what the API requires.
+  In <SysFnCreateTie_EM_YY>, handle special cases when tieing a directory or symbolic link.
+  Copy index validation code out of <NfnsArgAplint> to <NfnsArgTieNum>.
+  In <NfnsArgAplint>, use <ConvertToInteger_SCT> instead of special cases.
+  In <SysErrMsg_EM>, remove trailing "\r\n" if present.
+
+QF_TS.C:
+  In <SysFnTS_EM_YY>, break out code to allocate the timestamp to a separate function so we can call it from []NINFO.
+
+STARTADDR.H:
+  Include more entry points.
+
+SYSVARS.C:
+  Include entry point for []NINFO.

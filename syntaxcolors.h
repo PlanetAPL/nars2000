@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,30 +22,31 @@
 
 #define DEF_SCN_TRANSPARENT    DEF_SCN_WHITE
 
-#define DEF_SC_GLBNAME         DEF_SCN_RED          , DEF_SCN_TRANSPARENT
-#define DEF_SC_LCLNAME         DEF_SCN_GRAY         , DEF_SCN_TRANSPARENT
-#define DEF_SC_LABEL           DEF_SCN_MAROON       , DEF_SCN_TRANSPARENT
-#define DEF_SC_PRIMFCN         DEF_SCN_NAVY         , DEF_SCN_TRANSPARENT
-#define DEF_SC_PRIMOP1         DEF_SCN_ROYALBLUE    , DEF_SCN_TRANSPARENT
-#define DEF_SC_PRIMOP2         DEF_SCN_LIME         , DEF_SCN_TRANSPARENT
-#define DEF_SC_SYSFCN          DEF_SCN_NAVY         , DEF_SCN_TRANSPARENT
-#define DEF_SC_GLBSYSVAR       DEF_SCN_PURPLE       , DEF_SCN_TRANSPARENT
-#define DEF_SC_LCLSYSVAR       DEF_SCN_PURPLE       , DEF_SCN_TRANSPARENT
-#define DEF_SC_CTRLSTRUC       DEF_SCN_MAROON       , DEF_SCN_TRANSPARENT
-#define DEF_SC_NUMCONST        DEF_SCN_GRAY         , DEF_SCN_TRANSPARENT
-#define DEF_SC_CHRCONST        DEF_SCN_TEAL         , DEF_SCN_TRANSPARENT
-#define DEF_SC_PNSEP           DEF_SCN_CRIMSON      , DEF_SCN_TRANSPARENT
-#define DEF_SC_COMMENT         DEF_SCN_GREEN        , DEF_SCN_TRANSPARENT
-#define DEF_SC_LINEDRAWING     DEF_SCN_TEAL         , DEF_SCN_TRANSPARENT
-#define DEF_SC_FCNLINENUMS     DEF_SCN_DARKSEAGREEN , DEF_SCN_TRANSPARENT
-#define DEF_SC_MATCHGRP1       DEF_SCN_BLUE         , DEF_SCN_TRANSPARENT
-#define DEF_SC_MATCHGRP2       DEF_SCN_DARKGREEN    , DEF_SCN_TRANSPARENT
-#define DEF_SC_MATCHGRP3       DEF_SCN_DARKCYAN     , DEF_SCN_TRANSPARENT
-#define DEF_SC_MATCHGRP4       DEF_SCN_DARKMAGENTA  , DEF_SCN_TRANSPARENT
-#define DEF_SC_UNMATCHGRP      DEF_SCN_BLUE         , DEF_SCN_LIGHTCYAN
-#define DEF_SC_UNNESTED        DEF_SCN_BLUE         , DEF_SCN_LIGHTPINK
-#define DEF_SC_UNK             DEF_SCN_BLUE         , DEF_SCN_VIOLET
-#define DEF_SC_WINTEXT         DEF_SCN_BLACK        , DEF_SCN_WHITE
+#define DEF_SC_GLBNAME         DEF_SCN_RED          , DEF_SCN_TRANSPARENT   // 00
+#define DEF_SC_LCLNAME         DEF_SCN_GRAY         , DEF_SCN_TRANSPARENT   // 01
+#define DEF_SC_LABEL           DEF_SCN_MAROON       , DEF_SCN_TRANSPARENT   // 02
+#define DEF_SC_PRIMFCN         DEF_SCN_NAVY         , DEF_SCN_TRANSPARENT   // 03
+#define DEF_SC_PRIMOP1         DEF_SCN_ROYALBLUE    , DEF_SCN_TRANSPARENT   // 04
+#define DEF_SC_PRIMOP2         DEF_SCN_LIME         , DEF_SCN_TRANSPARENT   // 05
+#define DEF_SC_SYSFCN          DEF_SCN_NAVY         , DEF_SCN_TRANSPARENT   // 06
+#define DEF_SC_GLBSYSVAR       DEF_SCN_PURPLE       , DEF_SCN_TRANSPARENT   // 07
+#define DEF_SC_LCLSYSVAR       DEF_SCN_PURPLE       , DEF_SCN_TRANSPARENT   // 08
+#define DEF_SC_CTRLSTRUC       DEF_SCN_MAROON       , DEF_SCN_TRANSPARENT   // 09
+#define DEF_SC_NUMCONST        DEF_SCN_GRAY         , DEF_SCN_TRANSPARENT   // 0A
+#define DEF_SC_CHRCONST        DEF_SCN_TEAL         , DEF_SCN_TRANSPARENT   // 0B
+#define DEF_SC_PNSEP           DEF_SCN_CRIMSON      , DEF_SCN_TRANSPARENT   // 0C
+#define DEF_SC_COMMENT         DEF_SCN_GREEN        , DEF_SCN_TRANSPARENT   // 0D
+#define DEF_SC_LINEDRAWING     DEF_SCN_TEAL         , DEF_SCN_TRANSPARENT   // 0E
+#define DEF_SC_FCNLINENUMS     DEF_SCN_DARKSEAGREEN , DEF_SCN_TRANSPARENT   // 0F
+#define DEF_SC_MATCHGRP1       DEF_SCN_BLUE         , DEF_SCN_TRANSPARENT   // 10
+#define DEF_SC_MATCHGRP2       DEF_SCN_DARKGREEN    , DEF_SCN_TRANSPARENT   // 11
+#define DEF_SC_MATCHGRP3       DEF_SCN_DARKCYAN     , DEF_SCN_TRANSPARENT   // 12
+#define DEF_SC_MATCHGRP4       DEF_SCN_DARKMAGENTA  , DEF_SCN_TRANSPARENT   // 13
+#define DEF_SC_UNMATCHGRP      DEF_SCN_BLUE         , DEF_SCN_LIGHTCYAN     // 14
+#define DEF_SC_UNNESTED        DEF_SCN_BLUE         , DEF_SCN_LIGHTPINK     // 15
+#define DEF_SC_UNK             DEF_SCN_BLUE         , DEF_SCN_VIOLET        // 16
+#define DEF_SC_LINECONT        DEF_SCN_DODGERBLUE   , DEF_SCN_TRANSPARENT   // 17
+#define DEF_SC_WINTEXT         DEF_SCN_BLACK        , DEF_SCN_WHITE         // 18
 
 // Syntax Coloring categories
 typedef enum tagSC_TYPE
@@ -74,8 +75,9 @@ typedef enum tagSC_TYPE
     SC_UNMATCHGRP,      // 14:  Unmatched Grouping Symbols [] () {} ' "
     SC_UNNESTED,        // 15:  Improperly Nested Grouping Symbols [] () {}
     SC_UNK,             // 16:  Unknown symbol
-    SC_WINTEXT,         // 17:  Window text
-    SC_LENGTH           // 18:  # entries in this enum
+    SC_LINECONT,        // 17:  Line Continuation
+    SC_WINTEXT,         // 18:  Window text
+    SC_LENGTH           // 19:  # entries in this enum
                         //      Because this enum is origin-0, this value is the # valid columns.
 } SCTYPE, *LPSCTYPE;
 
@@ -83,6 +85,7 @@ typedef enum tagSC_TYPE
 
 // N.B.:  Whenever changing the above enum (SC_TYPE),
 //   be sure to make a corresponding change to
+//   <DEF_SC_xxx> in <syntaxcolors.h> (above),
 //   <gSyntaxColorName> and <gSyntClrBGTrans> in <externs.h>,
 //   <KEYNAME_SC_xxx> and <aColorKeyNames> in <inifile.c>,
 //   <#define IDC_SYNTCLR_XB_TRANSxx>,

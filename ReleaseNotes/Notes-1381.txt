@@ -1,0 +1,12 @@
+Build #1381 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In 1 f/ X Where X Is A Nested or Global Numeric Scalar
+
+Directory trunk:
+
+MF_ROS.H:
+  Change code so as to always return a vector.
+
+PO_SLASH.C:
+  Improve comments.

@@ -1,0 +1,9 @@
+Build #1352 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Domino Returning NaN
+
+Directory trunk:
+
+PF_DOMINO.C:
+  Floating point domino can return a NaN from <gsl_linalg_SV_solve>, so we check for it and signal a DOMAIN ERROR if found.

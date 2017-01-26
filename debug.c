@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #define STRICT
 #include <windows.h>
 #include <windowsx.h>
+#include <Shlwapi.h>
 #include <stdio.h>
 #include "headers.h"
 
@@ -35,7 +36,7 @@ WNDPROC    lpfnOldListboxWndProc;   // Save area for old Listbox window proc
 
 #ifdef DEBUG
 //***************************************************************************
-//  $_CheckCtrlBreak
+//  $CheckCtrlBreak
 //
 //  Check for Ctrl-Break, thus providing a place to put
 //    a breakpoint to catch when it is first checked.
@@ -66,12 +67,12 @@ UBOOL _CheckCtrlBreak
 ////{
 ////    char szTemp[1024];
 ////
-////    wsprintf (szTemp,
-////              "ASSERTION FAILURE:  Expression <%s> failed in file <%s> line #%d, continuing anyway...",
-////              lpExp,
-////              lpFileName,
-////              uLineNum);
-////
+////    MySprintf (szTemp,
+////               sizeof (szTemp),
+////               "ASSERTION FAILURE:  Expression <%s> failed in file <%s> line #%d, continuing anyway...",
+////               lpExp,
+////               lpFileName,
+////               uLineNum);
 ////    MB (szTemp);
 ////} // End AssertPrint
 ////#endif
@@ -531,10 +532,11 @@ LRESULT APIENTRY DBWndProc
             iLineNum = HandleToUlong (GetPropW (hWnd, PROP_LINENUM));
 
             // Format the string with a preceding line #
-            wsprintfA (szTemp,
-                       "%5d:  %s",
+            MySprintf (szTemp,
+                       sizeof (szTemp),
+                       "%2d:  %s",
                        ++iLineNum,
-                       *(LPCHAR *) &lParam);
+                      *(LPCHAR *) &lParam);
             // Convert the string from A to W
             A2W (wszTemp, szTemp, sizeof (wszTemp) - 1);
 
@@ -555,12 +557,12 @@ LRESULT APIENTRY DBWndProc
             iIndex = (UTF16_REFCNT_NE1 EQ (*(LPWCHAR *) &lParam)[0]);
 
             // Format the string with a preceding line #
-            wsprintfW (wszTemp,
-                       L"%s%5d:  %s",
-                       iIndex ? WS_UTF16_REFCNT_NE1 : L"",
-                       ++iLineNum,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                       L"%s%2d:  %s",
+                        iIndex ? WS_UTF16_REFCNT_NE1 : L"",
+                        ++iLineNum,
                        &(*(LPWCHAR *) &lParam)[iIndex]);
-
             SetPropW (hWnd, PROP_LINENUM, ULongToHandle (iLineNum));
 
             // Add the string to the ListBox
@@ -655,7 +657,7 @@ LRESULT WINAPI LclListboxWndProc
     POINT        ptScr;
     HGLOBAL      hGlbInd,
                  hGlbSel;
-    LPINT        lpInd;
+    LPINT        lpMemInd;
     LPWCHAR      lpSel,
                  p;
     LRESULT      lResult;
@@ -745,16 +747,16 @@ LRESULT WINAPI LclListboxWndProc
                     hGlbInd = GlobalAlloc (GHND, iSelCnt * sizeof (int));
 
                     // Lock the memory to get a ptr to it
-                    lpInd = GlobalLock (hGlbInd);
+                    lpMemInd = GlobalLock (hGlbInd);
 
                     // Populate the array
-                    SendMessageW (hWnd, LB_GETSELITEMS, iSelCnt, (LPARAM) lpInd);
+                    SendMessageW (hWnd, LB_GETSELITEMS, iSelCnt, (LPARAM) lpMemInd);
 
                     // Loop through the selected items and calculate
                     //   the storage requirement for the collection
                     for (iTotalBytes = i = 0; i < iSelCnt; i++)
-                        // The "EOL_LEN +" is for the AC_CR and AC_LF at the end of each line
-                        iTotalBytes += sizeof (WCHAR) * (EOL_LEN + (UINT) SendMessageW (hWnd, LB_GETTEXTLEN, lpInd[i], 0));
+                        // The "EOL_LEN +" is for the WC_CR and WC_LF at the end of each line
+                        iTotalBytes += sizeof (WCHAR) * (EOL_LEN + (UINT) SendMessageW (hWnd, LB_GETTEXTLEN, lpMemInd[i], 0));
 
                     // Allocate storage for the entire collection
                     hGlbSel = GlobalAlloc (GHND | GMEM_DDESHARE, iTotalBytes);
@@ -765,19 +767,26 @@ LRESULT WINAPI LclListboxWndProc
                     // Copy the text to the array, separated by a newline
                     for (p = lpSel, i = 0; i < iSelCnt; i++)
                     {
-                        p += (UINT) SendMessageW (hWnd, LB_GETTEXT, lpInd[i], (LPARAM) p);
-                        *p++ = AC_CR;
-                        *p++ = AC_LF;
+                        p += (UINT) SendMessageW (hWnd, LB_GETTEXT, lpMemInd[i], (LPARAM) p);
+                        *p++ = WC_CR;
+                        *p++ = WC_LF;
                     } // End FOR
 
                     // We no longer need this ptr
                     GlobalUnlock (hGlbSel); lpSel = NULL;
 
-                    // We no longer need this ptr
-                    GlobalUnlock (hGlbInd); lpInd = NULL;
+                    // Unlock and free (and set to NULL) a global name and ptr
+                    if (hGlbInd)
+                    {
+                        if (lpMemInd)
+                        {
+                            // We no longer need this ptr
+                            GlobalUnlock (lpMemInd); lpMemInd = NULL;
+                        } // End IF
 
-                    // Free the memory
-                    GlobalFree (hGlbInd); hGlbInd = NULL;
+                        // We no longer need this storage
+                        GlobalFree (hGlbInd); hGlbInd = NULL;
+                    } // End IF
 
                     // Prepare to put the data onto the clipboard
                     OpenClipboard (hWnd);
@@ -1032,41 +1041,34 @@ void DbgClr
 //***************************************************************************
 
 int oprintfW
-    (LPWCHAR lpwszFmt,
-     ...)
+    (LPWCHAR lpwszFmt,      // Ptr to format string
+             ...)           // The variable list
 
 {
-    va_list  vl;
-    APLU3264 i1, i2, i3, i4, i5, i6, i7, i8;
-    int      iRet;
-    WCHAR    wszTemp[1024];
+    HRESULT hResult;        // The result of <StringCbVPrintf>
+    va_list vl;             // Ptr to variable list
+    WCHAR   wszTemp[1024];  // The temp buffer
 
-
-    // We hope that no one calls us with more than
-    //   eight arguments.
-    // Note we must grab them separately this way
-    //   as using va_arg in the argument list to
-    //   wsprintf pushes the arguments in reverse
-    //   order.
+    // Initialize the variable list
     va_start (vl, lpwszFmt);
 
-    i1 = va_arg (vl, APLU3264);
-    i2 = va_arg (vl, APLU3264);
-    i3 = va_arg (vl, APLU3264);
-    i4 = va_arg (vl, APLU3264);
-    i5 = va_arg (vl, APLU3264);
-    i6 = va_arg (vl, APLU3264);
-    i7 = va_arg (vl, APLU3264);
-    i8 = va_arg (vl, APLU3264);
-
+    // wsprintfW the list
+    hResult = StringCbVPrintfW (wszTemp,
+                  sizeof (wszTemp),
+                  lpwszFmt,
+                  vl);
+    // End the variable list
     va_end (vl);
 
-    iRet = wsprintfW (wszTemp,
-                      lpwszFmt,
-                      i1, i2, i3, i4, i5, i6, i7, i8);
+    // Display the DEBUG message
     OutputDebugStringW (wszTemp);
 
-    return iRet;
+    // If it failed, ...
+    if (FAILED (hResult))
+        DbgBrk ();          // #ifdef DEBUG
+
+    // Return the length of the formatted string
+    return lstrlenW (wszTemp);
 } // End oprintfW
 #endif
 
@@ -1079,40 +1081,34 @@ int oprintfW
 //***************************************************************************
 
 int dprintfWL0
-    (LPWCHAR lpwszFmt,
-     ...)
+    (LPWCHAR lpwszFmt,      // Ptr to format string
+             ...)           // The variable list
 
 {
-    va_list  vl;
-    APLU3264 i1, i2, i3, i4, i5, i6, i7, i8;
-    int      iRet;
-    WCHAR    wszTemp[1024];
+    HRESULT  hResult;       // The result
+    va_list  vl;            // Ptr to variable list
+    WCHAR    wszTemp[1024]; // The temp buffer
 
-    // We hope that no one calls us with more than
-    //   eight arguments.
-    // Note we must grab them separately this way
-    //   as using va_arg in the argument list to
-    //   wsprintf pushes the arguments in reverse
-    //   order.
+    // Initialize the variable list
     va_start (vl, lpwszFmt);
 
-    i1 = va_arg (vl, APLU3264);
-    i2 = va_arg (vl, APLU3264);
-    i3 = va_arg (vl, APLU3264);
-    i4 = va_arg (vl, APLU3264);
-    i5 = va_arg (vl, APLU3264);
-    i6 = va_arg (vl, APLU3264);
-    i7 = va_arg (vl, APLU3264);
-    i8 = va_arg (vl, APLU3264);
-
+    // wsprintfW the list
+    hResult = StringCbVPrintfW (wszTemp,
+                  sizeof (wszTemp),
+                  lpwszFmt,
+                  vl);
+    // End the variable list
     va_end (vl);
 
-    iRet = wsprintfW (wszTemp,
-                      lpwszFmt,
-                      i1, i2, i3, i4, i5, i6, i7, i8);
+    // Display the DEBUG message
     DbgMsgW (wszTemp);
 
-    return iRet;
+    // If it failed, ...
+    if (FAILED (hResult))
+        DbgBrk ();          // #ifdef DEBUG
+
+    // Return the length of the formatted string
+    return lstrlenW (wszTemp);
 } // End dprintfWL0
 #endif
 
@@ -1125,48 +1121,65 @@ int dprintfWL0
 //***************************************************************************
 
 int dprintfWL9
-    (LPWCHAR lpwszFmt,
-     ...)
+    (LPWCHAR lpwszFmt,      // Ptr to format string
+             ...)           // The variable list
 
 {
-    va_list  vl;
-    APLU3264 i1, i2, i3, i4, i5, i6, i7, i8;
-    int      iRet;
-    WCHAR    wszTemp[1024];
+    HRESULT  hResult;       // The result
+    va_list  vl;            // Ptr to variable list
+    WCHAR    wszTemp[1024]; // The temp buffer
 
     if (gDbgLvl < 9)
         return 0;
 
-    // We hope that no one calls us with more than
-    //   eight arguments.
-    // Note we must grab them separately this way
-    //   as using va_arg in the argument list to
-    //   wsprintf pushes the arguments in reverse
-    //   order.
+    // Initialize the variable list
     va_start (vl, lpwszFmt);
 
-    i1 = va_arg (vl, APLU3264);
-    i2 = va_arg (vl, APLU3264);
-    i3 = va_arg (vl, APLU3264);
-    i4 = va_arg (vl, APLU3264);
-    i5 = va_arg (vl, APLU3264);
-    i6 = va_arg (vl, APLU3264);
-    i7 = va_arg (vl, APLU3264);
-    i8 = va_arg (vl, APLU3264);
-
+    // wsprintfW the list
+    hResult = StringCbVPrintfW (wszTemp,
+                  sizeof (wszTemp),
+                  lpwszFmt,
+                  vl);
+    // End the variable list
     va_end (vl);
 
-    iRet = wsprintfW (wszTemp,
-                      lpwszFmt,
-                      i1, i2, i3, i4, i5, i6, i7, i8);
+    // Display the DEBUG message
     DbgMsgW (wszTemp);
 
-    return iRet;
+    // If it failed, ...
+    if (FAILED (hResult))
+        DbgBrk ();          // #ifdef DEBUG
+
+    // Return the length of the formatted string
+    return lstrlenW (wszTemp);
 } // End dprintfWL9
 #endif
 
 
-#ifdef DEBUG
+#ifdef DEBUG_ALLOCFREE
+//***************************************************************************
+//  $ExcludeFuncName
+//
+//  Return TRUE iff we're excluding this function name
+//***************************************************************************
+
+UBOOL ExcludeFuncName
+    (LPWCHAR lpwFmtStr)
+
+{
+    return StrStrW (lpwFmtStr, L"SyntaxColor:"     ) NE NULL
+        || StrStrW (lpwFmtStr, L"LclECPaintHook:"  ) NE NULL
+        || StrStrW (lpwFmtStr, L"MoveToLine:"      ) NE NULL
+////    || StrStrW (lpwFmtStr, L"PN_VectorAcc:"    ) NE NULL
+////    || StrStrW (lpwFmtStr, L"PN_VectorRes:"    ) NE NULL
+////    || StrStrW (lpwFmtStr, L"Tokenize_EM:"     ) NE NULL
+        || StrStrW (lpwFmtStr, L"PasteAPLChars_EM" ) NE NULL
+           ;
+} // End ExcludeFuncName
+#endif
+
+
+#ifdef DEBUG_ALLOCFREE
 //***************************************************************************
 //  $DbgGlobalAllocSub
 //
@@ -1185,11 +1198,37 @@ HGLOBAL DbgGlobalAllocSub
 
     hGlbRes = MyGlobalAlloc (uFlags, ByteRes);
 
-    if (hGlbRes)
-        dprintfWL9 (lpwFmtStr, hGlbRes, lpFileName, uLineNum);
+    // If it's valid, ...
+    if (hGlbRes
+    // If we're not excluding this function name, ...
+     && !ExcludeFuncName (lpwFmtStr))
+        dprintfWL0 (lpwFmtStr, ClrPtrTypeDir (hGlbRes), lpFileName, uLineNum);
 
     return hGlbRes;
 } // End DbgGlobalAllocSub
+#endif
+
+
+#ifdef DEBUG_ALLOCFREE
+//***************************************************************************
+//  $DbgGlobalFreeSub
+//
+//  Debug version of MyGlobalFree
+//***************************************************************************
+
+HGLOBAL DbgGlobalFreeSub
+    (HGLOBAL  hGlbToken,
+     LPWCHAR  lpwFmtStr,
+     LPSTR    lpFileName,
+     UINT     uLineNum)
+
+{
+    // If we're not excluding this function name, ...
+    if (!ExcludeFuncName (lpwFmtStr))
+        dprintfWL0 (lpwFmtStr, ClrPtrTypeDir (hGlbToken), lpFileName, uLineNum);
+
+    return MyGlobalFree (hGlbToken);
+} // End DbgGlobalFreeSub
 #endif
 
 

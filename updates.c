@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -276,7 +276,7 @@ INT_PTR CALLBACK UpdatesDlgProc
             dnlThrStr.bThreadDone = TRUE;
 
             // Save the web version ptr for later use
-            lstrcpyW (wszWebVer, lpUpdatesDlgStr->lpWebVer);
+            MyStrcpyW (wszWebVer, sizeof (wszWebVer), lpUpdatesDlgStr->lpWebVer);
 
             // Compare the two versions
             if (lpUpdatesDlgStr->bForceDownload
@@ -291,10 +291,11 @@ INT_PTR CALLBACK UpdatesDlgProc
                 lpwStr = L"The version you are running (%s) is newer than the most current version (%s) on the website -- there is no need to update your version.";
 
             // Format the text
-            wsprintfW (wszTemp,
-                       lpwStr,
-                       lpUpdatesDlgStr->lpFilVer,
-                       lpUpdatesDlgStr->lpWebVer);
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
+                        lpwStr,
+                        lpUpdatesDlgStr->lpFilVer,
+                        lpUpdatesDlgStr->lpWebVer);
 #undef  lpUpdatesDlgStr
 
             // Write out the file & web version strings
@@ -442,9 +443,7 @@ INT_PTR CALLBACK UpdatesDlgProc
                             SetEvent (dnlThrStr.hSuspend);
 
                             // Wait for the thread to terminate
-////////////////////////////oprintfW (L"%3d:  WaitForSingleObject start on %p (IDOK -- hThreadWork)\n", guCnt++, dnlThrStr.hThreadWork);
-                            WaitForSingleObject (dnlThrStr.hThreadWork, INFINITE);
-////////////////////////////oprintfW (L"%3d:  WaitForSingleObject end   on %p (IDOK -- hThreadWork)\n", guCnt++, dnlThrStr.hThreadWork);
+                            MyWaitForThread (dnlThrStr.hThreadWork, INFINITE, L"UpdatesDlgProc#WM_COMMAND/IDOK");
                         } else
                         {
                             // Restore the Progress Bar state
@@ -509,9 +508,7 @@ INT_PTR CALLBACK UpdatesDlgProc
                             SetEvent (dnlThrStr.hSuspend);
 
                             // Wait for the thread to terminate
-////////////////////////////oprintfW (L"%3d:  WaitForSingleObject start on %p (IDCANCEL -- hThreadWork)\n", guCnt++, dnlThrStr.hThreadWork);
-                            WaitForSingleObject (dnlThrStr.hThreadWork, INFINITE);
-////////////////////////////oprintfW (L"%3d:  WaitForSingleObject end   on %p (IDCANCEL -- hThreadWork)\n", guCnt++, dnlThrStr.hThreadWork);
+                            MyWaitForThread (dnlThrStr.hThreadWork, INFINITE, L"UpdatesDlgProc#WM_COMMAND/IDCANCEL");
 
                             // Disable the Pause & Cancel buttons
                             EnableWindow (GetDlgItem (hDlg, IDC_DNLPAUSE_BN), FALSE);
@@ -560,6 +557,12 @@ INT_PTR CALLBACK UpdatesDlgProc
 //  Download and run the setup program
 //***************************************************************************
 
+#ifdef DEBUG
+#define APPEND_NAME     L" -- DownloadRun"
+#else
+#define APPEND_NAME
+#endif
+
 void DownloadRun
     (LPWCHAR     lpWebVer,                      // Ptr to web version string
      LPDNLTHRSTR lpDnlThrStr)                   // Ptr to DownloadInThread parameter
@@ -604,7 +607,7 @@ void DownloadRun
                      NULL,                                  // Ptr to proxy name (may be NULL)
                      NULL,                                  // Ptr to proxy bypass (may be NULL)
                      0);                                    // Flags
-    if (!lpDnlThrStr->lpDnlDlgStr->hNetOpen)
+    if (lpDnlThrStr->lpDnlDlgStr->hNetOpen EQ NULL)
     {
         FormatNetErrorMessage (L"InterNetOpen");
 
@@ -612,13 +615,14 @@ void DownloadRun
     } // End IF
 
     // Fill in the URL
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
 #ifdef _WIN64
                L"http://www.nars2000.org/download/binaries/w64/" WS_APPNAME L"-%s.exe",
 #else
                L"http://www.nars2000.org/download/binaries/w32/" WS_APPNAME L"-%s.exe",
 #endif
-               lpWebVer);
+                lpWebVer);
     // Open the URL
     lpDnlThrStr->lpDnlDlgStr->hNetOpenUrl =
       InternetOpenUrlW (lpDnlThrStr->lpDnlDlgStr->hNetOpen, // Net handle
@@ -630,7 +634,7 @@ void DownloadRun
                       | INTERNET_FLAG_RELOAD,               // Forces a download of the requested file, object, or directory
                                                             //   listing from the origin server, not from the cache.
                         0);                                 // Context value
-    if (!lpDnlThrStr->lpDnlDlgStr->hNetOpenUrl)
+    if (lpDnlThrStr->lpDnlDlgStr->hNetOpenUrl EQ NULL)
     {
         FormatNetErrorMessage (L"InterNetOpenUrl");
 
@@ -704,7 +708,7 @@ void DownloadRun
 
     // Allocate global memory to read the file
     while (lpDnlThrStr->lpDnlDlgStr->uNumBytesAlloc
-        && (lpDnlThrStr->lpDnlDlgStr->lpMem = MyGlobalAlloc (GPTR, lpDnlThrStr->lpDnlDlgStr->uNumBytesAlloc)) EQ NULL)
+        && (lpDnlThrStr->lpDnlDlgStr->lpMem = DbgGlobalAlloc (GPTR, lpDnlThrStr->lpDnlDlgStr->uNumBytesAlloc)) EQ NULL)
         lpDnlThrStr->lpDnlDlgStr->uNumBytesAlloc /= 2;
     if (lpDnlThrStr->lpDnlDlgStr->uNumBytesAlloc EQ 0)
         goto WSFULL_EXIT;
@@ -718,7 +722,7 @@ void DownloadRun
                     TRUE,                       // TRUE iff manual-reset event
                     FALSE,                      // TRUE iff initial state is signalled
                     WS_APPNAME L"-suspend");    // Event name
-    if (!lpDnlThrStr->hSuspend)
+    if (lpDnlThrStr->hSuspend EQ NULL)
     {
         FormatSystemErrorMessage (L"CreateEvent");
 
@@ -735,7 +739,7 @@ void DownloadRun
                     lpDnlThrStr,                // Param to thread func
                     CREATE_SUSPENDED,           // Creation flag
                    &lpDnlThrStr->dwThreadId);   // Returns thread id
-    if (!lpDnlThrStr->hThreadWork)
+    if (lpDnlThrStr->hThreadWork EQ NULL)
     {
         FormatSystemErrorMessage (L"CreateThread");
 
@@ -788,6 +792,7 @@ NORMAL_EXIT:
 
     return;
 } // End DownloadRun
+#undef  APPEND_NAME
 
 
 //***************************************************************************
@@ -867,8 +872,8 @@ void CALLBACK WaitForDownload
     if (bSuccess)
     {
         // Copy the temp file name and rename it to an executable
-        lstrcpyW ( lpDnlThrStr->lpDnlDlgStr->lpwszTempPathBuffer, lpDnlThrStr->lpDnlDlgStr->lpwszTempFileName);
-        lstrcpyW (&lpDnlThrStr->lpDnlDlgStr->lpwszTempFileName[lstrlenW (lpDnlThrStr->lpDnlDlgStr->lpwszTempFileName) - 4], L".exe");
+        strcpyW ( lpDnlThrStr->lpDnlDlgStr->lpwszTempPathBuffer, lpDnlThrStr->lpDnlDlgStr->lpwszTempFileName);
+        strcpyW (&lpDnlThrStr->lpDnlDlgStr->lpwszTempFileName[lstrlenW (lpDnlThrStr->lpDnlDlgStr->lpwszTempFileName) - 4], L".exe");
 
         // Rename the file to an .exe so we can run it vis ShellExecuteEx
         if (!MoveFileExW (lpDnlThrStr->lpDnlDlgStr->lpwszTempPathBuffer,    // Source filename
@@ -956,6 +961,9 @@ NORMAL_EXIT:
 //  $DownloadInThread
 //
 //  Download worker thread
+//
+//  Note that because we use WaitForSingleObject on this thread handle, this
+//    thread must not create any windows otherwise the message loop will hang.
 //***************************************************************************
 
 DWORD WINAPI DownloadInThread
@@ -1125,7 +1133,7 @@ void FormatNetErrorMessage
                     countof (wszTemp2),         // Maximum size of message buffer
                     NULL);                      // Address of array of message inserts
     // Copy the leading text
-    lstrcpyW (lpwszGlbTemp, lpwszFcnName);
+    strcpyW (lpwszGlbTemp, lpwszFcnName);
 
     // If there's a net error message, ...
     if (dwErr)
@@ -1171,7 +1179,7 @@ void FormatSystemErrorMessage
                     countof (wszTemp),          // Maximum size of message buffer
                     NULL);                      // Address of array of message inserts
     // Copy the leading text
-    lstrcpyW (lpwszGlbTemp, lpwszFcnName);
+    strcpyW (lpwszGlbTemp, lpwszFcnName);
 
     // Format the entire error message
     wsprintfW (&lpwszGlbTemp[lstrlenW (lpwszGlbTemp)],
@@ -1187,6 +1195,12 @@ void FormatSystemErrorMessage
 //
 //  Free and close internat resources and handles
 //***************************************************************************
+
+#ifdef DEBUG
+#define APPEND_NAME     L" -- FreeAndClose"
+#else
+#define APPEND_NAME
+#endif
 
 void FreeAndClose
     (LPDNLTHRSTR lpDnlThrStr,           // Ptr to DNLTHRSTR
@@ -1205,7 +1219,7 @@ void FreeAndClose
     if (lpDnlThrStr->lpDnlDlgStr->lpMem)
     {
         // We no longer need this storage
-        MyGlobalFree (lpDnlThrStr->lpDnlDlgStr->lpMem); lpDnlThrStr->lpDnlDlgStr->lpMem = NULL;
+        DbgGlobalFree (lpDnlThrStr->lpDnlDlgStr->lpMem); lpDnlThrStr->lpDnlDlgStr->lpMem = NULL;
     } // End IF
 
     if (lpDnlThrStr->lpDnlDlgStr->hTempFile NE INVALID_HANDLE_VALUE)
@@ -1238,6 +1252,7 @@ void FreeAndClose
 
 ////oprintfW (L"%3d:  FreeAndClose end\n", guCnt++);
 } // End FreeAndClose
+#undef  APPEND_NAME
 
 
 //***************************************************************************

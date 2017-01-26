@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,15 @@
 #define STRICT
 #include <windows.h>
 #include "headers.h"
+#include "accctrl.h"
+#include "aclapi.h"
+#include "sddl.h"
 
+
+typedef DWORD (WINAPI *GETFPN) (HANDLE hFile,
+                                LPWSTR lpszFilePath,
+                                DWORD  cchFilePath,
+                                DWORD  dwFlags);
 
 #define BUFLEN          1024
 #define CHAR8           BYTE
@@ -47,6 +55,19 @@ typedef union tagNFNS_BUFFER
 } NFNS_BUFFER, *LPNFNS_BUFFER;
 
 
+ARRAY_TYPES propArrType[NPROP_LENGTH]
+ = {
+    ARRAY_NESTED ,      // 0 = DPFE
+    ARRAY_INT    ,      // 1 = Type (see NFILETYPES)
+    ARRAY_INT    ,      // 2 = Size in bytes
+    ARRAY_NESTED ,      // 3 = Last modification time
+    ARRAY_NESTED ,      // 4 = Owner user ID
+    ARRAY_NESTED ,      // 5 = Owner name
+    ARRAY_INT    ,      // 6 = Hidden or not
+    ARRAY_NESTED ,      // 7 = Target of symbolic link
+   };
+
+
 //***************************************************************************
 //  $SysFnNAPPEND_EM_YY
 //
@@ -66,10 +87,6 @@ LPPL_YYSTYPE SysFnNAPPEND_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -134,28 +151,30 @@ LPPL_YYSTYPE SysFnDydNAPPEND_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE     aplTypeLft,        // Left arg storage type
-                 aplTypeRht;        // Right ...
-    APLNELM      aplNELMLft,        // Left arg NELM
-                 aplNELMRht;        // Right ...
-    APLRANK      aplRankLft,        // Left arg Rank
-                 aplRankRht;        // Right ...
-    APLLONGEST   aplLongestLft,     // Left arg longest if immediate
-                 aplLongestRht;     // Right ...
-    HGLOBAL      hGlbLft = NULL,    // Left arg global memory handle
-                 hGlbRht = NULL;    // Right ...
-    LPAPLCHAR    lpMemLft = NULL;   // Ptr to left arg global memory
-    LPVOID       lpMemRht = NULL;   // Ptr to right ...
-    DR_VAL       DiskConv;          // Disk format
-    APLINT       TieNum,            // File tie number
-                 aplFileOff,        // Starting offset of append
-                 aplFileOut;        // # bytes written to disk
-    UINT         uTie;              // Offset of matching tie number entry
-    LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
-    LPNFNSHDR    lpNfnsHdr = NULL;  // Ptr to NFNSHDR global memory
-    LPNFNSDATA   lpNfnsMem;         // Ptr to aNfnsData
-    LPPL_YYSTYPE lpYYRes = NULL;    // Ptr to result
-    OVERLAPPED   overLapped = {0};  // OVERLAPPED struc
+    APLSTYPE          aplTypeLft,           // Left arg storage type
+                      aplTypeRht;           // Right ...
+    APLNELM           aplNELMLft,           // Left arg NELM
+                      aplNELMRht;           // Right ...
+    APLRANK           aplRankLft,           // Left arg Rank
+                      aplRankRht;           // Right ...
+    APLLONGEST        aplLongestLft,        // Left arg longest if immediate
+                      aplLongestRht;        // Right ...
+    HGLOBAL           hGlbLft = NULL,       // Left arg global memory handle
+                      hGlbRht = NULL;       // Right ...
+    LPVARARRAY_HEADER lpMemHdrLft = NULL,   // Ptr to left arg header
+                      lpMemHdrRht = NULL;   // ...    right    ...
+    LPAPLCHAR         lpMemLft;             // Ptr to left arg global memory
+    LPVOID            lpMemRht;             // Ptr to right ...
+    DR_VAL            DiskConv;             // Disk format
+    APLINT            TieNum,               // File tie number
+                      aplFileOff,           // Starting offset of append
+                      aplFileOut;           // # bytes written to disk
+    UINT              uTie;                 // Offset of matching tie number entry
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    LPNFNSHDR         lpNfnsHdr = NULL;     // Ptr to NFNSHDR global memory
+    LPNFNSDATA        lpNfnsMem;            // Ptr to aNfnsData
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to result
+    OVERLAPPED        overLapped = {0};     // OVERLAPPED struc
 
     // Get the attributes (Type, NELM, and Rank)
     //   of the left & right args
@@ -181,18 +200,18 @@ LPPL_YYSTYPE SysFnDydNAPPEND_EM_YY
         goto RIGHT_DOMAIN_EXIT;
 
     // Lock the memory to get a ptr to it
-    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemLft);
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemHdrLft);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the left arg is a global, ...
-    if (hGlbLft)
-        lpMemLft = VarArrayDataFmBase (lpMemLft);
+    if (hGlbLft NE NULL)
+        lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
     else
         lpMemLft = (LPAPLCHAR) &aplLongestLft;
 
     // If the right arg is a global, ...
-    if (hGlbRht)
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+    if (hGlbRht NE NULL)
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     else
         lpMemRht = &aplLongestRht;
 
@@ -310,19 +329,19 @@ NORMAL_EXIT:
         CloseHandle (overLapped.hEvent); overLapped.hEvent = NULL;
     } // End IF
 
-    if (hGlbLft && lpMemLft)
+    if (hGlbLft NE NULL && lpMemHdrLft NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
+        MyGlobalUnlock (hGlbLft); lpMemHdrLft = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (lpNfnsHdr)
+    if (lpNfnsHdr NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
@@ -352,10 +371,6 @@ LPPL_YYSTYPE SysFnNCREATE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -421,7 +436,7 @@ LPPL_YYSTYPE SysFnDydNCREATE_EM_YY
 
 {
     // Call common code
-    return SysFnCreateTie_EM_YY (TRUE, lptkLftArg, lptkFunc, lptkRhtArg, lptkAxis);
+    return SysFnCreateTie_EM_YY (TRUE, lptkLftArg, FALSE, lptkFunc, lptkRhtArg, lptkAxis);
 } // End SysFnDydNCREATE_EM_YY
 #undef  APPEND_NAME
 
@@ -444,32 +459,36 @@ LPPL_YYSTYPE SysFnDydNCREATE_EM_YY
 LPPL_YYSTYPE SysFnCreateTie_EM_YY
     (UBOOL   bCreate,               // TRUE iff []NCREATE
      LPTOKEN lptkLftArg,            // Ptr to left arg token (may be NULL if monadic)
+     UBOOL   bSpecial,              // TRUE iff the file might be special (Directory, Reparse point, ...)
      LPTOKEN lptkFunc,              // Ptr to function token
      LPTOKEN lptkRhtArg,            // Ptr to right arg token
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE      aplTypeLft,       // Left arg storage type
-                  aplTypeRht,       // Right ...
-                  aplTypeWs;        // Workspace ...
-    APLNELM       aplNELMLft,       // Left arg NELM
-                  aplNELMRht;       // Right ...
-    APLRANK       aplRankLft,       // Left arg rank
-                  aplRankRht;       // Right ...
-    HGLOBAL       hGlbLft = NULL,   // Left arg global memory handle
-                  hGlbRht = NULL;   // Right ...
-    LPAPLCHAR     lpMemLft = NULL;  // Ptr to left arg global memory
-    LPVOID        lpMemRht = NULL;  // ...    right ...
-    APLINT        TieNum;           // File tie number
-    APLLONGEST    aplLongestLft,    // Left arg immediate value
-                  aplLongestRht;    // Right ...
-    APLINT        AccessMode,       // Access mode
-                  ShareMode;        // Share mode
-    DR_VAL        DiskConv,         // Disk format
-                  WsConv;           // Workspace format
-    HANDLE        hFile;            // File handle
-    LPPL_YYSTYPE  lpYYRes = NULL;   // Ptr to the result
-    LPPERTABDATA  lpMemPTD;         // Ptr to PerTabData global memory
+    APLSTYPE          aplTypeLft,           // Left arg storage type
+                      aplTypeRht,           // Right ...
+                      aplTypeWs;            // Workspace ...
+    APLNELM           aplNELMLft,           // Left arg NELM
+                      aplNELMRht;           // Right ...
+    APLRANK           aplRankLft,           // Left arg rank
+                      aplRankRht;           // Right ...
+    HGLOBAL           hGlbLft = NULL,       // Left arg global memory handle
+                      hGlbRht = NULL;       // Right ...
+    LPVARARRAY_HEADER lpMemHdrLft = NULL,   // Ptr to left arg header
+                      lpMemHdrRht = NULL;   // ...    right    ...
+    LPAPLCHAR         lpMemLft;             // Ptr to left arg global memory
+    LPVOID            lpMemRht;             // ...    right ...
+    APLINT            TieNum;               // File tie number
+    APLLONGEST        aplLongestLft,        // Left arg immediate value
+                      aplLongestRht;        // Right ...
+    DWORD             AccessMode,           // Access mode
+                      ShareMode;            // Share mode
+    DR_VAL            DiskConv,             // Disk format
+                      WsConv;               // Workspace format
+    HANDLE            hFile;                // File handle
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    UINT              uFlags;               // File flags & attributes
 
     /* The left arg is a char scalar or vector naming the file.
 
@@ -516,18 +535,18 @@ LPPL_YYSTYPE SysFnCreateTie_EM_YY
         goto RIGHT_DOMAIN_EXIT;
 
     // Lock the memory to get a ptr to it
-    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemLft);
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemHdrLft);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the left arg is a global, ...
-    if (hGlbLft)
-        lpMemLft = VarArrayDataFmBase (lpMemLft);
+    if (hGlbLft NE NULL)
+        lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
     else
         lpMemLft = (LPAPLCHAR) &aplLongestLft;
 
     // If the right arg is a global, ...
-    if (hGlbRht)
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+    if (hGlbRht NE NULL)
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     else
         lpMemRht = &aplLongestRht;
 
@@ -559,16 +578,30 @@ LPPL_YYSTYPE SysFnCreateTie_EM_YY
     // Validate the conversion
     if (!NfnsArgConv   (aplTypeRht, lpMemRht, aplNELMRht, 2, FALSE, &DiskConv, DR_CHAR8, &WsConv, DR_CHAR16, &aplTypeWs))
         goto RIGHT_DOMAIN_EXIT;
+    // If this file might be special, ...
+    if (bSpecial)
+    {
+        AccessMode = GENERIC_READ;
+        ShareMode  = FILE_SHARE_READ;
+        uFlags = 0
+               | FILE_FLAG_OPEN_REPARSE_POINT
+               | FILE_FLAG_BACKUP_SEMANTICS;
+    } else
+    {
+        uFlags = 0
+               | FILE_ATTRIBUTE_NORMAL
+               | FILE_FLAG_OVERLAPPED;
+    } // End IF/ELSE
 
     // Create the file
     hFile =
       CreateFileW (lpMemLft,                // Ptr to Drive, path, filename
-           (DWORD) AccessMode,              // Desired access
-           (DWORD) ShareMode,               // Shared access
+                   AccessMode,              // Desired access
+                   ShareMode,               // Shared access
                    NULL,                    // Security attributes
                    bCreate ? CREATE_ALWAYS
                            : OPEN_EXISTING, // Create/open flags
-                   FILE_FLAG_OVERLAPPED,    // File attributes
+                   uFlags,                  // File attributes & flags
                    NULL);                   // Template file
     // If it failed, ...
     if (hFile EQ INVALID_HANDLE_VALUE)
@@ -623,16 +656,16 @@ RIGHT_DOMAIN_EXIT:
 
 ERROR_EXIT:
 NORMAL_EXIT:
-    if (hGlbLft && lpMemLft)
+    if (hGlbLft NE NULL && lpMemHdrLft NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
+        MyGlobalUnlock (hGlbLft); lpMemHdrLft = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
     return lpYYRes;
@@ -659,10 +692,6 @@ LPPL_YYSTYPE SysFnNERASE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -739,6 +768,1360 @@ LPPL_YYSTYPE SysFnDydNERASE_EM_YY
 
 
 //***************************************************************************
+//  $SysFnNINFO_EM_YY
+//
+//  System function:  []NINFO -- Return file information
+//***************************************************************************
+
+#ifdef DEBUG
+#define APPEND_NAME     L" -- SysFnNINFO_EM_YY"
+#else
+#define APPEND_NAME
+#endif
+
+LPPL_YYSTYPE SysFnNINFO_EM_YY
+    (LPTOKEN lptkLftArg,            // Ptr to left arg token (may be NULL if monadic)
+     LPTOKEN lptkFunc,              // Ptr to function token
+     LPTOKEN lptkRhtArg,            // Ptr to right arg token
+     LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
+
+{
+    APLSTYPE                   aplTypeLft,              // Left arg storage type
+                               aplTypeRht,              // Right ...
+                               aplTypeRes;              // Result ...
+    APLNELM                    aplNELMLft,              // Left arg NELM
+                               aplNELMRht;              // Right ...
+    APLRANK                    aplRankLft,              // Left arg Rank
+                               aplRankRht;              // Right ...
+    APLLONGEST                 aplLongestLft,           // Left arg longest if immediate
+                               aplLongestRht;           // Right ...
+    HGLOBAL                    hGlbLft = NULL,          // Left arg global memory handle
+                               hGlbRht = NULL,          // Right ...
+                               hGlbRes = NULL;          // Result global memory handle
+    LPVARARRAY_HEADER          lpMemHdrLft = NULL,      // Ptr to left arg header
+                               lpMemHdrRht = NULL,      // ...    right    ...
+                               lpMemHdrRes = NULL;      // ...    result   ...
+    LPVOID                     lpMemLft,                // Ptr to left arg global memory
+                               lpMemRht;                // Ptr to right ...
+    LPAPLNESTED                lpMemRes;                // Ptr to result global memory
+    LPAPLDIM                   lpMemDimLft;             // Ptr to left arg dimensions
+    LPPL_YYSTYPE               lpYYRes = NULL,          // Ptr to result
+                               lpYYTieNum = NULL;       // Ptr to tie num if right arg is char vector
+    APLINT                     TieNum;                  // Right arg as an integer
+    UINT                       uLft,                    // Loop counter
+                               uTie = -1;               // Offset of matching tie number entry
+    LPPERTABDATA               lpMemPTD;                // Ptr to PerTabData global memory
+    APLUINT                    ByteRes;                 // # bytes in the result
+    LPNFNSHDR                  lpNfnsHdr = NULL;        // Ptr to NFNSHDR global memory
+    LPNFNSDATA                 lpNfnsMem;               // Ptr to aNfnsData
+    UBOOL                      bRet,                    // TRUE iff the result is valid
+                               bWildcard = FALSE;       // TRUE iff the right arg contains a wildcard
+    PSECURITY_DESCRIPTOR       lpSD = NULL;             // Ptr to Security Descriptor
+    LPWCHAR                    lpAcctName = NULL,       // Ptr to buffer for the acct name for lpSidOwner
+                               lpDomainName = NULL,     // Ptr to buffer for the domain name for lpSidOwner
+                               lpStringSID = NULL;      // Ptr to String SID
+    BY_HANDLE_FILE_INFORMATION fileInfo;                // File information by handle buffer
+    DWORD                      dwFileAttributes;        // File attributes w/o spurious attrs
+    HANDLE                     hFileLink = NULL;        // File handle
+    HMODULE                    hModuleLink = NULL;      // Module handle for GetProcAddress
+    WIN32_FIND_DATAW           win32FindData;           // Wildcard find data struc
+    HANDLE                     hWildcard = NULL;        // Wildcard file handle
+    NPROP_STR                  propStr[NPROP_LENGTH];   // NINFO property struc
+    WCHAR                      wszDrive[_MAX_DRIVE],    // Drive info from command line
+                               wszDir  [_MAX_DIR];      // Dir   ...
+
+    //***************************************************************
+    // This function is not sensitive to the axis operator,
+    //   so signal a syntax error if present
+    //***************************************************************
+    if (lptkAxis NE NULL)
+        goto AXIS_SYNTAX_EXIT;
+
+    // If we're called monadically, ...
+    if (lptkLftArg EQ NULL)
+        // Use the default left arg of an immediate 0
+        lptkLftArg = (LPTOKEN) &tkZero;
+
+    // Get the attributes (Type, NELM, and Rank)
+    //   of the left & right args
+    AttrsOfToken (lptkLftArg, &aplTypeLft, &aplNELMLft, &aplRankLft, NULL);
+    AttrsOfToken (lptkRhtArg, &aplTypeRht, &aplNELMRht, &aplRankRht, NULL);
+
+    // Check for LEFT RANK ERROR
+    if (IsMultiRank (aplRankLft))
+        goto LEFT_RANK_EXIT;
+
+    // Check for LEFT DOMAIN ERROR
+    if (!IsNumeric (aplTypeLft))
+        goto LEFT_DOMAIN_EXIT;
+
+    // Check for RIGHT RANK ERROR
+    if (IsMultiRank (aplRankRht))
+        goto RIGHT_RANK_EXIT;
+
+    // Check for RIGHT LENGTH ERROR
+    if (!IsSimpleChar (aplTypeRht)
+     && !IsSingleton (aplTypeRht))
+        goto RIGHT_LENGTH_EXIT;
+
+    // Check for RIGHT DOMAIN ERROR
+    if (!IsSimpleChar (aplTypeRht)
+     && !IsNumeric (aplTypeRht))
+        goto RIGHT_DOMAIN_EXIT;
+
+    // Lock the memory to get a ptr to it
+    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemHdrLft);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
+
+    // If the left arg is a global, ...
+    if (hGlbLft NE NULL)
+    {
+        lpMemDimLft = VarArrayBaseToDim  (lpMemHdrLft);
+        lpMemLft    = VarArrayDataFmBase (lpMemHdrLft);
+    } else
+    {
+        lpMemDimLft = &aplNELMLft;
+        lpMemLft    = (LPAPLINT) &aplLongestLft;
+    } // End IF/ELSE
+
+    // Get ptr to PerTabData global memory
+    lpMemPTD = GetMemPTD ();
+
+    // If the right arg is a global, ...
+    if (hGlbRht NE NULL)
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
+    else
+        lpMemRht = (LPAPLINT) &aplLongestRht;
+
+    // If the right arg is not a char vector, ...
+    if (!IsSimpleChar (aplTypeRht))
+    {
+        // Verify the right arg as a tie number
+        if (!NfnsArgTieNum (aplTypeRht, lpMemRht, aplNELMRht, 0, &TieNum, lptkFunc, lpMemPTD)
+         ||  TieNum > 0)        // N.B. ">" not ">=" as we don't allow 0
+            goto RIGHT_DOMAIN_EXIT;
+    } else
+        // Check for wildcards
+        bWildcard =
+         (strchrW (lpMemRht, L'*') NE NULL
+       || strchrW (lpMemRht, L'?') NE NULL);
+
+    // Calculate the result storage type
+    aplTypeRes = IsEmpty (aplNELMLft) ? ARRAY_BOOL : ARRAY_NESTED;
+
+    // Calculate space needed for the result
+    ByteRes = CalcArraySize (aplTypeRes, aplNELMLft, aplRankLft);
+
+    // Check for overflow
+    if (ByteRes NE (APLU3264) ByteRes)
+        goto WSFULL_EXIT;
+
+    // Allocate space for the result
+    hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
+    if (hGlbRes EQ NULL)
+        goto WSFULL_EXIT;
+
+    // Lock the memory to get a ptr to it
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
+
+#define lpHeader    lpMemHdrRes
+    // Fill in the header values
+    lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
+    lpHeader->ArrType    = aplTypeRes;
+////lpHeader->PermNdx    = PERMNDX_NONE;// Already zero from GHND
+////lpHeader->SysVar     = FALSE;       // Already zero from GHND
+    lpHeader->RefCnt     = 1;
+    lpHeader->NELM       = aplNELMLft;
+    lpHeader->Rank       = aplRankLft;
+#undef  lpHeader
+
+    // Copy the dimensions from the left arg
+    CopyMemory (VarArrayBaseToDim (lpMemHdrRes),
+                lpMemDimLft,
+     (APLU3264) (aplRankLft * sizeof (APLDIM)));
+
+    // lpMemRes now points to the data
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
+
+    // Lock the memory to get a ptr to it
+    lpNfnsHdr = InitLockNfns (lptkFunc, lpMemPTD);
+
+    // If we're wildcarding, ...
+    if (bWildcard)
+    {
+        // Initialize the WIN32_FIND_DATA struc
+        hWildcard =
+          FindFirstFileW (lpMemRht,
+                         &win32FindData);
+        // Check for error
+        if (hWildcard EQ INVALID_HANDLE_VALUE)
+            goto SYS_ERROR_EXIT;
+        // Extract the Drive and Path from the command line
+        _wsplitpath (lpMemRht, wszDrive, wszDir, NULL, NULL);
+
+        // Clear the wildcard property struc
+        ZeroMemory (propStr, sizeof (propStr));
+    } // End IF
+
+    // Loop through the wildcard files
+    while (hWildcard NE INVALID_HANDLE_VALUE)
+    {
+        // If the right arg is a char vector, ...
+        if (IsSimpleChar (aplTypeRht))
+        {
+            // If we're wildcarding, ...
+            if (bWildcard)
+            {
+                WCHAR   wszDPFE[_MAX_PATH];                 // Save area for the DPFE
+                HANDLE  hFile;                              // File handle
+                DWORD   AccessMode = GENERIC_READ,          // Access mode
+                        ShareMode  = FILE_SHARE_READ,       // Share mode
+                        uFlags     = 0                      // Flags
+                                   | FILE_FLAG_OPEN_REPARSE_POINT
+                                   | FILE_FLAG_BACKUP_SEMANTICS;
+                APLNELM aplNELMTmp;                         // NELM of filename
+                HGLOBAL hGlbTmp;                            // Global memory handle
+                LPVARARRAY_HEADER lpMemHdrTmp = NULL;       // Ptr to ...    header
+                LPAPLCHAR         lpMemTmp;                 // ...    global memory
+
+                // Put the Drive, Dir, and Filename.ext info together
+                _wmakepath (wszDPFE, wszDrive, wszDir, win32FindData.cFileName, NULL);
+
+                // Attempt to open the file
+                hFile =
+                  CreateFileW (wszDPFE,                     // Ptr to Drive, path, filename
+                               AccessMode,                  // Desired access
+                               ShareMode,                   // Shared access
+                               NULL,                        // Security attributes
+                               OPEN_EXISTING,               // Create/open flags
+                               uFlags,                      // File attributes & flags
+                               NULL);                       // Template file
+                // If it failed, ...
+                if (hFile EQ INVALID_HANDLE_VALUE)
+                    goto NEXTFILE;
+                else
+                {
+                    // Get the filename NELM
+                    aplNELMTmp = lstrlenW (wszDPFE);
+
+                    // Allocate memory for the filename as a global
+                    // Calculate space needed for the result
+                    ByteRes = CalcArraySize (ARRAY_CHAR, aplNELMTmp, 1);
+
+                    // Check for overflow
+                    if (ByteRes NE (APLU3264) ByteRes)
+                        goto WSFULL_EXIT;
+
+                    // Allocate space for the result
+                    hGlbTmp = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
+                    if (hGlbRes EQ NULL)
+                        goto WSFULL_EXIT;
+
+                    // Lock the memory to get a ptr to it
+                    lpMemHdrTmp = MyGlobalLock000 (hGlbTmp);
+
+#define lpHeader    lpMemHdrTmp
+                    // Fill in the header values
+                    lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
+                    lpHeader->ArrType    = ARRAY_CHAR;
+////////////////////lpHeader->PermNdx    = PERMNDX_NONE;// Already zero from GHND
+////////////////////lpHeader->SysVar     = FALSE;       // Already zero from GHND
+                    lpHeader->RefCnt     = 1;
+                    lpHeader->NELM       = aplNELMTmp;
+                    lpHeader->Rank       = 1;
+#undef  lpHeader
+
+                    // Copy the dimensions from the left arg
+                    *VarArrayBaseToDim (lpMemHdrTmp) = aplNELMTmp;
+
+                    // lpMemRes now points to the data
+                    lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                    // Copy the filename to global memory ("+ 1" for the terminating zero)
+                    CopyMemoryW (lpMemTmp, wszDPFE, (APLU3264) (aplNELMTmp + 1));
+
+                    // We no longer need this ptr
+                    MyGlobalUnlock (hGlbTmp); lpMemHdrTmp = NULL;
+
+                    // Get the next tie number
+                    TieNum = GetNextTieNum_EM (lptkFunc, lpMemPTD);
+
+                    // Save the file handle, etc. in local storage
+                    if (!NfnsSaveData_EM (hFile, hGlbTmp, 0, 0, ARRAY_ERROR, TieNum, lptkFunc, lpMemPTD))
+                        goto ERROR_EXIT;
+                } // End IF/ELSE
+            } else
+            {
+                // Attempt to tie it
+                lpYYTieNum = SysFnCreateTie_EM_YY (FALSE, lptkRhtArg, TRUE, lptkFunc, (LPTOKEN) &tkZero, lptkAxis);
+
+                // Check for error
+                if (lpYYTieNum EQ NULL)
+                    goto ERROR_EXIT;
+                Assert (lpYYTieNum->tkToken.tkFlags.TknType EQ TKT_VARIMMED);
+                Assert (lpYYTieNum->tkToken.tkFlags.ImmType EQ IMMTYPE_INT);
+
+                // Save the tie number
+                TieNum = lpYYTieNum->tkToken.tkData.tkInteger;
+            } // End IF/ELSE
+        } // End IF
+
+        // Lookup the corresponding index into aNfnsData
+        bRet = IsDuplicateTieNum_EM (TieNum, lptkFunc, lpMemPTD, &uTie);
+
+        Assert (bRet);
+
+        // Point to the matching tie number entry
+        lpNfnsMem = &lpNfnsHdr->aNfnsData[uTie];
+
+        // Get the file information
+        if (!GetFileInformationByHandle (lpNfnsMem->hFile, &fileInfo))
+            goto SYS_ERROR_EXIT;
+
+        // Copy the file attributes and remove spurious ones
+        dwFileAttributes = fileInfo.dwFileAttributes
+                         & ~(0
+                           | FILE_ATTRIBUTE_READONLY
+                           | FILE_ATTRIBUTE_HIDDEN
+                           | FILE_ATTRIBUTE_SYSTEM
+                           | FILE_ATTRIBUTE_ARCHIVE
+                           | FILE_ATTRIBUTE_NORMAL
+                           | FILE_ATTRIBUTE_TEMPORARY
+                           | FILE_ATTRIBUTE_SPARSE_FILE
+                           | FILE_ATTRIBUTE_COMPRESSED
+                           | FILE_ATTRIBUTE_OFFLINE
+                           | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
+                           | FILE_ATTRIBUTE_ENCRYPTED
+                           | FILE_ATTRIBUTE_INTEGRITY_STREAM
+                           | FILE_ATTRIBUTE_VIRTUAL
+                           | FILE_ATTRIBUTE_NO_SCRUB_DATA
+                           | FILE_ATTRIBUTE_EA
+                           );
+        // Loop through the left arg
+        for (uLft = 0; uLft < aplNELMLft; uLft++)
+        {
+            APLINT            aplIntegerLft,        // Integer value in left arg
+                              aplIntegerRes,        // ...              result
+                              aplFileSize;          // File size
+            FILETIME          ftLocalTime;          // Local time
+            SYSTEMTIME        systemTime;           // []TS format time
+            HGLOBAL           hGlbTmp = NULL;       // Temporary
+            LPVARARRAY_HEADER lpMemHdrTmp = NULL;   // Ptr to temp header
+            LPAPLCHAR         lpMemTmp;             // Ptr to temp global memory
+            APLNELM           aplNELMTmp;           // Temp NELM
+            DWORD             dwRtnCode = 0;        // Return code
+            PSID              lpSidOwner = NULL;    // Ptr to SID owner
+            BOOL              bRtnBool = TRUE;      // TRUE iff the result of LookupAccountSid is valid
+            DWORD             dwAcctName = 1,       // Buffer size for lpAcctname
+                              dwDomainName = 1;     // Buffer size for lpDomainName
+            SID_NAME_USE      eUse = SidTypeUnknown;// Ptr to var that receives a SID_NAME_USE value
+
+            // Convert the next item to an integer
+            aplIntegerLft =
+              ConvertToInteger_SCT (aplTypeLft,     // Arg storage type
+                                    lpMemLft,       // Ptr to global memory data
+                                    uLft,           // Index # into lpMemLft
+                                   &bRet);          // Ptr to TRUE iff the result is valid
+            if (!bRet)
+                goto LEFT_DOMAIN_EXIT;
+
+            // Split cases based upon the left arg value
+            switch (aplIntegerLft)
+            {
+                case NPROP_DPFE:                    // Name of the file (char vector)
+                    // If we're wildcarding, ...
+                    if (bWildcard)
+                    {
+                        LPAPLNESTED lpMemTmp;
+
+                        // If this is the first time wildcarding for this property, ...
+                        if (!NPropInitAlloc (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+
+                        // Check for enough room
+                        if (!NPropCheckResize (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+                        // Lock the memory to get a ptr to it
+                        lpMemHdrTmp = MyGlobalLockVar (propStr[aplIntegerLft].hWildGlb);
+
+                        // Skip over the header and dimensions to the data
+                        lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                        // Save the next item
+                        lpMemTmp[propStr[aplIntegerLft].uWildCur++] = CopySymGlbDir_PTB (lpNfnsMem->hGlbFileName);
+
+                        // We no longer need this ptr
+                        MyGlobalUnlock (propStr[aplIntegerLft].hWildGlb); lpMemHdrTmp = NULL;
+                    } else
+                        // Save a copy of the filename
+                        lpMemRes[uLft] = CopySymGlbDir_PTB (lpNfnsMem->hGlbFileName);
+
+                    break;
+
+                case NPROP_TYPE:                        // 1:  Type:  (numeric scalar) (see FILE_TYPES)
+                                                        //     0 = Not known
+                                                        //     1 = Directory
+                                                        //     2 = Regular file
+                                                        //     3 = Character device
+                                                        //     4 = Symbolic link (only when Follow is 0)
+                                                        //     5 = Block device
+                                                        //     6 = FIFO (not Windows)
+                                                        //     7 = Socket (not Windows)
+                    // Test for File Attribute Constants
+                    if (dwFileAttributes EQ 0)
+                        aplIntegerRes = NFILETYPE_REG;
+                    else
+                    if (dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+                        aplIntegerRes = NFILETYPE_LINK;
+                    else
+                    if (dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+                        aplIntegerRes = NFILETYPE_DIR;
+                    else
+                    if (dwFileAttributes & FILE_ATTRIBUTE_DEVICE)
+                    {
+                        aplIntegerRes = NFILETYPE_CHRDEV;       // ***FIXME*** -- How to distinguish between the two devices??
+                        aplIntegerRes = NFILETYPE_BLKDEV;       // ***FIXME*** -- ...
+                    } else
+                        aplIntegerRes = NFILETYPE_UNK;
+
+                    // If we're wildcarding, ...
+                    if (bWildcard)
+                    {
+                        LPAPLINT lpMemTmp;
+
+                        // If this is the first time wildcarding for this property, ...
+                        if (!NPropInitAlloc (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+
+                        // Check for enough room
+                        if (!NPropCheckResize (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+                        // Lock the memory to get a ptr to it
+                        lpMemHdrTmp = MyGlobalLockVar (propStr[aplIntegerLft].hWildGlb);
+
+                        // Skip over the header and dimensions to the data
+                        lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                        // Save the next item
+                        lpMemTmp[propStr[aplIntegerLft].uWildCur++] = aplIntegerRes;
+
+                        // We no longer need this ptr
+                        MyGlobalUnlock (propStr[aplIntegerLft].hWildGlb); lpMemHdrTmp = NULL;
+                    } else
+                    {
+                        // Save an LPSYMENTRY in the result
+                        lpMemRes[uLft] =
+                          MakeSymEntry_EM (IMMTYPE_INT,                 // Immediate type
+                                          &aplIntegerRes,               // Ptr to immediate value
+                                           lptkFunc);                   // Ptr to function token
+                        // Check for error
+                        if (lpMemRes[uLft] EQ NULL)
+                            goto ERROR_EXIT;
+                    } // End IF/ELSE
+
+                    break;
+
+                case NPROP_SIZE:                        // 2:  File size in bytes (numeric scalar)
+                    // Get the file size
+                    LOAPLINT (aplFileSize) = fileInfo.nFileSizeLow;
+                    HIAPLINT (aplFileSize) = fileInfo.nFileSizeHigh;
+
+                    // If we're wildcarding, ...
+                    if (bWildcard)
+                    {
+                        LPAPLINT lpMemTmp;
+
+                        // If this is the first time wildcarding for this property, ...
+                        if (!NPropInitAlloc (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+
+                        // Check for enough room
+                        if (!NPropCheckResize (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+                        // Lock the memory to get a ptr to it
+                        lpMemHdrTmp = MyGlobalLockVar (propStr[aplIntegerLft].hWildGlb);
+
+                        // Skip over the header and dimensions to the data
+                        lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                        // Save the next item
+                        lpMemTmp[propStr[aplIntegerLft].uWildCur++] = aplFileSize;
+
+                        // We no longer need this ptr
+                        MyGlobalUnlock (propStr[aplIntegerLft].hWildGlb); lpMemHdrTmp = NULL;
+                    } else
+                    {
+                        // Save an LPSYMENTRY in the result
+                        lpMemRes[uLft] =
+                          MakeSymEntry_EM (IMMTYPE_INT,                 // Immediate type
+                                          &aplFileSize,                 // Ptr to immediate value
+                                           lptkFunc);                   // Ptr to function token
+                        // Check for error
+                        if (lpMemRes[uLft] EQ NULL)
+                            goto ERROR_EXIT;
+                    } // End IF/ELSE
+
+                    break;
+
+                case NPROP_LASTMOD:                     // 3:  Last modification time (sensitive to bUseLocalTime) (numeric vector)
+                    // Get the file's last write time
+
+                    // If we're to use local time (instead of GMT), ...
+                    if (OptionFlags.bUseLocalTime)
+                        // Convert the last mod time to local time
+                        FileTimeToLocalFileTime (&fileInfo.ftLastWriteTime, &ftLocalTime);
+                    else
+                        // Copy last mod time as local Time
+                        ftLocalTime = fileInfo.ftLastWriteTime;
+                    // Convert the last mod time to system time so we can display it
+                    FileTimeToSystemTime (&ftLocalTime, &systemTime);
+
+                    // Allocate space for the timestamp
+                    hGlbTmp = TimestampAllocate (&systemTime);
+
+                    // Check for error
+                    if (hGlbTmp EQ NULL)
+                        goto WSFULL_EXIT;
+
+                    // If we're wildcarding, ...
+                    if (bWildcard)
+                    {
+                        LPAPLNESTED lpMemTmp;
+
+                        // If this is the first time wildcarding for this property, ...
+                        if (!NPropInitAlloc (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+
+                        // Check for enough room
+                        if (!NPropCheckResize (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+                        // Lock the memory to get a ptr to it
+                        lpMemHdrTmp = MyGlobalLockVar (propStr[aplIntegerLft].hWildGlb);
+
+                        // Skip over the header and dimensions to the data
+                        lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                        // Save the next item
+                        lpMemTmp[propStr[aplIntegerLft].uWildCur++] = MakePtrTypeGlb (hGlbTmp);
+
+                        // We no longer need this ptr
+                        MyGlobalUnlock (propStr[aplIntegerLft].hWildGlb); lpMemHdrTmp = NULL;
+                    } else
+                        // Save in the result
+                        lpMemRes[uLft] = MakePtrTypeGlb (hGlbTmp);
+
+                    break;
+
+                case NPROP_OWNER_ID:                    // 4:  Owner user id (char vector)
+                    // Get the owner SID of the file
+                    dwRtnCode =
+                      GetSecurityInfo (lpNfnsMem->hFile,            // Ptr to file handle
+                                       SE_FILE_OBJECT,              // Object type enum (see SE_OBJECT_TYPE)
+                                       OWNER_SECURITY_INFORMATION,  // Security Information flags (see SECURITY_INFORMATION)
+                                      &lpSidOwner,                  // Ptr to SID owner (only if OWNER_SECURITY_INFORMATION)
+                                       NULL,                        // ...    SID group (only if GROUP_SECURITY_INFORMATION)
+                                       NULL,                        // ...    DACL (only if DACL_SECURITY_INFORMATION)
+                                       NULL,                        // ...    SACL (only if SACL_SECURITY_INFORMATION)
+                                      &lpSD);                       // ...    Security Descriptor
+                    // Check GetLastError for GetSecurityInfo error condition
+                    if (dwRtnCode != ERROR_SUCCESS)
+                        goto SYS_ERROR_EXIT;
+
+                    // Get the SID string from the SID
+                    if (!ConvertSidToStringSidW (lpSidOwner, &lpStringSID))
+                        goto SYS_ERROR_EXIT;
+
+                    // Calculate space for the String SID
+                    aplNELMTmp = lstrlenW (lpStringSID);
+
+                    // Allocate a character array for the string SID
+                    hGlbTmp = AllocateGlobalArray (ARRAY_CHAR, aplNELMTmp, 1, &aplNELMTmp);
+                    if (hGlbTmp EQ NULL)
+                        goto WSFULL_EXIT;
+
+                    // Lock the memory to get a ptr to it
+                    lpMemHdrTmp = MyGlobalLockVar (hGlbTmp);
+
+                    // Copy the item data to global memory
+                    CopyMemory (VarArrayDataFmBase (lpMemHdrTmp),
+                                lpStringSID,
+                                (APLU3264) (aplNELMTmp * sizeof (lpStringSID[0])));
+                    // We no longer need this ptr
+                    MyGlobalUnlock (hGlbTmp); lpMemHdrTmp = NULL;
+
+                    // If we're wildcarding, ...
+                    if (bWildcard)
+                    {
+                        LPAPLNESTED lpMemTmp;
+
+                        // If this is the first time wildcarding for this property, ...
+                        if (!NPropInitAlloc (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+
+                        // Check for enough room
+                        if (!NPropCheckResize (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+                        // Lock the memory to get a ptr to it
+                        lpMemHdrTmp = MyGlobalLockVar (propStr[aplIntegerLft].hWildGlb);
+
+                        // Skip over the header and dimensions to the data
+                        lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                        // Save the next item
+                        lpMemTmp[propStr[aplIntegerLft].uWildCur++] = MakePtrTypeGlb (hGlbTmp);
+
+                        // We no longer need this ptr
+                        MyGlobalUnlock (propStr[aplIntegerLft].hWildGlb); lpMemHdrTmp = NULL;
+                    } else
+                        // Save in the result
+                        lpMemRes[uLft] = MakePtrTypeGlb (hGlbTmp);
+
+                    break;
+
+                case NPROP_OWNER_NAME:                  // 5:  Owner name (char vector)
+                    // Get the owner SID of the file
+                    dwRtnCode =
+                      GetSecurityInfo (lpNfnsMem->hFile,            // Ptr to file handle
+                                       SE_FILE_OBJECT,              // Object type enum (see SE_OBJECT_TYPE)
+                                       OWNER_SECURITY_INFORMATION,  // Security Information flags (see SECURITY_INFORMATION)
+                                      &lpSidOwner,                  // Ptr to SID owner (only if OWNER_SECURITY_INFORMATION)
+                                       NULL,                        // ...    SID group (only if GROUP_SECURITY_INFORMATION)
+                                       NULL,                        // ...    DACL (only if DACL_SECURITY_INFORMATION)
+                                       NULL,                        // ...    SACL (only if SACL_SECURITY_INFORMATION)
+                                      &lpSD);                       // ...    Security Descriptor
+                    // Check GetLastError for GetSecurityInfo error condition
+                    if (dwRtnCode != ERROR_SUCCESS)
+                        goto SYS_ERROR_EXIT;
+
+                    // First call to LookupAccountSid to get the buffer sizes
+////////////////////bRtnBool =
+                      LookupAccountSidW (NULL,          // Target computer (NULL = Local computer)
+                                         lpSidOwner,    // Ptr to SID owner
+                                         lpAcctName,    // Ptr to buffer for the acct name for lpSidOwner
+                              (LPDWORD) &dwAcctName,    // Ptr to buffer size for lpAcctname
+                                         lpDomainName,  // Ptr to buffer for the domain name for lpSidOwner
+                              (LPDWORD) &dwDomainName,  // Ptr to buffer size for lpDomainName
+                                        &eUse);         // Ptr to var that receives a SID_NAME_USE value
+                    // No need to check for error because it is supposed to fail
+
+                    // Allocate buffers
+                    lpAcctName   = MyGlobalAlloc (GPTR, dwAcctName   * sizeof (WCHAR));
+                    lpDomainName = MyGlobalAlloc (GPTR, dwDomainName * sizeof (WCHAR));
+
+                    // Check for error
+                    if (lpAcctName   EQ NULL
+                     || lpDomainName EQ NULL)
+                        goto WSFULL_EXIT;
+
+                    // Second call to LookupAccountSid to get the account name.
+                    bRtnBool =
+                      LookupAccountSidW (NULL,          // Name of local or remote computer
+                                         lpSidOwner,    // Security identifier
+                                         lpAcctName,    // Account name buffer
+                              (LPDWORD) &dwAcctName,    // Size of account name buffer
+                                         lpDomainName,  // Domain name
+                              (LPDWORD) &dwDomainName,  // Size of domain name buffer
+                                        &eUse);         // SID type
+                    // Check for error
+                    if (!bRtnBool)
+                        goto SYS_ERROR_EXIT;
+
+                    // Calculate space for the catenation of lpDomainName \ lpAcctName
+                    aplNELMTmp = dwDomainName + 1 + dwAcctName;
+
+                    // Calculate space needed for the result
+                    ByteRes = CalcArraySize (ARRAY_CHAR, aplNELMTmp, 1);
+
+                    // Check for overflow
+                    if (ByteRes NE (APLU3264) ByteRes)
+                        goto WSFULL_EXIT;
+
+                    // Allocate space for the result
+                    hGlbTmp = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
+                    if (hGlbTmp EQ NULL)
+                        goto WSFULL_EXIT;
+
+                    // Lock the memory to get a ptr to it
+                    lpMemHdrTmp = MyGlobalLock000 (hGlbTmp);
+
+#define lpHeader    lpMemHdrTmp
+                    // Fill in the header
+                    lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
+                    lpHeader->ArrType    = ARRAY_CHAR;
+////////////////////lpHeader->PermNdx    = PERMNDX_NONE;    // Already zero from GHND
+////////////////////lpHeader->SysVar     = FALSE;           // Already zero from GHND
+                    lpHeader->RefCnt     = 1;
+                    lpHeader->NELM       = aplNELMTmp;
+                    lpHeader->Rank       = 1;
+#undef  lpHeader
+
+                    // Fill in the dimension
+                    *VarArrayBaseToDim (lpMemHdrTmp) = aplNELMTmp;
+
+                    // Skip over the header and dimensions to the data
+                    lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                    // Copy the Domain Name to the result
+                    lstrcpyW (lpMemTmp, lpDomainName);
+
+                    // Append a backslash
+                    lstrcatW (lpMemTmp, L"\\");
+
+                    // Catenate the Acct Name to the result
+                    lstrcatW (lpMemTmp, lpAcctName);
+
+                    // We no longer need this ptr
+                    MyGlobalUnlock (hGlbTmp); lpMemHdrTmp = NULL;
+
+                    // If we're wildcarding, ...
+                    if (bWildcard)
+                    {
+                        LPAPLNESTED lpMemTmp;
+
+                        // If this is the first time wildcarding for this property, ...
+                        if (!NPropInitAlloc (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+
+                        // Check for enough room
+                        if (!NPropCheckResize (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+                        // Lock the memory to get a ptr to it
+                        lpMemHdrTmp = MyGlobalLockVar (propStr[aplIntegerLft].hWildGlb);
+
+                        // Skip over the header and dimensions to the data
+                        lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                        // Save the next item
+                        lpMemTmp[propStr[aplIntegerLft].uWildCur++] = MakePtrTypeGlb (hGlbTmp);
+
+                        // We no longer need this ptr
+                        MyGlobalUnlock (propStr[aplIntegerLft].hWildGlb); lpMemHdrTmp = NULL;
+                    } else
+                        // Save in the result
+                        lpMemRes[uLft] = MakePtrTypeGlb (hGlbTmp);
+
+                    break;
+
+                case NPROP_HIDDEN:                      // 6:  Hidden flag (Boolean scalar)
+                    // If we're wildcarding, ...
+                    if (bWildcard)
+                    {
+                        LPAPLINT lpMemTmp;
+
+                        // If this is the first time wildcarding for this property, ...
+                        if (!NPropInitAlloc (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+
+                        // Check for enough room
+                        if (!NPropCheckResize (&propStr[aplIntegerLft], propArrType[aplIntegerLft]))
+                            goto WSFULL_EXIT;
+                        // Lock the memory to get a ptr to it
+                        lpMemHdrTmp = MyGlobalLockVar (propStr[aplIntegerLft].hWildGlb);
+
+                        // Skip over the header and dimensions to the data
+                        lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                        // Save the next item
+                        lpMemTmp[propStr[aplIntegerLft].uWildCur++] = (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) NE 0;
+
+                        // We no longer need this ptr
+                        MyGlobalUnlock (propStr[aplIntegerLft].hWildGlb); lpMemHdrTmp = NULL;
+                    } else
+                    {
+                        // If the file is Hidden, ...
+                        //   (note we use fileInfo.dwFileAttributes as FILE_ATTRIBUTE_HIDDEN has been removed from dwFileAttributes)
+                        if (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
+                            // Save an LPSYMENTRY in the result
+                            lpMemRes[uLft] = lpMemPTD->lphtsGLB->steOne ;
+                        else
+                            // Save an LPSYMENTRY in the result
+                            lpMemRes[uLft] = lpMemPTD->lphtsGLB->steZero;
+                    } // End IF/ELSE
+
+                    break;
+
+                case NPROP_SYMBLINK:                    // 7:  Target of symbol link (when Type is 4)
+                    if (dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+                    {
+                        GETFPN    GetFPN;               // Ptr to GetFinalPathNameByHandleW
+                        LPAPLCHAR lpMemTmp;             // Ptr to global memory data
+
+                        // If we're wildcarding, ...
+                        if (bWildcard)
+                            // Copy the file handle
+                            hFileLink = lpNfnsMem->hFile;
+                        else
+                        {
+                            DWORD AccessMode,           // Access mode
+                                  ShareMode,            // Share mode
+                                  uFlags;               // File flags & attributes
+
+                            // Set the modes and flags for opening a reparse point
+                            AccessMode = GENERIC_READ;
+                            ShareMode  = FILE_SHARE_READ;
+                            uFlags     = 0
+                                       | FILE_FLAG_BACKUP_SEMANTICS;
+
+                            // Attempt to open the file as a symbolic link
+                            hFileLink =
+                              CreateFileW (lpMemRht,                // Ptr to Drive, path, filename
+                                           AccessMode,              // Desired access
+                                           ShareMode,               // Shared access
+                                           NULL,                    // Security attributes
+                                           OPEN_EXISTING,           // Create/open flags
+                                           uFlags,                  // File attributes & flags
+                                           NULL);                   // Template file
+                        } // End IF/ELSE
+
+                        // If it succeeded, ...
+                        if (hFileLink NE INVALID_HANDLE_VALUE)
+                        {
+                            // Because symbolic links were introduced in Windows Vista and we support back to XP,
+                            //   we have to resort to LoadLibrary/GetProcAddress to call <GetFinalPathNameByHandle>
+                            hModuleLink = LoadLibrary ("kernel32.dll");
+
+                            // Check for error
+                            if (hModuleLink NE NULL)
+                            {
+                                // Get the procedure address
+                                GetFPN = (GETFPN) GetProcAddress (hModuleLink, "GetFinalPathNameByHandleW");
+
+                                // If it was found, ...
+                                if (GetFPN NE NULL)
+                                {
+                                    // Calculate space for the symbolic link target
+                                    //   (this count includes the terminating zero)
+                                    aplNELMTmp =
+                                      (*GetFPN) (hFileLink,             // File handle
+                                                 NULL,                  // Ptr to buffer
+                                                 0,                     // Sizeof buffer
+                                                 VOLUME_NAME_DOS);      // Flags
+                                    // Check for error
+                                    if (aplNELMTmp EQ 0)
+                                        goto SYS_ERROR_EXIT;
+
+                                    // Delete the terminating zero from the count
+                                    aplNELMTmp--;
+
+                                    // Allocate a character array for the symbolic link target
+                                    hGlbTmp = AllocateGlobalArray (ARRAY_CHAR, aplNELMTmp, 1, &aplNELMTmp);
+                                    if (hGlbTmp EQ NULL)
+                                        goto WSFULL_EXIT;
+
+                                    // Lock the memory to get a ptr to it
+                                    lpMemHdrTmp = MyGlobalLockVar (hGlbTmp);
+
+                                    // Skip over the header & dimensions
+                                    lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+                                    // Get the symbolic link target
+                                    if ((*GetFPN) (hFileLink,
+                                                   lpMemTmp,
+                                           (DWORD) (aplNELMTmp * sizeof (WCHAR)),
+                                                   VOLUME_NAME_DOS) EQ 0)
+                                    {
+                                        // We no longer need this ptr
+                                        MyGlobalUnlock (hGlbTmp); lpMemHdrTmp = NULL;
+
+                                        // We no longer need this resource
+                                        MyGlobalFree (hGlbTmp); hGlbTmp = NULL;
+
+                                        goto SYS_ERROR_EXIT;
+                                    } // End IF
+
+#define UNC_PREFIX  L"\\\\?\\"
+#define UNC_COUNT   strcountof (UNC_PREFIX)
+
+                                    // If the name begins with "\\?\", ...
+                                    if (strncmpW (lpMemTmp, UNC_PREFIX, UNC_COUNT) EQ 0)
+                                    {
+                                        // Copy down the DPFE over the UNC prefix ("1 +" for the terminating zero)
+                                        CopyMemoryW (lpMemTmp, &lpMemTmp[UNC_COUNT], (APLU3264) (1 + aplNELMTmp - UNC_COUNT));
+
+                                        // Reduce the NELM and dimension
+                                        lpMemHdrTmp->NELM                  -= UNC_COUNT;
+                                        (*VarArrayBaseToDim (lpMemHdrTmp)) -= UNC_COUNT;
+
+                                        // N.B.:  The GlobalSize of this array is larger than
+                                        //   the minimum size necessary to store it
+                                    } // End IF
+
+                                    // We no longer need this ptr
+                                    MyGlobalUnlock (hGlbTmp); lpMemHdrTmp = NULL;
+
+                                    // If we're wildcarding, ...
+                                    if (bWildcard)
+                                    {
+                                        // Save hGlbTmp as the result
+                                        if (!NfnsSaveGlb (hGlbTmp, &propStr[aplIntegerLft], aplIntegerLft))
+                                            goto WSFULL_EXIT;
+                                    } else
+                                        // Save in the result
+                                        lpMemRes[uLft] = MakePtrTypeGlb (hGlbTmp);
+                                } else
+                                // If we're wildcarding, ...
+                                if (bWildcard)
+                                {
+                                    // Save '' as the result
+                                    if (!NfnsSaveGlb (hGlbV0Char, &propStr[aplIntegerLft], aplIntegerLft))
+                                        goto WSFULL_EXIT;
+                                } else
+                                    // Save '' in the result
+                                    lpMemRes[uLft] = MakePtrTypeGlb (hGlbV0Char);
+                            } else
+                            // If we're wildcarding, ...
+                            if (bWildcard)
+                            {
+                                // Save '' as the result
+                                if (!NfnsSaveGlb (hGlbV0Char, &propStr[aplIntegerLft], aplIntegerLft))
+                                    goto WSFULL_EXIT;
+                            } else
+                                // Error condition:  return ''
+                               lpMemRes[uLft] = MakePtrTypeGlb (hGlbV0Char);
+#undef  UNC_COUNT
+#undef  UNC_PREFIX
+                            // If we're not wildcarding, ...
+                            if (!bWildcard)
+                            {
+                                // We no longer need this handle
+                                CloseHandle (hFileLink); hFileLink = NULL;
+                            } // End IF
+                        } else
+                        // If we're wildcarding, ...
+                        if (bWildcard)
+                        {
+                            // Save '' as the result
+                            if (!NfnsSaveGlb (hGlbV0Char, &propStr[aplIntegerLft], aplIntegerLft))
+                                goto WSFULL_EXIT;
+                        } else
+                            // Not a Symbolic Link:  return ''
+                            lpMemRes[uLft] = MakePtrTypeGlb (hGlbV0Char);
+                    } else
+                    // If we're wildcarding, ...
+                    if (bWildcard)
+                    {
+                        // Save '' as the result
+                        if (!NfnsSaveGlb (hGlbV0Char, &propStr[aplIntegerLft], aplIntegerLft))
+                            goto WSFULL_EXIT;
+                    } else
+                        // Not a Symbolic Link:  return ''
+                        lpMemRes[uLft] = MakePtrTypeGlb (hGlbV0Char);
+
+                    break;
+
+                default:
+                    // If we're wildcarding, ...
+                    if (bWildcard)
+                    {
+                        // Save {zilde} as the result
+                        if (!NfnsSaveGlb (hGlbZilde, &propStr[aplIntegerLft], aplIntegerLft))
+                            goto WSFULL_EXIT;
+                    } else
+                        // Unknown value:  return Zilde
+                        lpMemRes[uLft] = MakePtrTypeGlb (hGlbZilde);
+
+                    break;
+            } // End SWITCH
+        } // End FOR
+
+        // If we're wildcarding, ...
+        if (bWildcard)
+        {
+            Assert (hWildcard NE INVALID_HANDLE_VALUE);
+
+            // Lookup the corresponding index into aNfnsData
+            IsDuplicateTieNum_EM (TieNum, lptkFunc, lpMemPTD, &uTie);
+
+            // Release the resources
+            NfnsReleaseResources (lpNfnsHdr, lpNfnsMem, uTie); uTie = -1;
+NEXTFILE:
+            if (FindNextFileW (hWildcard, &win32FindData) EQ 0)
+            {
+                if (GetLastError () NE ERROR_NO_MORE_FILES)
+                    goto SYS_ERROR_EXIT;
+
+                // Tell the WHILE loop to stop
+                hWildcard = INVALID_HANDLE_VALUE;
+
+                // Loop through the result
+                for (uLft = 0; uLft < aplNELMLft; uLft++)
+                {
+                    APLINT aplIndex;            // Loop counter
+
+                    // Convert the next item to an integer
+                    aplIndex =
+                      ConvertToInteger_SCT (aplTypeLft,     // Arg storage type
+                                            lpMemLft,       // Ptr to global memory data
+                                            uLft,           // Index # into lpMemLft
+                                           &bRet);          // Ptr to TRUE iff the result is valid
+                    if (!bRet)
+                        goto LEFT_DOMAIN_EXIT;
+
+                    // Copy the global memory handles from propStr to lpMemRes
+                    lpMemRes[uLft] = CopySymGlbDirAsGlb (propStr[aplIndex].hWildGlb);
+                } // End FOR
+            } // End IF
+        } else
+            // Tell the WHILE loop to stop
+            hWildcard = INVALID_HANDLE_VALUE;
+     } // End WHILE
+
+    // Allocate a new YYRes
+    lpYYRes = YYAlloc ();
+
+    // Fill in the result token
+    lpYYRes->tkToken.tkFlags.TknType   = TKT_VARARRAY;
+////lpYYRes->tkToken.tkFlags.ImmType   = IMMTYPE_ERROR; // Already zero from YYAlloc
+////lpYYRes->tkToken.tkFlags.NoDisplay = FALSE;         // Already zero from YYAlloc
+    lpYYRes->tkToken.tkData.tkGlbData  = MakePtrTypeGlb (hGlbRes);
+    lpYYRes->tkToken.tkCharIndex       = lptkFunc->tkCharIndex;
+
+    goto NORMAL_EXIT;
+
+AXIS_SYNTAX_EXIT:
+    ErrorMessageIndirectToken (ERRMSG_SYNTAX_ERROR APPEND_NAME,
+                               lptkAxis);
+    goto ERROR_EXIT;
+
+LEFT_RANK_EXIT:
+    ErrorMessageIndirectToken (ERRMSG_RANK_ERROR APPEND_NAME,
+                               lptkLftArg);
+    goto ERROR_EXIT;
+
+LEFT_DOMAIN_EXIT:
+    ErrorMessageIndirectToken (ERRMSG_DOMAIN_ERROR APPEND_NAME,
+                               lptkLftArg);
+    goto ERROR_EXIT;
+
+RIGHT_RANK_EXIT:
+    ErrorMessageIndirectToken (ERRMSG_RANK_ERROR APPEND_NAME,
+                               lptkRhtArg);
+    goto ERROR_EXIT;
+
+RIGHT_LENGTH_EXIT:
+    ErrorMessageIndirectToken (ERRMSG_LENGTH_ERROR APPEND_NAME,
+                               lptkRhtArg);
+    goto ERROR_EXIT;
+
+RIGHT_DOMAIN_EXIT:
+    ErrorMessageIndirectToken (ERRMSG_DOMAIN_ERROR APPEND_NAME,
+                               lptkRhtArg);
+    goto ERROR_EXIT;
+
+WSFULL_EXIT:
+    ErrorMessageIndirectToken (ERRMSG_WS_FULL APPEND_NAME,
+                               lptkFunc);
+    goto ERROR_EXIT;
+
+SYS_ERROR_EXIT:
+    SysErrMsg_EM (GetLastError (), lptkFunc);
+
+    goto ERROR_EXIT;
+
+ERROR_EXIT:
+    if (hGlbRes NE NULL)
+    {
+        if (lpMemHdrRes NE NULL)
+        {
+            // We no longer need this ptr
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
+        } // End IF
+
+        // We no longer need this resource
+        FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
+    } // End IF
+
+    // If we're wildcarding, ...
+    if (bWildcard
+     && uTie NE -1
+     && hWildcard NE INVALID_HANDLE_VALUE)
+    {
+        // Lookup the corresponding index into aNfnsData
+        IsDuplicateTieNum_EM (TieNum, lptkFunc, lpMemPTD, &uTie);
+
+        // Release the resources
+        NfnsReleaseResources (lpNfnsHdr, lpNfnsMem, uTie);
+    } // End IF
+NORMAL_EXIT:
+    if (bWildcard && hWildcard NE NULL)
+    {
+        // Close the find data handle
+        FindClose (hWildcard); hWildcard = NULL;
+    } // End IF
+
+    if (lpYYTieNum NE NULL)
+    {
+        // Close the handle -- this also releases all locked regions
+        CloseHandle (lpNfnsMem->hFile); lpNfnsMem->hFile = NULL;
+
+        // Release resources
+        NfnsReleaseResources (lpNfnsHdr, lpNfnsMem, uTie);
+
+        // We no longer need this resource
+        FreeResult (lpYYTieNum); YYFree (lpYYTieNum); lpYYTieNum = NULL;
+    } // End IF
+
+    if (bWildcard)
+    {
+        UINT uProp;                     // Loop counter
+
+        // Loop through the wildcard property data
+        for (uProp = 0; uProp < NPROP_LENGTH; uProp++)
+        // If the global memory handle is valid, ...
+        if (propStr[uProp].hWildGlb NE NULL)
+        {
+            // Note that the HGLOBALs in an ARRAY_NESTED item are at RefCnt EQ 1,
+            //   so there's no need to free them separately outside <FreeResultGlobalVar>.
+
+            // We no longer need this resource
+            FreeResultGlobalVar (propStr[uProp].hWildGlb); propStr[uProp].hWildGlb = NULL;
+        } // End FOR/IF
+    } // End IF
+
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
+    {
+        // We no longer need this ptr
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
+    } // End IF
+
+    if (hGlbLft NE NULL && lpMemHdrLft NE NULL)
+    {
+        // We no longer need this ptr
+        MyGlobalUnlock (hGlbLft); lpMemHdrLft = NULL;
+    } // End IF
+
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
+    {
+        // We no longer need this ptr
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
+    } // End IF
+
+    if (lpNfnsHdr NE NULL)
+    {
+        // We no longer need this ptr
+        MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
+    } // End IF
+
+    if (lpSD NE NULL)
+    {
+        // We no longer need this ptr
+        LocalFree (lpSD); lpSD = NULL;
+    } // End IF
+
+    if (lpAcctName NE NULL)
+    {
+        // We no longer need this ptr
+        MyGlobalFree (lpAcctName); lpAcctName = NULL;
+    } // End IF
+
+    if (lpDomainName NE NULL)
+    {
+        // We no longer need this ptr
+        MyGlobalFree (lpDomainName); lpDomainName = NULL;
+    } // End IF
+
+    if (lpStringSID NE NULL)
+    {
+        // We no longer need this ptr
+        LocalFree (lpStringSID); lpStringSID = NULL;
+    } // End IF
+
+    if (!bWildcard && hFileLink NE NULL)
+    {
+        // We no longer need this handle
+        CloseHandle (hFileLink); hFileLink = NULL;
+    } // End IF
+
+    if (hModuleLink NE NULL)
+    {
+        // We no longer need this handle
+        FreeLibrary (hModuleLink); hModuleLink = NULL;
+    } // End IF
+
+    return lpYYRes;
+} // End SysFnNINFO_EM_YY
+#undef  APPEND_NAME
+
+
+//***************************************************************************
+//  $NfnsSaveGlb
+//
+//  Save a global memory handle in a wildcard result
+//***************************************************************************
+
+UBOOL NfnsSaveGlb
+    (HGLOBAL     hGlbTmp,
+     LPNPROP_STR lpPropStr,
+     APLINT      aplIntegerLft)
+
+{
+    LPVARARRAY_HEADER lpMemHdrTmp = NULL;   // Ptr to temp header
+    LPAPLNESTED       lpMemTmp;
+
+    // If this is the first time wildcarding for this property, ...
+    if (!NPropInitAlloc (lpPropStr, propArrType[aplIntegerLft]))
+        return FALSE;
+
+    // Check for enough room
+    if (!NPropCheckResize (lpPropStr, propArrType[aplIntegerLft]))
+        return FALSE;
+    // Lock the memory to get a ptr to it
+    lpMemHdrTmp = MyGlobalLockVar (lpPropStr->hWildGlb);
+
+    // Skip over the header and dimensions to the data
+    lpMemTmp = VarArrayDataFmBase (lpMemHdrTmp);
+
+    // Save the next item
+    lpMemTmp[lpPropStr->uWildCur++] = MakePtrTypeGlb (hGlbTmp);
+
+    // We no longer need this ptr
+    MyGlobalUnlock (lpPropStr->hWildGlb); lpMemHdrTmp = NULL;
+
+    return TRUE;
+} // End NfnsSaveGlb
+
+
+//***************************************************************************
+//  $NPropInitAlloc
+//
+//  Allocate initial space for NINFO wildcard properties
+//***************************************************************************
+
+UBOOL NPropInitAlloc
+    (LPNPROP_STR lpPropStr,         // Ptr to the array of NPROP_STRs
+     ARRAY_TYPES aplTypeRes)        // Array storage type
+
+{
+    APLUINT           ByteRes;              // # bytes in the result
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // Ptr to the result header
+
+    // If we've already made the initial allocation, ...
+    if (lpPropStr->hWildGlb NE NULL)
+        return TRUE;
+
+    // Calculate space needed for the result
+    ByteRes = CalcArraySize (aplTypeRes, NPROP_INIT, 1);
+
+    // Check for overflow
+    if (ByteRes NE (APLU3264) ByteRes)
+        return FALSE;
+
+    // Allocate space for the result
+    lpPropStr->hWildGlb =
+      MyGlobalAlloc (GHND, (APLU3264) ByteRes);
+
+    // Check for error
+    if (lpPropStr->hWildGlb EQ NULL)
+        return FALSE;
+
+    // Lock the memory to get a ptr to it
+    lpMemHdrRes = MyGlobalLock000 (lpPropStr->hWildGlb);
+
+#define lpHeader    lpMemHdrRes
+    // Fill in the header values
+    lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
+    lpHeader->ArrType    = aplTypeRes;
+////lpHeader->PermNdx    = PERMNDX_NONE;// Already zero from GHND
+////lpHeader->SysVar     = FALSE;       // Already zero from GHND
+    lpHeader->RefCnt     = 1;
+////lpHeader->NELM       = 0;           // Already zero from GHND
+    lpHeader->Rank       = 1;
+#undef  lpHeader
+
+    // Save as the dimension
+////*VarArrayBaseToDim (lpMemHdrRes) = 0;   // Already zero from GHND
+
+    // We no longer need this ptr
+    MyGlobalUnlock (lpPropStr->hWildGlb); lpMemHdrRes = NULL;
+
+    // Set the current and maximum values
+    lpPropStr->uWildCur = 0;
+    lpPropStr->uWildMax = NPROP_INIT;
+
+    return TRUE;
+} // End NPropInitAlloc
+
+
+//***************************************************************************
+//  $NPropCheckResize
+//
+//  Check on whether or not we need to resize the current allocation for
+//    a Wildcard property
+//***************************************************************************
+
+UBOOL NPropCheckResize
+    (LPNPROP_STR lpPropStr,         // Ptr to the array of NPROP_STRs
+     ARRAY_TYPES aplTypeRes)        // Array storage type
+
+{
+    LPVARARRAY_HEADER lpMemHdrNew = NULL;   // Ptr to the new result header
+
+    // If there isn't room for one more entry, ...
+    if (lpPropStr->uWildCur EQ lpPropStr->uWildMax)
+    {
+        APLUINT ByteRes;                    // # bytes in the result
+        HGLOBAL hWildGlb;                   // Reallocated global memory handle
+
+        // Calculate space needed for the result
+        ByteRes = CalcArraySize (aplTypeRes, lpPropStr->uWildMax + NPROP_INCR, 1);
+
+        // Check for overflow
+        if (ByteRes NE (APLU3264) ByteRes)
+            return FALSE;
+
+        // ReAllocate space for the result,
+        //   moving the old data to the new location, and
+        //   freeing the old global memory
+        hWildGlb =
+          MyGlobalReAlloc (lpPropStr->hWildGlb, (APLU3264) ByteRes,  GHND);
+
+        // Check for error
+        if (hWildGlb EQ NULL)
+        {
+            LPVARARRAY_HEADER lpMemHdrOld = NULL;   // Ptr to the old result header
+
+            // Allocate new memory
+            hWildGlb =
+              MyGlobalAlloc (GHND, (APLU3264) ByteRes);
+
+            // Check for error
+            if (hWildGlb EQ NULL)
+                return FALSE;
+            // Lock the old & new memory to get a ptr to it
+            lpMemHdrOld = MyGlobalLockVar (lpPropStr->hWildGlb);
+            lpMemHdrNew = MyGlobalLock000 (           hWildGlb);
+
+            // Copy the old data to the new location
+            CopyMemory (lpMemHdrNew, lpMemHdrOld, MyGlobalSize (lpPropStr->hWildGlb));
+
+            // We no longer need this ptr
+            MyGlobalUnlock (lpPropStr->hWildGlb); lpMemHdrOld = NULL;
+        } // End IF
+
+        // Save as new maximum
+        lpPropStr->uWildMax += NPROP_INCR;
+
+        // Save as new ptr
+        lpPropStr->hWildGlb = hWildGlb;
+    } // End IF
+
+    // Lock the new memory to get a ptr to it
+    lpMemHdrNew = MyGlobalLockVar (lpPropStr->hWildGlb);
+
+    // Count in one more item
+    lpMemHdrNew->NELM++;
+
+    // Save as the dimension of the vector
+    *VarArrayBaseToDim (lpMemHdrNew) = lpMemHdrNew->NELM;
+
+    // We no longer need this ptr
+    MyGlobalUnlock (lpPropStr->hWildGlb); lpMemHdrNew = NULL;
+
+    return TRUE;
+} // End NPropCheckResize
+
+
+//***************************************************************************
 //  $SysFnNLOCK_EM_YY
 //
 //  System function:  []NLOCK -- Lock/Unlock an open native file
@@ -757,10 +2140,6 @@ LPPL_YYSTYPE SysFnNLOCK_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -825,30 +2204,32 @@ LPPL_YYSTYPE SysFnDydNLOCK_EM_YY
      LPTOKEN lptkAxis)                  // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE      aplTypeLft,           // Left arg storage type
-                  aplTypeRht;           // Right ...
-    APLNELM       aplNELMLft,           // Left arg NELM
-                  aplNELMRht;           // Right ...
-    APLRANK       aplRankLft,           // Left arg Rank
-                  aplRankRht;           // Right ...
-    APLLONGEST    aplLongestLft,        // Left arg longest if immediate
-                  aplLongestRht;        // Right ...
-    UINT          uTie;                 // Offset of matching tie number entry
-    HGLOBAL       hGlbLft = NULL,       // Left arg global memory handle
-                  hGlbRht = NULL;       // Right ...
-    LPAPLINT      lpMemLft = NULL,      // Ptr to left arg global memory
-                  lpMemRht = NULL;      // Ptr to right ...
-    APLINT        TieNum,               // File tie number
-                  LockLength,           // Lock length
-                  LockType,             // Lock type
-                  LockOffset;           // Lock offset
-    LARGE_INTEGER LockTimeout;          // Lock timeout
-    LPPERTABDATA  lpMemPTD;             // Ptr to PerTabData global memory
-    LPNFNSHDR     lpNfnsHdr = NULL;     // Ptr to NFNSHDR global memory
-    LPNFNSDATA    lpNfnsMem;            // Ptr to aNfnsData
-    LPPL_YYSTYPE  lpYYRes = NULL;       // Ptr to the result
-    OVERLAPPED    overLapped = {0};     // OVERLAPPED struc
-    DWORD         dwFlags = 0;          // LockFileEx flags
+    APLSTYPE          aplTypeLft,           // Left arg storage type
+                      aplTypeRht;           // Right ...
+    APLNELM           aplNELMLft,           // Left arg NELM
+                      aplNELMRht;           // Right ...
+    APLRANK           aplRankLft,           // Left arg Rank
+                      aplRankRht;           // Right ...
+    APLLONGEST        aplLongestLft,        // Left arg longest if immediate
+                      aplLongestRht;        // Right ...
+    UINT              uTie;                 // Offset of matching tie number entry
+    HGLOBAL           hGlbLft = NULL,       // Left arg global memory handle
+                      hGlbRht = NULL;       // Right ...
+    LPVARARRAY_HEADER lpMemHdrLft = NULL,   // Ptr to left arg header
+                      lpMemHdrRht = NULL;   // ...    right    ...
+    LPAPLINT          lpMemLft,             // Ptr to left arg global memory
+                      lpMemRht;             // Ptr to right ...
+    APLINT            TieNum,               // File tie number
+                      LockLength,           // Lock length
+                      LockType,             // Lock type
+                      LockOffset;           // Lock offset
+    LARGE_INTEGER     LockTimeout;          // Lock timeout
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    LPNFNSHDR         lpNfnsHdr = NULL;     // Ptr to NFNSHDR global memory
+    LPNFNSDATA        lpNfnsMem;            // Ptr to aNfnsData
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+    OVERLAPPED        overLapped = {0};     // OVERLAPPED struc
+    DWORD             dwFlags = 0;          // LockFileEx flags
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
@@ -885,18 +2266,18 @@ LPPL_YYSTYPE SysFnDydNLOCK_EM_YY
         goto RIGHT_DOMAIN_EXIT;
 
     // Lock the memory to get a ptr to it
-    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemLft);
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemHdrLft);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the left arg is a global, ...
-    if (hGlbLft)
-        lpMemLft = VarArrayDataFmBase (lpMemLft);
+    if (hGlbLft NE NULL)
+        lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
     else
         lpMemLft = (LPAPLINT) &aplLongestLft;
 
     // If the right arg is a global, ...
-    if (hGlbRht)
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+    if (hGlbRht NE NULL)
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     else
         lpMemRht = (LPAPLINT) &aplLongestRht;
 
@@ -1068,11 +2449,13 @@ LPPL_YYSTYPE SysFnDydNLOCK_EM_YY
     lpYYRes = YYAlloc ();
 
     // If the result is a global, ...
-    if (hGlbRht)
+    if (hGlbRht NE NULL)
     {
         // Increment the right arg ref cnt so we can return it as the result
         hGlbRht = MakePtrTypeGlb (hGlbRht);
-        DbgIncrRefCntDir_PTB (hGlbRht);
+
+        // Increment the refcnt
+        DbgIncrRefCntDir_PTB (hGlbRht); // []NLOCK with 2- or 3-element right arg
 
         // Fill in the result token
         lpYYRes->tkToken.tkFlags.TknType   = TKT_VARARRAY;
@@ -1137,25 +2520,25 @@ LOCKED_EXIT:
 
 ERROR_EXIT:
 NORMAL_EXIT:
-    if (overLapped.hEvent)
+    if (overLapped.hEvent NE NULL)
     {
         // We no longer need this resource
         CloseHandle (overLapped.hEvent); overLapped.hEvent = NULL;
     } // End IF
 
-    if (hGlbLft && lpMemLft)
+    if (hGlbLft NE NULL && lpMemHdrLft NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
+        MyGlobalUnlock (hGlbLft); lpMemHdrLft = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (lpNfnsHdr)
+    if (lpNfnsHdr NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
@@ -1185,17 +2568,18 @@ LPPL_YYSTYPE SysFnNNAMES_EM_YY
      LPTOKEN lptkAxis)                  // Ptr to axis token (may be NULL)
 
 {
-    HGLOBAL           hGlbRes = NULL;   // Result global memory handle
-    LPAPLINT          lpMemRes = NULL;  // Ptr to result global memory
-    LPVARARRAY_HEADER lpMemFileName;    // Ptr to filename  memory
-    LPPERTABDATA      lpMemPTD;         // Ptr to PerTabData global memory
-    LPPL_YYSTYPE      lpYYRes = NULL;   // Ptr to the result
-    LPNFNSHDR         lpNfnsHdr = NULL; // Ptr to NFNSHDR global memory
-    LPNFNSDATA        lpNfnsMem;        // Ptr to aNfnsData
-    APLUINT           ByteRes;          // # bytes in the result
-    UINT              uCnt;             // Loop counter
-    APLUINT           uMaxLen,          // Max length of the file names
-                      uLen;             // Length of a filename
+    HGLOBAL           hGlbRes = NULL;           // Result global memory handle
+    LPAPLINT          lpMemRes;                 // Ptr to result global memory
+    LPVARARRAY_HEADER lpMemHdrFile = NULL,      // Ptr to filename header
+                      lpMemHdrRes = NULL;       // ...    result   ...
+    LPPERTABDATA      lpMemPTD;                 // Ptr to PerTabData global memory
+    LPPL_YYSTYPE      lpYYRes = NULL;           // Ptr to the result
+    LPNFNSHDR         lpNfnsHdr = NULL;         // Ptr to NFNSHDR global memory
+    LPNFNSDATA        lpNfnsMem;                // Ptr to aNfnsData
+    APLUINT           ByteRes;                  // # bytes in the result
+    UINT              uCnt;                     // Loop counter
+    APLUINT           uMaxLen,                  // Max length of the file names
+                      uLen;                     // Length of a filename
 
     // This function is niladic
     Assert (lptkLftArg EQ NULL && lptkRhtArg EQ NULL);
@@ -1220,13 +2604,13 @@ LPPL_YYSTYPE SysFnNNAMES_EM_YY
     for (uMaxLen = uCnt = 0; uCnt < lpNfnsHdr->nTieNums; uCnt++)
     {
         // Lock the memory to get a ptr to it
-        lpMemFileName = MyGlobalLock (lpNfnsMem->hGlbFileName);
+        lpMemHdrFile = MyGlobalLockVar (lpNfnsMem->hGlbFileName);
 
         // Get the maximum length
-        uMaxLen = max (uMaxLen, lpMemFileName->NELM);
+        uMaxLen = max (uMaxLen, lpMemHdrFile->NELM);
 
         // We no longer need this ptr
-        MyGlobalUnlock (lpNfnsMem->hGlbFileName); lpMemFileName = NULL;
+        MyGlobalUnlock (lpNfnsMem->hGlbFileName); lpMemHdrFile = NULL;
 
         // Point to the next tie number in use
         lpNfnsMem = &lpNfnsHdr->aNfnsData[lpNfnsMem->offNextInuse];
@@ -1241,13 +2625,13 @@ LPPL_YYSTYPE SysFnNNAMES_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header values
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = ARRAY_CHAR;
@@ -1259,7 +2643,7 @@ LPPL_YYSTYPE SysFnNNAMES_EM_YY
 #undef  lpHeader
 
     // Skip over the header to the dimensions
-    lpMemRes = VarArrayBaseToDim (lpMemRes);
+    lpMemRes = VarArrayBaseToDim (lpMemHdrRes);
 
     // Save the two dimensions
     *((LPAPLDIM) lpMemRes)++ = lpNfnsHdr->nTieNums;
@@ -1274,19 +2658,19 @@ LPPL_YYSTYPE SysFnNNAMES_EM_YY
     for (uCnt = 0; uCnt < lpNfnsHdr->nTieNums; uCnt++)
     {
         // Lock the memory to get a ptr to it
-        lpMemFileName = MyGlobalLock (lpNfnsMem->hGlbFileName);
+        lpMemHdrFile = MyGlobalLockVar (lpNfnsMem->hGlbFileName);
 
         // Get the filename length
-        uLen = lpMemFileName->NELM;
+        uLen = lpMemHdrFile->NELM;
 
         // Copy the filename to the result
-        CopyMemoryW (lpMemRes, VarArrayDataFmBase (lpMemFileName), (APLU3264) uLen);
+        CopyMemoryW (lpMemRes, VarArrayDataFmBase (lpMemHdrFile), (APLU3264) uLen);
 
         // Fill in the tail with blanks
         FillMemoryW (&((LPAPLCHAR) lpMemRes)[uLen], (APLU3264) (uMaxLen - uLen), L' ');
 
         // We no longer need this ptr
-        MyGlobalUnlock (lpNfnsMem->hGlbFileName); lpMemFileName = NULL;
+        MyGlobalUnlock (lpNfnsMem->hGlbFileName); lpMemHdrFile = NULL;
 
         // Point to the next tie number in use
         lpNfnsMem = &lpNfnsHdr->aNfnsData[lpNfnsMem->offNextInuse];
@@ -1318,25 +2702,16 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
-    {
-        if (lpMemRes)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        MyGlobalFree (hGlbRes); hGlbRes = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbRes, lpMemHdrRes);
 NORMAL_EXIT:
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
-    if (lpNfnsHdr)
+    if (lpNfnsHdr NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
@@ -1366,14 +2741,15 @@ LPPL_YYSTYPE SysFnNNUMS_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    HGLOBAL      hGlbRes = NULL;    // Result global memory handle
-    LPAPLINT     lpMemRes = NULL;   // Ptr to result global memory
-    LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
-    LPPL_YYSTYPE lpYYRes = NULL;    // Ptr to the result
-    LPNFNSHDR    lpNfnsHdr = NULL;  // Ptr to NFNSHDR global memory
-    LPNFNSDATA   lpNfnsMem;         // Ptr to aNfnsData
-    APLUINT      ByteRes;           // # bytes in the result
-    UINT         uCnt;              // Loop counter
+    HGLOBAL           hGlbRes = NULL;       // Result global memory handle
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // ...    result   ...
+    LPAPLINT          lpMemRes;             // Ptr to result global memory
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+    LPNFNSHDR         lpNfnsHdr = NULL;     // Ptr to NFNSHDR global memory
+    LPNFNSDATA        lpNfnsMem;            // Ptr to aNfnsData
+    APLUINT           ByteRes;              // # bytes in the result
+    UINT              uCnt;                 // Loop counter
 
     // This function is niladic
     Assert (lptkLftArg EQ NULL && lptkRhtArg EQ NULL);
@@ -1400,13 +2776,13 @@ LPPL_YYSTYPE SysFnNNUMS_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header values
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = ARRAY_INT;
@@ -1418,7 +2794,7 @@ LPPL_YYSTYPE SysFnNNUMS_EM_YY
 #undef  lpHeader
 
     // Skip over the header to the dimensions
-    lpMemRes = VarArrayBaseToDim (lpMemRes);
+    lpMemRes = VarArrayBaseToDim (lpMemHdrRes);
 
     // Save the dimension
     *((LPAPLDIM) lpMemRes)++ = lpNfnsHdr->nTieNums;
@@ -1461,25 +2837,16 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
-    {
-        if (lpMemRes)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        MyGlobalFree (hGlbRes); hGlbRes = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbRes, lpMemHdrRes);
 NORMAL_EXIT:
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
-    if (lpNfnsHdr)
+    if (lpNfnsHdr NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
@@ -1509,10 +2876,6 @@ LPPL_YYSTYPE SysFnNREAD_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -1554,37 +2917,39 @@ LPPL_YYSTYPE SysFnMonNREAD_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE     aplTypeRht,        // Right arg storage type
-                 aplTypeWs;         // Workspace ...
-    APLNELM      aplNELMRht,        // Right arg NELM
-                 aplNELMRes;        // Result ...
-    APLRANK      aplRankRht;        // Right arg Rank
-    APLLONGEST   aplLongestRht;     // Right arg longest if immediate
-    HGLOBAL      hGlbRht = NULL,    // Right arg global memory handle
-                 hGlbRes = NULL;    // Result ...
-    LPVOID       lpMemRht = NULL;   // Ptr to right arg global memory
-    LPAPLINT     lpMemRes = NULL;   // Ptr to result global memory data
-    APLINT       TieNum,            // File tie number
-                 aplFileSize;       // File size
-    DR_VAL       DiskConv,          // Disk format
-                 WsConv;            // Workspace format
-    APLUINT      ByteRes,           // # bytes in the result
-                 aplOff = 0,        // Temporary offset
-                 aplFileOff;        // Starting offset of read
-    UINT         uTie;              // Offset of matching tie number entry
-    APLNELM      uCnt,              // Loop counter
-                 uMin;              // Loop limit
-    UBOOL        bFileOffset;       // TRUE iff the file offset is specified
-    DWORD        dwRead,            // # bytes to read
-                 dwRet,             // Return code from WaitForSingleObject
-                 dwErr;             // GetLastError code
-    LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
-    LPNFNSHDR    lpNfnsHdr = NULL;  // Ptr to NFNSHDR global memory
-    LPNFNSDATA   lpNfnsMem;         // Ptr to aNfnsData
-    LPPL_YYSTYPE lpYYRes = NULL;    // Ptr to the result
-    NFNS_BUFFER  NfnsBuff;          // Temporary buffer
-    OVERLAPPED   overLapped = {0};  // OVERLAPPED struc
-    HANDLE       hWaitEvent;        // Wait event handle
+    APLSTYPE          aplTypeRht,           // Right arg storage type
+                      aplTypeWs;            // Workspace ...
+    APLNELM           aplNELMRht,           // Right arg NELM
+                      aplNELMRes;           // Result ...
+    APLRANK           aplRankRht;           // Right arg Rank
+    APLLONGEST        aplLongestRht;        // Right arg longest if immediate
+    HGLOBAL           hGlbRht = NULL,       // Right arg global memory handle
+                      hGlbRes = NULL;       // Result ...
+    LPVARARRAY_HEADER lpMemHdrRht = NULL,   // Ptr to right arg header
+                      lpMemHdrRes = NULL;   // ...    result    ...
+    LPVOID            lpMemRht;             // Ptr to right arg global memory
+    LPAPLINT          lpMemRes;             // Ptr to result global memory data
+    APLINT            TieNum,               // File tie number
+                      aplFileSize;          // File size
+    DR_VAL            DiskConv,             // Disk format
+                      WsConv;               // Workspace format
+    APLUINT           ByteRes,              // # bytes in the result
+                      aplOff = 0,           // Temporary offset
+                      aplFileOff;           // Starting offset of read
+    UINT              uTie;                 // Offset of matching tie number entry
+    APLNELM           uCnt,                 // Loop counter
+                      uMin;                 // Loop limit
+    UBOOL             bFileOffset;          // TRUE iff the file offset is specified
+    DWORD             dwRead,               // # bytes to read
+                      dwRet,                // Return code from WaitForSingleObject
+                      dwErr;                // GetLastError code
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    LPNFNSHDR         lpNfnsHdr = NULL;     // Ptr to NFNSHDR global memory
+    LPNFNSDATA        lpNfnsMem;            // Ptr to aNfnsData
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+    NFNS_BUFFER       NfnsBuff;             // Temporary buffer
+    OVERLAPPED        overLapped = {0};     // OVERLAPPED struc
+    HANDLE            hWaitEvent;           // Wait event handle
 
     // Get the attributes (Type, NELM, and Rank)
     //   of the right arg
@@ -1611,11 +2976,11 @@ LPPL_YYSTYPE SysFnMonNREAD_EM_YY
     lpMemPTD = GetMemPTD ();
 
     // Get right arg's global ptrs
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the right arg is a global, ...
-    if (hGlbRht)
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+    if (hGlbRht NE NULL)
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     else
         lpMemRht = &aplLongestRht;
 
@@ -1674,13 +3039,20 @@ LPPL_YYSTYPE SysFnMonNREAD_EM_YY
                             3,              // Index # into lpMem
                            &aplFileOff))    // Ptr to result APLINT
             goto RIGHT_DOMAIN_EXIT;
+        // If the file offset is the current offset, ...
+        if (aplFileOff EQ -1)
+            bFileOffset = FALSE;
+        else
         // Set the file pointer to the value just parsed
         LOAPLINT (aplFileOff) =
           SetFilePointer (lpNfnsMem->hFile,
                           LOAPLINT (aplFileOff),
                          &HIAPLINT (aplFileOff),
                           FILE_BEGIN);
-    } else
+    } // End IF
+
+    // If there's no file offset, ...
+    if (!bFileOffset)
     {
         // Initialize the file offset
         aplFileOff = 0;
@@ -1760,13 +3132,13 @@ LPPL_YYSTYPE SysFnMonNREAD_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header values
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = aplTypeWs;
@@ -1778,7 +3150,7 @@ LPPL_YYSTYPE SysFnMonNREAD_EM_YY
 #undef  lpHeader
 
     // Skip over the header to the dimensions
-    lpMemRes = VarArrayBaseToDim (lpMemRes);
+    lpMemRes = VarArrayBaseToDim (lpMemHdrRes);
 
     // Save the dimension
     *((LPAPLDIM) lpMemRes)++ = aplNELMRes;
@@ -2592,37 +3964,28 @@ SYS_ERROR_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
-    {
-        if (lpMemRes)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        MyGlobalFree (hGlbRes); hGlbRes = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbRes, lpMemHdrRes);
 NORMAL_EXIT:
-    if (overLapped.hEvent)
+    if (overLapped.hEvent NE NULL)
     {
         // We no longer need this resource
         CloseHandle (overLapped.hEvent); overLapped.hEvent = NULL;
     } // End IF
 
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (lpNfnsHdr)
+    if (lpNfnsHdr NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
@@ -2676,10 +4039,6 @@ LPPL_YYSTYPE SysFnNRENAME_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -2774,10 +4133,6 @@ LPPL_YYSTYPE SysFnNREPLACE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -2842,29 +4197,31 @@ LPPL_YYSTYPE SysFnDydNREPLACE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE     aplTypeLft,        // Left arg storage type
-                 aplTypeRht;        // Right ...
-    APLNELM      aplNELMLft,        // Left arg NELM
-                 aplNELMRht;        // Right ...
-    APLRANK      aplRankLft,        // Left arg Rank
-                 aplRankRht;        // Right ...
-    APLLONGEST   aplLongestLft,     // Left arg longest if immediate
-                 aplLongestRht;     // Right ...
-    HGLOBAL      hGlbLft = NULL,    // Left arg global memory handle
-                 hGlbRht = NULL;    // Right ...
-    LPAPLCHAR    lpMemLft = NULL;   // Ptr to left arg global memory
-    LPVOID       lpMemRht = NULL;   // Ptr to right ...
-    APLINT       TieNum,            // File tie number
-                 aplFileOff,        // Starting offset of read
-                 aplFileOut;        // # bytes written to disk
-    DR_VAL       DiskConv;          // Disk format
-    UINT         uTie;              // Offset of matching tie number entry
-    UBOOL        bFileOffset;       // TRUE iff the file offset is specified
-    LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
-    LPNFNSHDR    lpNfnsHdr = NULL;  // Ptr to NFNSHDR global memory
-    LPNFNSDATA   lpNfnsMem;         // Ptr to aNfnsData
-    LPPL_YYSTYPE lpYYRes = NULL;    // Ptr to result
-    OVERLAPPED   overLapped = {0};  // OVERLAPPED struc
+    APLSTYPE          aplTypeLft,           // Left arg storage type
+                      aplTypeRht;           // Right ...
+    APLNELM           aplNELMLft,           // Left arg NELM
+                      aplNELMRht;           // Right ...
+    APLRANK           aplRankLft,           // Left arg Rank
+                      aplRankRht;           // Right ...
+    APLLONGEST        aplLongestLft,        // Left arg longest if immediate
+                      aplLongestRht;        // Right ...
+    HGLOBAL           hGlbLft = NULL,       // Left arg global memory handle
+                      hGlbRht = NULL;       // Right ...
+    LPVARARRAY_HEADER lpMemHdrLft = NULL,   // Ptr to left arg header
+                      lpMemHdrRht = NULL;   // ...    right ...
+    LPAPLCHAR         lpMemLft;             // Ptr to left arg global memory
+    LPVOID            lpMemRht;             // Ptr to right ...
+    APLINT            TieNum,               // File tie number
+                      aplFileOff,           // Starting offset of read
+                      aplFileOut;           // # bytes written to disk
+    DR_VAL            DiskConv;             // Disk format
+    UINT              uTie;                 // Offset of matching tie number entry
+    UBOOL             bFileOffset;          // TRUE iff the file offset is specified
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    LPNFNSHDR         lpNfnsHdr = NULL;     // Ptr to NFNSHDR global memory
+    LPNFNSDATA        lpNfnsMem;            // Ptr to aNfnsData
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to result
+    OVERLAPPED        overLapped = {0};     // OVERLAPPED struc
 
     // Get the attributes (Type, NELM, and Rank)
     //   of the left & right args
@@ -2893,18 +4250,18 @@ LPPL_YYSTYPE SysFnDydNREPLACE_EM_YY
         goto RIGHT_DOMAIN_EXIT;
 
     // Lock the memory to get a ptr to it
-    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemLft);
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemHdrLft);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the left arg is a global, ...
-    if (hGlbLft)
-        lpMemLft = VarArrayDataFmBase (lpMemLft);
+    if (hGlbLft NE NULL)
+        lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
     else
         lpMemLft = (LPAPLCHAR) &aplLongestLft;
 
     // If the right arg is a global, ...
-    if (hGlbRht)
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+    if (hGlbRht NE NULL)
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     else
         lpMemRht = &aplLongestRht;
 
@@ -2952,13 +4309,20 @@ LPPL_YYSTYPE SysFnDydNREPLACE_EM_YY
                             2,              // Index # into lpMem
                            &aplFileOff))    // Ptr to result APLINT
             goto RIGHT_DOMAIN_EXIT;
+        // If the file offset is the current offset, ...
+        if (aplFileOff EQ -1)
+            bFileOffset = FALSE;
+        else
         // Set the file pointer to the value just parsed
         LOAPLINT (aplFileOff) =
           SetFilePointer (lpNfnsMem->hFile,
                           LOAPLINT (aplFileOff),
                          &HIAPLINT (aplFileOff),
                           FILE_BEGIN);
-    } else
+    } // End IF
+
+    // If there's no file offset, ...
+    if (!bFileOffset)
     {
         // Initialize the file offset
         aplFileOff = 0;
@@ -3038,25 +4402,25 @@ EVENT_EXIT:
 
 ERROR_EXIT:
 NORMAL_EXIT:
-    if (overLapped.hEvent)
+    if (overLapped.hEvent NE NULL)
     {
         // We no longer need this resource
         CloseHandle (overLapped.hEvent); overLapped.hEvent = NULL;
     } // End IF
 
-    if (hGlbLft && lpMemLft)
+    if (hGlbLft NE NULL && lpMemHdrLft NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
+        MyGlobalUnlock (hGlbLft); lpMemHdrLft = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (lpNfnsHdr)
+    if (lpNfnsHdr NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
@@ -3086,10 +4450,6 @@ LPPL_YYSTYPE SysFnNRESIZE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -3184,10 +4544,6 @@ LPPL_YYSTYPE SysFnNSIZE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -3228,20 +4584,20 @@ LPPL_YYSTYPE SysFnMonNSIZE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE      aplTypeRht;       // Right arg storage type
-    APLNELM       aplNELMRht;       // Right arg NELM
-    APLRANK       aplRankRht;       // Right arg Rank
-    APLLONGEST    aplLongestRht;    // Right arg longest if immediate
-    HGLOBAL       hGlbRht = NULL;   // Right arg global memory handle
-    LPVOID        lpMemRht = NULL;  // Ptr to right arg global memory
-    LPAPLINT      lpMemRes = NULL;  // Ptr to result global memory data
-    LPPL_YYSTYPE  lpYYRes = NULL;   // Ptr to the result
-    LPPERTABDATA  lpMemPTD;         // Ptr to PerTabData global memory
-    APLINT        TieNum,           // File tie number
-                  aplFileSize;      // File size
-    UINT          uTie;             // Offset of matching tie number entry
-    LPNFNSHDR     lpNfnsHdr = NULL; // Ptr to NFNSHDR global memory
-    LPNFNSDATA    lpNfnsMem;        // Ptr to aNfnsData
+    APLSTYPE          aplTypeRht;           // Right arg storage type
+    APLNELM           aplNELMRht;           // Right arg NELM
+    APLRANK           aplRankRht;           // Right arg Rank
+    APLLONGEST        aplLongestRht;        // Right arg longest if immediate
+    HGLOBAL           hGlbRht = NULL;       // Right arg global memory handle
+    LPVARARRAY_HEADER lpMemHdrRht = NULL;   // Ptr to right arg header
+    LPVOID            lpMemRht;             // Ptr to right arg global memory
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    APLINT            TieNum,               // File tie number
+                      aplFileSize;          // File size
+    UINT              uTie;                 // Offset of matching tie number entry
+    LPNFNSHDR         lpNfnsHdr = NULL;     // Ptr to NFNSHDR global memory
+    LPNFNSDATA        lpNfnsMem;            // Ptr to aNfnsData
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
@@ -3263,11 +4619,11 @@ LPPL_YYSTYPE SysFnMonNSIZE_EM_YY
         goto RIGHT_DOMAIN_EXIT;
 
     // Lock the memory to get a ptr to it
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the right arg is a global, ...
-    if (hGlbRht)
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+    if (hGlbRht NE NULL)
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     else
         lpMemRht = &aplLongestRht;
 
@@ -3342,13 +4698,13 @@ RIGHT_DOMAIN_EXIT:
 
 ERROR_EXIT:
 NORMAL_EXIT:
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (lpNfnsHdr)
+    if (lpNfnsHdr NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
@@ -3402,10 +4758,6 @@ LPPL_YYSTYPE SysFnNTIE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -3471,7 +4823,7 @@ LPPL_YYSTYPE SysFnDydNTIE_EM_YY
 
 {
     // Call common code
-    return SysFnCreateTie_EM_YY (FALSE, lptkLftArg, lptkFunc, lptkRhtArg, lptkAxis);
+    return SysFnCreateTie_EM_YY (FALSE, lptkLftArg, FALSE, lptkFunc, lptkRhtArg, lptkAxis);
 } // End SysFnDydNTIE_EM_YY
 #undef  APPEND_NAME
 
@@ -3495,10 +4847,6 @@ LPPL_YYSTYPE SysFnNUNTIE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
-
     //***************************************************************
     // This function is not sensitive to the axis operator,
     //   so signal a syntax error if present
@@ -3539,24 +4887,25 @@ LPPL_YYSTYPE SysFnMonNUNTIE_EM_YY
      LPTOKEN lptkAxis)              // Ptr to axis token (may be NULL)
 
 {
-    APLSTYPE      aplTypeRht;       // Right arg storage type
-    APLNELM       aplNELMRht;       // Right arg NELM
-    APLRANK       aplRankRht;       // Right arg Rank
-    APLLONGEST    aplLongestRht;    // Right arg longest if immediate
-    HGLOBAL       hGlbRht = NULL,   // Right arg global memory handle
-                  hGlbRes = NULL;   // Result ...
-    LPVOID        lpMemRht = NULL;  // Ptr to right arg global memory
-    LPAPLINT      lpMemRes = NULL;  // Ptr to result global memory data
-    LPVARARRAY_HEADER lpMemHdrRes;  // Ptr to result header
-    LPPL_YYSTYPE  lpYYRes = NULL;   // Ptr to the result
-    LPPERTABDATA  lpMemPTD;         // Ptr to PerTabData global memory
-    APLINT        TieNum,           // File tie number
-                  nTieNums = 0;     // # tie numbers in the result
-    APLUINT       ByteRes;          // # bytes in the result
-    UINT          uCnt;             // Loop counter
-    UINT          uRht;             // ...
-    LPNFNSHDR     lpNfnsHdr = NULL; // Ptr to NFNSHDR global memory
-    LPNFNSDATA    lpNfnsMem;        // Ptr to aNfnsData
+    APLSTYPE          aplTypeRht;           // Right arg storage type
+    APLNELM           aplNELMRht;           // Right arg NELM
+    APLRANK           aplRankRht;           // Right arg Rank
+    APLLONGEST        aplLongestRht;        // Right arg longest if immediate
+    HGLOBAL           hGlbRht = NULL,       // Right arg global memory handle
+                      hGlbRes = NULL;       // Result ...
+    LPVARARRAY_HEADER lpMemHdrRht = NULL,   // Ptr to right arg header
+                      lpMemHdrRes = NULL;   // ...    result    ...
+    LPVOID            lpMemRht;             // Ptr to right arg global memory
+    LPAPLINT          lpMemRes;             // Ptr to result global memory data
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to the result
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    APLINT            TieNum,               // File tie number
+                      nTieNums = 0;         // # tie numbers in the result
+    APLUINT           ByteRes;              // # bytes in the result
+    UINT              uCnt;                 // Loop counter
+    UINT              uRht;                 // ...
+    LPNFNSHDR         lpNfnsHdr = NULL;     // Ptr to NFNSHDR global memory
+    LPNFNSDATA        lpNfnsMem;            // Ptr to aNfnsData
 
     // Get the attributes (Type, NELM, and Rank)
     //   of the right arg
@@ -3574,11 +4923,11 @@ LPPL_YYSTYPE SysFnMonNUNTIE_EM_YY
     lpMemPTD = GetMemPTD ();
 
     // Get right arg's global ptrs
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the right arg is a global, ...
-    if (hGlbRht)
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+    if (hGlbRht NE NULL)
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     else
         lpMemRht = &aplLongestRht;
 
@@ -3591,11 +4940,11 @@ LPPL_YYSTYPE SysFnMonNUNTIE_EM_YY
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemHdrRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
     // Fill in the header values
     lpMemHdrRes->Sig.nature = VARARRAY_HEADER_SIGNATURE;
@@ -3637,6 +4986,9 @@ LPPL_YYSTYPE SysFnMonNUNTIE_EM_YY
             *lpMemRes++ = TieNum;
             nTieNums++;
 
+            // Close the handle -- this also releases all locked regions
+            CloseHandle (lpNfnsMem->hFile); lpNfnsMem->hFile = NULL;
+
             // Release resources
             NfnsReleaseResources (lpNfnsHdr, lpNfnsMem, (UINT) (lpNfnsMem - &lpNfnsHdr->aNfnsData[0]));
         } // End IF
@@ -3650,13 +5002,14 @@ LPPL_YYSTYPE SysFnMonNUNTIE_EM_YY
     if (nTieNums NE aplNELMRht)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
         // Calculate space needed for the result
         ByteRes = CalcArraySize (ARRAY_INT, nTieNums, 1);
 
         // Reallocate the result down if necessary
-        hGlbRes = MyGlobalReAlloc (hGlbRes, (APLU3264) ByteRes, GMEM_MOVEABLE);
+        hGlbRes =
+          MyGlobalReAlloc (hGlbRes, (APLU3264) ByteRes, GMEM_MOVEABLE);
     } // End IF
 
     // Allocate a new YYRes
@@ -3687,31 +5040,22 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
-    {
-        if (lpMemRes)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        MyGlobalFree (hGlbRes); hGlbRes = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbRes, lpMemHdrRes);
 NORMAL_EXIT:
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
-    if (lpNfnsHdr)
+    if (lpNfnsHdr NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
@@ -3756,11 +5100,17 @@ void NfnsReleaseOneResource
     (LPNFNSDATA lpNfnsMem)          // Ptr to aNfnsData
 
 {
-    // Close the handle -- this also releases all locked regions
-    CloseHandle (lpNfnsMem->hFile); lpNfnsMem->hFile = NULL;
+    // If it's still valid, ...
+    if (lpNfnsMem->hFile NE NULL)
+    {
+        // Close the handle -- this also releases all locked regions
+        CloseHandle (lpNfnsMem->hFile); lpNfnsMem->hFile = NULL;
+    } // End IF
 
-    // Free the filename global memory handle
-    FreeResultGlobalVar (lpNfnsMem->hGlbFileName); lpNfnsMem->hGlbFileName = NULL;
+    // If it's still valid, free the filename global memory handle
+    if (lpNfnsMem->hGlbFileName NE NULL
+     && FreeResultGlobalVar (lpNfnsMem->hGlbFileName))
+        lpNfnsMem->hGlbFileName = NULL;
 } // End NfnsReleaseOneResource
 
 
@@ -3831,14 +5181,16 @@ UBOOL NfnsArgTieNum
      LPPERTABDATA lpMemPTD)             // Ptr to PerTabData global memory
 
 {
-    UBOOL bRet = TRUE;                  // TRUE iff the result is valid
+    UBOOL bRet = FALSE;                 // TRUE iff the result is valid
 
-    // Parse an APLINT
-    bRet = NfnsArgAplint (aplType,      // Arg storage type
-                          lpMem,        // Ptr to global memory data
-                          aplNELM,      // NELM of arg
-                          uIndex,       // Index # into lpMem
-                          lpTieNum);    // Ptr to result tie num
+    // If the index is valid, ...
+    if (uIndex < aplNELM)
+        bRet =
+          NfnsArgAplint (aplType,       // Arg storage type
+                         lpMem,         // Ptr to global memory data
+                         aplNELM,       // NELM of arg
+                         uIndex,        // Index # into lpMem
+                         lpTieNum);     // Ptr to result APLINT
     // If the result is valid,
     //   and the tie number is zero, ...
     if (bRet && *lpTieNum EQ 0)
@@ -3862,124 +5214,16 @@ UBOOL NfnsArgAplint
      LPAPLINT     lpAplint)             // Ptr to result
 
 {
-    UBOOL             bRet = TRUE;      // TRUE iff the result is valid
-    LPSYMENTRY        lpSymGlb;         // Ptr to SYMENTRY or HGLOBAL
-    LPVARARRAY_HEADER lpMemHdr;         // Ptr to the global numeric item header
+    UBOOL bRet = TRUE;                  // TRUE iff the result is valid
 
     // If the index is in range, ...
     if (uIndex < aplNELM)
-    // Split cases based upon the arg storage type
-    switch (aplType)
-    {
-        case ARRAY_BOOL:
-        case ARRAY_INT:
-        case ARRAY_APA:
-            *lpAplint = GetNextInteger (lpMem, aplType, uIndex);
-
-            break;
-
-        case ARRAY_FLOAT:
-            // Attempt to convert the float to an integer using System []CT
-            *lpAplint = FloatToAplint_SCT (((LPAPLFLOAT) lpMem)[uIndex], &bRet);
-
-            break;
-
-        case ARRAY_RAT:
-            // Attempt to convert the RAT to an integer using System []CT
-            *lpAplint = mpq_get_sctsx (&((LPAPLRAT) lpMem)[uIndex], &bRet);
-
-            break;
-
-        case ARRAY_VFP:
-            // Attempt to convert the VFP to an integer using System []CT
-            *lpAplint = mpfr_get_sctsx (&((LPAPLVFP) lpMem)[uIndex], &bRet);
-
-            break;
-
-        case ARRAY_NESTED:
-            // Get the global handle
-            lpSymGlb = ((LPAPLNESTED) lpMem)[uIndex];
-
-            // Split cases based upon the ptr type bits
-            switch (GetPtrTypeDir (lpSymGlb))
-            {
-                case PTRTYPE_STCONST:
-                    // The item must be an immediate
-                    bRet = lpSymGlb->stFlags.Imm;
-
-                    if (bRet)
-                    // Split cases based upon the immediate type
-                    switch (lpSymGlb->stFlags.ImmType)
-                    {
-                        case IMMTYPE_BOOL:
-                        case IMMTYPE_INT:
-                            // Get the integer value
-                            *lpAplint = lpSymGlb->stData.stInteger;
-
-                            break;
-
-                        case IMMTYPE_FLOAT:
-                            // Attempt to convert the float to an integer using System []CT
-                            *lpAplint = FloatToAplint_SCT (lpSymGlb->stData.stFloat, &bRet);
-
-                            break;
-
-                        case IMMTYPE_CHAR:
-                            bRet = FALSE;
-
-                            break;
-
-                        defstop
-                            break;
-                    } // End SWITCH
-
-                    break;
-
-                case PTRTYPE_HGLOBAL:
-                    // Lock the mmory to get a ptr to it
-                    lpMemHdr = MyGlobalLock (lpSymGlb);
-
-                    bRet = IsGlbNum (lpMemHdr->ArrType)
-                        && IsScalar (lpMemHdr->Rank);
-
-                    // If it's valid, ...
-                    if (bRet)
-                    // Split cases based upon the storage type
-                    switch (lpMemHdr->ArrType)
-                    {
-                        case ARRAY_RAT:
-                            // Attempt to convert the RAT to an integer using System []CT
-                            *lpAplint = mpq_get_sctsx ((LPAPLRAT) VarArrayDataFmBase (lpMemHdr), &bRet);
-
-                            break;
-
-                        case ARRAY_VFP:
-                            // Attempt to convert the VFP to an integer using System []CT
-                            *lpAplint = mpfr_get_sctsx ((LPAPLVFP) VarArrayDataFmBase (lpMemHdr), &bRet);
-
-                            break;
-
-                        defstop
-                            break;
-                    } // End SWITCH
-
-                    // We no longer need this ptr
-                    MyGlobalUnlock (lpSymGlb); lpMemHdr = NULL;
-
-                    break;
-
-                defstop
-                    break;
-            } // End SWITCH
-
-            break;
-
-        case ARRAY_CHAR:
-        case ARRAY_HETERO:
-        defstop
-            break;
-    } // End SWITCH
-
+        // Parse an APLINT
+        *lpAplint =
+          ConvertToInteger_SCT (aplType,    // Arg storage type
+                                lpMem,      // Ptr to global memory data
+                                uIndex,     // Index # into lpMem
+                               &bRet);      // Ptr to TRUE iff the result is valid
     return bRet;
 } // End NfnsArgAplint
 
@@ -3995,10 +5239,10 @@ UBOOL NfnsArgMode
      LPVOID   lpMem,                // Ptr to global memory data
      APLNELM  aplNELM,              // NELM of arg
      UINT     uIndex,               // Index # into lpMem
-     LPAPLINT lpAccessMode,         // Ptr to result access mode
-     APLINT   defAccessMode,        // Default access mode
-     LPAPLINT lpShareMode,          // Ptr to result share mode
-     APLINT   defShareMode)         // Default share mode
+     LPDWORD  lpAccessMode,         // Ptr to result access mode
+     DWORD    defAccessMode,        // Default access mode
+     LPDWORD  lpShareMode,          // Ptr to result share mode
+     DWORD    defShareMode)         // Default share mode
 
 {
     UBOOL  bRet = TRUE;             // TRUE iff the result is valid
@@ -4097,7 +5341,7 @@ UBOOL NfnsArgConv
 {
     UBOOL             bRet = TRUE;  // TRUE iff the result is valid
     LPSYMENTRY        lpSymGlb;     // Ptr to SYMENTRY or HGLOBAL
-    LPVARARRAY_HEADER lpMemHdr;     // Ptr to the global numeric item header
+    LPVARARRAY_HEADER lpMemHdr = NULL;      // Ptr to the global numeric item header
 
     // Initialize with default values
     *lpDiskConv = defDiskConv;
@@ -4174,7 +5418,7 @@ UBOOL NfnsArgConv
 
                 case PTRTYPE_HGLOBAL:
                     // Lock the mmory to get a ptr to it
-                    lpMemHdr = MyGlobalLock (lpSymGlb);
+                    lpMemHdr = MyGlobalLockVar (lpSymGlb);
 
                     bRet = (IsSimpleChar (lpMemHdr->ArrType)
                          && IsVector (lpMemHdr->Rank))
@@ -4426,7 +5670,7 @@ DR_VAL NestedCharVec
 {
     DR_VAL            drRet = 0;        // Return value
     UINT              uCnt;             // Loop counter
-    LPVARARRAY_HEADER lpMemHdr;         // Ptr to global memory header
+    LPVARARRAY_HEADER lpMemHdr = NULL;      // Ptr to global memory header
     LPAPLCHAR         lpMemChar;        // Ptr to global memory data
 
 typedef struct tagCONV_CODES
@@ -4449,7 +5693,7 @@ typedef struct tagCONV_CODES
     };
 
     // Lock the memory to get a ptr to it
-    lpMemHdr = MyGlobalLock (hGlb);
+    lpMemHdr = MyGlobalLockVar (hGlb);
 
     // Check the rank
     if (!IsVector (lpMemHdr->Rank))
@@ -4533,11 +5777,11 @@ APLINT GetNextTieNum_EM
         lpNfnsMem = &lpNfnsHdr->aNfnsData[lpNfnsHdr->offFirstInuse];
 
         // Allocate memory to hold the existing tie numbers so we may sort them
-        hGlbTie = MyGlobalAlloc (GHND, lpNfnsHdr->nTieNums * sizeof (TieNum));
-        if (hGlbTie)
+        hGlbTie = DbgGlobalAlloc (GHND, lpNfnsHdr->nTieNums * sizeof (TieNum));
+        if (hGlbTie NE NULL)
         {
             // Lock the memory to get a ptr to it
-            lpMemTie = MyGlobalLock (hGlbTie);
+            lpMemTie = MyGlobalLock000 (hGlbTie);
 
             // Loop through the tie numbers
             for (uCnt = 0; uCnt < lpNfnsHdr->nTieNums; uCnt++)
@@ -4557,11 +5801,8 @@ APLINT GetNextTieNum_EM
             if (TieNum NE lpMemTie[uCnt])
                 break;
 
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbTie); lpMemTie = NULL;
-
-            // We no longer need this storage
-            MyGlobalFree (hGlbTie); hGlbTie = NULL;
+            // Unlock and free (and set to NULL) a global name and ptr
+            UnlFreeGlbName (hGlbTie, lpMemTie);
         } else
         {
             ErrorMessageIndirectToken (ERRMSG_WS_FULL APPEND_NAME,
@@ -4590,7 +5831,7 @@ int CmpAPLINT_DESC
 
 {
     // Compare the two numbers
-    return signum (aplIntRht - aplIntLft);
+    return signumint (aplIntRht - aplIntLft);
 } // End CmpAPLINT_DESC
 
 
@@ -4635,7 +5876,7 @@ UBOOL IsDuplicateTieNum_EM
     bRet = (uCnt < lpNfnsHdr->nTieNums);
 
     // Return result if requested
-    if (lpoff)
+    if (lpoff NE NULL)
         *lpoff = (UINT) (lpNfnsMem - &lpNfnsHdr->aNfnsData[0]);
 
     // We no longer need this ptr
@@ -4665,9 +5906,10 @@ UBOOL InitGlbNfns_EM
     Assert (lpMemPTD->hGlbNfns EQ NULL);
 
     // Allocate the initial entry
-    lpMemPTD->hGlbNfns = MyGlobalAlloc (GHND, sizeof (NFNSHDR) + DEF_NFNS_INIT * sizeof (NFNSDATA));
+    lpMemPTD->hGlbNfns =
+      DbgGlobalAlloc (GHND, sizeof (NFNSHDR) + DEF_NFNS_INIT * sizeof (NFNSDATA));
 
-    if (lpMemPTD->hGlbNfns)
+    if (lpMemPTD->hGlbNfns NE NULL)
     {
         LPNFNSHDR  lpNfnsHdr;           // Ptr to NFNSHDR global memory
         LPNFNSDATA lpNfnsMem;           // Ptr to aNfnsData
@@ -4677,6 +5919,7 @@ UBOOL InitGlbNfns_EM
         lpNfnsHdr = InitLockNfns (lptkFunc, lpMemPTD);
 
         // Initialize the struc
+        lpNfnsHdr->Sig.nature    = NFNS_HEADER_SIGNATURE;
 ////////lpNfnsHdr->nTieNums      = 0;               // Already zero from GHND
         lpNfnsHdr->nMax          = DEF_NFNS_INIT;
 ////////lpNfnsHdr->offFirstFree  = 0;               // Already zero from GHND
@@ -4734,11 +5977,14 @@ UBOOL IncrGlbNfns
     MyGlobalUnlock (lpMemPTD->hGlbNfns); *lplpNfnsHdr = NULL;
 
     // Reallocate the struc
-    hGlbNfns = MyGlobalReAlloc (lpMemPTD->hGlbNfns, (APLU3264) ByteRes, GMEM_MOVEABLE | GMEM_ZEROINIT);
+    //   moving the old data to the new location, and
+    //   freeing the old global memory
+    hGlbNfns =
+      MyGlobalReAlloc (lpMemPTD->hGlbNfns, (APLU3264) ByteRes, GHND);
     if (hGlbNfns EQ NULL)
     {
         // Lock the original memory to get a ptr to it
-        *lplpNfnsHdr = MyGlobalLock (lpMemPTD->hGlbNfns);
+        *lplpNfnsHdr = MyGlobalLockNfn (lpMemPTD->hGlbNfns);
 
         return FALSE;
     } // End IF
@@ -4793,7 +6039,7 @@ UBOOL NfnsSaveData_EM
      HGLOBAL      hGlbFileName,     // Filename global memory handle
      DR_VAL       DiskConv,         // Disk format
      DR_VAL       WsConv,           // Workspace format
-     APLSTYPE     aplTypeWs,        // Workspace storage type
+     APLSTYPE     aplTypeWs,        // Workspace storage type (if ARRAY_ERROR, don't increment the RefCnt)
      APLINT       TieNum,           // Tie #
      LPTOKEN      lptkFunc,         // Ptr to function token
      LPPERTABDATA lpMemPTD)         // Ptr to PerTabData global memory
@@ -4826,7 +6072,11 @@ UBOOL NfnsSaveData_EM
         lpNfnsMem->aplTypeWs     = aplTypeWs;
         lpNfnsMem->hFile         = hFile;
         lpNfnsMem->hGlbFileName  = MakePtrTypeGlb (hGlbFileName);
-        DbgIncrRefCntDir_PTB (lpNfnsMem->hGlbFileName);
+
+        // If requested to do so, ...
+        if (aplTypeWs NE ARRAY_ERROR)
+            // Increment the refcnt
+            DbgIncrRefCntDir_PTB (lpNfnsMem->hGlbFileName); // EXAMPLE:  open same file twice or more
 
         // Manage the linked list
         lpNfnsHdr->offFirstFree  = lpNfnsMem->offNextFree;
@@ -4877,6 +6127,7 @@ void SysErrMsg_EM
 
 {
     static WCHAR wszTemp[256];      // ***FIXME*** -- Not thread-safe
+    UINT         uLen;              // Length of message
 
     // Split cases based upon the last error
     switch (dwLastError)
@@ -4909,6 +6160,16 @@ void SysErrMsg_EM
                             wszTemp,                    // Pointer to message buffer
                             countof (wszTemp),          // Maximum size of message buffer
                             NULL);                      // Address of array of message inserts
+            // Get the message length
+            uLen = lstrlenW (wszTemp);
+
+            // If the message ends with "\r\n"
+            if (uLen >= 2
+             && wszTemp[uLen - 2] EQ WC_CR
+             && wszTemp[uLen - 1] EQ WC_LF)
+                // Strip off the trailing "\r\n"
+                wszTemp[uLen - 2] = WC_EOS;
+
             ErrorMessageIndirectToken (wszTemp,
                                        lptkFunc);
             break;
@@ -4953,8 +6214,10 @@ LPPL_YYSTYPE NfnsEraseRenameResize_EM
                       aplRankRht;           // Right ...
     HGLOBAL           hGlbLft = NULL,       // Left arg global memory handle
                       hGlbRht = NULL;       // Right ...
-    LPAPLCHAR         lpMemLft = NULL;      // Ptr to left arg global memory
-    LPVOID            lpMemRht = NULL,      // ...    right ...
+    LPVARARRAY_HEADER lpMemHdrLft = NULL,   // Ptr to left arg header
+                      lpMemHdrRht = NULL;   // ...    right    ...
+    LPAPLCHAR         lpMemLft;             // Ptr to left arg global memory
+    LPVOID            lpMemRht,             // ...    right ...
                       lpMemCom;             // ...    temp
     APLINT            TieNum,               // File tie number
                       aplNewSize;           // New size from []NRESIZE
@@ -4965,8 +6228,8 @@ LPPL_YYSTYPE NfnsEraseRenameResize_EM
     LPNFNSHDR         lpNfnsHdr = NULL;     // Ptr to NFNSHDR global memory
     LPNFNSDATA        lpNfnsMem;            // Ptr to aNfnsData
     LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
-    LPVARARRAY_HEADER lpMemFileHdr = NULL;  // Ptr to filename  memory
-    LPAPLCHAR         lpMemFileName = NULL; // Ptr to filename  memory
+    LPVARARRAY_HEADER lpMemHdrFile = NULL;  // Ptr to filename header
+    LPAPLCHAR         lpMemFile;            // Ptr to filename memory
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
@@ -5012,18 +6275,18 @@ LPPL_YYSTYPE NfnsEraseRenameResize_EM
         goto RIGHT_DOMAIN_EXIT;
 
     // Lock the memory to get a ptr to it
-    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemLft);
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemHdrLft);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the left arg is a global, ...
-    if (hGlbLft)
-        lpMemLft = VarArrayDataFmBase (lpMemLft);
+    if (hGlbLft NE NULL)
+        lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
     else
         lpMemLft = (LPAPLCHAR) &aplLongestLft;
 
     // If the right arg is a global, ...
-    if (hGlbRht)
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+    if (hGlbRht NE NULL)
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     else
         lpMemRht = &aplLongestRht;
 
@@ -5067,18 +6330,18 @@ LPPL_YYSTYPE NfnsEraseRenameResize_EM
     lpNfnsMem = &lpNfnsHdr->aNfnsData[uTie];
 
     // Lock the memory to get a ptr to it
-    lpMemFileHdr = MyGlobalLock (lpNfnsMem->hGlbFileName);
+    lpMemHdrFile = MyGlobalLockVar (lpNfnsMem->hGlbFileName);
 
     // Skip over the header and dimensions
-    lpMemFileName = VarArrayDataFmBase (lpMemFileHdr);
+    lpMemFile = VarArrayDataFmBase (lpMemHdrFile);
 
     // If it's []NERASE, ...
     if (eNERR EQ COM_NERASE
-     && lstrcmpiW (lpMemLft, lpMemFileName) NE 0)
+     && lstrcmpiW (lpMemLft, lpMemFile) NE 0)
         goto LEFT_DOMAIN_EXIT;
 
     // Erase/Rename/Resize the file
-    if (!(*NfnsCom) (lpNfnsHdr, lpNfnsMem, lpMemFileName, lpMemCom))
+    if (!(*NfnsCom) (lpNfnsHdr, lpNfnsMem, lpMemFile, lpMemCom))
     {
         // Format a system error message
         SysErrMsg_EM (GetLastError (), lptkLftArg);
@@ -5130,25 +6393,25 @@ RIGHT_DOMAIN_EXIT:
 
 ERROR_EXIT:
 NORMAL_EXIT:
-    if (hGlbLft && lpMemLft)
+    if (hGlbLft NE NULL && lpMemHdrLft NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
+        MyGlobalUnlock (hGlbLft); lpMemHdrLft = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (lpMemFileName)
+    if (lpNfnsMem->hGlbFileName && lpMemHdrFile)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (lpNfnsMem->hGlbFileName); lpMemFileName = NULL;
+        MyGlobalUnlock (lpNfnsMem->hGlbFileName); lpMemHdrFile = NULL;
     } // End IF
 
-    if (lpNfnsHdr)
+    if (lpMemPTD->hGlbNfns NE NULL && lpNfnsHdr NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (lpMemPTD->hGlbNfns); lpNfnsHdr = NULL;
@@ -5168,14 +6431,22 @@ NORMAL_EXIT:
 UBOOL NfnsErase
     (LPNFNSHDR  lpNfnsHdr,          // Ptr to NFNSHDR global memory
      LPNFNSDATA lpNfnsMem,          // Ptr to aNfnsData
-     LPAPLCHAR  lpMemFileName,      // Ptr to existing filename global memory data
+     LPAPLCHAR  lpMemFile,          // Ptr to existing filename global memory data
      LPAPLCHAR  lpMemLft)           // Ptr to left arg global memory data (or new size if []NRESIZE)
 
 {
+    UBOOL uRes;                     // The result
+
+    // Close the handle -- this also releases all locked regions
+    CloseHandle (lpNfnsMem->hFile); lpNfnsMem->hFile = NULL;
+
+    // Delete the file
+    uRes = DeleteFileW (lpMemFile);
+
     // Release resources
     NfnsReleaseResources (lpNfnsHdr, lpNfnsMem, (UINT) (lpNfnsMem - &lpNfnsHdr->aNfnsData[0]));
 
-    return DeleteFileW (lpMemFileName);
+    return uRes;
 } // End NfnsErase
 
 
@@ -5188,11 +6459,11 @@ UBOOL NfnsErase
 UBOOL NfnsRename
     (LPNFNSHDR  lpNfnsHdr,          // Ptr to NFNSHDR global memory
      LPNFNSDATA lpNfnsMem,          // Ptr to aNfnsData
-     LPAPLCHAR  lpMemFileName,      // Ptr to existing filename global memory data
+     LPAPLCHAR  lpMemFile,          // Ptr to existing filename global memory data
      LPAPLCHAR  lpMemLft)           // Ptr to left arg global memory data (or new size if []NRESIZE)
 
 {
-    return MoveFileW (lpMemFileName, lpMemLft);
+    return MoveFileW (lpMemFile, lpMemLft);
 } // End NfnsRename
 
 
@@ -5205,7 +6476,7 @@ UBOOL NfnsRename
 UBOOL NfnsResize
     (LPNFNSHDR  lpNfnsHdr,          // Ptr to NFNSHDR global memory
      LPNFNSDATA lpNfnsMem,          // Ptr to aNfnsData
-     LPAPLCHAR  lpMemFileName,      // Ptr to existing filename global memory data
+     LPAPLCHAR  lpMemFile,          // Ptr to existing filename global memory data
      LPAPLCHAR  lpMemLft)           // Ptr to left arg global memory data (or new size if []NRESIZE)
 
 {
@@ -5356,7 +6627,7 @@ UBOOL NfnsWriteData_EM
                             lpOverLapped->Offset     = LOAPLINT (aplFileOff);
                             lpOverLapped->OffsetHigh = HIAPLINT (aplFileOff);
                         } /* End IF */
-                    } // Wnd WHILE
+                    } // End WHILE
 
                     break;
 
@@ -6113,7 +7384,7 @@ LPVOID InitLockNfns
      && !InitGlbNfns_EM (lptkFunc, lpMemPTD))
         return NULL;
 
-    return MyGlobalLock (lpMemPTD->hGlbNfns);
+    return MyGlobalLockNfn (lpMemPTD->hGlbNfns);
 } // End InitLockNfns
 
 

@@ -1,0 +1,11 @@
+Build #1530 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bugs In GCD & LCM On VFP & RAT Numbers
+
+Directory trunk:
+
+PF_DCARET.C:
+  Fix memory leak in GCD/LCM RAT.
+  Fix bug in GCD/LCM VFP where the loop termination needs to be based on smaller than a small positive number rather than equal to zero.
+  Fix memory leak in GCD/LCM VFP.

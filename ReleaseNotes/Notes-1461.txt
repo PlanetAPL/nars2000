@@ -1,0 +1,13 @@
+Build #1461 -- Version 0.4.14.xx
+--------------------------------
+
+* Insert Blank Column On Left Of Simple Array Output Of Monadic []FMT
+
+Directory trunk:
+
+MF_QUADFMT.H:
+  In <#MonFMT>, insert a blank column on the left of a simple array display inside the outer box
+    so as to avoid the dimension eliding with the values.
+
+VER.RC:
+  Increment version # to 0.4.14.xx.

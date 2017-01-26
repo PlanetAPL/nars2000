@@ -1,0 +1,10 @@
+Build #1500 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In +\1.5 2.5 Where A Temporary Float Result Is Demoted To Integer
+
+Directory trunk:
+
+PO_SLOPE.C:
+  Fix bug in <PrimOpMonSlopeCommon_EM_YY> where a temporary float result is demoted to integer
+    but stored as if it were a float.

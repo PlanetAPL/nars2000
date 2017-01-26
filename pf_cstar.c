@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -135,24 +135,44 @@ APLSTYPE PrimSpecCircleStarStorageTypeMon
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
-
-    if (IsSimpleChar (*lpaplTypeRht)
-     || *lpaplTypeRht EQ ARRAY_LIST)
-        return ARRAY_ERROR;
 
     // The storage type of the result is
     //   the same as that of the right arg
     aplTypeRes = *lpaplTypeRht;
 
-    // Except that BOOL, INT and APA become FLOAT
-    if (IsSimpleInt (aplTypeRes))
-        aplTypeRes = ARRAY_FLOAT;
-    else
-    // Except that RAT becomes VFP
-    if (IsRat (aplTypeRes))
-        aplTypeRes = ARRAY_VFP;
+    // Split cases based upon the storage type
+    switch (aplTypeRes)
+    {
+        // Except that BOOL, INT and APA become FLOAT
+        case ARRAY_BOOL:
+        case ARRAY_INT:
+        case ARRAY_FLOAT:
+        case ARRAY_APA:
+            aplTypeRes = ARRAY_FLOAT;
+
+            break;
+
+        // Except that RAT becomes VFP
+        case ARRAY_RAT:
+            aplTypeRes = ARRAY_VFP;
+
+            break;
+
+        case ARRAY_VFP:
+        case ARRAY_NESTED:
+            break;
+
+        case ARRAY_CHAR:
+        case ARRAY_HETERO:
+            aplTypeRes = ARRAY_ERROR;
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
 
     return aplTypeRes;
 } // End PrimSpecCircleStarStorageTypeMon
@@ -169,16 +189,16 @@ APLFLOAT PrimFnMonCircleStarFisI
      LPPRIMSPEC lpPrimSpec)
 
 {
+    // Check for Complex result
+    if (SIGN_APLFLOAT (aplIntegerRht))
+        RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
+
     // Check for indeterminates:  {log} 0
     if (aplIntegerRht EQ 0)
         return TranslateQuadICIndex (0,
                                      ICNDX_LOG0,
-                                     (APLFLOAT) aplIntegerRht);
-
-    // Check for Complex result
-    if (aplIntegerRht < 0)
-        RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
-
+                          (APLFLOAT) aplIntegerRht,
+                                     FALSE);
     return log ((APLFLOAT) aplIntegerRht);
 } // End PrimFnMonCircleStarFisI
 
@@ -194,23 +214,23 @@ APLFLOAT PrimFnMonCircleStarFisF
      LPPRIMSPEC lpPrimSpec)
 
 {
+    // Check for Complex result
+    if (aplFloatRht < 0)        // Not SIGN_APLFLOAT as that'll catch -0 whose log is indeterminate
+        RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
+
     // Check for indeterminates:  {log} 0
     if (aplFloatRht EQ 0)
         return TranslateQuadICIndex (0,
                                      ICNDX_LOG0,
-                                     aplFloatRht);
-
+                                     aplFloatRht,
+                                     FALSE);
     // Check for special cases:  {log} _
-    if (IsPosInfinity (aplFloatRht))
-        return PosInfinity;
+    if (IsFltPosInfinity (aplFloatRht))
+        return fltPosInfinity;
 
     // Check for special cases:  {log} -_
-    if (IsNegInfinity (aplFloatRht))
+    if (IsFltNegInfinity (aplFloatRht))
         RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
-
-    // Check for Complex result
-    if (aplFloatRht < 0)
-        RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
 
     return log (aplFloatRht);
 } // End PrimFnMonCircleStarFisF
@@ -245,12 +265,17 @@ APLVFP PrimFnMonCircleStarVisV
 #else
     APLVFP  mpfRes  = {0};
 #endif
+    // Check for Complex result
+    if (mpfr_sgn (&aplVfpRht) < 0)  // Not SIGN_APLVFP as that'll catch -0 whose log is indeterminate
+        RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
+
     // Check for indeterminates:  {log} 0
     if (IsMpf0 (&aplVfpRht))
         return *mpfr_QuadICValue (&aplVfpRht,       // No left arg
                                    ICNDX_LOG0,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for special cases:  {log} _
     if (IsMpfPosInfinity (&aplVfpRht))
         return mpfPosInfinity;
@@ -258,10 +283,6 @@ APLVFP PrimFnMonCircleStarVisV
     // Check for special cases:  {log} -_
     if (IsMpfNegInfinity (&aplVfpRht))
         RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
-
-    // Check for Complex result
-    if (mpfr_cmp_ui (&aplVfpRht, 0) < 0)
-        RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
 
 #if OWN_EXPLOG
     // Initialize the result
@@ -272,6 +293,7 @@ APLVFP PrimFnMonCircleStarVisV
     // This means that log (V) = (log (r)) + m * log (2)
 ////log2x = (int) (floor (0.5 + (log (mpfr_get_d (&aplVfpRht)) / log (2.0))));
 
+    // Initialize temps to 0/1 and 0
     mpz_init (&mpzTmp);
     mpfr_init0 (&mpfTmp);
 
@@ -324,7 +346,7 @@ APLVFP PrimFnMonCircleStarVisV
     // Finally, convert the result back to normal
     mpfr_mul_ui (&mpfTmp, &mpfLn2, log2x);
     if (log2xSign < 0)
-        mpfr_neg0 (&mpfTmp, &mpfTmp);
+        mpfr_neg (&mpfTmp, &mpfTmp);
     mpfr_add    (&mpfRes, &mpfRes, &mpfTmp, MPFR_RNDN);
 
     // We no longer need this storage
@@ -333,11 +355,11 @@ APLVFP PrimFnMonCircleStarVisV
 
     return mpfRes;
 #else
-    // Initialize the result
+    // Initialize the result to 0
     mpfr_init0 (&mpfRes);
 
     // Calculate the function
-    mpfr_log  (&mpfRes, &aplVfpRht, MPFR_RNDN);
+    mpfr_log   (&mpfRes, &aplVfpRht, MPFR_RNDN);
 
     return mpfRes;
 #endif
@@ -365,6 +387,7 @@ APLVFP LogVfp
            mpfBase  = {0};      // ...  base
     UINT   uRes;                // Loop counter
 
+    // Initialize the temps to 0
     mpfr_init0 (&mpfRes);
     mpfr_init0 (&mpfTmp1);
     mpfr_init0 (&mpfTmp2);
@@ -423,12 +446,12 @@ APLSTYPE PrimSpecCircleStarStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // If both arguments are simple numeric,
@@ -440,9 +463,32 @@ APLSTYPE PrimSpecCircleStarStorageTypeDyd
         // Calculate the storage type of the result
         aplTypeRes = StorageType (*lpaplTypeLft, lptkFunc, *lpaplTypeRht);
 
-    // Except that RAT becomes VFP
-    if (IsRat (aplTypeRes))
-        aplTypeRes = ARRAY_VFP;
+    // Split cases based upon the storage type
+    switch (aplTypeRes)
+    {
+        case ARRAY_BOOL:
+        case ARRAY_INT:
+        case ARRAY_FLOAT:
+        case ARRAY_APA:
+        case ARRAY_VFP:
+        case ARRAY_NESTED:
+            break;
+
+        // Except that RAT becomes VFP
+        case ARRAY_RAT:
+            aplTypeRes = ARRAY_VFP;
+
+            break;
+
+        case ARRAY_CHAR:
+        case ARRAY_HETERO:
+            aplTypeRes = ARRAY_ERROR;
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
 
     return aplTypeRes;
 } // End PrimSpecCircleStarStorageTypeDyd
@@ -464,13 +510,15 @@ APLFLOAT PrimFnDydCircleStarFisIvI
     if (IsBooleanValue (aplIntegerLft)
      && IsBooleanValue (aplIntegerRht))
         return TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-                                     icndxLog[aplIntegerLft][aplIntegerRht],
-                                     (APLFLOAT) aplIntegerRht);
+                                                icndxLog[aplIntegerLft][aplIntegerRht],
+                                     (APLFLOAT) aplIntegerRht,
+                                                FALSE);
     // Check for indeterminates:  0 {log} N (N != 0 or 1)
     if (aplIntegerLft EQ 0)
         return TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-                                     ICNDX_0LOGN,
-                                     (APLFLOAT) aplIntegerRht);
+                                                ICNDX_0LOGN,
+                                     (APLFLOAT) aplIntegerRht,
+                                                FALSE);
     // Check for Complex result
     if (aplIntegerLft < 0)
         RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
@@ -501,9 +549,9 @@ APLFLOAT PrimFnDydCircleStarFisFvF
     // Check for special cases:  0 {log} PoM_
     // Check for special cases:  PoM_ {log} 0
     // Check for special cases:  PoM_ {log} PoM_
-    if ((aplFloatLft EQ 0 && IsInfinity (aplFloatRht))
-     || (IsInfinity (aplFloatLft) && aplFloatRht EQ 0)
-     || (IsInfinity (aplFloatLft) && IsInfinity (aplFloatRht)))
+    if ((aplFloatLft EQ 0 && IsFltInfinity (aplFloatRht))
+     || (IsFltInfinity (aplFloatLft) && aplFloatRht EQ 0)
+     || (IsFltInfinity (aplFloatLft) && IsFltInfinity (aplFloatRht)))
         RaiseException (EXCEPTION_DOMAIN_ERROR, 0, 0, NULL);
 
     // Check for indeterminates:  B {log} B
@@ -511,15 +559,16 @@ APLFLOAT PrimFnDydCircleStarFisFvF
      && IsBooleanValue (aplFloatRht))
         return TranslateQuadICIndex (aplFloatLft,
                                      icndxLog[(UINT) aplFloatLft][(UINT) aplFloatRht],
-                                     aplFloatRht);
-
+                                     aplFloatRht,
+                                     FALSE);
     // Check for indeterminates:  0 {log} N  (N != 0 or 1)
     if (aplFloatLft EQ 0.0)
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_0LOGN,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     FALSE);
     // Check for Complex result
-    if (aplFloatLft < 0.0)
+    if (SIGN_APLFLOAT (aplFloatLft))
         RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
 
     // The EAS says "If A and B are equal, return one."
@@ -561,18 +610,20 @@ APLVFP PrimFnDydCircleStarVisVvV
         return *mpfr_QuadICValue (&aplVfpLft,
                                    icndxLog[IsMpf1 (&aplVfpLft)][IsMpf1(&aplVfpRht)],
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for indeterminates:  0 {log} N  (N != 0 or 1)
     if (mpfr_zero_p (&aplVfpLft))
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_0LOGN,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for Complex result
-    if (mpfr_sgn (&aplVfpLft) < 0)
+    if (SIGN_APLVFP (&aplVfpLft))
         RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
 
-    // Initialize the result
+    // Initialize the result to 0
     mpfr_init0 (&mpfRes);
 
     // The EAS says "If A and B are equal, return one."
@@ -591,15 +642,15 @@ APLVFP PrimFnDydCircleStarVisVvV
         //   such as 5{log}0  and  0.5{log}0
         mpfLft = PrimFnMonCircleStarVisV (aplVfpLft, lpPrimSpec);
 #ifdef DEBUG
-////    lstrcpyW (wszTemp, L"Lft: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfLft, 0) = WC_EOS; DbgMsgW (wszTemp);
+////    strcpyW (wszTemp, L"Lft: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfLft, 0) = WC_EOS; DbgMsgW (wszTemp);
 #endif
         mpfRht = PrimFnMonCircleStarVisV (aplVfpRht, lpPrimSpec);
 #ifdef DEBUG
-////    lstrcpyW (wszTemp, L"Rht: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfRht, 0) = WC_EOS; DbgMsgW (wszTemp);
+////    strcpyW (wszTemp, L"Rht: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfRht, 0) = WC_EOS; DbgMsgW (wszTemp);
 #endif
         mpfr_div (&mpfRes, &mpfRht, &mpfLft, MPFR_RNDN);
 #ifdef DEBUG
-////    lstrcpyW (wszTemp, L"Res: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfRes, 0) = WC_EOS; DbgMsgW (wszTemp);
+////    strcpyW (wszTemp, L"Res: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfRes, 0) = WC_EOS; DbgMsgW (wszTemp);
 #endif
 
         // We no longer need this storage

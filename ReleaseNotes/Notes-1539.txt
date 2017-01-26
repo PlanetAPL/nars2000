@@ -1,0 +1,13 @@
+Build #1539 -- Version 0.4.15.xx
+--------------------------------
+
+* Rename Certain Function Args To Better Reflect Their Purpose
+
+Directory trunk:
+
+EXECMFN.C:
+  Improve comment.
+  In <Init1MagicFunction>, compare against 0 explicitly instead of implicitly.
+
+MPFNS.C:
+  In <mpq_mod>, <mpfr_mod>, and <mpfr_mod_sub> rename the args to Operand/Modulus instead of left/right.

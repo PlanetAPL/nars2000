@@ -1,0 +1,13 @@
+Build #1393 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Typo In Magic Function
+* Catch Errors When Initializing Magic Functions
+
+Directory trunk:
+
+EXECMFN.C:
+  Catch errors when initializing magic functions.
+
+MF_MULTISET.H:
+  Fix typo in magic function for Multiset Match.

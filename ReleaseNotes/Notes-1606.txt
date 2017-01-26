@@ -1,0 +1,37 @@
+Build #1606 -- Version 0.4.18.xx
+--------------------------------
+
+* Handle Syntax: (A A A) F IDX SPA
+* Handle Syntax:  A[A] F MOP A
+* Handle Syntax:  A[A] F MOP SPA
+
+Directory trunk:
+
+PARSELINE.C:
+  Define reduction for "LNR ISPA" as the same as "LNR SPA".
+  Define reduction for "NDX SPA" as the same as "IDX SPA".
+  Define reduction for "F ISPA" as the same as "F SPA".
+  Define macro to extract SynObj of the right stack +3.
+  When checking for the "IDX" -> "NDX" translation, be sure to include the
+    trailing SPA so we know it's a NAM assignment.
+  Rename ADX to NDX to better suggest that this is a Name Index.
+  Restore <GetLftSynObj> as we need the special treatment in it.
+  Comment out (#if FALSE/#endif) <GetLftToken> as we no longer need it.
+  Omit <lpYYRht0> and <lptkRht0> as it always points to an empty entry.
+  Handle more syntax cases of modified assignment.
+
+PARSELINE.H:
+  Make the binding strength of 'F ISPA' the same as 'F SPA'.
+  Lower the binding strength of 'IDX SPA' to xIDX-1 so that 'IDX IDX SPA' -> IDX SPA.
+  Lower the binding strength of 'NAM IDX' to xIDX-2 so that 'NAM IDX IDX SPA' -> 'NAM IDX SPA'
+  Make the binding strength of 'LNR ISPA' the same as 'LNR SPA'.
+  Lower the binding strength of 'ADX SPA' to xIDX-1 so that 'NAM ADX SPA' -> NAM ISPA.
+  Define reduction for 'F ISPA' to ISPA.
+  Define reduction for 'LNR ISPA' to A.
+
+STARTADDR.H:
+  Put <GetLstSynObj> back in and comment out <GetLftToken> as the need for that change
+    was solved in <pl_yyLexCOM> with better detection of Name Assignment.
+
+SYNOBJ.H:
+  Rename ADX to NDX to better suggest that this is a Name Index.

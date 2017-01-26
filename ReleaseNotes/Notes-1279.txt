@@ -1,0 +1,9 @@
+Build #1279 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Indexed Assignment When Assigning The Entire Array
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexSetSingLst_EM>, if the index is {enclose}{zilde} meaning assign the entire array, also free the items of the already <CopyArray>ed global memory handle.

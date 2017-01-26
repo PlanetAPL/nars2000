@@ -1,0 +1,22 @@
+Build #1316 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Syntax Analyzer
+
+Directory trunk:
+
+EXECFNS.C:
+  In <ExecFunc_EM_YY>, ensure a valid result has <tkSynObj> set to <soA>.
+
+PARSELINE.C:
+  Improve coding style.
+  In <plRedNAM_ISPA>, handle curried function as in "NAM[A] F {is} A".
+  After calling <lpplCurStr->lpplRedFcn>, ensure <tkSynObj> is set in the result.
+  In <pl_yylexCOM>/TKT_VARNAMED/NAMETYPE_VAR, mark the name in "NAM[A] F {is} A" as assigned to.
+  Improve comments.
+
+PARSELINE.H:
+  Raise the binding strength of "F SPA" so as to evaluate "F SPA" first, currying the function arg.
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY>, ensure a valid result has <tkSynObj> set to <soA>.

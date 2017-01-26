@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -140,7 +140,7 @@ LPPL_YYSTYPE PrimIdentOpJotDot_EM_YY
 
     // Set ptr to right operand,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrRht = &lpYYFcnStrOpr[1 + (lptkAxisOpr NE NULL)];
+    lpYYFcnStrRht = GetMonLftOper (lpYYFcnStrOpr, lptkAxisOpr);
 
     // Ensure the right operand is a function
     if (!IsTknFcnOpr (&lpYYFcnStrRht->tkToken)
@@ -327,7 +327,7 @@ LPPL_YYSTYPE PrimOpDydJotDotCommon_EM_YY
 
     // Set ptr to right operand,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrRht = &lpYYFcnStrOpr[1 + (lptkAxisOpr NE NULL)];
+    lpYYFcnStrRht = GetMonLftOper (lpYYFcnStrOpr, lptkAxisOpr);
 
     // Ensure the right operand is a function
     if (!IsTknFcnOpr (&lpYYFcnStrRht->tkToken)
@@ -335,7 +335,7 @@ LPPL_YYSTYPE PrimOpDydJotDotCommon_EM_YY
         goto RIGHT_OPERAND_SYNTAX_EXIT;
 
     // The result NELM is the product of the left & right NELMs
-    aplNELMRes = _imul64 (aplNELMLft, aplNELMRht, &bRet);
+    aplNELMRes = imul64 (aplNELMLft, aplNELMRht, &bRet);
     if (!bRet)
         goto WSFULL_EXIT;
 
@@ -348,7 +348,7 @@ LPPL_YYSTYPE PrimOpDydJotDotCommon_EM_YY
     {
         // Get the appropriate prototype function ptr
         lpPrimProtoRht = GetPrototypeFcnPtr (&lpYYFcnStrRht->tkToken);
-        if (!lpPrimProtoRht)
+        if (lpPrimProtoRht EQ NULL)
             goto RIGHT_OPERAND_NONCE_EXIT;
     } else
         lpPrimProtoRht = NULL;
@@ -398,11 +398,11 @@ RESTART_JOTDOT:
 
     // Allocate space for the result.
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -463,7 +463,7 @@ RESTART_JOTDOT:
                            &immType,                    // Ptr to ...immediate type ...
                             NULL);                      // Ptr to array type ...
         tkLftArg.tkFlags.ImmType = immType;
-        lpMemLft = &tkLftArg.tkData.tkLongest;
+        lpMemLft = GetPtrTknLongest (&tkLftArg);
     } // End IF
 
     // If the right arg is immediate, fill in the token
@@ -479,7 +479,7 @@ RESTART_JOTDOT:
                            &immType,                    // Ptr to ...immediate type ...
                             NULL);                      // Ptr to array type ...
         tkRhtArg.tkFlags.ImmType = immType;
-        lpMemRht = &tkRhtArg.tkData.tkLongest;
+        lpMemRht = GetPtrTknLongest (&tkRhtArg);
     } // End IF
 
     // If the left arg is APA, fill in the offset and multiplier
@@ -662,7 +662,7 @@ RESTART_JOTDOT:
                                               lpPrimSpec))
                 {
                     // Check for type promotion
-                    if (aplTypeRes NE aplTypeNew)
+                    if (aplTypeRes NE aTypePromote[aplTypeRes][aplTypeNew])
                     {
                         // We no longer need this ptr
                         MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
@@ -670,13 +670,13 @@ RESTART_JOTDOT:
                         // We no longer need this resource
                         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
 
-                        if (hGlbLft && lpMemLft)
+                        if (hGlbLft NE NULL && lpMemLft NE NULL)
                         {
                             // We no longer need this ptr
                             MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
                         } // End IF
 
-                        if (hGlbRht && lpMemRht)
+                        if (hGlbRht NE NULL && lpMemRht NE NULL)
                         {
                             // We no longer need this ptr
                             MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
@@ -727,10 +727,10 @@ RESTART_JOTDOT:
 
                         case ARRAY_RAT:
                             // Lock the memory to get a ptr to it
-                            lpMemSub = MyGlobalLock (tkRes.tkData.tkGlbData);
+                            lpMemSub = MyGlobalLockVar (tkRes.tkData.tkGlbData);
 
                             // Skip over the header and dimensions to the data
-                            lpMemSub = VarArrayBaseToData (lpMemSub, 0);
+                            lpMemSub = VarArrayDataFmBase (lpMemSub);
 
                             // Save in the result
                             *((LPAPLRAT)   lpMemRes)++ = *(LPAPLRAT) lpMemSub;
@@ -741,16 +741,16 @@ RESTART_JOTDOT:
                             // We no longer need this storage
                             // Note that we reused the global numeric, so we don't
                             //   need to use FreeResultGlobalVar here
-                            MyGlobalFree (tkRes.tkData.tkGlbData); tkRes.tkData.tkGlbData = NULL;
+                            DbgGlobalFree (tkRes.tkData.tkGlbData); tkRes.tkData.tkGlbData = NULL;
 
                             break;
 
                         case ARRAY_VFP:
                             // Lock the memory to get a ptr to it
-                            lpMemSub = MyGlobalLock (tkRes.tkData.tkGlbData);
+                            lpMemSub = MyGlobalLockVar (tkRes.tkData.tkGlbData);
 
                             // Skip over the header and dimensions to the data
-                            lpMemSub = VarArrayBaseToData (lpMemSub, 0);
+                            lpMemSub = VarArrayDataFmBase (lpMemSub);
 
                             // Save in the result
                             *((LPAPLVFP)   lpMemRes)++ = *(LPAPLVFP) lpMemSub;
@@ -761,7 +761,7 @@ RESTART_JOTDOT:
                             // We no longer need this storage
                             // Note that we reused the global numeric, so we don't
                             //   need to use FreeResultGlobalVar here
-                            MyGlobalFree (tkRes.tkData.tkGlbData); tkRes.tkData.tkGlbData = NULL;
+                            DbgGlobalFree (tkRes.tkData.tkGlbData); tkRes.tkData.tkGlbData = NULL;
 
                             break;
 
@@ -782,20 +782,22 @@ RESTART_JOTDOT:
             goto ERROR_EXIT;
 
         // If the left arg is not immediate, get the next value
-        if (lpMemLft)
+        if (lpMemLft NE NULL)
             // Get the next value from the left arg
             GetNextValueMemIntoToken (uLft,         // Index to use
                                       lpMemLft,     // Ptr to global memory object to index
                                       aplTypeLft,   // Storage type of the arg
+                                      aplNELMLft,   // NELM         ...
                                       apaOffLft,    // APA offset (if needed)
                                       apaMulLft,    // APA multiplier (if needed)
                                      &tkLftArg);    // Ptr to token in which to place the result
         // If the right arg is not immediate, get the next value
-        if (lpMemRht)
+        if (lpMemRht NE NULL)
             // Get the next value from the right arg
             GetNextValueMemIntoToken (uRht,         // Index to use
                                       lpMemRht,     // Ptr to global memory object to index
                                       aplTypeRht,   // Storage type of the arg
+                                      aplNELMRht,   // NELM         ...
                                       apaOffRht,    // APA offset (if needed)
                                       apaMulRht,    // APA multiplier (if needed)
                                      &tkRhtArg);    // Ptr to token in which to place the result
@@ -808,9 +810,9 @@ RESTART_JOTDOT:
                               &uValErrCnt,          // Ptr to VALUE ERROR counter
                                lpPrimProtoRht);     // Ptr to right operand prototype function
         // Free the left & right arg tokens
-        if (lpMemLft)
+        if (lpMemLft NE NULL)
             FreeResultTkn (&tkRhtArg);
-        if (lpMemRht)
+        if (lpMemRht NE NULL)
             FreeResultTkn (&tkLftArg);
         // If it failed, ...
         if (!bRet)
@@ -883,9 +885,9 @@ VALUE_EXIT:
     return NULL;
 
 ERROR_EXIT:
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemRes NE NULL)
         {
             // We no longer need this ptr
             MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
@@ -895,19 +897,19 @@ ERROR_EXIT:
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbLft && lpMemLft)
+    if (hGlbLft NE NULL && lpMemLft NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemRht NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
     } // End IF
 
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemRes NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
@@ -954,7 +956,7 @@ UBOOL PrimOpDydJotDotProto_EM
     hGlbPro = GetGlbHandle (&lpYYRes->tkToken);
 
     // If the result of the last calc is immediate, ...
-    if (!hGlbPro)
+    if (hGlbPro EQ NULL)
     {
         // Convert the immediate type and value in lpYYRes->tkToken
         //   into an LPSYMENTRY

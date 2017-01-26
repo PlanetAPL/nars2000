@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -134,7 +134,7 @@ UBOOL ArrayDisplay_EM
             lpaplChar =
               FormatImmed (lpwszFormat,
                            lptkRes->tkFlags.ImmType,
-                          &lptkRes->tkData.tkLongest);
+                           GetPtrTknLongest (lptkRes));
             immType = lptkRes->tkFlags.ImmType;
             aplChar = lptkRes->tkData.tkChar;
 
@@ -165,7 +165,6 @@ UBOOL ArrayDisplay_EM
                                         bEndingCR,          // TRUE iff last line has CR
                                         lpbCtrlBreak,       // Ptr to Ctrl-Break flag
                                         lptkRes);           // Ptr to function token
-
                 defstop
                     return FALSE;
             } // End SWITCH
@@ -186,10 +185,12 @@ UBOOL ArrayDisplay_EM
 
     // If the value is a character, ...
     if (IsImmChr (immType))
+    // If we're NOT Output Debugging, ...
+    if (!OptionFlags.bOutputDebug)
     // Split cases based upon the character value
     switch (aplChar)
     {
-        case TCBEL:
+        case WC_BEL:
             // Sound the alarum!
             MessageBeep (NEG1U);
 
@@ -198,7 +199,7 @@ UBOOL ArrayDisplay_EM
 
             break;
 
-        case TCHT:
+        case WC_HT:
             FillMemoryW (lpwszFormat, uTabStops, L' ');
 
             // Append a terminating zero
@@ -206,15 +207,11 @@ UBOOL ArrayDisplay_EM
 
             break;
 
-        case TCLF:
-        case TCNL:
+        case WC_LF:
+        case WC_CR:
         default:
-            // If the char is not printable, ...
-            if (aplChar < L' ')
-                // Empty the line
-                lpwszFormat[0] = WC_EOS;
             break;
-    } // End IF/SWITCH
+    } // End IF/IF/SWITCH
 
     // Display the line
     AppendLine (lpwszFormat, FALSE, bEndingCR);
@@ -242,40 +239,41 @@ SYNTAX_EXIT:
 #endif
 
 UBOOL DisplayGlbArr_EM
-    (HGLOBAL hGlb,                  // Global memory handle to display
+    (HGLOBAL hGlbArr,               // Global memory handle to display
      UBOOL   bEndingCR,             // TRUE iff last line has CR
      LPUBOOL lpbCtrlBreak,          // Ptr to Ctrl-Break flag
      LPTOKEN lptkFunc)              // Ptr to function token
 
 {
-    LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
-    LPVOID       lpMem = NULL;      // Ptr to incoming global memory
-    LPAPLCHAR    lpaplCharIni = NULL,
-                 lpaplChar,
-                 lpaplCharStart,
-                 lpwszNxt,          // Ptr to next char of input
-                 lpwszEnd;          // ..     end  char of input
-    APLSTYPE     aplType;           // Arg storage type
-    APLNELM      aplNELM;           // Arg NELM
-    APLRANK      aplRank;           // Arg rank
-    LPAPLDIM     lpMemDim;          // Ptr to arg dimensions
-    APLDIM       aplDimNCols,       // # cols
-                 aplDimNRows,       // # rows
-                 aplChrNCols,       // # cols for char arrays
-                 aplDimCol,         // Col loop counter
-                 aplLastDim;        // Length of the last dimension in the result
-    APLNELM      aplNELMRes;        // Result NELM
-    LPFMTHEADER  lpFmtHeader,       // Ptr to format header struc
-                 lpFmtHeader2;      // ...
-    LPFMTCOLSTR  lpFmtColStr;       // Ptr to format col struc
-    APLUINT      uQuadPW;           // []PW
-    UBOOL        bLineCont = FALSE, // TRUE iff this line is a continuation
-                 bRawOut,           // TRUE iff using raw output
-                 bRet = FALSE;      // TRUE iff the result is valid
-    APLUINT      uOutLen;           // Output length for this line
-    MEMVIRTSTR   lclMemVirtStr[1] = {0};// Room for one GuardAlloc
-    LPWCHAR      lpwszFormat;       // Ptr to formatting save area
-    jmp_buf      oldHeapFull;       // Save area for previous jmp_buf
+    LPPERTABDATA      lpMemPTD;                 // Ptr to PerTabData global memory
+    LPVARARRAY_HEADER lpMemHdrArr = NULL;       // Ptr to array header
+    LPVOID            lpMemArr;                 // Ptr to incoming global memory
+    LPAPLCHAR         lpaplCharIni = NULL,      // Ptr to temp area
+                      lpaplChar,                // ...
+                      lpaplCharStart,           // ...
+                      lpwszNxt,                 // Ptr to next char of input
+                      lpwszEnd;                 // ..     end  char of input
+    APLSTYPE          aplType;                  // Arg storage type
+    APLNELM           aplNELM;                  // Arg NELM
+    APLRANK           aplRank;                  // Arg rank
+    LPAPLDIM          lpMemDim;                 // Ptr to arg dimensions
+    APLDIM            aplDimNCols,              // # cols
+                      aplDimNRows,              // # rows
+                      aplChrNCols,              // # cols for char arrays
+                      aplDimCol,                // Col loop counter
+                      aplLastDim;               // Length of the last dimension in the result
+    APLNELM           aplNELMRes;               // Result NELM
+    LPFMTHEADER       lpFmtHeader,              // Ptr to format header struc
+                      lpFmtHeader2;             // ...
+    LPFMTCOLSTR       lpFmtColStr;              // Ptr to format col struc
+    APLUINT           uQuadPW;                  // []PW
+    UBOOL             bLineCont = FALSE,        // TRUE iff this line is a continuation
+                      bRawOut,                  // TRUE iff using raw output
+                      bRet = FALSE;             // TRUE iff the result is valid
+    APLUINT           uOutLen;                  // Output length for this line
+    MEMVIRTSTR        lclMemVirtStr[1] = {0};   // Room for one GuardAlloc
+    LPWCHAR           lpwszFormat;              // Ptr to formatting save area
+    jmp_buf           oldHeapFull;              // Save area for previous jmp_buf
 
     // Save the previous heapFull
     *oldHeapFull = *heapFull;
@@ -326,9 +324,9 @@ UBOOL DisplayGlbArr_EM
         FillMemory (lpaplCharIni, 1024, 0xFF);
 #endif
         // Lock the memory to get a ptr to it
-        lpMem = MyGlobalLock (hGlb);
+        lpMemHdrArr = MyGlobalLockVar (hGlbArr);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMem)
+#define lpHeader    lpMemHdrArr
         // Get the Array Type, NELM, and Rank
         aplType = lpHeader->ArrType;
         aplNELM = lpHeader->NELM;
@@ -336,10 +334,10 @@ UBOOL DisplayGlbArr_EM
 #undef  lpHeader
 
         // Skip over the header to the dimensions
-        lpMemDim = VarArrayBaseToDim (lpMem);
+        lpMemDim = VarArrayBaseToDim (lpMemHdrArr);
 
         // Skip over the header and dimension to the data
-        lpMem = VarArrayDataFmBase (lpMem);
+        lpMemArr = VarArrayDataFmBase (lpMemHdrArr);
 
         // Get the # columns
         if (IsScalar (aplRank))
@@ -351,7 +349,7 @@ UBOOL DisplayGlbArr_EM
             // If there are no columns and the rank is > 1, ignore this
             if (IsZeroDim (aplDimNCols)
              && IsMultiRank (aplRank))
-                goto EMPTY_EXIT;
+                goto NORMAL_EXIT;
 
             // Get the # rows (across all planes)
             if (IsVector (aplRank))
@@ -359,6 +357,23 @@ UBOOL DisplayGlbArr_EM
             else
                 aplDimNRows = aplNELM / aplDimNCols;
         } // End IF/ELSE
+
+        // If the array is a non-empty non-PtrArray vector-like, display it specially
+        if (!IsEmpty (aplNELM)
+         && !IsPtrArray (aplType)
+         && aplDimNCols EQ aplNELM)
+        {
+            // Display the vector-like array without running
+            //   into length problems w/guard pages
+            bRet =
+              DisplayGlbVector (lpaplCharIni,       // Ptr to temp area
+                                aplType,            // Array storage type
+                                aplDimNCols,        // Array # cols
+                                lpMemArr,           // Ptr to array global memory
+                                lpbCtrlBreak,       // Prt to Ctrl-Break flag
+                                uQuadPW);           // []PW
+            goto ERROR_EXIT;
+        } // End IF
 
         // Format char arrays as one col
         aplChrNCols = (IsSimpleChar (aplType)) ? 1 : aplDimNCols;
@@ -416,7 +431,7 @@ UBOOL DisplayGlbArr_EM
         {
             case ARRAY_BOOL:
 ////////////////lpaplChar =
-                  CompileArrBool    ((LPAPLBOOL)    lpMem,  // Ptr to right arg memory
+                  CompileArrBool    ((LPAPLBOOL)   lpMemArr,// Ptr to right arg memory
                                      lpFmtHeader,           // Ptr to parent header
                                      lpFmtColStr,           // Ptr to vector of ColStrs
                                      lpaplCharStart,        // Ptr to compiled output
@@ -429,7 +444,7 @@ UBOOL DisplayGlbArr_EM
 
             case ARRAY_INT:
 ////////////////lpaplChar =
-                  CompileArrInteger ((LPAPLINT)    lpMem,   // Ptr to right arg memory
+                  CompileArrInteger ((LPAPLINT)    lpMemArr,// Ptr to right arg memory
                                      lpFmtHeader,           // Ptr to parent header
                                      lpFmtColStr,           // Ptr to vector of ColStrs
                                      lpaplCharStart,        // Ptr to compiled output
@@ -442,7 +457,7 @@ UBOOL DisplayGlbArr_EM
 
             case ARRAY_FLOAT:
 ////////////////lpaplChar =
-                  CompileArrFloat   ((LPAPLFLOAT)  lpMem,   // Ptr to right arg memory
+                  CompileArrFloat   ((LPAPLFLOAT)  lpMemArr,// Ptr to right arg memory
                                      lpFmtHeader,           // Ptr to parent header
                                      lpFmtColStr,           // Ptr to vector of ColStrs
                                      lpaplCharStart,        // Ptr to compiled output
@@ -455,7 +470,7 @@ UBOOL DisplayGlbArr_EM
 
             case ARRAY_APA:
 ////////////////lpaplChar =
-                  CompileArrAPA     ((LPAPLAPA)    lpMem,   // Ptr to right arg memory
+                  CompileArrAPA     ((LPAPLAPA)    lpMemArr,// Ptr to right arg memory
                                      lpFmtHeader,           // Ptr to parent header
                                      lpFmtColStr,           // Ptr to vector of ColStrs
                                      lpaplCharStart,        // Ptr to compiled output
@@ -468,7 +483,7 @@ UBOOL DisplayGlbArr_EM
 
             case ARRAY_CHAR:
 ////////////////lpaplChar =
-                  CompileArrChar    ((LPAPLCHAR)   lpMem,   // Ptr to right arg memory
+                  CompileArrChar    ((LPAPLCHAR)   lpMemArr,// Ptr to right arg memory
                                      lpFmtHeader,           // Ptr to parent header
                                      lpFmtColStr,           // Ptr to vector of ColStrs
                                      lpaplCharStart,        // Ptr to compiled output
@@ -481,7 +496,7 @@ UBOOL DisplayGlbArr_EM
 
             case ARRAY_HETERO:
 ////////////////lpaplChar =
-                  CompileArrHetero  ((LPAPLHETERO) lpMem,   // Ptr to right arg memory
+                  CompileArrHetero  ((LPAPLHETERO) lpMemArr,// Ptr to right arg memory
                                      lpFmtHeader,           // Ptr to parent header
                                      lpFmtColStr,           // Ptr to vector of ColStrs
                                      lpaplCharStart,        // Ptr to compiled output
@@ -495,7 +510,7 @@ UBOOL DisplayGlbArr_EM
 
             case ARRAY_NESTED:
 ////////////////lpaplChar =
-                  CompileArrNested  ((LPAPLNESTED) lpMem,   // Ptr to right arg memory
+                  CompileArrNested  ((LPAPLNESTED) lpMemArr,// Ptr to right arg memory
                                      lpFmtHeader,           // Ptr to parent header
                                      lpFmtColStr,           // Ptr to vector of ColStrs
                                      lpaplCharStart,        // Ptr to compiled output
@@ -508,7 +523,7 @@ UBOOL DisplayGlbArr_EM
 
             case ARRAY_RAT:
 ////////////////lpaplChar =
-                  CompileArrRat     ((LPAPLRAT)    lpMem,   // Ptr to right arg memory
+                  CompileArrRat     ((LPAPLRAT)    lpMemArr,// Ptr to right arg memory
                                      lpFmtHeader,           // Ptr to parent header
                                      lpFmtColStr,           // Ptr to vector of ColStrs
                                      lpaplCharStart,        // Ptr to compiled output
@@ -521,7 +536,7 @@ UBOOL DisplayGlbArr_EM
 
             case ARRAY_VFP:
 ////////////////lpaplChar =
-                  CompileArrVfp     ((LPAPLVFP)    lpMem,   // Ptr to right arg memory
+                  CompileArrVfp     ((LPAPLVFP)    lpMemArr,// Ptr to right arg memory
                                      lpFmtHeader,           // Ptr to parent header
                                      lpFmtColStr,           // Ptr to vector of ColStrs
                                      lpaplCharStart,        // Ptr to compiled output
@@ -609,7 +624,7 @@ UBOOL DisplayGlbArr_EM
             case ARRAY_NESTED:
 ////////////////lpaplChar =
                   FormatArrNested (lpFmtHeader,             // Ptr to FMTHEADER
-                                   lpMem,                   // Ptr to raw input
+                                   lpMemArr,                // Ptr to raw input
                                    lpFmtColStr,             // Ptr to vector of <aplDimNCols> FMTCOLSTRs
                                    lpaplCharStart,          // Ptr to compiled input
                                   &lpaplChar,               // Ptr to ptr to output string
@@ -677,7 +692,22 @@ UBOOL DisplayGlbArr_EM
             *lpaplChar = WC_EOS;
 
             // Calculate the # of cols per row group
-            uColLim = (aplLastDim + uQuadPW - 1) / uQuadPW;
+            //   taking into account the six-space indent for the
+            //   second and subsequent lines.
+            // The calculation is to find the smallest N such that
+            //   aplLastDim <= []PW + (N - 1) x ([]PW - 6)
+            // The lefthand []PW is for the first row, and (N - 1)
+            //   counts the second and subsequent rows.
+            //   Simplifying the above inequality...
+            //   (aplLastDim - []PW) <= (N - 1) x ([]PW - 6)
+            //   (aplLastDim - []PW) / ([]PW - 6) <= N - 1
+            //   ceil ((aplLastDim - []PW) / ([]PW - 6)) == N - 1
+            //   N == 1 + (aplLastDim - []PW + []PW - 7) / ([]PW - 6)
+            //   N == 1 + (aplLastDim - 7) / ([]PW - 6)
+            // We also must take into account lines shorter than 7 chars
+            //   as the subtraction will go negative (or positive large
+            //   as aplLastDim is unsigned).
+            uColLim = 1 + (max (0, (int) aplLastDim - 7)) / (uQuadPW - 6);
 
             // Loop through the groups of cols
             for (uColGrp = 0; uColGrp < uColLim; uColGrp++, bLineCont = TRUE)
@@ -705,7 +735,7 @@ UBOOL DisplayGlbArr_EM
 
                     if (uColGrp NE 0)
                     {
-                        lstrcpyW (lpwszTemp, wszIndent);                // Copy the indent
+                        strcpyW (lpwszTemp, wszIndent);                 // Copy the indent
                         uOutLen = uQuadPW - DEF_INDENT;                 // Maximum output length
                         uCurPos = DEF_INDENT;
                     } else
@@ -727,36 +757,79 @@ UBOOL DisplayGlbArr_EM
                         if (CheckCtrlBreak (*lpbCtrlBreak))
                             goto ERROR_EXIT;
 
-                        // If the char is not printable, ...
-                        if (wcCur < L' ')
-                            uColCur--;      // Count it out
-
                         // Split cases based upon the character
                         switch (wcCur)
                         {
-                            case TCHT:          // []TCHT -- Move ahead to the next tab stop
-                                // *Insert* enough blanks to get to the next tabstop
-                                uTmp = uTabStops - (uCurPos % uTabStops);
-                                MoveMemoryW (&lpwszTemp[uCurPos + uTmp], &lpwszTemp[uCurPos], (APLU3264) uTmp);
-                                FillMemoryW (&lpwszTemp[uCurPos], (APLU3264) uTmp, L' ');
+                            case WC_HT:         // []TCHT -- Move ahead to the next tab stop
+                                // If we're NOT Output Debugging, ...
+                                if (!OptionFlags.bOutputDebug)
+                                {
+                                    // *Insert* enough blanks to get to the next tabstop
+                                    uTmp = uTabStops - (uCurPos % uTabStops);
+                                    MoveMemoryW (&lpwszTemp[uCurPos + uTmp], &lpwszTemp[uCurPos], (APLU3264) uTmp);
+                                    FillMemoryW (&lpwszTemp[uCurPos], (APLU3264) uTmp, L' ');
 
-                                // Increase the maximum width and current position by the # inserted blanks
-                                uMaxWidth += uTmp;
-                                uCurPos   += uTmp;
+                                    // Increase the maximum width and current position by the # inserted blanks
+                                    uMaxWidth += uTmp;
+                                    uCurPos   += uTmp;
+
+                                    break;
+                                } else
+                                {
+                                    // Fall through to common code
+                                } // End IF/ELSE
+
+                            case WC_BEL:        // []TCBEL -- Sound the alarum!
+                                // If we're NOT Output Debugging, ...
+                                if (!OptionFlags.bOutputDebug)
+                                {
+                                    MessageBeep (NEG1U);
+
+                                    break;
+                                } else
+                                {
+                                    // Fall through to common code
+                                } // End IF/ELSE
+
+                            case WC_BS:         // []TCBS -- Backspace if there's room
+                                // If we're NOT Output Debugging, ...
+                                if (!OptionFlags.bOutputDebug)
+                                {
+                                    if (uCurPos)
+                                        uCurPos--;
+                                    break;
+                                } else
+                                {
+                                    // Fall through to common code
+                                } // End IF/ELSE
+
+                            case WC_LF:         // []TCLF -- Start a new line
+                                // If we're NOT Output Debugging, ...
+                                if (!OptionFlags.bOutputDebug)
+                                {
+                                    // Zap the temp buffer at the maximum width
+                                    lpwszTemp[uMaxWidth] = WC_EOS;
+
+                                    // Output the line up to this point w/NL
+                                    AppendLine (lpwszTemp, FALSE, TRUE);
+
+                                    // Output enough blanks to get back to the current position
+                                    FillMemoryW (lpwszTemp, (APLU3264) uCurPos, L' ');
+
+                                    break;
+                                } else
+                                {
+                                    // Fall through to common code
+                                } // End IF/ELSE
+
+                            default:
+                                // Save the new char
+                                lpwszTemp[uCurPos++] = wcCur;
+                                uMaxWidth = max (uMaxWidth, uCurPos);
 
                                 break;
 
-                            case TCBEL:         // []TCBEL -- Sound the alarum!
-                                MessageBeep (NEG1U);
-
-                                break;
-
-                            case TCBS:          // []TCBS -- Backspace if there's room
-                                if (uCurPos)
-                                    uCurPos--;
-                                break;
-
-                            case TCNL:          // []TCNL -- Restart at the beginning of a new line
+                            case WC_CR:         // []TCNL -- Restart at the beginning of a new line
                                 // Zap the temp buffer at the maximum width
                                 lpwszTemp[uMaxWidth] = WC_EOS;
 
@@ -769,29 +842,6 @@ UBOOL DisplayGlbArr_EM
                                 uColCur   = 0;
                                 uColCur--;              // Count it out
                                 uOutLen = uQuadPW;      // Maximum output length
-
-                                break;
-
-                            case TCLF:          // []TCLF -- Start a new line
-                                // Zap the temp buffer at the maximum width
-                                lpwszTemp[uMaxWidth] = WC_EOS;
-
-                                // Output the line up to this point w/NL
-                                AppendLine (lpwszTemp, FALSE, TRUE);
-
-                                // Output enough blanks to get back to the current position
-                                FillMemoryW (lpwszTemp, (APLU3264) uCurPos, L' ');
-
-                                break;
-
-                            default:
-                                // If the char is printable, ...
-                                if (wcCur >= L' ')
-                                {
-                                    // Save the new char
-                                    lpwszTemp[uCurPos++] = wcCur;
-                                    uMaxWidth = max (uMaxWidth, uCurPos);
-                                } // End IF/ELSE
 
                                 break;
                         } // End SWITCH
@@ -829,6 +879,7 @@ UBOOL DisplayGlbArr_EM
         // If this is an empty vector, make sure it skips a line
         if (IsEmpty (lpFmtHeader->uFmtIntWid)
          && IsVector (aplRank)
+         && bEndingCR
          && !bRawOut)
             AppendLine (L"", FALSE, TRUE);// Display the empty line
     } __except (CheckVirtAlloc (GetExceptionInformation (),
@@ -844,9 +895,6 @@ UBOOL DisplayGlbArr_EM
                 break;
         } // End SWITCH
     } // End __try/__except
-EMPTY_EXIT:
-    // Mark as successful
-    bRet = TRUE;
 
     goto NORMAL_EXIT;
 
@@ -860,8 +908,10 @@ LIMIT_EXIT:
                                lptkFunc);
     goto ERROR_EXIT;
 
-ERROR_EXIT:
 NORMAL_EXIT:
+    // Mark as successful
+    bRet = TRUE;
+ERROR_EXIT:
     // Restore previous heapFull
     *heapFull = *oldHeapFull;
 
@@ -876,10 +926,10 @@ NORMAL_EXIT:
         UnlinkMVS (&lclMemVirtStr[0]);
     } // End IF
 
-    if (hGlb && lpMem)
+    if (hGlbArr NE NULL && lpMemHdrArr NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlb); lpMem = NULL;
+        MyGlobalUnlock (hGlbArr); lpMemHdrArr = NULL;
     } // End IF
 
     return bRet;
@@ -895,59 +945,68 @@ NORMAL_EXIT:
 
 LPAPLCHAR FormatImmed
     (LPWCHAR      lpaplChar,
-     UINT         ImmType,
+     IMM_TYPES    ImmType,
      LPAPLLONGEST lpaplLongest)
 
 {
     LPVARARRAY_HEADER lpMemHdr;
     LPVOID            lpMemGlbNum;
+    WCHAR             wcCur;
 
     // Split cases based upon the immediate type
     switch (ImmType)
     {
         case IMMTYPE_BOOL:
             lpaplChar =
-              FormatAplint (lpaplChar,                          // Ptr to output save area
-                            BIT0 & *(LPAPLBOOL) lpaplLongest);  // The value to format
+              FormatAplInt (lpaplChar,          // Ptr to output save area
+        BIT0 & *(LPAPLBOOL) lpaplLongest);      // The value to format
             break;
 
         case IMMTYPE_INT:
             lpaplChar =
-              FormatAplint (lpaplChar,                          // Ptr to output save area
-                            *(LPAPLINT) lpaplLongest);          // The value to format
+              FormatAplInt (lpaplChar,          // Ptr to output save area
+                *(LPAPLINT) lpaplLongest);      // The value to format
             break;
 
         case IMMTYPE_CHAR:
-            *lpaplChar++ = *(LPAPLCHAR) lpaplLongest;
-            *lpaplChar++ = L' ';    // Append a blank to be deleted
+            // Save the char
+            wcCur = *(LPAPLCHAR) lpaplLongest;
+
+            // If we're Output Debugging, ...
+            if (OptionFlags.bOutputDebug
+             && wcCur EQ WC_EOS)
+                *lpaplChar++ = UTF16_REPLACEMENT0000;
+            else
+                *lpaplChar++ = *(LPAPLCHAR) lpaplLongest;
+            *lpaplChar++ = L' ';                // Append a blank to be deleted
 
             break;
 
         case IMMTYPE_FLOAT:
             lpaplChar =
-              FormatFloat (lpaplChar,                 // Ptr to output save area
-                           *(LPAPLFLOAT) lpaplLongest,// The value to format
-                           0);                        // Use default significant digits
+              FormatAplFlt (lpaplChar,          // Ptr to output save area
+              *(LPAPLFLOAT) lpaplLongest,       // The value to format
+                            0);                 // Use default significant digits
             break;
 
         case IMMTYPE_RAT:
             lpaplChar =
-              FormatAplRat (lpaplChar,      // Ptr to output save area
+              FormatAplRat (lpaplChar,          // Ptr to output save area
                 *(LPAPLRAT) VarArrayDataFmBase (ClrPtrTypeDir (lpaplLongest))); // The value to format
             break;
 
         case IMMTYPE_VFP:
             lpaplChar =
-              FormatAplVfp (lpaplChar,      // Ptr to output save area
+              FormatAplVfp (lpaplChar,          // Ptr to output save area
                 *(LPAPLVFP) VarArrayDataFmBase (ClrPtrTypeDir (lpaplLongest)),  // The value to format
-                            GetQuadPPV ()); // Use this many significant digits for VFP
+                            GetQuadPPV ());     // Use this many significant digits for VFP
             break;
 
         case IMMTYPE_ERROR:
             Assert (GetPtrTypeDir (lpaplLongest) EQ PTRTYPE_HGLOBAL);
 
             // Lock the memory to get a ptr to it
-            lpMemHdr = MyGlobalLock (lpaplLongest);
+            lpMemHdr = MyGlobalLockVar (lpaplLongest);
 
             // Skip over the header and dimensions to the data
             lpMemGlbNum = VarArrayDataFmBase (lpMemHdr);
@@ -993,7 +1052,7 @@ LPAPLCHAR FormatImmed
 
 LPAPLCHAR FormatImmedFC
     (LPWCHAR      lpaplChar,        // Ptr to input string
-     UINT         ImmType,          // Immediate type
+     IMM_TYPES    ImmType,          // Immediate type
      LPAPLLONGEST lpaplLongest,     // Ptr to value to format
      APLUINT      nDigits,          // # significant digits
      APLCHAR      aplCharDecimal,   // Char to use as decimal separator
@@ -1009,14 +1068,14 @@ LPAPLCHAR FormatImmedFC
     {
         case IMMTYPE_BOOL:
             lpaplChar =
-              FormatAplintFC (lpaplChar,                        // Ptr to output save area
+              FormatAplIntFC (lpaplChar,                        // Ptr to output save area
                               BIT0 & *(LPAPLBOOL) lpaplLongest, // The value to format
                               aplCharOverbar);                  // Char to use as overbar
             break;
 
         case IMMTYPE_INT:
             lpaplChar =
-              FormatAplintFC (lpaplChar,                        // Ptr to output save area
+              FormatAplIntFC (lpaplChar,                        // Ptr to output save area
                               *(LPAPLINT) lpaplLongest,         // The value to format
                               aplCharOverbar);                  // Char to use as overbar
             break;
@@ -1028,39 +1087,65 @@ LPAPLCHAR FormatImmedFC
             // Test for Terminal Control chars
             switch (wc)
             {
-                case TCBEL:     // Bel
-                    MessageBeep (NEG1U);    // Sound the alarum!
+                case WC_BEL:    // Bel
+                    // If we're NOT Output Debugging, ...
+                    if (!OptionFlags.bOutputDebug)
+                    {
+                        MessageBeep (NEG1U);    // Sound the alarum!
 
-                    // Fall through to common code
+                        // Fall through to common code
+                    } else
+                    {
+                        // Fall through to common code
+                    } // End IF/ELSE
 
-                case TCESC:     // Esc
-                case TCFF:      // FF
-                case TCNUL:     // NUL
-                case TCBS:      // BS
-                case TCNL:      // NL
-                    *lpaplChar++ = L' ';    // Append a blank to be deleted
+                case WC_ESC:    // Esc
+                case WC_FF:     // FF
+                case WC_EOS:    // NUL
+                case WC_BS:     // BS
+                case WC_CR:     // CR
+                    // If we're NOT Output Debugging, ...
+                    if (!OptionFlags.bOutputDebug)
+                    {
+                        *lpaplChar++ = L' ';    // Append a blank to be deleted
 
-                    break;          // Can't go any farther left
+                        break;                  // Can't go any farther left
+                    } else
+                    {
+                        // Fall through to common code
+                    } // End IF/ELSE
 
-                case TCHT:      // HT
-                    // We're always at the (virtual) left margin,
-                    //   so insert enough blanks for a TAB
-                    lpaplChar = FillMemoryW (lpaplChar, uTabStops + 1, L' ');
-///////////////////*lpaplChar++ = L' ';     // Append a blank to be deleted
+                case WC_HT:     // HT
+                    // If we're NOT Output Debugging, ...
+                    if (!OptionFlags.bOutputDebug)
+                    {
+                        // We're always at the (virtual) left margin,
+                        //   so insert enough blanks for a TAB
+                        lpaplChar = FillMemoryW (lpaplChar, uTabStops + 1, L' ');
+///////////////////////*lpaplChar++ = L' ';     // Append a blank to be deleted
 
-                    break;
+                        break;
+                    } else
+                    {
+                        // Fall through to common code
+                    } // End IF/ELSE
 
-                case TCLF:      // LF       // Handled during raw output
-                    *lpaplChar++ = wc;      // Append it
-                    *lpaplChar++ = L' ';    // Append a blank to be deleted
+                case WC_LF:     // LF       // Handled during raw output
+                    // If we're NOT Output Debugging, ...
+                    if (!OptionFlags.bOutputDebug)
+                    {
+                        *lpaplChar++ = wc;      // Append it
+                        *lpaplChar++ = L' ';    // Append a blank to be deleted
 
-                    break;
+                        break;
+                    } else
+                    {
+                        // Fall through to common code
+                    } // End IF/ELSE
 
                 default:
-                    if (wc >= 32)           // If none of the above but printable,
-                        *lpaplChar++ = wc;  //   append it
-
-                    *lpaplChar++ = L' ';    // Append a blank to be deleted
+                    *lpaplChar++ = wc;          // Append it
+                    *lpaplChar++ = L' ';        // Append a blank to be deleted
 
                     break;
             } // End SWITCH
@@ -1069,13 +1154,13 @@ LPAPLCHAR FormatImmedFC
 
         case IMMTYPE_FLOAT:
             lpaplChar =
-              FormatFloatFC (lpaplChar,                 // Ptr to output save area
-                             *(LPAPLFLOAT) lpaplLongest,// The value to format
-                             nDigits,                   // # significant digits
-                             aplCharDecimal,            // Char to use as decimal separator
-                             aplCharOverbar,            // Char to use as overbar
-                             fltDispFmt,                // Float display format
-                             bSubstInf);                // TRUE iff we're to substitute text for infinity
+              FormatAplFltFC (lpaplChar,        // Ptr to output save area
+                *(LPAPLFLOAT) lpaplLongest,     // The value to format
+                              nDigits,          // # significant digits
+                              aplCharDecimal,   // Char to use as decimal separator
+                              aplCharOverbar,   // Char to use as overbar
+                              fltDispFmt,       // Float display format
+                              bSubstInf);       // TRUE iff we're to substitute text for infinity
             break;
 
         defstop
@@ -1087,29 +1172,91 @@ LPAPLCHAR FormatImmedFC
 
 
 //***************************************************************************
-//  $FormatAplint
+//  $FormatImmedPtr
+//
+//  Format an immediate constant from a ptr to it
+//***************************************************************************
+
+LPAPLCHAR FormatImmedPtr
+    (LPWCHAR      lpaplChar,                // Ptr to output save area
+     UINT         ImmType,                  // Immediate type
+     LPAPLLONGEST lpaplLongest)             // Ptr to value
+
+{
+    // Split cases based upon the immediate type
+    switch (ImmType)
+    {
+        case IMMTYPE_BOOL:
+            lpaplChar =
+              FormatAplIntFC (lpaplChar,        // Ptr to output save area
+          BIT0 & *(LPAPLBOOL) lpaplLongest,     // The value to format
+                              UTF16_OVERBAR);   // Char to use as overbar
+            break;
+
+        case IMMTYPE_INT:
+            lpaplChar =
+              FormatAplInt (lpaplChar,          // Ptr to output save area
+                *(LPAPLINT) lpaplLongest);      // The value to format
+            break;
+
+        case IMMTYPE_CHAR:
+            *lpaplChar++ = *(LPAPLCHAR) lpaplLongest;
+            *lpaplChar++ = L' ';                // Append a blank to be deleted
+
+            break;
+
+        case IMMTYPE_FLOAT:
+            lpaplChar =
+              FormatAplFlt (lpaplChar,          // Ptr to output save area
+              *(LPAPLFLOAT) lpaplLongest,       // The value to format
+                            0);                 // Use default significant digits
+            break;
+
+        case IMMTYPE_RAT:
+            lpaplChar =
+              FormatAplRat (lpaplChar,          // Ptr to output save area
+                *(LPAPLRAT) lpaplLongest);      // The value to format
+            break;
+
+        case IMMTYPE_VFP:
+            lpaplChar =
+              FormatAplVfp (lpaplChar,      // Ptr to output save area
+                *(LPAPLVFP) lpaplLongest,   // The value to format
+                            GetQuadPPV ()); // Use this many significant digits for VFP
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
+
+    return lpaplChar;
+} // End FormatImmedPtr
+
+
+//***************************************************************************
+//  $FormatAplInt
 //
 //  Format an APLINT
 //***************************************************************************
 
-LPAPLCHAR FormatAplint
+LPAPLCHAR FormatAplInt
     (LPAPLCHAR lpaplChar,           // Ptr to output save area
      APLINT    aplInt)              // Integer to format
 
 {
-    return FormatAplintFC (lpaplChar,       // Ptr to output save area
+    return FormatAplIntFC (lpaplChar,       // Ptr to output save area
                            aplInt,          // The value to format
                            UTF16_OVERBAR);  // Char to use as overbar
-} // End FormatAplint
+} // End FormatAplInt
 
 
 //***************************************************************************
-//  $FormatAplintFC
+//  $FormatAplIntFC
 //
 //  Format an APLINT using []FC
 //***************************************************************************
 
-LPAPLCHAR FormatAplintFC
+LPAPLCHAR FormatAplIntFC
     (LPAPLCHAR lpaplChar,           // Ptr to output save area
      APLINT    aplInt,              // Integer to format
      APLCHAR   aplCharOverbar)      // Char to use as overbar
@@ -1118,9 +1265,9 @@ LPAPLCHAR FormatAplintFC
 
 #define MAXLEN  32
 
-    WCHAR wszTemp[MAXLEN + 1];
-    int   i;
-    UINT  u;
+    WCHAR wszTemp[MAXLEN + 1];      // Temp save area
+    int   i;                        // Temp
+    UINT  u;                        // ...
 
     // Check the sign bit -- if set, save and make positive
     if (aplInt < 0)
@@ -1132,7 +1279,7 @@ LPAPLCHAR FormatAplintFC
         if (aplInt EQ MIN_APLINT)
         {
             // Copy the constant (skipping over the sign WCHAR) to the result
-            lstrcpyW (lpaplChar, &MIN_APLINT_STR[1]);
+            strcpyW (lpaplChar, &MIN_APLINT_STR[1]);
 
             // Skip over it
             lpaplChar += lstrlenW (lpaplChar);
@@ -1164,7 +1311,7 @@ NORMAL_EXIT:
     *lpaplChar++ = L' ';
 
     return lpaplChar;
-} // End FormatAplintFC
+} // End FormatAplIntFC
 
 
 //***************************************************************************
@@ -1182,7 +1329,8 @@ LPAPLCHAR FormatAplRat
                            aplRat,          // The value to format
                            UTF16_OVERBAR,   // Char to use as overbar
                            DEF_RATSEP,      // Char to use as rational separator
-                           FALSE);          // TRUE iff we're to substitute text for infinity
+                           FALSE,           // TRUE iff we're to substitute text for infinity
+                           FALSE);          // TRUE iff this RAT is inside a larger syntax
 } // End FormatAplRat
 
 
@@ -1197,7 +1345,8 @@ LPAPLCHAR FormatAplRatFC
      APLRAT    aplRat,              // The value to format
      APLCHAR   aplCharOverbar,      // Char to use as overbar
      APLCHAR   aplCharRatSep,       // Char to use as rational separator
-     UBOOL     bSubstInf)           // TRUE iff we're to substitute text for infinity
+     UBOOL     bSubstInf,           // TRUE iff we're to substitute text for infinity
+     UBOOL     bInsideSep)          // TRUE iff this RAT is inside a larger syntax
 
 {
     APLINT    iLen,                 // String length
@@ -1206,6 +1355,8 @@ LPAPLCHAR FormatAplRatFC
     UBOOL     bNeg;                 // TRUE iff the number is negative
     LPCHAR    lpRawFmt;             // Ptr to raw formatted #
     APLUINT   uTotSize;             // Total size of formatted #
+
+    Assert (!IsMpqNULL (&aplRat));
 
     lpRawFmt = (LPCHAR) lpaplChar;
 
@@ -1269,6 +1420,16 @@ LPAPLCHAR FormatAplRatFC
         lpw = strchrW (lpaplChar, L'/');
         if (lpw)
             *lpw = aplCharRatSep;
+        else
+        if (OptionFlags.bDispMPSuf)
+        {
+            if (bInsideSep)
+            {
+                lpaplChar[iLen++] = aplCharRatSep;
+                lpaplChar[iLen++] = L'1';
+            } else
+                lpaplChar[iLen++] = L'x';
+        } // End IF/ELSE
 
         // Skip over the formatted number
         lpaplChar += iLen;
@@ -1282,35 +1443,35 @@ LPAPLCHAR FormatAplRatFC
 
 
 //***************************************************************************
-//  $FormatFloat
+//  $FormatAplFlt
 //
 //  Format a floating point number
 //***************************************************************************
 
-LPAPLCHAR FormatFloat
+LPAPLCHAR FormatAplFlt
     (LPWCHAR  lpaplChar,        // Ptr to output save area
      APLFLOAT aplFloat,         // The value to format
      APLUINT  nDigits)          // Raw or E-format:  # significant digits
                                 // F-format:  # digits to right of decimal sep
 
 {
-    return FormatFloatFC (lpaplChar,                // Ptr to output save area
-                          aplFloat,                 // The value to format
-                          nDigits,                  // # significant digits (0 = default)
-                          L'.',                     // Char to use as decimal separator
-                          UTF16_OVERBAR,            // Char to use as overbar
-                          FLTDISPFMT_RAWFLT,        // Float display format
-                          FALSE);                   // TRUE iff we're to substitute text for infinity
-} // End FormatFloat
+    return FormatAplFltFC (lpaplChar,               // Ptr to output save area
+                           aplFloat,                // The value to format
+                           nDigits,                 // # significant digits (0 = default)
+                           L'.',                    // Char to use as decimal separator
+                           UTF16_OVERBAR,           // Char to use as overbar
+                           FLTDISPFMT_RAWFLT,       // Float display format
+                           FALSE);                  // TRUE iff we're to substitute text for infinity
+} // End FormatAplFlt
 
 
 //***************************************************************************
-//  $FormatFloatFC
+//  $FormatAplFltFC
 //
 //  Format a APLFLOAT using []FC
 //***************************************************************************
 
-LPAPLCHAR FormatFloatFC
+LPAPLCHAR FormatAplFltFC
     (LPWCHAR    lpaplChar,          // Ptr to output save area
      APLFLOAT   aplFloat,           // The value to format
      APLINT     nDigits,            // Raw or E-format:  # significant digits
@@ -1321,7 +1482,7 @@ LPAPLCHAR FormatFloatFC
      UBOOL      bSubstInf)          // TRUE iff we're to substitute text for infinity
 
 {
-    if (IsInfinity (aplFloat))
+    if (IsFltInfinity (aplFloat))
     {
         if (aplFloat < 0)
             *lpaplChar++ = aplCharOverbar;
@@ -1331,12 +1492,16 @@ LPAPLCHAR FormatFloatFC
             lpaplChar +=
               ConvertWideToNameLength (lpaplChar,       // Ptr to output save buffer
                                       &wcInf,           // Ptr to incoming chars
-                                        1);             // # chars to convert
+                                       1);              // # chars to convert
         else
             *lpaplChar++ = wcInf;           // Char for infinity
     } else
     if (aplFloat EQ 0)
     {
+        // If it's negative, ...
+        if (SIGN_APLFLOAT (aplFloat))
+            *lpaplChar++ = aplCharOverbar;
+
         // Split cases based upon the float display format
         switch (fltDispFmt)
         {
@@ -1393,10 +1558,6 @@ LPAPLCHAR FormatFloatFC
 
             case FLTDISPFMT_RAWINT:
             case FLTDISPFMT_RAWFLT:
-                // Display signed zero so that 6413 []DR {neg}64{take}1
-                //   displays with a sign
-                if (SIGN_APLFLOAT (aplFloat))
-                    *lpaplChar++ = aplCharOverbar;
                 // The result is "0"
                 *lpaplChar++ = L'0';
 
@@ -1490,7 +1651,7 @@ LPAPLCHAR FormatFloatFC
                          (int) -nDigits,            // # significant digits
                                 s,                  // Ptr to raw formatted number
                                 decpt,              // Exponent
-                                DEF_MAX_QUADPP64,   // Maximum # significant digits
+                                DEF_MAX_QUADPP_IEEE,// Maximum # significant digits
                                 aplCharDecimal,     // Char to use as decimal separator
                                 aplCharOverbar);    // Char to use as overbar
                 break;
@@ -1500,7 +1661,7 @@ LPAPLCHAR FormatFloatFC
                 //   to the right of the decimal point
 
                 // Get the maximum # significant digits
-                iSigDig = DEF_MAX_QUADPP64;
+                iSigDig = DEF_MAX_QUADPP_IEEE;
 
                 // Handle numbers between 0 and 1
                 if (decpt <= 0)
@@ -1518,13 +1679,9 @@ LPAPLCHAR FormatFloatFC
                         decpt++;
                     } // End WHILE
 
-                    // If there are no more significant digits
-                    //   and the sign is negative, ...
-                    if (nDigits EQ 0
-                     && sign)
-                        // Move the number down over the sign so we don't return {neg}0
-                        CopyMemoryW (lpaplCharIni, &lpaplCharIni[1], lpaplChar-- - lpaplCharIni);
-                    else
+                    // If there are more significant digits, ...
+                    if (nDigits NE 0)
+                    {
                         // Copy the remaining digits (or underflow chars) to the result
                         //   converting from one-byte ASCII to two-byte UTF16
                         while (nDigits > 0
@@ -1542,6 +1699,7 @@ LPAPLCHAR FormatFloatFC
                             nDigits--;
                             iSigDig--;
                         } // End WHILE
+                    } // End IF
                 } else
                 {
                     // Copy no more than decpt digits to the result
@@ -1614,12 +1772,12 @@ LPAPLCHAR FormatFloatFC
 
                     // Copy no more than nDigits
 
-                    // No more than DEF_MAX_QUADPP64 digits
+                    // No more than DEF_MAX_QUADPP_IEEE digits
                     if (nDigits)
-                        nSigDig = min (nDigits, DEF_MAX_QUADPP64);
+                        nSigDig = min (nDigits, DEF_MAX_QUADPP_IEEE);
                     else
                     {
-                        nSigDig = DEF_MAX_QUADPP64;
+                        nSigDig = DEF_MAX_QUADPP_IEEE;
                         nDigits = decpt;
                     } // End IF/ELSE
 
@@ -1675,7 +1833,7 @@ LPAPLCHAR FormatFloatFC
                               (int) nDigits,            // # significant digits
                                     s,                  // Ptr to raw formatted number
                                     decpt,              // Exponent
-                                    DEF_MAX_QUADPP64,   // Maximum # significant digits
+                                    DEF_MAX_QUADPP_IEEE,// Maximum # significant digits
                                     aplCharDecimal,     // Char to use as decimal separator
                                     aplCharOverbar);    // Char to use as overbar
                 else
@@ -1752,7 +1910,7 @@ LPAPLCHAR FormatFloatFC
     *lpaplChar++ = L' ';
 
     return lpaplChar;
-} // End FormatFloatFC
+} // End FormatAplFltFC
 
 
 //***************************************************************************
@@ -1853,7 +2011,7 @@ LPAPLCHAR FormatExpFmt
 
     // Finally the exponent
     lpaplChar =
-      FormatAplintFC (lpaplChar,        // Ptr to output save area
+      FormatAplIntFC (lpaplChar,        // Ptr to output save area
                       decpt - 1,        // The value to format
                       aplCharOverbar);  // Char to use as overbar
     // Ensure properly terminated
@@ -1918,6 +2076,20 @@ LPAPLCHAR FormatAplVfpFC
               iFrcDigs,             // # fractional digits (may be > iPrcDigs) (excluding 'Enn')
               iPrcDigs;             // # significant digits in the precision
     LPCHAR    lpRawFmt;             // Ptr to raw formatted #
+    int       nDigFPC;              // # significant digits based on the precision
+
+    // Convert this number's precision to the # digits it represents
+    //   via the formula  1 + floor (log10 (2^P))
+    //                  = 1 + floor (P x log10 (2))
+    //   where log10 (2) = (ln (2)) / (ln (10))
+    //                   = M_LN2 / M_LN10
+    nDigFPC = 1 + (int) floor (mpfr_get_prec (&aplVfp) * M_LN2 / M_LN10);
+
+    // Display no more than this # digits
+    if (nDigits < 0)
+        nDigits = max (nDigits, -nDigFPC);
+    else
+        nDigits = min (nDigits,  nDigFPC);
 
     // If we're to precede the display with (FPCnnn), ...
     if (bPrecFPC)
@@ -1926,7 +2098,7 @@ LPAPLCHAR FormatAplVfpFC
         *lpaplChar++ = L'(';
 
         lpaplChar =
-          FormatAplint (lpaplChar,                  // Ptr to output save area
+          FormatAplInt (lpaplChar,                  // Ptr to output save area
                         mpfr_get_prec (&aplVfp));   // The value to format
         // Append trailing marker overwriting the trailing space
         lpaplChar[-1] = L')';
@@ -1953,6 +2125,16 @@ LPAPLCHAR FormatAplVfpFC
                       0,                    // # significant digits (0 = all)
                      &aplVfp,               // Ptr to VFP number
                       MPFR_RNDN);           // Rounding mode
+        // If we're not already displaying in E-format, ...
+        if (nDigits > 0)
+        {
+            // If the number is too large or too small, ...
+            if (expptr > abs64 (nDigits)
+             || expptr < -5)
+                // Switch to E-format
+                nDigits = -nDigits;
+        } // End IF
+
         // Get the char length
         iDiff = lstrlen (lpRawFmt);
 
@@ -2010,9 +2192,9 @@ LPAPLCHAR FormatAplVfpFC
 
             // Ask for no more digits than are in the precision
             iSigDigs = min (iSigDigs, iPrcDigs);
-        } else
-        {
-            Assert (!bFractDigs);
+////////} else
+////////{
+////////    Assert (!bFractDigs);
         } // End IF/ELSE
 
         // If # significant digits NE # precision digits, ...
@@ -2044,24 +2226,19 @@ LPAPLCHAR FormatAplVfpFC
         // If displaying fractional digits, ...
         if (bFractDigs)
         {
-            UINT uDig;                  // # significant digits based on the precision
-
-            // Convert the precision to the # digits it represents
-            //   via the formula  1 + floor (log10 (2^P))
-            //                  = 1 + floor (P x log10 (2))
-            //   where log10 (2) = (ln (2)) / (ln (10))
-            //                   = M_LN2 / M_LN10
-            uDig = 1 + (UINT) floor (mpfr_get_prec (&aplVfp) * M_LN2 / M_LN10);
-
             // Calculate the # trailing underflow digits
-            iUnderflow = abs64 (nDigits) + max (expptr, 0) - max (uDig, (APLUINT) iLen);
+            iUnderflow = abs64 (nDigits) + max (expptr, 0) - max (nDigFPC, (APLUINT) iLen);
             iUnderflow = max (iUnderflow, 0);
         } else
             iUnderflow = 0;
 
         // If the number is zero, ...
-        if (iLen EQ 0)
+        if (iLen EQ bNeg)
         {
+            // If the number is negative, ...
+            if (bNeg)
+                *lpaplChar++ = aplCharOverbar;
+
             // "Format" the number
             *lpaplChar++ = L'0';
 
@@ -2093,10 +2270,10 @@ LPAPLCHAR FormatAplVfpFC
             // Format the number with exactly nDigits significant digits
             lpaplChar =
               FormatExpFmt (lpaplChar,          // Ptr to output save area
-                      (int) nDigits,            // # significant digits
+                     (int) -nDigits,            // # significant digits
                             lpRawFmt,           // Ptr to raw formatted number
                             expptr,             // Exponent
-                            DEF_MAX_QUADPPVFP,  // Maximum # significant digits
+                            DEF_MAX_QUADPP_VFP, // Maximum # significant digits
                             aplCharDecimal,     // Char to use as decimal separator
                             aplCharOverbar);    // Char to use as overbar
         } else
@@ -2110,7 +2287,7 @@ LPAPLCHAR FormatAplVfpFC
             {
                 if (bSubstInf)
                 {
-                    lstrcpyW (&lpaplChar[bNeg], LTEXT_INFINITY);
+                    strcpyW (&lpaplChar[bNeg], LTEXT_INFINITY);
                     iLen = lstrlenW (lpaplChar);
                 } else
                     lpaplChar[bNeg] = UTF16_INFINITY;
@@ -2206,6 +2383,10 @@ LPAPLCHAR FormatAplVfpFC
             lpaplChar += iLen;
         } // End IF/ELSE/...
     } // End IF/ELSE
+
+    if (OptionFlags.bDispMPSuf)
+        // Include the suffix
+        *lpaplChar++ = L'v';
 
     // Include a separator
     *lpaplChar++ = L' ';
@@ -2348,7 +2529,7 @@ LPWCHAR DisplayTransferImm2
           FormatImmedFC (lpwszTemp,                         // Ptr to input string
                          lpSymEntry->stFlags.ImmType,       // Immediate type
                         &lpSymEntry->stData.stLongest,      // Ptr to value to format
-                         DEF_MAX_QUADPP64,                  // # significant digits
+                         DEF_MAX_QUADPP_IEEE,               // # significant digits
                          UTF16_DOT,                         // Char to use as decimal separator
                          UTF16_OVERBAR,                     // Char to use as overbar
                          FLTDISPFMT_RAWFLT,                 // Float display format
@@ -2380,7 +2561,7 @@ LPWCHAR DisplayTransferGlb2
     UBOOL    bNeedParens = FALSE;           // TRUE iff this level needs surrounding parens
 
     // Lock the memory to get a ptr to it
-    lpMemArg = MyGlobalLock (hGlbArg);
+    lpMemArg = MyGlobalLockVar (hGlbArg);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemArg)
     // Get the Array Type, NELM, and Rank
@@ -2428,9 +2609,9 @@ LPWCHAR DisplayTransferGlb2
         // Format & save the shape
         for (uCnt = 0; uCnt < aplRankArg; uCnt++)
             lpwszTemp =
-              FormatAplintFC (lpwszTemp,                // Ptr to output save area
-                              *((LPAPLDIM) lpMemArg)++, // The value to format
-                              UTF16_OVERBAR);           // Char to use as overbar
+              FormatAplIntFC (lpwszTemp,            // Ptr to output save area
+                 *((LPAPLDIM) lpMemArg)++,          // The value to format
+                              UTF16_OVERBAR);       // Char to use as overbar
         // lpMemArg now points to the data
 
         // If the array is not a scalar, ...
@@ -2449,7 +2630,7 @@ LPWCHAR DisplayTransferGlb2
             // Loop through the elements
             for (uCnt = 0; uCnt < aplNELMArg; uCnt++)
                 lpwszTemp =
-                  FormatAplintFC (lpwszTemp,        // Ptr to output save area
+                  FormatAplIntFC (lpwszTemp,        // Ptr to output save area
                                   GetNextInteger (lpMemArg, aplTypeArg, uCnt),  // The value to format
                                   UTF16_OVERBAR);   // Char to use as overbar
             break;
@@ -2469,7 +2650,7 @@ LPWCHAR DisplayTransferGlb2
             {
                 // Append the offset
                 lpwszTemp =
-                  FormatAplintFC (lpwszTemp,            // Ptr to output save area
+                  FormatAplIntFC (lpwszTemp,            // Ptr to output save area
                                   lpAPA->Off,           // The value to format
                                   UTF16_OVERBAR);       // Char to use as overbar
                 // Append a minus sign, zapping the trailing blank
@@ -2477,17 +2658,17 @@ LPWCHAR DisplayTransferGlb2
 
                 // Append the multiplier
                 lpwszTemp =
-                  FormatAplintFC (lpwszTemp,            // Ptr to output save area
+                  FormatAplIntFC (lpwszTemp,            // Ptr to output save area
                                   lpAPA->Mul,           // The value to format
                                   UTF16_OVERBAR);       // Char to use as overbar
 #undef  lpAPA
                 // Append {times}[]IO-{iota}, zapping the trailing blank
-                lstrcpyW (&lpwszTemp[-1], WS_UTF16_TIMES $QUAD_IO L"-" WS_UTF16_IOTA);
+                strcpyW (&lpwszTemp[-1], WS_UTF16_TIMES $QUAD_IO L"-" WS_UTF16_IOTA);
                 lpwszTemp = &lpwszTemp[lstrlenW (lpwszTemp)];
 
                 // Format the length
                 lpwszTemp =
-                  FormatAplintFC (lpwszTemp,            // Ptr to output save area
+                  FormatAplIntFC (lpwszTemp,            // Ptr to output save area
                                   aplNELMArg,           // The value to format
                                   UTF16_OVERBAR);       // Char to use as overbar
             } // End IF/ELSE
@@ -2498,13 +2679,13 @@ LPWCHAR DisplayTransferGlb2
             // Loop through the elements
             for (uCnt = 0; uCnt < aplNELMArg; uCnt++)
                 lpwszTemp =
-                  FormatFloatFC (lpwszTemp,             // Ptr to output save area
-                                 *((LPAPLFLOAT) lpMemArg)++, // Ptr to float value
-                                 DEF_MAX_QUADPP64,      // # significant digits
-                                 L'.',                  // Char to use as decimal separator
-                                 UTF16_OVERBAR,         // Char to use as overbar
-                                 FLTDISPFMT_RAWFLT,     // Float display format
-                                 FALSE);                // TRUE iff we're to substitute text for infinity
+                  FormatAplFltFC (lpwszTemp,            // Ptr to output save area
+                   *((LPAPLFLOAT) lpMemArg)++,          // Ptr to float value
+                                  DEF_MAX_QUADPP_IEEE,  // # significant digits
+                                  L'.',                 // Char to use as decimal separator
+                                  UTF16_OVERBAR,        // Char to use as overbar
+                                  FLTDISPFMT_RAWFLT,    // Float display format
+                                  FALSE);               // TRUE iff we're to substitute text for infinity
             break;
 
         case ARRAY_CHAR:
@@ -2570,7 +2751,7 @@ LPWCHAR DisplayTransferGlb2
     if (bNeedParens)
         *lpwszTemp++ = L')';
 
-    // We no longer this ptr
+    // We no longer need this ptr
     MyGlobalUnlock (hGlbArg); lpMemArg = NULL;
 
     return lpwszTemp;
@@ -2601,21 +2782,21 @@ LPWCHAR DisplayTransferFcn2
     if (lpSymEntry->stFlags.UsrDfn)
     {
         // Append "[]FX "
-        lstrcpyW (lpwszTemp, $QUAD_FX L" ");
+        strcpyW (lpwszTemp, $QUAD_FX L" ");
         lpwszTemp = &lpwszTemp[lstrlenW (lpwszTemp)];
 
         // Get the user-defined function/operator global memory handle
         hGlbDfnHdr = lpSymEntry->stData.stGlbData;
 
         // Lock the memory to get a ptr to it
-        lpMemDfnHdr = MyGlobalLock (hGlbDfnHdr);
+        lpMemDfnHdr = MyGlobalLockDfn (hGlbDfnHdr);
 
         // Save creation time if requested
         if (lpftCreation)
             *lpftCreation = lpMemDfnHdr->ftCreation;
 
         // Lock the memory to get a ptr to it
-        lpMemTxtLine = MyGlobalLock (lpMemDfnHdr->hGlbTxtHdr);
+        lpMemTxtLine = MyGlobalLockTxt (lpMemDfnHdr->hGlbTxtHdr);
 
         // Display the function header
         lpwszTemp =
@@ -2641,7 +2822,7 @@ LPWCHAR DisplayTransferFcn2
             if (hGlbTxtLine)
             {
                 // Lock the memory to get a ptr to it
-                lpMemTxtLine = MyGlobalLock (hGlbTxtLine);
+                lpMemTxtLine = MyGlobalLockTxt (hGlbTxtLine);
 
                 // Display the function line
                 lpwszTemp =
@@ -2722,7 +2903,7 @@ APLCHAR GetQuadFCValue
     hGlbQuadFC = lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_FC]->stData.stGlbData;
 
     // Lock the memory to get a ptr to it
-    lpMemQuadFC = MyGlobalLock (hGlbQuadFC);
+    lpMemQuadFC = MyGlobalLockVar (hGlbQuadFC);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemQuadFC)
     // Get the array NELM and rank
@@ -2753,7 +2934,7 @@ APLCHAR GetQuadFCValue
 //***************************************************************************
 
 APLINT GetQuadICValue
-    (IC_INDICES uIndex)
+    (IC_INDICES icIndex)
 
 {
     LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
@@ -2764,7 +2945,7 @@ APLINT GetQuadICValue
     APLRANK      aplRankQuadIC;     // []IC rank
     APLINT       aplIntQuadIC;      // []IC[uIndex]
 
-    Assert (uIndex < ICNDX_LENGTH);
+    Assert (icIndex < ICNDX_LENGTH);
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
@@ -2773,7 +2954,7 @@ APLINT GetQuadICValue
     hGlbQuadIC = lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_IC]->stData.stGlbData;
 
     // Lock the memory to get a ptr to it
-    lpMemQuadIC = MyGlobalLock (hGlbQuadIC);
+    lpMemQuadIC = MyGlobalLockVar (hGlbQuadIC);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemQuadIC)
     // Get the array Type, NELM, and rank
@@ -2786,13 +2967,14 @@ APLINT GetQuadICValue
     lpMemQuadIC = VarArrayDataFmBase (lpMemQuadIC);
 
     // Check for short []IC
-    if (uIndex >= aplNELMQuadIC)
-        aplIntQuadIC = aplDefaultIC[uIndex];
+    if (icIndex >= aplNELMQuadIC)
+        aplIntQuadIC = aplDefaultIC[icIndex];
     else
         // Get next item from global memory ([]IC can be BOOL, INT, or APA only)
         GetNextItemMem (lpMemQuadIC,        // Ptr to item global memory data
                         aplTypeQuadIC,      // Item storage type
-                        uIndex,             // Index into item
+                        aplNELMQuadIC,      // Item NELM
+                        icIndex,            // Index into item
                         NULL,               // Ptr to result LPSYMENTRY or HGLOBAL (may be NULL)
                        &aplIntQuadIC);      // Ptr to result immediate value (may be NULL)
     // We no longer need this ptr
@@ -2800,6 +2982,369 @@ APLINT GetQuadICValue
 
     return aplIntQuadIC;
 } // End GetQuadICValue
+
+
+//***************************************************************************
+//  $DisplayGlbVector
+//
+//  Display a non-empty non-PtrArray vector-like array
+//    without running into a LIMIT ERROR on a guard page
+//    in case the vector is too long.
+//***************************************************************************
+
+UBOOL DisplayGlbVector
+    (LPAPLCHAR lpaplCharIni,        // Ptr to temp area
+     APLSTYPE  aplType,             // Array storage type
+     APLDIM    aplDimNCols,         // Array # cols (!= 0)
+     LPVOID    lpMemArr,            // Ptr to array global memory
+     LPUBOOL   lpbCtrlBreak,        // Ptr to Ctrl-Break flag
+     APLUINT   uQuadPW)             // []PW
+
+{
+    APLINT    uCopyLen;             // Length
+    APLUINT   uCnt,                 // Loop counter
+              uIniPos,              // Initial position
+              uCurPos,              // Current ...
+              uMaxPos;              // Maximum ...
+    IMM_TYPES immType;              // Immediate type
+    WCHAR     wc;                   // Temp var
+    LPAPLCHAR lpaplChar,            // Prt to current output save char
+              lpaplCharNxt;         // Ptr to next char
+    APLINT    iSizeof;              // sizeof () datatype
+    UBOOL     bRet = FALSE,         // TRUE iff we succeeded
+              bBoolAPA = FALSE;     // TRUE iff the type is BOOL or APA
+    HWND      hWndSM,               // Window handle for the Session Manager
+              hWndEC;               // ...                                  Edit Ctrl
+
+    // Get the current SM window handle
+    hWndSM = GetMemPTD ()->hWndSM;
+    hWndEC = (HWND) (HANDLE_PTR) GetWindowLongPtrW (hWndSM, GWLSF_HWNDEC);
+
+    // Set initial values
+    lpaplChar = lpaplCharIni;
+    uCurPos   =
+    uIniPos   =
+    uMaxPos   = 0;
+
+    // Split cases based upon the storage type
+    switch (aplType)
+    {
+        case ARRAY_CHAR:
+            // Continue until we're out of cols
+            while (aplDimNCols)
+            {
+                // Copy the chars to temp storage
+                for (uCnt = 0;
+                     (uCnt < aplDimNCols) && (uCurPos < uQuadPW);
+                     uCnt++, ((LPAPLCHAR) lpMemArr)++)
+                    // Check for Terminal Control chars
+                    if (CheckTermCodes ((LPAPLCHAR) lpMemArr,   // Ptr to current char to test
+                                        hWndEC,                 // EditCtrl window handle
+                                        lpaplCharIni,           // Ptr to initial output save area
+                                       &lpaplChar,              // Ptr to ptr to output save area
+                                       &uCurPos,                // Ptr to current position
+                                       &uMaxPos,                // Ptr to maximum position
+                                        uIniPos))               // Initial position
+                    {
+                        // Skip over the next two chars
+                        uCnt                   += 2;
+                        ((LPAPLCHAR) lpMemArr) += 2;
+                    } // End FOR/IF
+                // Ensure properly terminated
+                lpaplChar[0] = WC_EOS;
+
+                // Account for it
+                aplDimNCols -= uCnt;
+
+                // Display the continued line with ending CRLF
+                AppendLine (lpaplCharIni, aplDimNCols > 0, TRUE);
+
+                // Reset ptrs
+                lpaplChar = lpaplCharIni;
+
+                // Set 2nd and subsequent copy length & initial positions
+////////////////uCopyLen = (APLU3264) uQuadPW - DEF_INDENT;
+                uIniPos = uCurPos = uMaxPos = DEF_INDENT;
+
+                // If there's more to display, ...
+                if (aplDimNCols)
+                    // Display the non-continued indent without ending CRLF
+                    AppendLine (wszIndent, FALSE, FALSE);
+
+                // Check for Ctrl-Break
+                if (CheckCtrlBreak (*lpbCtrlBreak))
+                    goto ERROR_EXIT;
+            } // End WHILE
+
+            break;
+
+        case ARRAY_BOOL:
+        case ARRAY_APA:
+            // Mark as special
+            bBoolAPA = TRUE;
+
+            // Fall through to common code
+
+        case ARRAY_INT:
+        case ARRAY_FLOAT:
+        case ARRAY_RAT:
+        case ARRAY_VFP:
+            // Translate the array type to immediate type & sizeof
+            immType = TranslateArrayTypeToImmType (aplType);
+            iSizeof = TranslateArrayTypeToSizeof (aplType);
+
+            // Set initial values
+            uCopyLen  = (APLU3264) uQuadPW;
+
+            // Loop through the cols
+            for (uCnt = 0; uCnt < aplDimNCols; uCnt++)
+            {
+                // If it's BOOL/APA, ...
+                if (bBoolAPA)
+                {
+                    APLINT aplInteger = GetNextInteger (lpMemArr, aplType, uCnt);
+
+                    // Format the next value
+                    lpaplCharNxt =
+                      FormatImmedPtr (lpaplChar,        // Ptr to output save area
+                                      immType,          // Immediate type
+                                     &aplInteger);      // Ptr to the value
+                } else
+                {
+                    // Format the next value
+                    lpaplCharNxt =
+                      FormatImmedPtr (lpaplChar,        // Ptr to output save area
+                                      immType,          // Immediate type
+                                      lpMemArr);        // Ptr to the value
+                    // Skip over the item
+                    ((LPBYTE) lpMemArr) += iSizeof;
+                } // End IF/ELSE
+
+                // Recall that <FormatImmedPtr> and similar routines all append a
+                //   trailing blank and return a ptr to the char after the blank,
+                //   hence <lpaplCharNxt - 1> points to the trailing blank and is
+                //   thus a proper ptr to the char after the last char to be displayed.
+
+                // While the line exceeds the width, ...
+                while (uCopyLen < ((lpaplCharNxt - 1) - lpaplCharIni))
+                {
+                    // If this is the first item on the line, ...
+                    if (lpaplChar EQ lpaplCharIni)
+                        // lpaplCharIni -> '11111111111234567890123456789r12345'
+                        // lpaplChar    ->  ^
+                        // lpaplCharNxt ->                                     ^
+                        // uCopyLen     ->                                 ^
+
+                        // Point to end of the page width
+                        lpaplChar = &lpaplCharIni[uCopyLen];
+                    else
+                    {
+                        // lpaplCharIni -> '1111111111 1234567890123456789r12345'
+                        // lpaplChar    ->             ^
+                        // lpaplCharNxt ->                                      ^
+                        // uCopyLen     ->                                  ^
+                    } // End IF/ELSE
+
+                    // Terminate the string
+                    wc = lpaplChar[0];
+                    lpaplChar[0] = WC_EOS;
+
+                    // Display the continued line with ending CRLF
+                    AppendLine (lpaplCharIni, TRUE, TRUE);
+
+                    // Restore the zapped digit
+                    lpaplChar[0] = wc;
+
+                    // Move down the remaining values
+                    CopyMemoryW (lpaplCharIni,
+                                 lpaplChar,
+                                 lpaplCharNxt - lpaplChar);
+
+                    // Reset the current & next ptrs
+                    lpaplCharNxt = &lpaplCharIni[lpaplCharNxt - lpaplChar];
+                    lpaplChar    = lpaplCharIni;
+
+                    // Set 2nd and subsequent copy length & initial positions
+                    uCopyLen = (APLU3264) uQuadPW - DEF_INDENT;
+                    uIniPos = uCurPos = DEF_INDENT;
+
+                    // Display the non-continued indent without ending CRLF
+                    AppendLine (wszIndent, FALSE, FALSE);
+                } // End WHILE
+
+                // Reset the current ptr
+                lpaplChar = lpaplCharNxt;
+
+                // Check for Ctrl-Break
+                if (CheckCtrlBreak (*lpbCtrlBreak))
+                    goto ERROR_EXIT;
+            } // End FOR
+
+            // If there's still more values to display, ...
+            if (lpaplChar > lpaplCharIni)
+            {
+                // Terminate the string
+                lpaplChar[0] = WC_EOS;
+
+                // Display the non-continued line with ending CRLF
+                AppendLine (lpaplCharIni, FALSE, TRUE);
+            } // End IF
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
+
+    // Mark as successful
+    bRet = TRUE;
+ERROR_EXIT:
+    return bRet;
+} // End DisplayGlbVector
+
+
+//***************************************************************************
+//  $CheckTermCodes
+//
+//  Check a character for terminal Codes
+//***************************************************************************
+
+UBOOL CheckTermCodes
+    (LPWCHAR    lpwc,           // Ptr to Temp var
+     HWND       hWndEC,         // Window handle of the EditCtrl
+     LPAPLCHAR  lpaplCharIni,   // Ptr to initial output save area
+     LPAPLCHAR *lplpaplChar,    // Ptr to ptr to output save area
+     APLUINT   *lpuCurPos,      // Ptr to current position
+     APLUINT   *lpuMaxPos,      // Ptr to maximum position
+     APLUINT    uIniPos)        // Initial position
+
+{
+    APLUINT uSpaces;            // # spaces to fill in for HT
+    UBOOL   bRet = FALSE;       // TRUE iff the caller is to skip over CR, LF
+
+    // Split cases based upon the char value
+    switch (*lpwc)
+    {
+        case WC_BEL:    // Bel
+            // If we're NOT Output Debugging, ...
+            if (!OptionFlags.bOutputDebug)
+            {
+                // Sound the alarum!
+                MessageBeep (NEG1U);
+
+                break;
+            } else
+            {
+                // Fall through to common code
+            } // End IF/ELSE
+
+        case WC_HT:
+            // If we're NOT Output Debugging, ...
+            if (!OptionFlags.bOutputDebug)
+            {
+                // Insert a tab -- convert into insert N spaces
+                uSpaces = (((*lpuCurPos) / DEF_TABS) * DEF_TABS + DEF_TABS) - *lpuCurPos;
+
+                Assert (uSpaces <= DEF_TABS);
+
+                // Fill with spaces
+                FillMemoryW (*lplpaplChar, (APLU3264) uSpaces, L' ');
+
+                // Skip over the spaces
+                (*lplpaplChar) += uSpaces;
+                (*lpuCurPos)   += uSpaces;
+                (*lpuMaxPos)   = max (*lpuMaxPos, *lpuCurPos);
+
+                break;
+            } else
+            {
+                // Fall through to common code
+            } // End IF/ELSE
+
+        case WC_BS:
+            // If we're NOT Output Debugging, ...
+            if (!OptionFlags.bOutputDebug)
+            {
+                // If there's room to backspace, ...
+                if (lpuCurPos[0] > uIniPos)
+                {
+                    // Back up one position
+                    (*lplpaplChar)--;
+                    (*lpuCurPos)--;
+                } // End IF
+
+                break;
+            } else
+            {
+                // Fall through to common code
+            } // End IF/ELSE
+
+        default:
+            *(*lplpaplChar)++ = *lpwc;
+            (*lpuCurPos)++;
+            (*lpuMaxPos)      = max (*lpuMaxPos, *lpuCurPos);
+
+            break;
+
+        case WC_CR:
+            // Ensure properly terminated
+            lpaplCharIni[*lpuMaxPos - uIniPos] = WC_EOS;
+
+            // Display the continued line with ending CRLF
+            AppendLine (lpaplCharIni, TRUE, TRUE);
+
+            // Fill the line up to the current position with blanks
+            FillMemoryW (lpaplCharIni, (APLU3264) *lpuCurPos, L' ');
+
+            // Reset the ptrs and counters to the start of the line
+            (*lplpaplChar) = &lpaplCharIni[uIniPos];
+            (*lpuMaxPos)   =
+            (*lpuCurPos)   = uIniPos;
+
+            // If this char is followed by WC_CR and WC_LF, ...
+            if (lpwc[1] EQ WC_CR
+             && lpwc[2] EQ WC_LF)
+            {
+                UINT uCharPos,              // Current char position in the buffer
+                     uLineNum;              // Current line #
+
+                // The previous line ends with CR/LF and we need to change it
+                //   so that it ends with CR/CR/LF
+
+                // Get the indices of the selected text, and as
+                //   there is none, we need the leading position only
+                SendMessageW (hWndEC, EM_GETSEL, (WPARAM) &uCharPos, 0);
+
+                // Back up by 2 to the start of CR/LF
+                SendMessageW (hWndEC, EM_SETSEL, uCharPos - 2, uCharPos - 2);
+
+                // Insert another CR
+                SendMessageW (hWndEC, EM_REPLACESEL, FALSE, (LPARAM) WS_CR);
+
+                // Reset the selection to the end
+                SendMessageW (hWndEC, EM_SETSEL, uCharPos + 1, uCharPos + 1);
+
+                // Get the current line # in the Edit Ctrl buffer
+                uLineNum = (UINT) SendMessageW (hWndEC, EM_LINEFROMCHAR, (WPARAM) -1, 0);
+
+                // Draw a Line Continuation marker
+                DrawLineCont (hWndEC, uLineNum);
+
+                bRet = TRUE;
+            } // End IF
+
+            break;
+
+        case WC_EOS:
+            *(*lplpaplChar)++ = UTF16_REPLACEMENT0000;
+            (*lpuCurPos)++;
+            (*lpuMaxPos)      = max (*lpuMaxPos, *lpuCurPos);
+
+            break;
+    } // End SWITCH
+
+    return bRet;
+} // End CheckTermCodes
 
 
 //***************************************************************************

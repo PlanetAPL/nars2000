@@ -1,0 +1,14 @@
+Build #1273 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Closing Tab With Non-empty SI
+
+Directory trunk:
+
+TABCTRL.C:
+  Define new temp struc for Reset thread.
+  In <FreeGlobalStorage>, use separate thread to run )RESET.
+
+THREADS.H:
+  Update copyright year.
+  Define new temp struc for Reset thread.

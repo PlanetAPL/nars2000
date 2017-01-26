@@ -1,0 +1,10 @@
+Build #1448 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Modify Named Assignment On Immediate Right Args
+
+ASSIGN.C:
+  In <ModifyAssignNamedVars_EM>, in the case where the right arg is an immediate, execute the function between each name and the immediate.
+
+PARSELINE.C:
+  In <plRedLNR_SPA>, free and YYFree the curried function (if any).

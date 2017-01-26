@@ -1,0 +1,29 @@
+Build #1533 -- Version 0.4.15.xx
+--------------------------------
+
+* Implement Command Line Args For Symbol & Hash Table Sizes
+
+Directory trunk:
+
+DEFINES.H:
+  Define alias for another string comparison function.
+
+EXTERNS.H:
+  Define extern vars for command line keyword values.
+
+MAIN.C:
+  Change the NOT LOADED message for the Crash Report DLL to be more visible.
+  Implement test for command line args.
+
+MAIN.RC:
+  Make room in the About dialog for the Symbol and Hash Table sizes.
+
+SESSMAN.C:
+  When allocating Symbol and Hash Tables, use the calculated values from the command line.
+
+SYMTAB.H:
+  Define Symbol and Hash Table multipliers for later use.
+
+VER.C:
+  Use the word "Version" when describing the version #.
+  Display the Symbol and Hash Tables sizes in the About box.

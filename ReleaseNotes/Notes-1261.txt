@@ -1,0 +1,13 @@
+Build #1261 -- Version 0.4.9.xx
+-------------------------------
+
+* Omit DEBUG Flag No Longer Needed
+
+Directory trunk:
+
+PARSELINE.C:
+PL_PARSE.H:
+STRAND.C:
+YYFNS.C:
+  Omit <YYFlag> as it's no longer needed.
+  Omit separate indexing of <YYAlloc>s in <pl_yylex> as it's no longer needed.

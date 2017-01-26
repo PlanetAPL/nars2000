@@ -1,0 +1,16 @@
+Build #1486 -- Version 0.4.14.xx
+--------------------------------
+
+* In Name Assignment, Check For NoValue System Names
+* Check for MIN_APLINT In Internal Function
+
+Directory trunk:
+
+ASSIGN.C:
+  In <AssignName_EM>, check for the target name as a NoValue system name (except for []Z),
+    and signal an error if found.
+
+PRIMFNS.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <abs64>, check for MIN_APLINT and signal exception if so.
+  Define function <IsTknSysName> used by <AssignName_EM>.

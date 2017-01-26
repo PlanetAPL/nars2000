@@ -1,0 +1,10 @@
+Build #1244 -- Version 0.4.8.xx
+-------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+MAKEVER.C:
+  Update copyright year.
+  Set to NULL closed handle.

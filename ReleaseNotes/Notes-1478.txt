@@ -1,0 +1,15 @@
+Build #1478 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In []RL Handling From Build #1477
+
+Directory trunk:
+
+GETFNS.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In <SetQuadDT>, convert argument to lowercase just in case.
+  In <RestPrimSpecRL>, fix bug introduced in build #1477 where I didn't update
+    the var names after changing the place where the previous HSHTABSTR was saved.
+
+MAKEFILE.INC:
+  Skip display of the filenames when creating the .dep files.

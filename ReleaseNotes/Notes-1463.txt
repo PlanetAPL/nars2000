@@ -1,0 +1,63 @@
+Build #1463 -- Version 0.4.14.xx
+--------------------------------
+
+* Define Macros To Detect Empty Char Arrays And Similar
+* Fix Bugs Caught By The Above Macros
+
+Directory trunk:
+
+AXISFNS.C:
+  Fix bug in ''{transpose}1.
+
+MACROS.H:
+  Define macro for detecting empty AND char arrays.
+  Define macro for detecting empty OR  char arrays.
+
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_COLONBAR.C:
+PF_CSTAR.C:
+PF_DCARET.C:
+PF_DSTILE.C:
+PF_EQUAL.C:
+PF_LCARET.C:
+PF_LCARETUND.C:
+PF_NDCARET.C:
+PF_NEQUAL.C:
+PF_NUCARET.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_QUERY.C:
+PF_RCARET.C:
+PF_RCARETUND.C:
+PF_ROOT.C:
+PF_SLASH.C:
+PF_SLOPE.C:
+PF_STAR.C:
+PF_STILE.C:
+PF_TILDE.C:
+PF_TIMES.C:
+PF_UARROW.C:
+PF_UCARET.C:
+PF_USTILE.C:
+  Use macro to test for empty char arrays.
+
+PF_DELTASTILE.C:
+PF_UTACKJOT.C:
+QF_EX.C:
+QF_MF.C:
+QF_NL.C:
+  Use macro to test for empty OR char arrays.
+
+PF_INDEX.C:
+  Fix bug in a[''].
+
+PF_SQUAD.C:
+  Use macro to test for a LIST array.
+
+QF_AT.C:
+  Use macro to test for empty OR char arrays.
+  Fix bug in n []AT ''.
+
+QF_STRACE.C:
+  Simplify code to test for just simple char arrays.

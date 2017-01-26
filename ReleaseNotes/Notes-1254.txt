@@ -1,0 +1,9 @@
+Build #1254 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Build #1249
+
+Directory trunk:
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, handle the APA case when initializing GlbNum temps.

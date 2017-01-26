@@ -1,0 +1,10 @@
+Build #1232 -- Version 0.4.7.xx
+-------------------------------
+
+* Fix Bug When Syntax Coloring
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <scCtrlDone>, if we have selected the tail of a line that ends with a
+    control structure, we might overwrite the next memory block and crash.

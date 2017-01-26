@@ -1,0 +1,12 @@
+Build #1434 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug When Restarting Certain Exceptions
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+PRIMSPEC.C:
+PRIMSPEC.H:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix bug when restarting certain exceptions which failed to restart the left and right ptrs.

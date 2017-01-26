@@ -1,0 +1,9 @@
+Build #1333 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug With !{infinity}
+
+Directory trunk:
+
+PF_QDOT.C:
+  Fix bug with !{infinity} to return {infinity} instead of DOMAIN ERROR.

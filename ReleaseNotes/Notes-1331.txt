@@ -1,0 +1,13 @@
+Build #1331 -- Version 0.4.9.xx
+-------------------------------
+
+* Use Macro To Check For Axis Tokens
+
+Directory trunk:
+
+AXISFNS.C:
+DISPDBG.C:
+PO_DICIRCLE.C:
+PO_JOT.C:
+PRIMFNS.C:
+  Define and use a macro to check for axis tokens.

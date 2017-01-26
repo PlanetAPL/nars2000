@@ -1,0 +1,56 @@
+Build #1440 -- Version 0.4.12.xx
+--------------------------------
+
+* Implement []FEATURE[2] As "Allow -0"
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+DEFINES.H:
+  Remove "Allow -0" from "User Preferences" and into []FEATURE[2].
+  Remove old debugging aid DBGENTER/DBGLEAVE.
+
+EXTERNS.H:
+  Remove "Allow -0" from "User Preferences" and into []FEATURE[2].
+
+INIFILE.C:
+  Don't pass "xxx_CWS_BR" var to "GetPrivateProfileXXX" functions as we need its
+    length to be one-to-one with the default value.
+  Improve comments.
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  In <GetPrivateProfileGlbComW>, ensure resutl length of sysvar is at least minimum required,
+    and if not, fill in trailing values from the default.
+
+MACROS.H:
+  Define and use names for current value of <bAllowNeg0>.
+
+MAKEFILE.INC
+  Omit Whole Program Optimization as that slows down each compile.
+
+MPIFNS.C:
+PF_COLONBAR.C:
+PN_PARSE.Y:
+TRANSLATE.C:
+TYPEMOTE.C:
+  Use names for current value of <bAllowNeg0>.
+
+PF_BAR.C:
+  Use names for current value of <bAllowNeg0>.
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+
+PF_INDEX.C:
+  Fix bug in <ArrayIndexSetSingLst_EM> where indexed assignment into sysvar uses the wrong index.
+
+PF_STILE.C:
+  Use names for current value of <bAllowNeg0>.
+  Use exact arithmetic on rational residue.
+
+PF_TIMES.C:
+  Use names for current value of <bAllowNeg0>.
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+
+PN_PROC.C:
+  Use names for current value of <bAllowNeg0>.
+  Fix bug in <PN_VectorAcc> when determining if a number is expressible as an integer or a rational.
+  In <PN_VectorRes>, terminate the string before calling <ParsePointNotation> and restore afterwards.
+
+TOKENIZE.C:
+  In <fnPointDone>, terminate the string before calling <ParsePointNotation> and restore afterwards.

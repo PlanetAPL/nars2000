@@ -1,0 +1,9 @@
+Build #1593 -- Version 0.4.18.xx
+--------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Insert /LCTG:off in <MakeVer> link command line to avoid spurious error message.

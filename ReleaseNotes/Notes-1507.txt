@@ -1,0 +1,16 @@
+Build #1507 -- Version 0.4.15.xx
+--------------------------------
+
+* Restore Values To PTD Cached Copy Of []FEATURE Upon Unlocalization
+
+Directory trunk:
+
+EXECDFN.C:
+  In <UnlocalizeSTEs>, if the var being unlocalized is []FEATURE, restore the old values to the cached copy in the PTD.
+
+PERTAB.H:
+STARTADDR.H:
+SYSVARS.C:
+  Define new function <SetCurrentFeatureFromSysVar> to restore PTD cached copy values of []FEATURE from SysVar values.
+  Define common subroutine to restore PTD cached copy values of []FEATURE from a global memory handle.
+  Rename <SetCurrentFeatureCWS> to <SetCurrentFeatureFromCWS> and call the above subroutine to finish the job.

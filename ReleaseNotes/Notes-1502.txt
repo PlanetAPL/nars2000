@@ -1,0 +1,9 @@
+Build #1502 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Pick Where Either Argument Is Global Numeric
+
+Directory trunk:
+
+PF_RSHOE.C:
+  Fix bug in <PrimFnDydRightShoeGlbGlb_EM_YY> where either arg is global numeric.

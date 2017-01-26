@@ -1,0 +1,18 @@
+Build #1258 -- Version 0.4.9.xx
+-------------------------------
+
+* Use More Consistent Function Names
+
+Directory trunk:
+
+CUSTOMIZE.C:
+DISPDBG.C:
+DISPLAY.C:
+INIFILE.C:
+PF_DTACKJOT.C:
+QF_FMT.C:
+QF_TF.C:
+SC_SAVE.C:
+STARTADDR.H:
+  Use <FormatAplFlt> and <FormatAplInt> for <FormatFloat> and <FormatAplint>
+   as more consistent names with other such functions.

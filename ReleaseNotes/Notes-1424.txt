@@ -1,0 +1,12 @@
+Build #1424 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer Cleanup
+
+Directory trunk:
+
+PARSELINE.C:
+  After <PARSELINE_ERROR>, be sure to cleanup the left stack on which there might be unfreed temps.
+
+VER.RC:
+  Increment version # to 0.4.12.xx.

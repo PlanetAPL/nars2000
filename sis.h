@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,14 +47,16 @@ typedef struct tagSIS_HEADER
     UINT             DfnType:4,     // 1C:  0000000F:  User-defined function/operator Type (see DFN_TYPES)
                      FcnValence:3,  //      00000070:  User-defined function/operator Valence (see FCN_VALENCES)
                      DfnAxis:1,     //      00000080:  User-defined function/operator accepts axis value
-                     Suspended:1,   //      00000100:  Function is suspended
+                     bSuspended:1,  //      00000100:  TRUE iff the function is suspended
                      ResetFlag:3,   //      00000E00:  SI stack is resetting (see RESET_FLAGS)
-                     PermFn:1,      //      00001000:  Permanent function (i.e. Magic Function/Operator)
-                     Restartable:1, //      00002000:  This SI level is restartable
-                     Unwind:1,      //      00004000:  Unwind this level for error message level
-                     ItsEC:1,       //      00008000:  TRUE iff DFNTYPE_ERRCTRL and this level is []EC (not []EA)
-                     bAFO:1,        //      00010000:  TRUE iff this level is an AFO
-                     :15;           //      FFFE0000:  Available bits
+                     bRestartable:1,//      00001000:  TRUE iff this SI level is restartable
+                     bUnwind:1,     //      00002000:  TRUE iff unwind this level for error message level
+                     bItsEC:1,      //      00004000:  TRUE iff DFNTYPE_ERRCTRL and this level is []EC (not []EA)
+                     bAFO:1,        //      00008000:  TRUE iff this level is an AFO
+                     bMFO:1,        //      00010000:  TRUE iff this level is an MFO
+                     bLclRL:1,      //      00020000:  TRUE iff []RL is localized in this AFO
+                     bAfoValue:1,   //      00040000:  TRUE iff an AFO returned a value
+                     :13;           //      FFF80000:  Available bits
     EVENT_TYPES      EventType;     // 20:  Event type (Major, Minor) (see EVENT_TYPES)
     UINT             CurLineNum,    // 24:  Current line # (origin-1)
                      NxtLineNum,    // 28:  Next    ...
@@ -64,16 +66,19 @@ typedef struct tagSIS_HEADER
                      numSymEntries, // 38:  # LPSYMENTRYs localized on the stack
                      QQPromptLen,   // 3C:  Quote-Quad input prompt length
                      ErrorCode;     // 40:  Error code (see ERROR_CODES)
+    int              iCharIndex;    // 44:  Caret position of current function
     struct tagSIS_HEADER
-                    *lpSISErrCtrl,  // 44:  Ptr to controlling []EA/[]EC SIS header (NULL = none)
-                    *lpSISPrv,      // 48:  Ptr to previous SIS header (NULL = none)
-                    *lpSISNxt;      // 4C:  Ptr to next     ...         ...
-    LPTOKEN          lptkFunc;      // 50:  Ptr to function token for Quote-Quad input
+                    *lpSISErrCtrl,  // 48:  Ptr to controlling []EA/[]EC SIS header (NULL = none)
+                    *lpSISPrv,      // 4C:  Ptr to previous SIS header (NULL = none)
+                    *lpSISNxt;      // 50:  Ptr to next     ...         ...
+    LPTOKEN          lptkFunc;      // 54:  Ptr to function token for Quote-Quad input
     struct tagFORSTMT
-                    *lpForStmtBase, // 54:  Ptr to starting entry in FORSTMT stack
-                    *lpForStmtNext; // 58:  Ptr to next available ...
-                                    // 5C:  Length
-                                    // 5C:  Array of LPSYMENTRYs (shadowed entry for results, args, labels, & locals)
+                    *lpForStmtBase, // 58:  Ptr to starting entry in FORSTMT stack
+                    *lpForStmtNext; // 5C:  Ptr to next available ...
+    LPPLLOCALVARS    lpplLocalVars; // 60:  Ptr to this level's plLocalVars
+    LPHSHTABSTR      lphtsPrv;      // 64:  Ptr to previous HSHTABSTR (may be NULL)
+                                    // 68:  Length
+                                    // 68:  Array of LPSYMENTRYs (shadowed entry for results, args, labels, & locals)
 } SIS_HEADER, *LPSIS_HEADER;
 
 

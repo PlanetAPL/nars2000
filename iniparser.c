@@ -51,7 +51,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #include "macros.h"
 #include "defines.h"
-#include "types.h"
 #include "dictionary.h"
 
 // Include prototypes unless prototyping
@@ -60,14 +59,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "iniparser.pro"
 #endif
 
+#define strlwrW2
 
+int MySprintfW (LPWCHAR lpwBuffer, size_t iCount, LPWCHAR lpwszFmt, ...);
+int MySprintf  (char *  lpBuffer , size_t iCount, char *  lpszFmt , ...);
+int strncmpWA  (LPWCHAR lpwLft, char *  lpRht, int iLenLft);
+void WriteFileWA (HANDLE  hFile, LPWCHAR lpwChar, int iLen, LPDWORD lpdwBytesOut, LPVOID lpVoid);
 
 /*---------------------------- Defines -------------------------------------*/
 #define ASCIILINESZ         (1024)
 #define INI_INVALID_KEY     ((LPWCHAR) -1)
 
-#define Dbgbrk  DbgBrk
-#define Dbgstop DbgStop
 void FAR DbgBrk(void);
 
 
@@ -157,10 +159,8 @@ int iniparser_getnsec
 
     nsec = 0;
     for (i = 0; i < lpDict->size; i++)
+    if (lpDict->key[i] NE NULL)
     {
-        if (lpDict->key[i] EQ NULL)
-            continue;
-
         if (strchrW (lpDict->key[i], SECTION_SEP) EQ NULL)
             nsec++;
     } // End FOR
@@ -196,9 +196,9 @@ LPWCHAR iniparser_getsecname
 
     foundsec = 0;
     for (i = 0; i < lpDict->size; i++)
+    if (lpDict->key[i] NE NULL
+     && lpDict->val[i] EQ NULL)
     {
-        if (lpDict->key[i] EQ NULL)
-            continue;
         if (strchrW (lpDict->key[i], SECTION_SEP) EQ NULL)
         {
             foundsec++;
@@ -212,6 +212,63 @@ LPWCHAR iniparser_getsecname
 
     return lpDict->key[i];
 } // End iniparser_getsecname
+
+
+/*-------------------------------------------------------------------------*/
+/**
+  @brief    Delete a section in a dictionary.
+  @param    d           Dictionary to examine
+  @param    lpwSect     Ptr to Section name
+  @return   <none>
+
+  This function deletes a section in a dictionary by name.
+ */
+/*--------------------------------------------------------------------------*/
+void iniparser_delsection
+    (LPDICTIONARY lpDict,       // Ptr to workspace dictionary
+     LPWCHAR      lpwSect)      // Ptr to section name with trailing SECTION_SEP
+
+{
+    int i, iLen;
+
+    Assert (lpDict NE NULL);
+    Assert (lpwSect NE NULL);
+
+    // Get length of section name plus trailing SECTION_SEP
+    iLen = lstrlenW (lpwSect);
+
+    for (i = 0; i < lpDict->size; i++)
+    if (lpDict->key[i] NE NULL)
+    {
+        // Compare the leading parts of the strings including SECTION_SEP
+        if (strncmpW (lpDict->key[i], lpwSect, iLen) EQ 0)
+        {
+            // Delete the key
+            free (lpDict->key[i]); lpDict->key[i] = NULL;
+
+////////////// DO NOT FREE VALUES as they weren't allocated
+            free (lpDict->val[i]); lpDict->val[i] = NULL;
+        } else
+        // If the value is NULL, ...
+        if (lpDict->val[i] EQ NULL)
+        {
+            Assert (lpwSect[iLen - 1] EQ SECTION_SEP);
+
+            // Zap the trailing SECTION_SEP
+            lpwSect[iLen - 1] = L'\0';
+
+            // If the section names compare, ...
+            if (lstrcmpW (lpDict->key[i], lpwSect) EQ 0)
+            {
+                // Delete the section name
+                free (lpDict->key[i]); lpDict->key[i] = NULL;
+            } // End IF
+
+            // Restore the zapped char
+            lpwSect[iLen - 1] = SECTION_SEP;
+        } // End IF
+    } // End FOR/IF
+} // End iniparser_delsection
 
 
 #ifdef DUMPDIC
@@ -251,7 +308,6 @@ void iniparser_dump
 #endif
 
 
-#ifdef DUMPDIC
 /*-------------------------------------------------------------------------*/
 /**
   @brief    Save a dictionary to a loadable ini file
@@ -265,17 +321,19 @@ void iniparser_dump
 /*--------------------------------------------------------------------------*/
 void iniparser_dump_ini
     (LPDICTIONARY lpDict,       // Ptr to workspace dictionary
-     FILE         *f)
+     HANDLE       hFile)
 
 {
-    int  i, j;
-    char keym[ASCIILINESZ + 1];
-    int  nsec;
-    char *secname;
-    int  seclen;
+    int     i, j;
+    char    keym[ASCIILINESZ + 1];
+    int     nsec;
+    LPWCHAR secname;
+    char *  lpKeym;
+    int     seclen, iLen;
+    DWORD   dwBytesOut;
 
     Assert (lpDict NE NULL);
-    Assert (f      NE NULL);
+    Assert (hFile  NE NULL);
 
     nsec = iniparser_getnsec (lpDict);
     if (nsec < 1)
@@ -285,7 +343,15 @@ void iniparser_dump_ini
         {
             if (lpDict->key[i] EQ NULL)
                 continue;
-            fprintf (f, "%s = %s\n", lpDict->key[i], lpDict->val[i]);
+////////////fprintf (f, "%s = %s\n", lpDict->key[i], lpDict->val[i]);
+            MySprintf (keym,
+                       sizeof (keym),
+                       "%S = ",
+                       lpDict->key[i]);
+            WriteFile   (hFile, keym, lstrlen (keym), &dwBytesOut, NULL);
+            if (lpDict->val[i] NE NULL)
+                WriteFileWA (hFile, lpDict->val[i], lstrlenW (lpDict->val[i]), &dwBytesOut, NULL);
+            WriteFile   (hFile, "\n", strcountof ("\n"), &dwBytesOut, NULL);
         } // End FOR
 
         return;
@@ -295,25 +361,43 @@ void iniparser_dump_ini
     {
         secname = iniparser_getsecname (lpDict, i);
         seclen  = lstrlenW (secname);
-        fprintf (f, "\n[%s]\n", secname);
-        wsprintfW (keym, "%s:", secname);
+////////fprintf (f, "\n[%s]\n", secname);
+        MySprintf (keym,
+                   sizeof (keym),
+                   "\n[%S]\n",
+                   secname);
+        WriteFile (hFile, keym, lstrlen (keym), &dwBytesOut, NULL);
+        iLen =
+          MySprintf (keym,
+                     sizeof (keym),
+                     "%S:",
+                     secname);
+        // Save the ptr to the next WCHAR
+        lpKeym = &keym[iLen];
+
         for (j = 0; j < lpDict->size; j++)
+        if (lpDict->key[j] NE NULL)
         {
-            if (lpDict->key[j] EQ NULL)
-                continue;
-            if (!strncmp (lpDict->key[j], keym, seclen + 1))
+            if (strncmpWA (lpDict->key[j], keym, seclen + 1) EQ 0)
             {
-                fprintf (f,
-                         "%-30s = %s\n",
-                         lpDict->key[j] + seclen + 1,
-                         lpDict->val[j] ? d->val[j] : "");
+////////////////fprintf (f,
+////////////////         "%-30s = %s\n",
+////////////////         lpDict->key[j] + seclen + 1,
+////////////////         lpDict->val[j] ? lpDict->val[j] : L"");
+                MySprintf (lpKeym,
+                           sizeof (keym) - iLen,
+                           "%S=",
+                           lpDict->key[j] + seclen + 1);
+                WriteFile (hFile, lpKeym, lstrlen (lpKeym), &dwBytesOut, NULL);
+                if (lpDict->val[j] NE NULL)
+                    WriteFileWA (hFile, lpDict->val[j], lstrlenW (lpDict->val[j]), &dwBytesOut, NULL);
+                WriteFile (hFile, "\n", strcountof ("\n"), &dwBytesOut, NULL);
             } // End IF
-        } // End FOR
+        } // End FOR/IF
     } // End FOR
 
-    fprintf (f, "\n");
+    WriteFile (hFile, "\n", strcountof ("\n"), &dwBytesOut, NULL);
 } // End iniparser_dump_ini
-#endif
 
 
 /*-------------------------------------------------------------------------*/
@@ -322,6 +406,7 @@ void iniparser_dump_ini
   @param    d       Dictionary to search
   @param    key     Key string to look for
   @param    def     Default value to return if key not found.
+  @param    index   Ptr to index on return
   @return   pointer to statically allocated character string
 
   This function queries a dictionary for a key. A key as read from an
@@ -334,13 +419,14 @@ void iniparser_dump_ini
 LPWCHAR iniparser_getstring
     (LPDICTIONARY lpDict,       // Ptr to workspace dictionary
      LPWCHAR      lpwKey,
-     LPWCHAR      lpwDef)
+     LPWCHAR      lpwDef,
+     LPINT        lpIndex)      // Ptr to index on output (may be NULL)
 
 {
     Assert (lpDict NE NULL);
     Assert (lpwKey NE NULL);
 
-    return dictionary_get (lpDict, strlwrW (lpwKey), lpwDef);
+    return dictionary_get (lpDict, strlwrW2 (lpwKey), lpwDef, lpIndex);
 } // End iniparser_getstring
 
 
@@ -382,7 +468,7 @@ int iniparser_getint
     Assert (lpDict NE NULL);
     Assert (lpwKey NE NULL);
 
-    lpwStr = iniparser_getstring (lpDict, lpwKey, INI_INVALID_KEY);
+    lpwStr = iniparser_getstring (lpDict, lpwKey, INI_INVALID_KEY, NULL);
 
     if (lpwStr EQ INI_INVALID_KEY)
         return notfound;
@@ -415,7 +501,7 @@ double iniparser_getdouble
     Assert (lpDict NE NULL);
     Assert (lpwKey NE NULL);
 
-    lpwStr = iniparser_getstring (lpDict, lpwKey, INI_INVALID_KEY);
+    lpwStr = iniparser_getstring (lpDict, lpwKey, INI_INVALID_KEY, NULL);
 
     if (lpwStr EQ INI_INVALID_KEY)
         return notfound;
@@ -468,7 +554,7 @@ UBOOL iniparser_getboolean
     Assert (lpDict NE NULL);
     Assert (lpwKey NE NULL);
 
-    lpwChar = iniparser_getstring (lpDict, lpwKey, INI_INVALID_KEY);
+    lpwChar = iniparser_getstring (lpDict, lpwKey, INI_INVALID_KEY, NULL);
 
     if (lpwChar EQ INI_INVALID_KEY)
         return notfound;
@@ -505,11 +591,10 @@ UBOOL iniparser_find_entry
     Assert (lpDict   NE NULL);
     Assert (lpwEntry NE NULL);
 
-    return (iniparser_getstring (lpDict, lpwEntry, INI_INVALID_KEY) NE INI_INVALID_KEY);
-} // End iniparser_getentry
+    return (iniparser_getstring (lpDict, lpwEntry, INI_INVALID_KEY, NULL) NE INI_INVALID_KEY);
+} // End iniparser_find_entry
 
 
-#if FALSE
 /*-------------------------------------------------------------------------*/
 /**
   @brief    Set an entry in a dictionary.
@@ -532,12 +617,10 @@ int iniparser_set
     Assert (lpDict   NE NULL);
     Assert (lpwEntry NE NULL);
 
-    return dictionary_set (lpDict, strlwrW (lpwEntry), lpwVal);
+    return dictionary_set (lpDict, strlwrW2 (lpwEntry), lpwVal);
 } // End iniparser_set
-#endif
 
 
-#if FALSE
 /*-------------------------------------------------------------------------*/
 /**
   @brief    Delete an entry in a dictionary
@@ -556,9 +639,8 @@ void iniparser_unset
     Assert (lpDict   NE NULL);
     Assert (lpwEntry NE NULL);
 
-    dictionary_unset (lpDict, strlwrW (lpwEntry));
+    dictionary_unset (lpDict, strlwrW2 (lpwEntry));
 } // End iniparser_unset
-#endif
 
 
 /*-------------------------------------------------------------------------*/
@@ -598,7 +680,7 @@ static LINESTATUS iniparser_line
     {
         /* Section name */
         lpwLine[len - 1] = L'\0';      // Zap the trailing bracket
-        *lplpSection = strlwrW (strstrip (&lpwLine[1]));
+        *lplpSection = strlwrW2 (strstrip (&lpwLine[1]));
         lineStatus = LINE_SECTION;
     } else
 ////if (sscanfW (lpwLine, "%[^=] = \"%[^\"]\"", key, val) EQ 2
@@ -611,7 +693,7 @@ static LINESTATUS iniparser_line
         *lplpVal = lpwp + 1;
 
         /* Usual key=value, with or without comments */
-        *lplpKey = strlwrW (strstrip (*lplpKey));
+        *lplpKey = strlwrW2 (strstrip (*lplpKey));
         *lplpVal =          strstrip (*lplpVal);
 
         if (*lplpVal EQ L'\0')
@@ -630,6 +712,41 @@ static LINESTATUS iniparser_line
 
     return lineStatus;
 } // End iniparser_line
+
+
+/*-------------------------------------------------------------------------*/
+/**
+  @brief    Initialize an ini file and return an allocated dictionary object
+  @param    ininame Name of the ini file to read.
+  @return   Pointer to newly allocated dictionary
+
+  This is the initializer for ini files. This function is called, providing
+  the WCHAR ptr of the name of file to be read. It returns a dictionary object that
+  should not be accessed directly, but through accessor functions
+  instead.
+
+  The returned dictionary must be freed using iniparser_freedict().
+ */
+/*--------------------------------------------------------------------------*/
+LPDICTIONARY iniparser_init
+    (LPWCHAR    lpwszDPFE)          // Ptr to DPFE
+
+{
+    LPDICTIONARY lpDict;                // Ptr to workspace dictionary
+
+    // Allocate a new dictionary
+    lpDict = dictionary_new (0);
+    if (lpDict EQ NULL)
+        goto ERROR_EXIT;
+
+    // Save the workspace DPFE
+    lpDict->lpwszDPFE = lpwszDPFE;
+
+    // Allocate space for the entire file
+    lpDict->inifile = calloc (1, sizeof (WCHAR));
+ERROR_EXIT:
+    return lpDict;
+} // End iniparser_init
 
 
 /*-------------------------------------------------------------------------*/
@@ -668,7 +785,7 @@ LPDICTIONARY iniparser_load
 
     // Allocate a new dictionary
     lpDict = dictionary_new (0);
-    if (!lpDict)
+    if (lpDict EQ NULL)
         goto ERROR_EXIT;
 
     // Get the file length
@@ -740,7 +857,11 @@ LPDICTIONARY iniparser_load
                 break;
 
             case LINE_VALUE:
-                wsprintfW (tmp, L"%s:%s", lpwSection, lpwKey);
+                MySprintfW (tmp,
+                            sizeof (tmp),
+                           L"%s" SECTION_SEP_STR L"%s",
+                            lpwSection,
+                            lpwKey);
                 errs = dictionary_set (lpDict, tmp, lpwVal);
 
                 break;

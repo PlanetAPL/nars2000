@@ -1,0 +1,14 @@
+Build #1385 -- Version 0.4.11.xx
+--------------------------------
+
+* Optimize Display Of Vector-Like Arrays
+
+Directory trunk:
+
+DISPLAY.C:
+  In <DisplayGlbArr_EM>, use array header names for vars, etc.
+  Check for non-empty non-nested vector-like arrays and display via subfunction.
+  Define <FormatImmedPtr> to more easily display single values via a ptr.
+  Define function to display non-empty non-nested vector-like arrays, without
+    running into a LIMIT ERROR on a guard page in case the vector is too long.
+  Define function to check for Terminal Codes when displaying char arrays.

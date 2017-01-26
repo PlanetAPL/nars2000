@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2011 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -46,18 +46,16 @@ LPPL_YYSTYPE PrimOpCircleMiddleDot_EM_YY
 {
     Assert (lpYYFcnStrOpr->tkToken.tkData.tkChar EQ UTF16_CIRCLEMIDDLEDOT);
 
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (&lpYYFcnStrOpr->tkToken APPEND_NAME_ARG);
-
     // Split cases based upon monadic or dyadic derived function
     if (lptkLftArg EQ NULL)
-        return PrimOpMonCircleMiddleDot_EM_YY (lpYYFcnStrOpr,   // Ptr to operator function strand
-                                               lptkRhtArg);     // Ptr to right arg
+        return
+          PrimOpMonCircleMiddleDot_EM_YY (lpYYFcnStrOpr,    // Ptr to operator function strand
+                                          lptkRhtArg);      // Ptr to right arg (may be NULL if niladic)
     else
-        return PrimOpDydCircleMiddleDot_EM_YY (lptkLftArg,      // Ptr to left arg token
-                                               lpYYFcnStrOpr,   // Ptr to operator function strand
-                                               lptkRhtArg);     // Ptr to right arg token
+        return
+          PrimOpDydCircleMiddleDot_EM_YY (lptkLftArg,       // Ptr to left arg token
+                                          lpYYFcnStrOpr,    // Ptr to operator function strand
+                                          lptkRhtArg);      // Ptr to right arg token
 } // End PrimOpCircleMiddleDot_EM_YY
 #undef  APPEND_NAME
 
@@ -83,17 +81,19 @@ LPPL_YYSTYPE PrimProtoOpCircleMiddleDot_EM_YY
         //***************************************************************
         // Called monadically
         //***************************************************************
-        return PrimOpMonCircleMiddleDotCommon_EM_YY (lpYYFcnStrOpr, // Ptr to operator function strand
-                                                     lptkRhtArg,    // Ptr to right arg token
-                                                     TRUE);         // TRUE iff prototyping
+        return
+          PrimOpMonCircleMiddleDotCommon_EM_YY (lpYYFcnStrOpr,  // Ptr to operator function strand
+                                                lptkRhtArg,     // Ptr to right arg token (may be NULL if niladic)
+                                                TRUE);          // TRUE iff prototyping
     else
         //***************************************************************
         // Called dyadically
         //***************************************************************
-        return PrimOpDydCircleMiddleDotCommon_EM_YY (lptkLftArg,    // Ptr to left arg token
-                                                     lpYYFcnStrOpr, // Ptr to operator function strand
-                                                     lptkRhtArg,    // Ptr to right arg token
-                                                     TRUE);         // TRUE iff prototyping
+        return
+          PrimOpDydCircleMiddleDotCommon_EM_YY (lptkLftArg,     // Ptr to left arg token
+                                                lpYYFcnStrOpr,  // Ptr to operator function strand
+                                                lptkRhtArg,     // Ptr to right arg token
+                                                TRUE);          // TRUE iff prototyping
 } // End PrimProtoOpCircleMiddleDot_EM_YY
 
 
@@ -108,9 +108,10 @@ LPPL_YYSTYPE PrimOpMonCircleMiddleDot_EM_YY
      LPTOKEN      lptkRhtArg)           // Ptr to right arg token
 
 {
-    return PrimOpMonCircleMiddleDotCommon_EM_YY (lpYYFcnStrOpr, // Ptr to operator function strand
-                                                 lptkRhtArg,    // Ptr to right arg token
-                                                 FALSE);        // TRUE iff prototyping
+    return
+      PrimOpMonCircleMiddleDotCommon_EM_YY (lpYYFcnStrOpr,  // Ptr to operator function strand
+                                            lptkRhtArg,     // Ptr to right arg token (may be NULL if niladic)
+                                            FALSE);         // TRUE iff prototyping
 } // End PrimOpMonCircleMiddleDot_EM_YY
 
 
@@ -128,7 +129,7 @@ LPPL_YYSTYPE PrimOpMonCircleMiddleDot_EM_YY
 
 LPPL_YYSTYPE PrimOpMonCircleMiddleDotCommon_EM_YY
     (LPPL_YYSTYPE lpYYFcnStrOpr,        // Ptr to operator function strand
-     LPTOKEN      lptkRhtArg,           // Ptr to right arg token
+     LPTOKEN      lptkRhtArg,           // Ptr to right arg token (may be NULL if niladic)
      UBOOL        bPrototyping)         // TRUE if prototyping
 
 {
@@ -149,7 +150,7 @@ LPPL_YYSTYPE PrimOpMonCircleMiddleDotCommon_EM_YY
 
     // Set ptr to left operand,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrLft = &lpYYFcnStrOpr[1 + (lptkAxisOpr NE NULL)];
+    lpYYFcnStrLft = GetMonLftOper (lpYYFcnStrOpr, lptkAxisOpr);
 
     // Ensure the left operand is a function
     if (!IsTknFcnOpr (&lpYYFcnStrLft->tkToken)
@@ -161,7 +162,7 @@ LPPL_YYSTYPE PrimOpMonCircleMiddleDotCommon_EM_YY
     {
         // Get the appropriate prototype function ptr
         lpPrimProtoLft = GetPrototypeFcnPtr (&lpYYFcnStrLft->tkToken);
-        if (!lpPrimProtoLft)
+        if (lpPrimProtoLft EQ NULL)
             goto LEFT_OPERAND_NONCE_EXIT;
 
         // Execute the function monadically on the right arg
@@ -171,13 +172,13 @@ LPPL_YYSTYPE PrimOpMonCircleMiddleDotCommon_EM_YY
         //   primitive operator which takes a function strand
         return (*lpPrimProtoLft) (NULL,             // Ptr to left arg token
                         (LPTOKEN) lpYYFcnStrLft,    // Ptr to left operand fnuction strand
-                                  lptkRhtArg,       // Ptr to right arg token
+                                  lptkRhtArg,       // Ptr to right arg token (may be NULL if niladic)
                                   lptkAxisOpr);     // Ptr to operator axis token
     } else
         // Execute the function monadically on the right arg
         return ExecFuncStr_EM_YY (NULL,             // Ptr to left arg token
                                   lpYYFcnStrLft,    // Ptr to left operand function strand
-                                  lptkRhtArg,       // Ptr to right arg token
+                                  lptkRhtArg,       // Ptr to right arg token (may be NULL if niladic)
                                   lptkAxisOpr);     // Ptr to operator axis token
 AXIS_SYNTAX_EXIT:
     ErrorMessageIndirectToken (ERRMSG_SYNTAX_ERROR APPEND_NAME,
@@ -209,10 +210,11 @@ LPPL_YYSTYPE PrimOpDydCircleMiddleDot_EM_YY
      LPTOKEN      lptkRhtArg)           // Ptr to right arg token
 
 {
-    return PrimOpDydCircleMiddleDotCommon_EM_YY (lptkLftArg,    // Ptr to left arg token
-                                                 lpYYFcnStrOpr, // Ptr to operator function strand
-                                                 lptkRhtArg,    // Ptr to right arg token
-                                                 FALSE);        // TRUE iff prototyping
+    return
+      PrimOpDydCircleMiddleDotCommon_EM_YY (lptkLftArg,     // Ptr to left arg token
+                                            lpYYFcnStrOpr,  // Ptr to operator function strand
+                                            lptkRhtArg,     // Ptr to right arg token
+                                            FALSE);         // TRUE iff prototyping
 } // End PrimOpDydCircleMiddleDot_EM_YY
 
 
@@ -244,7 +246,7 @@ LPPL_YYSTYPE PrimOpDydCircleMiddleDotCommon_EM_YY
 
     // Set ptr to left operand,
     //   skipping over the operator and axis token (if present)
-    lpYYFcnStrLft = &lpYYFcnStrOpr[1 + (lptkAxisOpr NE NULL)];
+    lpYYFcnStrLft = GetMonLftOper (lpYYFcnStrOpr, lptkAxisOpr);
 
     // Ensure the left operand is a function
     if (!IsTknFcnOpr (&lpYYFcnStrLft->tkToken)
@@ -256,7 +258,7 @@ LPPL_YYSTYPE PrimOpDydCircleMiddleDotCommon_EM_YY
     {
         // Get the appropriate prototype function ptr
         lpPrimProtoLft = GetPrototypeFcnPtr (&lpYYFcnStrLft->tkToken);
-        if (!lpPrimProtoLft)
+        if (lpPrimProtoLft EQ NULL)
             goto LEFT_OPERAND_NONCE_EXIT;
 
         // Execute the function dyadically between the two args

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -151,6 +151,7 @@ BEGIN
         MENUITEM "&Contents..."               , IDM_HELP_CONTENTS   , INACTIVE GRAYED   // ***FIXME***
         MENUITEM "Check for &Updates..."      , IDM_UPDATES
         MENUITEM "&Tutorials"                 , IDM_TUTORIALS
+        MENUITEM "&Documentation"             , IDM_DOCUMENTATION
         MENUITEM "&About"                     , IDM_ABOUT
     END
 END
@@ -176,8 +177,8 @@ BEGIN
         //   <aRebarBands> entries
         MENUITEM "&Workspace Toolbar"         , IDM_TB_WS
         MENUITEM "&Edit Toolbar"              , IDM_TB_ED
-        MENUITEM "&Objects Toolbar"           , IDM_TB_OW
         MENUITEM "SM &Font Toolbar"           , IDM_TB_FW
+        MENUITEM "&Objects Toolbar"           , IDM_TB_OW
         MENUITEM "&Language Toolbar"          , IDM_TB_LW
     END
     POPUP "&Window"
@@ -209,22 +210,23 @@ END
 // Dialogs
 //
 
-IDD_ABOUT DIALOGEX DISCARDABLE  4, 4, 197,145
+IDD_ABOUT DIALOGEX DISCARDABLE  4, 4, 225,173
 STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "About NARS2000"
 FONT 8, "MS Shell Dlg"
 BEGIN
-    DEFPUSHBUTTON   "&OK"     , IDOK          ,135,  5, 50, 14
+    DEFPUSHBUTTON   "&OK"     , IDOK          ,165,  5, 50, 14
     LTEXT           "NARS2000 (WinXX)#%u.%u%u"
-                              , IDC_VERSION   , 10,  8,115, 14, NOT WS_GROUP
-    LTEXT           ""        , IDC_VERSION2  , 10, 25,190,100
-    LTEXT           "Copyright \xA9 2006-14 Sudley Place Software\nAll rights reserved."
-                              , IDC_STATIC    , 10, 80,150, 18, NOT WS_GROUP
-    ICON            IDI_NARS  , IDC_LOADEDFROM,155, 75,  0,  0, SS_NOTIFY | SS_REALSIZEIMAGE
+                              , IDC_VERSION   , 10,  8,135, 14, NOT WS_GROUP
+    LTEXT           ""        , IDC_VERSION2  , 10, 25,210,108
+    PUSHBUTTON      "Copy"    , IDC_ABOUT_COPY, 165,80, 50, 14
+    LTEXT           "Copyright \xA9 2006-2016 Sudley Place Software\nAll rights reserved."
+                              , IDC_ABOUT_NOTE, 10,108,170, 18, NOT WS_GROUP
+    ICON            IDI_NARS  , IDC_LOADEDFROM,180, 25,  0,  0, SS_NOTIFY | SS_REALSIZEIMAGE
     LTEXT           "This program is released under version 3 of the GNU GPL license or any later version.  For more details, see"
-                              , IDC_STATIC    , 10,105,170, 20
+                              , IDC_STATIC    , 10,133,200, 20
     LTEXT           "http://www.nars2000.org/License.html"
-                              , IDC_LINK      , 10,125,170,  9, SS_NOTIFY
+                              , IDC_LINK      , 10,153,200,  9, SS_NOTIFY
 END
 
 IDD_UPDATES DIALOGEX DISCARDABLE  0, 0, 240, 110
@@ -251,10 +253,10 @@ BEGIN
 END
 
 #define CD_CX       394
-#define CD_CY       333
+#define CD_CY       343
 
 #define PP_CX       300
-#define PP_CY       298
+#define PP_CY       308
 
 IDD_CUSTOMIZE DIALOGEX DISCARDABLE  0, 0, CD_CX, CD_CY
 STYLE DS_MODALFRAME | DS_SHELLFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE
@@ -264,9 +266,9 @@ BEGIN
     LTEXT           "&Category",IDC_STATIC  ,  5,  5, 50,  8,WS_TABSTOP
     LISTBOX                     IDC_CUST_LB ,  5, 15, 80,293,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     GROUPBOX        ""         ,IDC_GROUPBOX, 90, 11,PP_CX,PP_CY
-    DEFPUSHBUTTON   "OK",       IDOK        , 15,315, 50, 14
-    PUSHBUTTON      "Cancel"   ,IDCANCEL    , 75,315, 50, 14
-    PUSHBUTTON      "Apply"    ,IDC_APPLY   ,135,315, 50, 14,WS_DISABLED
+    DEFPUSHBUTTON   "OK",       IDOK        , 15,320, 50, 14
+    PUSHBUTTON      "Cancel"   ,IDCANCEL    , 75,320, 50, 14
+    PUSHBUTTON      "Apply"    ,IDC_APPLY   ,135,320, 50, 14,WS_DISABLED
 END
 
 IDD_PROPPAGE_CLEARWS_VALUES DIALOGEX DISCARDABLE  0, 0, PP_CX, PP_CY
@@ -401,27 +403,6 @@ BEGIN
     AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO6D,165,140,15, 8
     AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO6E,180,140,15, 8
     AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO6F,195,140,15, 8
-////
-////PUSHBUTTON      "Change =>"      ,IDC_FONTS7       ,  5,152,45,14
-////LTEXT           "Vector Editor"  ,IDC_FONTS_LT7    , 55,155,60, 8, SS_NOTIFY | SS_LEFT | WS_GROUP
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO7A,120,155,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO7B,135,155,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO7C,150,155,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO7D,165,155,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO7E,180,155,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO7F,195,155,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO7G,210,155,15, 8
-////
-////PUSHBUTTON      "Change =>"      ,IDC_FONTS8       ,  5,167,45,14
-////LTEXT           "Matrix Editor"  ,IDC_FONTS_LT8    , 55,170,60, 8, SS_NOTIFY | SS_LEFT | WS_GROUP
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO8A,120,170,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO8B,135,170,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO8C,150,170,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO8D,165,170,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO8E,180,170,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO8F,195,170,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO8G,210,170,15, 8
-////AUTORADIOBUTTON ""               ,IDC_FONTS_RADIO8H,240,170,15, 8
 END
 
 IDD_PROPPAGE_KEYBS DIALOGEX DISCARDABLE  0, 0, PP_CX, PP_CY
@@ -584,6 +565,7 @@ BEGIN
 
     LTEXT           "Unicode"      , IDC_STATIC          , 85,110, 50, 14
     EDITTEXT                         IDC_KEYB_EC_UNICODE , 85,120, 30, 14
+    LTEXT           "Char"         , IDC_STATIC          ,130,110, 30, 14
     PUSHBOX         " "            , IDC_KEYB_BN_UNICODE ,130,120, 14, 14, BS_PUSHBUTTON | BS_OWNERDRAW
     AUTORADIOBUTTON "Dec"          , IDC_KEYB_RB_DEC     , 85,135, 30, 10, BS_AUTORADIOBUTTON | WS_TABSTOP | WS_GROUP
     AUTORADIOBUTTON "Hex"          , IDC_KEYB_RB_HEX     ,120,135, 30, 10, BS_AUTORADIOBUTTON | WS_TABSTOP
@@ -797,68 +779,75 @@ BEGIN
     PUSHBUTTON      ""                          , IDC_SYNTCLR_BN_BGCLR23,160,240, 25,  8, BS_PUSHBUTTON | BS_OWNERDRAW | WS_TABSTOP
     AUTOCHECKBOX    ""                          , IDC_SYNTCLR_XB_TRANS23,215,240,  8, 10
 
-    LTEXT           ""                          , IDC_SYNTCLR_LT24      ,  5,250, 90,  9    // "Window Text"
+    LTEXT           ""                          , IDC_SYNTCLR_LT24      ,  5,250, 90,  9    // "Line Continuation"
     LTEXT           ""                          , IDC_SYNTCLR_LT_FGMRK24, 97,250,  8,  8, SS_BITMAP
     PUSHBUTTON      ""                          , IDC_SYNTCLR_BN_FGCLR24,105,250, 25,  8, BS_PUSHBUTTON | BS_OWNERDRAW | WS_TABSTOP
     LTEXT           ""                          , IDC_SYNTCLR_LT_BGMRK24,152,250,  8,  8, SS_BITMAP
     PUSHBUTTON      ""                          , IDC_SYNTCLR_BN_BGCLR24,160,250, 25,  8, BS_PUSHBUTTON | BS_OWNERDRAW | WS_TABSTOP
-////AUTOCHECKBOX    ""                          , IDC_SYNTCLR_XB_TRANS24,215,250,  8, 10
+    AUTOCHECKBOX    ""                          , IDC_SYNTCLR_XB_TRANS24,215,250,  8, 10
 
-    AUTOCHECKBOX    "Enable Function Coloring"  , IDC_SYNTCLR_XB_CLRFCNS,  5,265,130, 10
-    AUTOCHECKBOX    "Enable Session Coloring"   , IDC_SYNTCLR_XB_CLRSESS,  5,275,130, 10
-    AUTOCHECKBOX "Enable Coloring When Printing", IDC_SYNTCLR_XB_CLRPRNT,  5,285,130, 10
+    LTEXT           ""                          , IDC_SYNTCLR_LT25      ,  5,260, 90,  9    // "Window Text"
+    LTEXT           ""                          , IDC_SYNTCLR_LT_FGMRK25, 97,260,  8,  8, SS_BITMAP
+    PUSHBUTTON      ""                          , IDC_SYNTCLR_BN_FGCLR25,105,260, 25,  8, BS_PUSHBUTTON | BS_OWNERDRAW | WS_TABSTOP
+    LTEXT           ""                          , IDC_SYNTCLR_LT_BGMRK25,152,260,  8,  8, SS_BITMAP
+    PUSHBUTTON      ""                          , IDC_SYNTCLR_BN_BGCLR25,160,260, 25,  8, BS_PUSHBUTTON | BS_OWNERDRAW | WS_TABSTOP
+////AUTOCHECKBOX    ""                          , IDC_SYNTCLR_XB_TRANS25,215,260,  8, 10
 
-    PUSHBUTTON      "Restore Defaults"          , IDC_SYNTCLR_BN_RESTORE,140,268, 70, 14
+    AUTOCHECKBOX    "Enable Function Coloring"  , IDC_SYNTCLR_XB_CLRFCNS,  5,275,130, 10
+    AUTOCHECKBOX    "Enable Session Coloring"   , IDC_SYNTCLR_XB_CLRSESS,  5,285,130, 10
+    AUTOCHECKBOX "Enable Coloring When Printing", IDC_SYNTCLR_XB_CLRPRNT,  5,295,130, 10
+
+    PUSHBUTTON      "Restore Defaults"          , IDC_SYNTCLR_BN_RESTORE,140,278, 70, 14
 END
 
 IDD_PROPPAGE_SYSTEM_VAR_RESET DIALOGEX DISCARDABLE  0, 0, PP_CX, PP_CY
 STYLE WS_CHILD | DS_SHELLFONT
 FONT 8, "MS Shell Dlg"
 BEGIN
-    LTEXT           ""              ,IDC_RESET_TEXT           , 5, 10,200,40
+    LTEXT           ""              ,IDC_RESET_TEXT           , 5, 26,200,40
 
-    LTEXT           "CLEAR WS"      ,IDC_STATIC               ,40, 55, 60,10
-    LTEXT           "System Default",IDC_STATIC               ,80, 55, 60,10
+    LTEXT           "CLEAR WS"      ,IDC_STATIC               ,40, 71, 60,10
+    LTEXT           "System Default",IDC_STATIC               ,80, 71, 60,10
 
-    LTEXT           "CT"            ,IDC_STATIC               , 5, 70, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_CT_RADIO1      ,55, 70, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_CT_RADIO2      ,95, 70, 16, 8
+    LTEXT           "CT"            ,IDC_STATIC               , 5, 86, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_CT_RADIO1      ,55, 86, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_CT_RADIO2      ,95, 86, 16, 8
 
-    LTEXT           "DT"            ,IDC_STATIC               , 5, 85, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_DT_RADIO1      ,55, 85, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_DT_RADIO2      ,95, 85, 16, 8
+    LTEXT           "DT"            ,IDC_STATIC               , 5,101, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_DT_RADIO1      ,55,101, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_DT_RADIO2      ,95,101, 16, 8
 
-    LTEXT           "FC"            ,IDC_STATIC               , 5,100, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_FC_RADIO1      ,55,100, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_FC_RADIO2      ,95,100, 16, 8
+    LTEXT           "FC"            ,IDC_STATIC               , 5,116, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_FC_RADIO1      ,55,116, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_FC_RADIO2      ,95,116, 16, 8
 
-    LTEXT           "FEATURE"       ,IDC_STATIC               , 5,115, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_FEATURE_RADIO1 ,55,115, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_FEATURE_RADIO2 ,95,115, 16, 8
+    LTEXT           "FEATURE"       ,IDC_STATIC               , 5,131, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_FEATURE_RADIO1 ,55,131, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_FEATURE_RADIO2 ,95,131, 16, 8
 
-    LTEXT           "FPC"           ,IDC_STATIC               , 5,130, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_FPC_RADIO1     ,55,130, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_FPC_RADIO2     ,95,130, 16, 8
+    LTEXT           "FPC"           ,IDC_STATIC               , 5,146, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_FPC_RADIO1     ,55,146, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_FPC_RADIO2     ,95,146, 16, 8
 
-    LTEXT           "IC"            ,IDC_STATIC               , 5,145, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_IC_RADIO1      ,55,145, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_IC_RADIO2      ,95,145, 16, 8
+    LTEXT           "IC"            ,IDC_STATIC               , 5,161, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_IC_RADIO1      ,55,161, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_IC_RADIO2      ,95,161, 16, 8
 
-    LTEXT           "IO"            ,IDC_STATIC               , 5,160, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_IO_RADIO1      ,55,160, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_IO_RADIO2      ,95,160, 16, 8
+    LTEXT           "IO"            ,IDC_STATIC               , 5,176, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_IO_RADIO1      ,55,176, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_IO_RADIO2      ,95,176, 16, 8
 
-    LTEXT           "PP"            ,IDC_STATIC               , 5,175, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_PP_RADIO1      ,55,175, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_PP_RADIO2      ,95,175, 16, 8
+    LTEXT           "PP"            ,IDC_STATIC               , 5,191, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_PP_RADIO1      ,55,191, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_PP_RADIO2      ,95,191, 16, 8
 
-    LTEXT           "PW"            ,IDC_STATIC               , 5,190, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_PW_RADIO1      ,55,190, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_PW_RADIO2      ,95,190, 16, 8
+    LTEXT           "PW"            ,IDC_STATIC               , 5,206, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_PW_RADIO1      ,55,206, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_PW_RADIO2      ,95,206, 16, 8
 
-    LTEXT           "RL"            ,IDC_STATIC               , 5,205, 50, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_RL_RADIO1      ,55,205, 16, 8
-    AUTORADIOBUTTON ""              ,IDC_RESET_RL_RADIO2      ,95,205, 16, 8
+    LTEXT           "RL"            ,IDC_STATIC               , 5,221, 50, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_RL_RADIO1      ,55,221, 16, 8
+    AUTORADIOBUTTON ""              ,IDC_RESET_RL_RADIO2      ,95,221, 16, 8
 END
 
 IDD_PROPPAGE_TAB_COLORS DIALOGEX DISCARDABLE  0, 0, PP_CX, PP_CY
@@ -872,40 +861,58 @@ IDD_PROPPAGE_USER_PREFS DIALOGEX DISCARDABLE  0, 0, PP_CX, PP_CY
 STYLE WS_CHILD | DS_SHELLFONT
 FONT 8, "MS Shell Dlg"
 BEGIN
-    AUTOCHECKBOX    "Adjust []PW on window resize",
-                    IDC_USER_PREFS_XB_ADJUSTPW           , 10, 26,160, 10
+    AUTOCHECKBOX    L"Adjust \x2395PW on window resize",
+                    IDC_USER_PREFS_XB_ADJUSTPW           , 10, 26,260, 10
     AUTOCHECKBOX    "Underbar alphabet converted to lowercase",
-                    IDC_USER_PREFS_XB_UNDERBARTOLOWERCASE, 10, 39,160, 10
+                    IDC_USER_PREFS_XB_UNDERBARTOLOWERCASE, 10, 39,260, 10
     AUTOCHECKBOX    "New tab on )CLEAR",
-                    IDC_USER_PREFS_XB_NEWTABONCLEAR      , 10, 52,160, 10
+                    IDC_USER_PREFS_XB_NEWTABONCLEAR      , 10, 52,260, 10
     AUTOCHECKBOX    "New tab on )LOAD",
-                    IDC_USER_PREFS_XB_NEWTABONLOAD       , 10, 65,160, 10
+                    IDC_USER_PREFS_XB_NEWTABONLOAD       , 10, 65,260, 10
     AUTOCHECKBOX    "Use local time (instead of GMT)",
-                    IDC_USER_PREFS_XB_USELOCALTIME       , 10, 78,160, 10
+                    IDC_USER_PREFS_XB_USELOCALTIME       , 10, 78,260, 10
     AUTOCHECKBOX    "Make backup of workspace on )LOAD",
-                    IDC_USER_PREFS_XB_BACKUPONLOAD       , 10, 91,160, 10
+                    IDC_USER_PREFS_XB_BACKUPONLOAD       , 10, 91,260, 10
     AUTOCHECKBOX    "Make backup of workspace on )SAVE",
-                    IDC_USER_PREFS_XB_BACKUPONSAVE       , 10,104,160, 10
+                    IDC_USER_PREFS_XB_BACKUPONSAVE       , 10,104,260, 10
     AUTOCHECKBOX    "Suppress copyright message at startup",
-                    IDC_USER_PREFS_XB_NOCOPYRIGHTMSG     , 10,117,160, 10
+                    IDC_USER_PREFS_XB_NOCOPYRIGHTMSG     , 10,117,260, 10
     AUTOCHECKBOX    "Check for unmatched or improperly nested grouping symbols",
-                    IDC_USER_PREFS_XB_CHECKGROUP         , 10,130,200, 10
+                    IDC_USER_PREFS_XB_CHECKGROUP         , 10,130,260, 10
     AUTOCHECKBOX    "Insert key ON at startup",
-                    IDC_USER_PREFS_XB_INSSTATE           , 10,143,200, 10
+                    IDC_USER_PREFS_XB_INSSTATE           , 10,143,260, 10
     AUTOCHECKBOX    "Reverse double-click:  left=edit, right=select",
-                    IDC_USER_PREFS_XB_REVDBLCLK          , 10,156,200, 10
+                    IDC_USER_PREFS_XB_REVDBLCLK          , 10,156,260, 10
     AUTOCHECKBOX    "Default is to display function line numbers",
-                    IDC_USER_PREFS_XB_DEFDISPFCNLINENUMS , 10,169,200, 10
+                    IDC_USER_PREFS_XB_DEFDISPFCNLINENUMS , 10,169,260, 10
+    AUTOCHECKBOX    "Display multi-precision numbers with suffix 'x' or 'v'",
+                    IDC_USER_PREFS_XB_DISPMPSUF          , 10,182,260, 10
+    AUTOCHECKBOX    "Enable output debugging",
+                    IDC_USER_PREFS_XB_OUTPUTDEBUG        , 10,195,260, 10
 
-    COMBOBOX        IDC_USER_PREFS_CB_DEFAULTPASTE       , 10,182, 80,100, CBS_DROPDOWNLIST | WS_TABSTOP
+    COMBOBOX        IDC_USER_PREFS_CB_DEFAULTPASTE       , 10,208, 80,100, CBS_DROPDOWNLIST | WS_TABSTOP
     LTEXT           "Default translation on Paste (Ctrl-V)",
-                    IDC_STATIC                           ,100,182,160, 10
-    COMBOBOX        IDC_USER_PREFS_CB_DEFAULTCOPY        , 10,198, 80,100, CBS_DROPDOWNLIST | WS_TABSTOP
+                    IDC_STATIC                           ,100,208,160, 10
+    COMBOBOX        IDC_USER_PREFS_CB_DEFAULTCOPY        , 10,224, 80,100, CBS_DROPDOWNLIST | WS_TABSTOP
     LTEXT           "Default translation on Copy (Ctrl-C)",
-                    IDC_STATIC                           ,100,198,160, 10
-    COMBOBOX        IDC_USER_PREFS_CB_UPDFRQ             , 10,214, 80,100, CBS_DROPDOWNLIST | WS_TABSTOP
+                    IDC_STATIC                           ,100,224,160, 10
+    COMBOBOX        IDC_USER_PREFS_CB_UPDFRQ             , 10,240, 80,100, CBS_DROPDOWNLIST | WS_TABSTOP
     LTEXT           "Frequency of check for new updates",
-                    IDC_STATIC                           ,100,214,160, 10
+                    IDC_STATIC                           ,100,240,160, 10
+
+    LTEXT           "Unicode"      , IDC_STATIC          , 10,258, 50, 14
+    CONTROL         ""               IDC_USER_PREFS_EC_UNICODE , ECWNDCLASS, WS_BORDER | WS_TABSTOP
+                                                         , 10,268, 30, 14
+    LTEXT           "Char"         , IDC_STATIC          , 55,258, 30, 14
+    CONTROL         ""             , IDC_USER_PREFS_BN_UNICODE , ECWNDCLASS, WS_BORDER | WS_TABSTOP
+                                                         , 55,268, 14, 14
+    AUTORADIOBUTTON "Dec"          , IDC_USER_PREFS_RB_DEC
+                                                         , 10,283, 30, 10, BS_AUTORADIOBUTTON | WS_TABSTOP | WS_GROUP
+    AUTORADIOBUTTON "Hex"          , IDC_USER_PREFS_RB_HEX
+                                                         , 45,283, 30, 10, BS_AUTORADIOBUTTON | WS_TABSTOP
+    LTEXT           "Line Continuation Marker",
+                                     IDC_STATIC          , 75,280,120, 14
+
 END
 
 
@@ -919,7 +926,6 @@ BEGIN
     DEFPUSHBUTTON   "OK"                    , IDOK                ,  5, 45, 50, 14
     PUSHBUTTON      "Cancel"                , IDCANCEL            , 65, 45, 50, 14
 END
-
 
 IDD_WEBCOLORS DIALOGEX DISCARDABLE  0, 0, 533, 320
 STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
@@ -1260,7 +1266,6 @@ IDI_PM_SMALL            ICON    DISCARDABLE     "Images\\PM.ico"
 //
 // Bitmaps
 //
-IDB_LINECONT            BITMAP  DISCARDABLE     "Images\\LineCont.bmp"
 IDB_WORKSPACE           BITMAP  DISCARDABLE     "Images\\Workspace.bmp"
 IDB_EDIT                BITMAP  DISCARDABLE     "Images\\Edit.bmp"
 IDB_OBJECTS             BITMAP  DISCARDABLE     "Images\\Objects.bmp"

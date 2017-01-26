@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2009 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,13 +24,13 @@
 //#define PERFMONON
 
 #ifdef PERFMONON
-  #define PERFMONINIT PerfMonInit ();
+  #define PERFMONINIT PerfMonInit
   #define PERFMON     PerfMonAccum (FNLN);
-  #define PERFMONSHOW PerfMonShow ();
+  #define PERFMONSHOW PerfMonShow
 #else
-  #define PERFMONINIT
+  #define PERFMONINIT(a)
   #define PERFMON
-  #define PERFMONSHOW
+  #define PERFMONSHOW(a)
 #endif
 
 

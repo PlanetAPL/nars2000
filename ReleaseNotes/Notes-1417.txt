@@ -1,0 +1,11 @@
+Build #1417 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Inner Product on Certain Empties
+
+Directory trunk:
+
+PO_DOT.C:
+  In <PrimOpDydDotCommon_EM_YY>, if the result is empty or the axis dimension is zero,
+    use the normal identity case only if both operands are PSDFs.  This change affects
+    the prototype of the result only.

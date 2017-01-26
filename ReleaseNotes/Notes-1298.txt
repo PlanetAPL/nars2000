@@ -1,0 +1,10 @@
+Build #1298 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug With AFO NoDisplay Flag
+
+Directory trunk:
+
+AFOFNS.C:
+  In <AfoDisplay_EM>, fix bug when setting the AFO's NoDisplay flag.
+  Include comment about <AssignName_EM> setting NoDisplay flag in source.

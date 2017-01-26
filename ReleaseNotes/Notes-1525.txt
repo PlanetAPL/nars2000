@@ -1,0 +1,18 @@
+Build #1525 -- Version 0.4.15.xx
+--------------------------------
+
+* Define Additional Diamond Aliases
+
+Directory trunk:
+
+MACROS.H:
+  Expand the macro to detect a diamond and its various aliases.
+
+SYMBOLNAMES.H:
+  Include the new diamond aliases in <aSymbolNames>.
+
+UNICODE.H:
+  Include the new diamond aliases as Unicode code points.
+
+UNITRANSTAB.H:
+  Include the new diamond aliases in <uniTransTab>.

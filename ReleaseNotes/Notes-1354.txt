@@ -1,0 +1,13 @@
+Build #1354 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug Executing []EA From a UDFO
+
+Directory trunk:
+
+GOTO.C:
+  If executing under []EA/[]EC, save the {goto} target for subsequent use.
+  Improve comments.
+
+PRIMFNS.C:
+  In <GetSISLayer>, skip over ErrorCtrl layers ([]EA/[]EC), too.

@@ -1,0 +1,10 @@
+Build #1499 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In SimpleScalar vs. Nested Array Using A Primitive Scalar Dyadic Function
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Improve comments.
+  Fix bug in <PrimFnDydSiScNest_EM> where it calls the wrong function when recursing down the depths of a nested array.

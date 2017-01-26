@@ -1,5 +1,0 @@
-int pl_yyparse (LPPLLOCALVARS lpplLocalVars);
-EXIT_TYPES ParseLine (HWND hWndSM, LPTOKEN_HEADER lpMemTknHdr, HGLOBAL hGlbTxtLine, LPWCHAR lpwszLine, LPPERTABDATA lpMemPTD, UINT uLineNum, UINT uTknNum, HGLOBAL hGlbDfnHdr, UBOOL bActOnErrors, UBOOL bExec1Stmt, UBOOL bNoDepthCheck);
-int pl_yylex      (LPPL_YYSTYPE  lpYYLval, LPPLLOCALVARS lpplLocalVars);
-void pl_yyerror   (LPPLLOCALVARS lpplLocalVars, LPCHAR s);
-void pl_yyfprintf (FILE *hfile, LPCHAR lpszFmt, ...);

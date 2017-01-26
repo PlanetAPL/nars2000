@@ -1,0 +1,10 @@
+Build #1328 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Dyadic Iota When The NotFound Value Is FLT
+
+Directory trunk:
+
+PF_IOTA.C:
+  Fix bug in Dyadic Iota when the NotFound value is FLT.  Pass a Boolean flag to each routine
+    so it can fail if it ever needs to return a NotFound value.

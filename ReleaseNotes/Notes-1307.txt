@@ -1,0 +1,13 @@
+Build #1307 -- Version 0.4.9.xx
+-------------------------------
+
+* Move From CrashServer To DoctorDump
+
+Directory trunk:
+
+CRASHSERVER.CPP:
+MAIN.C:
+MAKEFILE.INC:
+VER.C:
+WCOM.BAT:
+  Rename files and dirs from CrashServer to DoctorDump.

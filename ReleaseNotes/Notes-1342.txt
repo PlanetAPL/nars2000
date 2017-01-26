@@ -1,0 +1,10 @@
+Build #1342 -- Version 0.4.9.xx
+-------------------------------
+
+* Include Missing Case When Calculating Nameclass Of A SymEntry
+
+Directory trunk:
+
+QF_NC.C:
+  Update copyright year.
+  In <CalcNameClass>, handle the OP3 case.

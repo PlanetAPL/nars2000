@@ -1,0 +1,9 @@
+Build #1468 -- Version 0.4.14.xx
+--------------------------------
+
+* Include Branch Arrow In Traced Goto
+
+Directory trunk:
+
+QF_STRACE.C:
+  Include {rightarrow} in trace display of a branch.

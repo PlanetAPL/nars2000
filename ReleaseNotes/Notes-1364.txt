@@ -1,0 +1,15 @@
+Build #1364 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs In =/'aaa' And In =\'a'
+
+Directory trunk:
+
+MF_ROS.H:
+  In <MFON_RoS2>, remove "1/" so that the scan of a scalar returns a scalar.
+
+PO_SLASH.C:
+  In <PrimOpMonSlashCommon_EM_YY>, the case =/'aaa' was missed.
+
+PO_SLOPE.C:
+  In <PrimOpMonSlopeCommon_EM_YY>, the case of an immediate right arg was missed.

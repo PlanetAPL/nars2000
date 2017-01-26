@@ -1,0 +1,10 @@
+Build #1431 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug When Passing Global Numeric Scalar to Multi-element UDFO Header
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitVarSTEs>, handle scalar global numeric assigned to a multi-element left or
+    right arg as in Z{is}(L1 L2 L3) foo (R1 R2).

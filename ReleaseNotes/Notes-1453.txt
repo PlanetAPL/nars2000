@@ -1,0 +1,15 @@
+Build #1453 -- Version 0.4.13.xx
+--------------------------------
+
+* Fix Bug In Determinant Operator For Certain Cases
+
+Directory trunk:
+
+MF_DOT.H:
+  Fix bug in general determinant magic operator which fails if the left operand
+    is an AFO and the right arg column dimension is empty or a singleton.
+
+PO_DOT.C:
+  Improve comments.
+  In <PrimOpMonDotCommon_EM_YY> for -.x on FLTs, fix bug which doesn't copy all of the right arg for GSL to work on.
+  In <PrimOpMonDotCommon_EM_YY> prior to calling <GaussJordanDet>, merge loops for efficiency.

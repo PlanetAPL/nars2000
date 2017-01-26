@@ -1,6 +1,6 @@
 # /***************************************************************************
 #     NARS2000 -- An Experimental APL Interpreter
-#     Copyright (C) 2006-2014 Sudley Place Software
+#     Copyright (C) 2006-2016 Sudley Place Software
 #
 #     This program is free software: you can redistribute it and/or modify
 #     it under the terms of the GNU General Public License as published by
@@ -24,6 +24,10 @@
 
 !ifndef WIN
 !error Macro WIN= not defined.
+!endif
+
+!ifndef XWIN
+!error Macro XWIN= not defined.
 !endif
 
 !ifndef DEBUG
@@ -80,18 +84,19 @@
 
 .SUFFIXES: .DEP .DEV .PRO .Y
 
-NAME=NARS2000                   # Directory name
-ENAME=NARS2000                  # Executable name
-BIN=binaries\                   # Binaries directory
+NAME=NARS2000                       # Directory name
+ENAME=NARS2000                      # Executable name
+BIN=binaries\                       # Binaries directory
 DEBUG=0
-A=Images\                       # Images & artwork
-BC=$(BIN)COM\                   # Directory for common binaries
-WS=WineHQ\                      # Wine source
-OLDPATH=$(PATH)                 # Save the current path
-GSL_INC=$(GSL_DIR)include\      # Directory of GSL includes
+A=Images\                           # Images & artwork
+BC=$(BIN)COM\                       # Directory for common binaries
+WS=WineHQ\                          # Wine source
+OLDPATH=$(PATH)                     # Save the current path
+GSL_INC=$(GSL_DIR)$(XWIN)\include\  # Directory of GSL includes
+SDK_INC=$(INCLUDE)                  # Directories of SDK includes
 
-QDEBUG=$(NARSROOT)qdebug\       # Directory for QDEBUG files/libraries
-L98=$(L98);$(QDEBUG)
+QDEBUG=$(NARSROOT)qdebug\           # Directory for QDEBUG files/libraries
+LIB=$(LIB);$(QDEBUG)
 
 !if "$(LST)" == "1"
 LIST=/Fa$(O)$(@B).lst /FAsc
@@ -101,18 +106,20 @@ LIST=
 
 !if "$(DEBUG)" == "1"
 RESDEBUG=1
-###CFLAGS_DEBUG=/Z7 /D "DEBUG"
 CFLAGS_DEBUG=/Zi /D "DEBUG"
 BUILD_DIR=Debug
 DEBUG_LIBSUFFIX=d
+LFLAGS_NDEF=/NODEFAULTLIB:libcmt.lib /SAFESEH:NO
 !else
 RESDEBUG=0
 CFLAGS_DEBUG=/Zi
 BUILD_DIR=Release
 DEBUG_LIBSUFFIX=
+LFLAGS_NDEF=/NODEFAULTLIB:libcmtd.lib
 !endif
 
-GSL_LIB=$(GSL_DIR)libgsl$(WIN)$(DEBUG_LIBSUFFIX)-double.lib # GSL library
+GSL1_LIB=$(GSL_DIR)$(XWIN)\lib\gsl.lib      # GSL library
+GSL2_LIB=$(GSL_DIR)$(XWIN)\lib\cblas.lib    # CBLAS library
 
 MS_INC   = $(MS_DIR)
 MPIR_INC = $(MPIR_DIR)include^\
@@ -132,11 +139,12 @@ ECM_INC  = $(ECM_DIR)include^\
 WDEF=_WIN$(WIN)
 MFEXT=w$(WIN)
 
-I98=.\;$(SDK)INCLUDE;$(MSVC)INCLUDE;$(MS_INC);$(QDEBUG);$(MPIR_INC);$(MPFR_INC);$(ECM_INC);$(GSL_INC);$(CS_DIR)include
+I98=.\;$(SDK_INC);$(MSVC)INCLUDE;$(MS_INC);$(MPIR_INC);$(MPFR_INC);$(ECM_INC);$(GSL_INC);$(CS_DIR)include;$(QDEBUG)
 
 MV=makever
 
-## Set the following to 1 to debug linker error 0x460 as in
+## Set the following to 1 to debug linker errors
+##   or call the MKxx batch file as in
 ##   mkn LINKDEBUG=1
 LINKDEBUG=0
 
@@ -145,15 +153,16 @@ MPFR_LIB = $(MPFR_DIR)lib\mpfr$(WIN)$(DEBUG_LIBSUFFIX).lib
 ECM_LIB  = $(ECM_DIR)lib\ecm$(WIN)$(DEBUG_LIBSUFFIX).lib
 
 !if "$(DEBUG)" == "1"
-CS_DLL=
-CS_LIB=
+CS_FILES=
 !else
 !if "$(WIN)" == "64"
-CS_DLL=$(CS_DIR)bin\x64\crshhndl.dll
-CS_LIB=$(CS_DIR)lib\x64\crshhndl.lib
+CS_FILES=$(CS_DIR)bin\x64\crashrpt.dll  \
+         $(CS_DIR)bin\x64\dbghelp.dll   \
+         $(CS_DIR)bin\x64\sendrpt.exe
 !else
-CS_DLL=$(CS_DIR)bin\crshhndl.dll
-CS_LIB=$(CS_DIR)lib\crshhndl.lib
+CS_FILES=$(CS_DIR)bin\crashrpt.dll      \
+         $(CS_DIR)bin\dbghelp.dll       \
+         $(CS_DIR)bin\sendrpt.exe
 !endif
 !endif
 
@@ -163,15 +172,18 @@ CFLAGS_DEBUG=$(CFLAGS_DEBUG) /D "RESDEBUG=$(RESDEBUG)" /D "_STDINT_H"
 !include makefile.src
 
 VERSION_FLAGS = /D "NTDDI_VERSION=NTDDI_WINXP" /D "_WIN32_WINNT=_WIN32_WINNT_WINXP" /D "_WIN32_IE=0x0600"
-CFLAGS_WEXE = /nologo /GA /W3 /WX /Oy- /Ot $(CFLAGS_DEBUG) /D $(WDEF) /c /D _CRT_SECURE_NO_WARNINGS
-CFLAGS_WEXE = $(CFLAGS_WEXE) $(VERSION_FLAGS) /D "_MBCS"
-LFLAGS_WEXE = /NOLOGO /MAP /LARGEADDRESSAWARE /OPT:REF /DYNAMICBASE:NO /MANIFEST:NO /SUBSYSTEM:WINDOWS /IGNOREIDL /NXCOMPAT /DEBUG
+CFLAGS_WEXE = /nologo /GA /W3 /WX /Oy- /Ot $(CFLAGS_DEBUG) /D "_WIN32" /c /D "_CRT_SECURE_NO_WARNINGS"
+CFLAGS_WEXE = $(CFLAGS_WEXE) $(VERSION_FLAGS) /D "_MBCS" /Qpar /O2
+##CFLAGS_WEXE = $(CFLAGS_WEXE) /GL
+LFLAGS_WEXE2 = /NOLOGO /MAP /LARGEADDRESSAWARE /OPT:REF /DYNAMICBASE:NO /MANIFEST:NO /SUBSYSTEM:WINDOWS /IGNOREIDL /NXCOMPAT /DEBUG
+LFLAGS_WEXE  = $(LFLAGS_WEXE2) /LTCG
 !if "$(WIN)" == "64"
-CFLAGS_WEXE = $(CFLAGS_WEXE) /GS- /D_AMD64_ /D_M_AMD64 /D_WIN64 /Gd
+CFLAGS_WEXE = $(CFLAGS_WEXE) /D "_AMD64_" /D "_M_AMD64" /D "_WIN64" /Gd
 LFLAGS_WEXE = $(LFLAGS_WEXE) /MACHINE:X64
 !endif
 
-LIBS_WEXE = gdi32.lib           \
+LIBS_WEXE =                     \
+            gdi32.lib           \
             kernel32.lib        \
             user32.lib          \
             version.lib         \
@@ -180,20 +192,25 @@ LIBS_WEXE = gdi32.lib           \
             comctl32.lib        \
             wininet.lib         \
             oldnames.lib        \
+            MSImg32.lib         \
             ole32.lib           \
             uuid.lib            \
             winspool.lib        \
             advapi32.lib        \
             dbghelp.lib         \
 !if "$(DEBUG)" == "1"
+            Shlwapi.lib         \
             qdebug32.lib        \
-!endif
+            libcmtd.lib         \
+!else
             libcmt.lib          \
-            $(CS_LIB)           \
+!endif
+##VS2015    legacy_stdio_definitions.lib \
             $(MPIR_LIB)         \
             $(MPFR_LIB)         \
             $(ECM_LIB)          \
-            $(GSL_LIB)
+            $(GSL1_LIB)         \
+            $(GSL2_LIB)
 
 RCFLAGS = /nologo $(VERSION_FLAGS)
 !if "$(DEBUG)" == "1"
@@ -223,7 +240,10 @@ OC=RET\COM\                     # Define output directory for common intermediat
 
 PDBFILE = $(B)$(ENAME).pdb
 
-FONT=$(NARSROOT)SImPL-Medium.ttf # Default APL TrueType font
+# Default APL TrueType font
+# Fallback font for Output Debugging
+FONT=$(NARSROOT)SImPL-Medium.ttf    \
+     $(NARSROOT)Fallback00-1F.ttf
 
 
 ALL:    DIR                 \
@@ -283,7 +303,7 @@ INITIAL_EXE:
 
 {}.y{$(O)}.c:
         @Set INCLUDE=$(I98);$(O)
-        $(PARGEN) -o$(O)$(@B).c -v -r all -l %s
+        @$(PARGEN) -o$(O)$(@B).c -v -r all -l %s
 
 {}.c{$(O)}.obj:
         @Set INCLUDE=$(I98);$(O)
@@ -306,7 +326,7 @@ INITIAL_EXE:
         @$(CC) $(CFLAGS_WEXE) /Fo$@ $(LIST) %s
 
 {$(WS)}.c{$(O)}.obj:
-        @Set INCLUDE=$(WS).;$(WS)Include;$(WS)Include\Wine;$(WS)Include\msvcrt;.;$(O);$(SDK)INCLUDE
+        @Set INCLUDE=$(WS).;$(WS)Include;$(WS)Include\Wine;$(WS)Include\msvcrt;.;$(O);$(SDK_INC)
         @if exist $@ del $@
 !if "$(WIN)" == "64"
         @$(CC) $(CFLAGS_WEXE) /Fo$@ /D __x86_64__ /D "UNICODE" $(LIST) %s
@@ -325,27 +345,27 @@ DEP:    DIR                     \
         $(O)version.dev
 
 {}.c{$(O)}.dep:
-        @echo $(@F)
+###     @echo $(@F)
         @php $(MAKEDEP) -s$(O)=$$(O) %s > $@
 
 {}.cpp{$(O)}.dep:
-        @echo $(@F)
+###     @echo $(@F)
         @php $(MAKEDEP) -s$(O)=$$(O) %s > $@
 
 {$(O)}.c{$(O)}.dep:
-        @echo $(@F)
+###     @echo $(@F)
         @php $(MAKEDEP) -s$(O)=$$(O) %s > $@
 
 {$(WS)}.c{$(O)}.dep:
-        @echo $(@F)
+###     @echo $(@F)
         @php $(MAKEDEP) -s$(O)=$$(O),$(WS)=$$(WS) %s > $@
 
 {$(MS_DIR)}.c{$(O)}.dep:
-        @echo $(@F)
+###     @echo $(@F)
         @php $(MAKEDEP) -s$(O)=$$(O),$(MS_DIR)=$$(MS_DIR) %s > $@
 
 {}.rc{$(O)}.dev:
-        @echo $(@F)
+###     @echo $(@F)
         @php $(MAKEDEP) -s$(O)=$$(O) %s > $@
 
 !include $(O)dep.txt
@@ -359,29 +379,29 @@ PRO:    DIR                     \
         $(SRC_PARSE:???=pro)
 
 {}.c{$(O)}.pro:
-        @echo $(@F)
+########@echo $(@F)
         @php $(MAKEPRO) %s $@
 
 {}.cpp{$(O)}.pro:
-        @echo $(@F)
+########@echo $(@F)
         @php $(MAKEPRO) %s $@
 
 {$(O)}.c{$(O)}.pro:
-        @echo $(@F)
+########@echo $(@F)
         @php $(MAKEPRO) %s $@
 
 {$(WS)}.c{$(O)}.pro:
-        @echo $(@F)
+########@echo $(@F)
         @php $(MAKEPRO) %s $@
 
 {$(MS_DIR)}.c{$(O)}.pro:
-        @echo $(@F)
+########@echo $(@F)
         @php $(MAKEPRO) %s $@
 
 
 ########################## UTILITY ROUTINES ##########################
 
-$(O)dbgbrk.obj:         dbgbrk.asm
+$(O)dbgbrk$(WIN).obj:   dbgbrk$(WIN).asm
         @if exist $@ del $@
         @$(ML) /DIS_$(WIN) /c /W3 /nologo $(ASMOPTS) /Fo $@ %s
 
@@ -401,7 +421,6 @@ ICONS=$(A)About.ico     \
       $(A)SM.ico        \
       $(A)VE.ico        \
       $(A)WC.ico        \
-      $(A)LineCont.bmp  \
       $(A)Workspace.bmp \
       $(A)Edit.bmp      \
       $(A)Objects.bmp
@@ -419,8 +438,6 @@ $(O)cs_parse.c:         $(@B).y
 $(O)cs_parse.obj:       $(O)$(@B).c     $(CS_PARSE_DEP)
 $(O)fh_parse.c:         $(@B).y
 $(O)fh_parse.obj:       $(O)$(@B).c     $(FH_PARSE_DEP)
-$(O)pl_parse.c:         $(@B).y
-$(O)pl_parse.obj:       $(O)$(@B).c     $(PL_PARSE_DEP)
 $(O)pn_parse.c:         $(@B).y
 $(O)pn_parse.obj:       $(O)$(@B).c     $(PN_PARSE_DEP)
 
@@ -465,6 +482,7 @@ $(O)crash.obj:          $(@B).c         $(CRASH_DEP)
 !if "$(DEBUG)" == "0"
 $(O)crashserver.obj:    $(@B).cpp       $(CRASHSERVER_DEP)
 !endif
+$(O)cr_proc.obj:        $(@B).c         $(CR_PROC_DEP)
 $(O)cs_proc.obj:        $(@B).c         $(CS_PROC_DEP)
 $(O)customize.obj:      $(@B).c         $(CUSTOMIZE_DEP)
 $(O)debug.obj:          $(@B).c         $(DEBUG_DEP)
@@ -472,8 +490,6 @@ $(O)dictionary.obj:     $(@B).c         $(DICTIONARY_DEP)
 $(O)dispdbg.obj:        $(@B).c         $(DISPDBG_DEP)
 $(O)display.obj:        $(@B).c         $(DISPLAY_DEP)
 $(O)editfcn.obj:        $(@B).c         $(EDITFCN_DEP)
-$(O)editmat.obj:        $(@B).c         $(EDITMAT_DEP)
-$(O)editvec.obj:        $(@B).c         $(EDITVEC_DEP)
 $(O)errmsg.obj:         $(@B).c         $(ERRMSG_DEP)
 $(O)except.obj:         $(@B).c         $(EXCEPT_DEP)
 $(O)execdfn.obj:        $(@B).c         $(EXECDFN_DEP)
@@ -498,6 +514,7 @@ $(O)main.obj:           $(@B).c         $(MAIN_DEP)
 $(O)malloc.obj:         $(@B).c         $(MALLOC_DEP)
 $(O)mpfns.obj:          $(@B).c         $(MPFNS_DEP)
 $(O)mpifns.obj:         $(@B).c         $(MPIFNS_DEP)
+$(O)parseline.obj:      $(@B).c         $(PARSELINE_DEP)
 $(O)perfmon.obj:        $(@B).c         $(PERFMON_DEP)
 $(O)pf_bar.obj:         $(@B).c         $(PF_BAR_DEP)
 $(O)pf_circle.obj:      $(@B).c         $(PF_CIRCLE_DEP)
@@ -577,6 +594,7 @@ $(O)qf_a.obj:           $(@B).c         $(QF_A_DEP)
 $(O)qf_at.obj:          $(@B).c         $(QF_AT_DEP)
 $(O)qf_av.obj:          $(@B).c         $(QF_AV_DEP)
 $(O)qf_cr.obj:          $(@B).c         $(QF_CR_DEP)
+$(O)qf_d.obj:           $(@B).c         $(QF_D_DEP)
 $(O)qf_dl.obj:          $(@B).c         $(QF_DL_DEP)
 $(O)qf_dr.obj:          $(@B).c         $(QF_DR_DEP)
 $(O)qf_ea.obj:          $(@B).c         $(QF_EA_DEP)
@@ -593,8 +611,10 @@ $(O)qf_mf.obj:          $(@B).c         $(QF_MF_DEP)
 $(O)qf_nc.obj:          $(@B).c         $(QF_NC_DEP)
 $(O)qf_nfns.obj:        $(@B).c         $(QF_NFNS_DEP)
 $(O)qf_nl.obj:          $(@B).c         $(QF_NL_DEP)
+$(O)qf_strace.obj:      $(@B).c         $(QF_STRACE_DEP)
 $(O)qf_sysid.obj:       $(@B).c         $(QF_SYSID_DEP)
 $(O)qf_sysver.obj:      $(@B).c         $(QF_SYSVER_DEP)
+$(O)qf_t.obj:           $(@B).c         $(QF_T_DEP)
 $(O)qf_tc.obj:          $(@B).c         $(QF_TC_DEP)
 $(O)qf_tf.obj:          $(@B).c         $(QF_TF_DEP)
 $(O)qf_ts.obj:          $(@B).c         $(QF_TS_DEP)
@@ -657,7 +677,7 @@ $(WS)local.h:           defines.h       \
 # Build the Win32/Win64 version
 OBJS=   $(SRC:???=obj)                  \
         $(SRC_PARSE:???=obj)            \
-        $(O)dbgbrk.obj                  \
+        $(O)dbgbrk$(WIN).obj            \
         $(O)main.res
 
 $(O)$(ENAME).exe:       $(OBJS)             \
@@ -665,9 +685,10 @@ $(O)$(ENAME).exe:       $(OBJS)             \
                         $(MPIR_LIB)         \
                         $(MPFR_LIB)         \
                         $(ECM_LIB)          \
-                        $(GSL_LIB)          \
-                        $(CS_DLL)           \
-                        $(CS_LIB)           \
+                        $(GSL1_LIB)         \
+                        $(GSL2_LIB)         \
+                        $(CS_FILES)         \
+                        $(FONT)             \
                         makefile.inc        \
                         makefile.$(MFEXT)
         @echo >NUL @<<$(O)main.crf
@@ -677,13 +698,12 @@ $(OBJS)
 $(LIBS_WEXE) $(LIBS_EXT)
 /DEF:$(DEFFILE)
 /PDB:$(PDBFILE)
-/NODEFAULTLIB
+$(LFLAGS_NDEF)
 !if "$(LINKDEBUG)" == "1"
 /VERBOSE:LIB
 !endif
 <<KEEP
         @echo ---.exe File----
-        @Set LIB=$(L98)
         @if exist $@ del $@
 !if "$(LINKDEBUG)" == "1"
         @$(LD) $(LFLAGS_WEXE) @$(O)main.crf
@@ -694,10 +714,10 @@ $(LIBS_WEXE) $(LIBS_EXT)
         @del $(O)$(@B).lib
         @copy $(O)$(ENAME).map $(B) >NUL
 
-$(B)$(ENAME).zip:       $(O)$(ENAME).exe LICENSE* $(FONT) $(CS_DLL)
+$(B)$(ENAME).zip:       $(O)$(ENAME).exe LICENSE* $(FONT) $(CS_FILES)
         @echo ---.zip File----
         @copy $(O)$(ENAME).exe $(ENAME).exe >NUL
-        @$(ZIPPRG) a -tzip $(B)$(ENAME).zip $(ENAME).EXE LICENSE* $(FONT) $(CS_DLL) >NUL
+        @$(ZIPPRG) a -tzip $(B)$(ENAME).zip $(ENAME).EXE LICENSE* $(FONT) $(CS_FILES) >NUL
         @del $(ENAME).exe
         @dir /ON $(B)$(ENAME).zip|grep "$(ENAME)\."
 
@@ -717,11 +737,9 @@ $**
 /MAP:$(OC)$(MV).map
 kernel32.lib user32.lib version.lib libcmt.lib
 /DEF:$(MV).def
-/NODEFAULTLIB
 <<KEEP
-        @Set LIB=$(L98)
         @if exist $@ del $@
-        @$(LD) $(LFLAGS_WEXE) @$(OC)$(MV).crf
+        @$(LD) $(LFLAGS_WEXE2) @$(OC)$(MV).crf
         @del $(OC)$(@B).exp
         @del $(OC)$(@B).lib
 

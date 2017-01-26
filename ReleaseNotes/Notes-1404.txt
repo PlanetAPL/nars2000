@@ -1,0 +1,42 @@
+Build #1404 -- Version 0.4.11.xx
+--------------------------------
+
+* Implement []STOP and []TRACE
+
+Directory trunk:
+
+COMMON.C:
+  Define <AllocateGlobalArray> as handy function for widespread use as
+    suggested by Rob Wallick.
+
+COMPRO.H:
+MAKEFILE.INC:
+MAKEFILE.SRC:
+  Include <qf_strace.*> in the build.
+
+CONVERT.C:
+  Define <ConvertToInteger_SCT> for use in many places.
+
+EXECDFN.C:
+  Include Trace line flag in all calls to <ParseLine>.
+  In <ExecuteFunction_EM_YY>, handle Stop & Trace.
+
+EXECMFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+  Include Trace line flag in all calls to <ParseLine>.
+
+FH_PARSE.H:
+  In <DFN_HEADER> struc, define Stop & Trace exit flags for line 0.
+
+PARSELINE.C:
+  In <plRedGO_A> and <ParseLine>, handle Stop & Trace.
+
+PL_PARSE.H:
+  In <PLLOCLAVARS> struc, define Stop & Trace exit flags and Stmt number.
+
+QF_STRACE.C:
+  Define file to handle calls to []STOP & []TRACE.
+
+SYSVARS.C:
+  Include []STOP & []TRACE in system vars & functions table.

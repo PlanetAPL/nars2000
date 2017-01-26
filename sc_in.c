@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -63,8 +63,8 @@ UBOOL CmdIn_EM
 #define wszTempLen      countof (wszTemp)
     UINT          uLen,                     // Length of output save area in WCHARs
                   uOldRecNo,                // Starting record # in file (for range display)
-                  uRecNo = 0,               // Record # in file
-                  uMaxSize;                 // Maximum size of lpwszTemp
+                  uRecNo = 0;               // Record # in file
+    APLI3264      iMaxSize;                 // Maximum size of lpwszTemp
     UBOOL         bRet = FALSE,             // TRUE iff the result is valid
                   bIsEBCDIC;                // TRUE iff the orignial .atf file is in EBCDIC format
     FILETIME      ftCreation;               // Creation timestamp
@@ -78,7 +78,7 @@ UBOOL CmdIn_EM
     // Get ptr to temporary storage & maximum size
     lpwszOrigTemp =
     lpwszTemp     = lpMemPTD->lpwszTemp;
-    uMaxSize      = lpMemPTD->uTempMaxSize;
+    iMaxSize      = lpMemPTD->iTempMaxSize;
     hWndSM        = lpMemPTD->hWndSM;
     lpwszFormat   = lpMemPTD->lpwszFormat;
 
@@ -89,19 +89,8 @@ UBOOL CmdIn_EM
     if (lpwszTail[0] EQ WC_EOS)
         goto INCORRECT_COMMAND_EXIT;
 
-    // Get the command tail length
-    uLen = lstrlenW (lpwszTail);
-
-    // Check for leading and trailing double quotes
-    if (lpwszTail[0       ] EQ WC_DQ
-     && lpwszTail[uLen - 1] EQ WC_DQ)
-    {
-        // Zap the trailing DQ
-        lpwszTail[--uLen] = WC_EOS;
-
-        // Move the string down over the leading DQ
-        CopyMemoryW (lpwszTail, &lpwszTail[1], uLen);
-    } // End IF
+    // If there's a leading double-quote, ...
+    lpwszTail = StripDQ (lpwszTail);
 
     // Split out the drive and path from the module filename
     _wsplitpath (lpwszTail, wszDrive, wszDir, wszFname, wszExt);
@@ -141,7 +130,7 @@ UBOOL CmdIn_EM
                           NULL);                // Name of file-mapping object
     if (hAtfMap EQ NULL)
     {
-        lstrcpyW (wszTemp, L"Unable to create file mapping:  ");
+        strcpyW (wszTemp, L"Unable to create file mapping:  ");
         uLen = lstrlenW (wszTemp);
 
         FormatMessageW (FORMAT_MESSAGE_FROM_SYSTEM, // Source and processing options
@@ -165,7 +154,7 @@ UBOOL CmdIn_EM
                      dwAtfFileSize);            // Number of bytes to map
     if (hAtfView EQ NULL)
     {
-        lstrcpyW (wszTemp, L"Unable to map view of file:  ");
+        strcpyW (wszTemp, L"Unable to map view of file:  ");
         uLen = lstrlenW (wszTemp);
 
         FormatMessageW (FORMAT_MESSAGE_FROM_SYSTEM, // Source and processing options
@@ -203,13 +192,13 @@ UBOOL CmdIn_EM
         CHECK_TEMP_OPEN
 
         // Copy and translate the next record into lpwszTemp
-        lpAtfView = CmdInCopyAndTranslate_EM (lpAtfView, &dwAtfFileSize, lpwszTemp, uMaxSize, &uLen, &ftCreation, &uRecNo, bIsEBCDIC);
+        lpAtfView = CmdInCopyAndTranslate_EM (lpAtfView, &dwAtfFileSize, lpwszTemp, iMaxSize, &uLen, &ftCreation, &uRecNo, bIsEBCDIC);
 
         // Protect the text
         lpMemPTD->lpwszTemp += lstrlenW (lpMemPTD->lpwszTemp);
         EXIT_TEMP_OPEN
 
-        if (!lpAtfView)
+        if (lpAtfView EQ NULL)
             goto ERROR_EXIT;
 
         // Process the record in lpwszTemp of length uLen
@@ -359,9 +348,9 @@ UBOOL TransferInverseArr2_EM
 
     // Search for the left arrow which marks the end of the name
     lpwNameEnd = SkipToCharW (lpwName, UTF16_LEFTARROW);
-    if (!lpwNameEnd)
+    if (lpwNameEnd EQ NULL)
     {
-        if (!lptkFunc)
+        if (lptkFunc EQ NULL)
         {
             // Format the error message
             wsprintfW (lpwszFormat,
@@ -398,13 +387,13 @@ UBOOL TransferInverseArr2_EM
 
     // Look up the name
     lpSymEntry = SymTabLookupName (lpwName, &stFlags);
-    if (!lpSymEntry)
+    if (lpSymEntry EQ NULL)
     {
         // If it's a system name and it's not found, then we don't support it
         if (IsSysName (lpwName))
             goto INVALIDSYSNAME_EXIT;
         lpSymEntry = SymTabAppendNewName_EM (lpwName, &stFlags);
-        if (!lpSymEntry)
+        if (lpSymEntry EQ NULL)
             goto STFULL_EXIT;
 
         // Set the object name and name type value for this new entry
@@ -430,6 +419,7 @@ UBOOL TransferInverseArr2_EM
                                        lstrlenW (lpwName),  // Length of the line to execute
                                        TRUE,                // TRUE iff we should act on errors
                                        FALSE,               // TRUE iff we're to skip the depth check
+                                       DFNTYPE_EXEC,        // DfnType for FillSISNxt
                                        NULL);               // Ptr to function token
         // Split cases based upon the exit type
         switch (exitType)
@@ -450,7 +440,7 @@ UBOOL TransferInverseArr2_EM
 
             case EXITTYPE_ERROR:
             case EXITTYPE_STACK_FULL:
-                if (!lptkFunc)
+                if (lptkFunc EQ NULL)
                 {
                     // Display the leading part of the error message
                     AppendLine (lpMemPTD->lpwszErrorMessage, FALSE, TRUE);
@@ -481,7 +471,7 @@ UBOOL TransferInverseArr2_EM
     goto NORMAL_EXIT;
 
 INVALIDSYSNAME_EXIT:
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
     {
         // Format the error message
         wsprintfW (lpwszFormat,
@@ -496,7 +486,7 @@ INVALIDSYSNAME_EXIT:
     goto ERROR_EXIT;
 
 STFULL_EXIT:
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
         AppendLine (ERRMSG_SYMBOL_TABLE_FULL APPEND_NAME, FALSE, TRUE);
 
     goto ERROR_EXIT;
@@ -555,7 +545,7 @@ UBOOL TransferInverseFcn2_EM
     // Get the Edit Ctrl window handle
     hWndEC = (HWND) (HANDLE_PTR) GetWindowLongPtrW (hWndSM, GWLSF_HWNDEC);
 
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
     {
         LPWCHAR lpwQ1,
                 lpwQ2;
@@ -582,6 +572,7 @@ UBOOL TransferInverseFcn2_EM
                                    lstrlenW (lpwData),  // Length of the line to execute
                                    TRUE,                // TRUE iff we should act on errors
                                    FALSE,               // TRUE iff we're to skip the depth check
+                                   DFNTYPE_EXEC,        // DfnType for FillSISNxt
                                    NULL);               // Ptr to function token
     Assert (exitType EQ EXITTYPE_NODISPLAY
          || exitType EQ EXITTYPE_NOVALUE
@@ -598,7 +589,7 @@ UBOOL TransferInverseFcn2_EM
     if (exitType EQ EXITTYPE_ERROR
      || lpMemPTD->uErrLine NE NEG1U)
     {
-        if (!lptkFunc)
+        if (lptkFunc EQ NULL)
         {
             // Display the leading part of the error message
             AppendLine (lpMemPTD->lpwszErrorMessage, FALSE, TRUE);
@@ -662,7 +653,7 @@ UBOOL TransferInverseFcn2_EM
             Assert (IsGlbTypeDfnDir_PTB (hGlbDfnHdr));
 
             // Lock the memory to get a ptr to it
-            lpMemDfnHdr = MyGlobalLock (hGlbDfnHdr);
+            lpMemDfnHdr = MyGlobalLockDfn (hGlbDfnHdr);
 
             // Save creation time
             lpMemDfnHdr->ftCreation = *lpftCreation;
@@ -737,9 +728,9 @@ UBOOL TransferInverseChr1_EM
 
     // Search for the blank which marks the end of the name
     lpwData = SkipToCharW (lpwName, L' ');
-    if (!lpwData)
+    if (lpwData EQ NULL)
     {
-        if (!lptkFunc)
+        if (lptkFunc EQ NULL)
         {
             // Format the error message
             wsprintfW (lpwszFormat,
@@ -780,13 +771,13 @@ UBOOL TransferInverseChr1_EM
 
     // Look up the name
     lpSymEntry = SymTabLookupName (lpwName, &stFlags);
-    if (!lpSymEntry)
+    if (lpSymEntry EQ NULL)
     {
         // If it's a system name and it's not found, then we don't support it
         if (IsSysName (lpwName))
             goto INVALIDSYSNAME_EXIT;
         lpSymEntry = SymTabAppendNewName_EM (lpwName, &stFlags);
-        if (!lpSymEntry)
+        if (lpSymEntry EQ NULL)
             goto STFULL_EXIT;
 
         // Set the object name and name type value for this new entry
@@ -842,11 +833,11 @@ UBOOL TransferInverseChr1_EM
 
         // Now we can allocate the storage for the result
         hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbRes)
+        if (hGlbRes EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemRes = MyGlobalLock (hGlbRes);
+        lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
         // Fill in the header
@@ -898,7 +889,7 @@ UBOOL TransferInverseChr1_EM
     goto NORMAL_EXIT;
 
 INVALIDSYSNAME_EXIT:
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
     {
         // Format the error message
         wsprintfW (lpwszFormat,
@@ -913,13 +904,13 @@ INVALIDSYSNAME_EXIT:
     goto ERROR_EXIT;
 
 STFULL_EXIT:
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
         AppendLine (ERRMSG_SYMBOL_TABLE_FULL APPEND_NAME, FALSE, TRUE);
 
     goto ERROR_EXIT;
 
 WSFULL_EXIT:
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
         AppendLine (ERRMSG_WS_FULL APPEND_NAME, FALSE, TRUE);
 
     goto ERROR_EXIT;
@@ -989,9 +980,9 @@ UBOOL TransferInverseNum1_EM
 
     // Search for the blank which marks the end of the name
     lpwData = SkipToCharW (lpwName, L' ');
-    if (!lpwData)
+    if (lpwData EQ NULL)
     {
-        if (!lptkFunc)
+        if (lptkFunc EQ NULL)
         {
             // Format the error message
             wsprintfW (lpwszFormat,
@@ -1031,13 +1022,13 @@ UBOOL TransferInverseNum1_EM
 
     // Look up the name
     lpSymEntry = SymTabLookupName (lpwName, &stFlags);
-    if (!lpSymEntry)
+    if (lpSymEntry EQ NULL)
     {
         // If it's a system name and it's not found, then we don't support it
         if (IsSysName (lpwName))
             goto INVALIDSYSNAME_EXIT;
         lpSymEntry = SymTabAppendNewName_EM (lpwName, &stFlags);
-        if (!lpSymEntry)
+        if (lpSymEntry EQ NULL)
             goto STFULL_EXIT;
 
         // Set the object name and name type value for this new entry
@@ -1112,6 +1103,7 @@ UBOOL TransferInverseNum1_EM
                                        lstrlenW (lpwName),  // Length of the line to execute
                                        TRUE,                // TRUE iff we should act on errors
                                        FALSE,               // TRUE iff we're to skip the depth check
+                                       DFNTYPE_EXEC,        // DfnType for FillSISNxt
                                        NULL);               // Ptr to function token
         Assert (exitType EQ EXITTYPE_NODISPLAY
              || exitType EQ EXITTYPE_ERROR);
@@ -1128,7 +1120,7 @@ UBOOL TransferInverseNum1_EM
     goto NORMAL_EXIT;
 
 INVALIDSYSNAME_EXIT:
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
     {
         // Format the error message
         wsprintfW (lpwszFormat,
@@ -1143,13 +1135,13 @@ INVALIDSYSNAME_EXIT:
     goto ERROR_EXIT;
 
 STFULL_EXIT:
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
         AppendLine (ERRMSG_SYMBOL_TABLE_FULL APPEND_NAME, FALSE, TRUE);
 
     goto ERROR_EXIT;
 
 IMMEXEC_EXIT:
-    if (!lptkFunc)
+    if (lptkFunc EQ NULL)
     {
         // Display the leading part of the error message
         AppendLine (lpMemPTD->lpwszErrorMessage, FALSE, TRUE);
@@ -1191,7 +1183,7 @@ LPUCHAR CmdInCopyAndTranslate_EM
     (LPUCHAR    lpAtfView,                  // Ptr to incoming data
      LPDWORD    lpdwAtfFileSize,            // Ptr to file size
      LPWCHAR    lpwszTemp,                  // Ptr to output save area
-     UINT       uMaxSize,                   // Size of output save area in bytes
+     APLI3264   iMaxSize,                   // Size of output save area in bytes
      LPUINT     lpuLen,                     // Ptr to length of record in output save area (in WCHARs)
      FILETIME  *lpftCreation,               // Ptr to timestamp (if any)
      LPUINT     lpuRecNo,                   // Ptr to record count so far
@@ -1320,12 +1312,12 @@ LPUCHAR CmdInCopyAndTranslate_EM
             {
                 WCHAR wszTemp[80];
 
-                wsprintfW (wszTemp,
+                MySprintfW (wszTemp,
+                            sizeof (wszTemp),
                            L"Invalid record in .atf file, lines %u-%u (origin-1) starting with %.20s.",
-                           uOldRecNo,
-                           1 + *lpuRecNo,
-                           lpAtfView);
-
+                            uOldRecNo,
+                            1 + *lpuRecNo,
+                            lpAtfView);
                 // Display the error message
                 AppendLine (wszTemp, FALSE, TRUE);
 

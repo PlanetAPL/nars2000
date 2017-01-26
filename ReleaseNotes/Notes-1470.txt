@@ -1,0 +1,9 @@
+Build #1470 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In DownTack With Zeros In Left Arg
+
+Directory trunk:
+
+PF_DTACK.C:
+  Fix bug in <PrimFnDydDownTack_EM_YY> in the general case when tehre are zeros in the left arg.

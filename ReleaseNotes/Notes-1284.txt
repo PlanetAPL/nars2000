@@ -1,0 +1,10 @@
+Build #1284 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement DEBUG Display of An APL Var
+
+Directory trunk:
+
+DISPDBG.C:
+  Implement <DisplayGlbVar> which is a preliminary version of a function to display the contents of an APL var.
+  Delete <DisplayYYRes> as it is unused.

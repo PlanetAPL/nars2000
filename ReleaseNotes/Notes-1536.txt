@@ -1,0 +1,14 @@
+Build #1536 -- Version 0.4.15.xx
+--------------------------------
+
+* Use 32-/64-bit Size For Certain Functions
+
+Directory trunk:
+
+RESDEBUG.C:
+  Use <size_t> as 32-/64-bit size unit for certain functions.
+
+SYMTAB.C:
+  Improve comments.
+  Use <size_t> as 32-/64-bit size unit for certain functions.
+  In IF stmts always compare ptr against NULL and value against 0.

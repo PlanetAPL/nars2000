@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -137,21 +137,40 @@ APLSTYPE PrimSpecDownStileStorageTypeMon
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
-
-    if (IsSimpleChar (*lpaplTypeRht)
-     || *lpaplTypeRht EQ ARRAY_LIST)
-        return ARRAY_ERROR;
 
     // The storage type of the result is
     //   the same as that of the right arg
-    //   except FLOAT goes to INT.
-    // IisF promotes to FisF as necessary.
-    if (IsSimpleFlt (*lpaplTypeRht))
-        aplTypeRes = ARRAY_INT;
-    else
-        aplTypeRes = *lpaplTypeRht;
+    aplTypeRes = *lpaplTypeRht;
+
+    // Split cases based upon the storage type
+    switch (aplTypeRes)
+    {
+        // Except FLOAT goes to INT
+        // IisF promotes to FisF as necessary.
+        case ARRAY_FLOAT:
+            aplTypeRes = ARRAY_FLOAT;
+
+            break;
+
+        case ARRAY_BOOL:
+        case ARRAY_INT:
+        case ARRAY_APA:
+        case ARRAY_RAT:
+        case ARRAY_VFP:
+        case ARRAY_NESTED:
+            break;
+
+        case ARRAY_CHAR:
+        case ARRAY_HETERO:
+            aplTypeRes = ARRAY_ERROR;
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
 
     return aplTypeRes;
 } // End PrimSpecDownStileStorageTypeMon
@@ -200,7 +219,7 @@ APLINT PrimFnMonDownStileIisF
 {
     // Check for PoM infinity and numbers whose
     //   absolute value is >= 2*53
-    if (IsInfinity (aplFloatRht)
+    if (IsFltInfinity (aplFloatRht)
      || fabs (aplFloatRht) >= Float2Pow53)
         RaiseException (EXCEPTION_RESULT_FLOAT, 0, 0, NULL);
 
@@ -224,7 +243,7 @@ APLFLOAT PrimFnMonDownStileFisF
              aplNear;
 
     // Check for PoM infinity
-    if (IsInfinity (aplFloatRht))
+    if (IsFltInfinity (aplFloatRht))
         return aplFloatRht;
 
     // Get the exact floor and ceiling
@@ -235,8 +254,8 @@ APLFLOAT PrimFnMonDownStileFisF
 
     // Split cases based upon the signum of the difference between
     //   (the number and its floor) and (the ceiling and the number)
-    switch (signumf ((aplFloatRht - aplFloor)
-                   - (aplCeil     - aplFloatRht)))
+    switch (signumflt ((aplFloatRht - aplFloor)
+                     - (aplCeil     - aplFloatRht)))
     {
         case  1:
             aplNear = aplCeil;
@@ -330,7 +349,7 @@ APLRAT PrimFnMonDownStileRisR
 
         // Split cases based upon the signum of the difference between
         //   (the number and its floor) and (the ceiling and the number)
-        switch (signum (mpq_cmp (&mpqTmp1, &mpqTmp2)))
+        switch (signumint (mpq_cmp (&mpqTmp1, &mpqTmp2)))
         {
             case  1:
                 mpq_set (&mpqNear, &mpqCeil);
@@ -446,7 +465,7 @@ APLVFP PrimFnMonDownStileVisV
 
         // Split cases based upon the signum of the difference between
         //   (the number and its floor) and (the ceiling and the number)
-        switch (signum (mpfr_cmp (&mpfTmp1, &mpfTmp2)))
+        switch (signumint (mpfr_cmp (&mpfTmp1, &mpfTmp2)))
         {
             case  1:
                 mpfr_set (&mpfNear, &mpfCeil, MPFR_RNDN);
@@ -474,9 +493,9 @@ APLVFP PrimFnMonDownStileVisV
         } // End SWITCH
 
 #ifdef DEBUG
-////    lstrcpyW (wszTemp, L"Floor: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfFloor, 0) = WC_EOS; DbgMsgW (wszTemp);
-////    lstrcpyW (wszTemp, L"Near:  "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfNear , 0) = WC_EOS; DbgMsgW (wszTemp);
-////    lstrcpyW (wszTemp, L"Ceil:  "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfCeil , 0) = WC_EOS; DbgMsgW (wszTemp);
+////    strcpyW (wszTemp, L"Floor: "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfFloor, 0) = WC_EOS; DbgMsgW (wszTemp);
+////    strcpyW (wszTemp, L"Near:  "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfNear , 0) = WC_EOS; DbgMsgW (wszTemp);
+////    strcpyW (wszTemp, L"Ceil:  "); *FormatAplVfp (&wszTemp[lstrlenW (wszTemp)], mpfCeil , 0) = WC_EOS; DbgMsgW (wszTemp);
 #endif
 
         // If Near is < Rht, return Near
@@ -586,12 +605,12 @@ APLSTYPE PrimSpecDownStileStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // Calculate the storage type of the result

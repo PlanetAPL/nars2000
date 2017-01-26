@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,18 +38,12 @@
 //  I believe this algorithm was first created by Carl M. Cheney.
 //***************************************************************************
 
-static APLCHAR MonHeader[] =
-  L"Z←" MFON_MonIota L" R";
-
-static APLCHAR MonLine1[] = 
-  L"Z←⊃∘.,/⍳¨R";
-
 static LPAPLCHAR MonBody[] =
-{MonLine1,
+{L"Z←⊃∘.,/⍳¨R",
 };
 
 MAGIC_FCNOPR MFO_MonIota =
-{MonHeader,
+{L"Z←" MFON_MonIota L" R",
  MonBody,
  countof (MonBody),
 };
@@ -60,38 +54,23 @@ MAGIC_FCNOPR MFO_MonIota =
 //
 //  Extended dyadic iota
 //
-//  On rank > 1 left args, return an array of vector indices
+//  On rank NE 1 left args, return an array of vector indices
 //    such that A[A iota R] is R, assuming that all of R is in A.
 //***************************************************************************
 
-static APLCHAR DydHeader[] =
-  L"Z←L " MFON_DydIota L" R;⎕IO;O;A";
-
-static APLCHAR DydLine1[] = 
-  L"O←⎕IO ⋄ ⎕IO←0";
-
-static APLCHAR DydLine2[] = 
-  L"Z←(0,⍴L)⊤(,L)⍳R";
-
-static APLCHAR DydLine3[] = 
-  L"A←⍸1=0⌷[0] Z";
-
-static APLCHAR DydLine4[] = 
-  L"Z[(⍳1+⍴⍴L)∘.,A]←⊃[0] (⍴A)⍴⊂0,⍴L";
-
-static APLCHAR DydLine5[] = 
-  L"Z←⊂[0] O+1↓[0] Z";
-  
 static LPAPLCHAR DydBody[] =
-{DydLine1,
- DydLine2,
- DydLine3,
- DydLine4,
- DydLine5,
+{L"O←⎕IO ⋄ ⎕IO←0",
+ L":if 0=⍴⍴L ⋄ Z←(⍴R)⍴⊂⍬",
+ L":else",
+ L"  Z←(0,⍴L)⊤(,L)⍳R",
+ L"  A←⍸1=0⌷[0] Z",
+ L"  Z[(⍳1+⍴⍴L)∘.,A]←⊃[0] (⍴A)⍴⊂0,⍴L",
+ L"  Z←⊂[0] O+1↓[0] Z",
+ L":endif",
 };
 
 MAGIC_FCNOPR MFO_DydIota =
-{DydHeader,
+{L"Z←L " MFON_DydIota L" R;⎕IO;O;A",
  DydBody,
  countof (DydBody),
 };

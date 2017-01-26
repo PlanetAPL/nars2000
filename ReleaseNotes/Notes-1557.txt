@@ -1,0 +1,10 @@
+Build #1557 -- Version 0.4.17.xx
+--------------------------------
+
+* Fix Bug In Point Notation Parsing Of 2g3x, 2p3x, And 2x3x
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Fix bug in parsing of 2g3x, 2p3x, and 2x3x where they are all SYNTAX ERRORs because those
+    cases aren't handled by the parser in <ParsePointNotation>.

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ HBITMAP hBitmapWS,                  // Handle to WS bitmap strip
 #define MAX_PTSIZE      72
 #define MIN_PTSIZE       8
 
-#define MAXTIPWIDTHINCHARS  55
+#define MAXTIPWIDTHINCHARS  70
 
 
 //***************************************************************
@@ -102,7 +102,7 @@ HBITMAP hBitmapWS,                  // Handle to WS bitmap strip
 #define BUTTONSTYLE2    BTNS_DROPDOWN
 #define BUTTONSTYLE3    BTNS_CHECK
 
-typedef enum tagIMAGEINDEX_WS
+enum tagIMAGEINDEX_WS
 {
     IMAGEINDEX_WS_FILENEW = 0 ,     // 00:  Image index for FILENEW
     IMAGEINDEX_WS_FILEOPEN    ,     // 01:  ...             FILEOPEN
@@ -115,7 +115,7 @@ typedef enum tagIMAGEINDEX_WS
     IMAGEINDEX_WS_LENGTH            // 08:  Length
 };
 
-typedef enum tagIMAGEINDEX_WS0
+enum tagIMAGEINDEX_WS0
 {
     IMAGEINDEX_WS_ARROW1 = 0  ,     // 00:  ...             Drop Down Arrow #1
     IMAGEINDEX_WS_ARROW2      ,     // 01:  ...             Drop Down Arrow #2
@@ -152,7 +152,7 @@ TBBUTTON tbButtonsWS[IMAGEINDEX_WS_LENGTH + IMAGEINDEX_WS_LENGTH0] =
 // Edit Toolbar
 //***************************************************************
 
-typedef enum tagIMAGEINDEX_ED
+enum tagIMAGEINDEX_ED
 {
     IMAGEINDEX_ED_EDITCUT  = 0  ,   // 00:  Image index for EDITCUT
     IMAGEINDEX_ED_EDITCOPY      ,   // 01:  ...             EDITCOPY
@@ -165,7 +165,7 @@ typedef enum tagIMAGEINDEX_ED
     IMAGEINDEX_ED_LENGTH            // 08:  Length
 };
 
-typedef enum tagIMAGEINDEX_ED0
+enum tagIMAGEINDEX_ED0
 {
     IMAGEINDEX_ED_ARROW1 = 0    ,   // 00:  ...             Drop Down Arrow #1
     IMAGEINDEX_ED_ARROW2        ,   // 01:  ...             Drop Down Arrow #2
@@ -200,7 +200,7 @@ TBBUTTON tbButtonsED[IMAGEINDEX_ED_LENGTH + IMAGEINDEX_ED_LENGTH0] =
 // Objects Toolbar
 //***************************************************************
 
-typedef enum tagIMAGEINDEX_OW
+enum tagIMAGEINDEX_OW
 {
     IMAGEINDEX_OW_OBJCLOSE    = 0,  // 00:  Image index for OBJCLOSE
     IMAGEINDEX_OW_OBJSAVE        ,  // 01:  ...             OBJSAVE
@@ -210,7 +210,7 @@ typedef enum tagIMAGEINDEX_OW
     IMAGEINDEX_OW_LENGTH            // 05:  Length
 };
 
-typedef enum tagIMAGEINDEX_OW0
+enum tagIMAGEINDEX_OW0
 {
     IMAGEINDEX_OW_LENGTH0 = 0       // 00:  Length
 };
@@ -293,17 +293,6 @@ UBOOL CreateEntireRebarCtrl
     } // End IF
 
     //***************************************************************
-    // Create the Objects Window in the Rebar Ctrl
-    //***************************************************************
-    hWndOW_RB =
-      MakeObjectsWindow (hWndParent);
-    if (hWndOW_RB EQ NULL)
-    {
-        MB (pszNoCreateOW_RBWnd);
-        return FALSE;
-    } // End IF
-
-    //***************************************************************
     // Create the Font Window in the Rebar Ctrl
     //***************************************************************
     hWndFW_RB =
@@ -311,6 +300,17 @@ UBOOL CreateEntireRebarCtrl
     if (hWndFW_RB EQ NULL)
     {
         MB (pszNoCreateFW_RBWnd);
+        return FALSE;
+    } // End IF
+
+    //***************************************************************
+    // Create the Objects Window in the Rebar Ctrl
+    //***************************************************************
+    hWndOW_RB =
+      MakeObjectsWindow (hWndParent);
+    if (hWndOW_RB EQ NULL)
+    {
+        MB (pszNoCreateOW_RBWnd);
         return FALSE;
     } // End IF
 
@@ -336,14 +336,14 @@ UBOOL CreateEntireRebarCtrl
     InitEditBand (-1);
 
     //***************************************************************
-    // Initialize the Objects Window band info
-    //***************************************************************
-    InitObjectsBand (-1);
-
-    //***************************************************************
     // Initialize the Font Window band info
     //***************************************************************
     InitFontBand (-1);
+
+    //***************************************************************
+    // Initialize the Objects Window band info
+    //***************************************************************
+    InitObjectsBand (-1);
 
     //***************************************************************
     // Initialize the Language Window band info
@@ -500,7 +500,7 @@ HWND MakeWorkspaceWindow
     {
         UINT uErr = GetLastError ();
 
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
     } // End IF/ELSE
 #endif
 
@@ -689,7 +689,7 @@ HWND MakeEditWindow
     {
         UINT uErr = GetLastError ();
 
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
     } // End IF/ELSE
 #endif
 
@@ -878,7 +878,7 @@ HWND MakeObjectsWindow
     {
         UINT uErr = GetLastError ();
 
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
     } // End IF/ELSE
 #endif
 
@@ -1379,7 +1379,7 @@ HWND MakeFontWindow
     {
         UINT uErr = GetLastError ();
 
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
     } // End IF/ELSE
 #endif
 
@@ -1653,8 +1653,8 @@ LRESULT APIENTRY FW_RBWndProc
             SendMessageW (hWndTT, TTM_ADDTOOLW, 0, (LPARAM) &tti);
 
             // Set the range of point sizes and initial value
-            SendMessageW (hWndUD_FW, UDM_SETRANGE, 0, MAKELONG (MAX_PTSIZE,  MIN_PTSIZE));
-            SendMessageW (hWndUD_FW, UDM_SETPOS,   0, MAKELONG (cfSM.iPointSize / 10, 0));
+            SendMessageW (hWndUD_FW, UDM_SETRANGE32, MIN_PTSIZE, MAX_PTSIZE);
+            SendMessageW (hWndUD_FW, UDM_SETPOS32,   0         , cfSM.iPointSize / 10);
 
             // Initialize window-specific resources
             FW_RB_Create (hWnd);
@@ -1905,7 +1905,7 @@ LRESULT APIENTRY FW_RBWndProc
 //***************************************************************************
 //  $GetComboBoxFont
 //
-//  Get teh ComboBox font
+//  Get the ComboBox font
 //***************************************************************************
 
 HFONT GetComboBoxFont
@@ -2384,7 +2384,7 @@ HWND MakeLanguageWindow
     {
         UINT uErr = GetLastError ();
 
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
     } // End IF/ELSE
 #endif
 
@@ -2597,11 +2597,13 @@ typedef struct tagLANGCHARS
                                            L"Unicode:  0x2262 or 8802"},
         LANGCHARS_SEPARATOR
         {WS_UTF16_DOWNCARET         , {0}, L"DownCaret",
-                                           L"Or:  L" WS_UTF16_DOWNCARET L"R  or  L" WS_UTF16_DOWNCARET L"[X] R\n\n"
+                                           L"Or (Booleans):  L" WS_UTF16_DOWNCARET L"R  or  L" WS_UTF16_DOWNCARET L"[X] R\n"
+                                           L"GCD (Integer/Floats):\n\n"
                                            L"Keyboard:  Alt-'9'\n\n"
                                            L"Unicode:  0x2228 or 8744"},
         {WS_UTF16_UPCARET           , {0}, L"UpCaret",
-                                           L"And:  L" WS_UTF16_UPCARET L"R  or  L" WS_UTF16_UPCARET L"[X] R\n\n"
+                                           L"And (Booleans):  L" WS_UTF16_UPCARET L"R  or  L" WS_UTF16_UPCARET L"[X] R\n"
+                                           L"LCM (Integer/Floats):\n\n"
                                            L"Keyboard:  Alt-'0'\n\n"
                                            L"Unicode:  0x2227 or 8743"},
         {WS_UTF16_DOWNCARETTILDE    , {0}, L"DownCaretTilde",
@@ -2929,29 +2931,35 @@ typedef struct tagLANGCHARS
                                            L"Keyboard:  Alt-'f'\n\n"
                                            L"Unicode:  0x221E or 8734"},
         LANGCHARS_SEPARATOR
-        {L"b"                       , {0}, L"Base point notation",
+        {L"b"                       , {0}, L"Base Point Notation",
                                            L"This infix notation make it easy to enter numeric constants in an abritrary base as in 16bFFFF to represent 16" WS_UTF16_UPTACK L"15 15 15 15 or 65535.  "
                                            L"The number to the left of the b is the base of the number system for the characters to the right of the b."
                                            },
-        {L"e"                       , {0}, L"Exponential point notation",
+        {L"e"                       , {0}, L"Exponential Point Notation",
                                            L"This infix notation allows you to enter numeric constants by specifying a signed multiplier and a signed base 10 exponent "
                                            L"as in 1.23e" WS_UTF16_OVERBAR L"3 to represent 1.23" WS_UTF16_TIMES L"10*" WS_UTF16_OVERBAR L"3."
                                            },
-        {L"p"                       , {0}, L"Pi point notation",
+        {L"g"                       , {0}, L"Gamma Point Notation",
+                                           L"This infix notation allows you to enter numeric constants of the form M" WS_UTF16_TIMES WS_UTF16_GAMMA L"*E "
+                                           L"as in 0.5g1 for " WS_UTF16_GAMMA WS_UTF16_COLONBAR L"2, or combining this with Rational point notation, 1r3g1 for " WS_UTF16_GAMMA WS_UTF16_COLONBAR L"3,"
+                                           L" where " WS_UTF16_GAMMA L" is Euler-Mascheroni's Constant (0.5772156649015329...)."
+                                           },
+        {L"p"                       , {0}, L"Pi Point Notation",
                                            L"This infix notation allows you to enter numeric constants of the form M" WS_UTF16_TIMES L"(" WS_UTF16_CIRCLE L"1)*E "
-                                           L"as in 0.5p1 for " WS_UTF16_PI WS_UTF16_COLONBAR L"2, or combining this with Rational point notation, 1r3p1 for " WS_UTF16_PI WS_UTF16_COLONBAR L"3."
+                                           L"as in 0.5p1 for " WS_UTF16_PI WS_UTF16_COLONBAR L"2, or combining this with Rational point notation, 1r3p1 for " WS_UTF16_PI WS_UTF16_COLONBAR L"3,"
+                                           L" where " WS_UTF16_PI L" is Archimedes' Constant (3.141592653589793...)."
                                            },
         {DEF_RATSEP_WS              , {0}, L"Rational Point Notation",
                                            L"This infix notation allows you to enter Rational numbers as in 1r3 to represent 1" WS_UTF16_COLONBAR L"3, or, if the denominator is 1, using the suffix x as in 123x.  "
-                                           L"Such constants are of infinite precision."
+                                           L"Such constants are of infinite precision, limited only by the available workspace."
                                            },
-        {DEF_VFPSEP_WS              , {0}, L"Variable-precision Floating Point notation",
+        {DEF_VFPSEP_WS              , {0}, L"Variable-precision Floating Point Notation",
                                            L"This suffix notation allows you to enter VFP numbers as in 1.3v to represent 1.3 or 12v to represent 12 where both have "
                                            L"a precision controlled by the current value of " WS_UTF16_QUAD L"FPC, as opposed to the 53-bit precision of IEEE-754 floating point numbers."
                                            },
-        {L"x"                       , {0}, L"Euler point notation",
+        {L"x"                       , {0}, L"Euler Point Notation",
                                            L"This infix notation allows you to enter numeric constants of the form M" WS_UTF16_TIMES L"(*1)*E "
-                                           L"as in 3x2 for three times e squared where e is the base of the natural logarithm.\r\n\r\n"
+                                           L"as in 3x2 for three times e squared where e is Euler's Number (2.718281828459045...).\r\n\r\n"
                                            L"As a suffix notation, \"x\" following an integer constant such as " WS_UTF16_OVERBAR L"123x indicates "
                                            L"that the constant is a rational integer identical to " WS_UTF16_OVERBAR L"123r1."
                                            },
@@ -3080,14 +3088,15 @@ typedef struct tagLANGCHARS
                     // If there's a last outlined char, ...
                     if (uLastCnt NE NOLASTCHAR)
                     {
-                        static WCHAR wszText[1024];
+                        static WCHAR wszText[2048];
                                UINT  uLen;
 
                         // Create the tooltip title
-                        wsprintfW (wszText,
+                        MySprintfW (wszText,
+                                    sizeof (wszText),
                                    L"%s (%s)\n",
-                                   langChars[uLastCnt].lpwszTitle,
-                                   langChars[uLastCnt].lpwc);
+                                    langChars[uLastCnt].lpwszTitle,
+                                    langChars[uLastCnt].lpwc);
                         // Get the title length
                         uLen = lstrlenW (wszText);
 
@@ -3096,9 +3105,10 @@ typedef struct tagLANGCHARS
                         FillMemoryW (&wszText[uLen], uLen - 1, UTF16_LDC_DB_HORZ);
 
                         // Append the tooltip text
-                        wsprintfW (&wszText[uLen + uLen - 1],
-                                   L"\n%s",
-                                   langChars[uLastCnt].lpwszTipText);
+                        MySprintfW (&wszText[uLen + uLen - 1],
+                                     sizeof (wszText) - (lstrlenW (wszText) * sizeof (wszText[0])),
+                                    L"\n%s",
+                                     langChars[uLastCnt].lpwszTipText);
                         // Display the tooltip for the last outlined char
                         lpnmtdi->lpszText = wszText;
                     } // End IF

@@ -1,0 +1,11 @@
+Build #1402 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Domino Preventing Clean Up After Calling Magic Function
+
+Directory trunk:
+
+PF_DOMINO.C:
+  In <PrimFnMonDomino_EM_YY> when calling the magic function, the code returns
+    immediately instead of saving the result and jumping to the function tail which
+    allows it to clean up.

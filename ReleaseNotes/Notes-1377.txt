@@ -1,0 +1,10 @@
+Build #1377 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In )LIB Producing Duplicate Values
+
+Directory trunk:
+
+SC_LIB.C:
+  Update copyright notice.
+  Fix bug in )LIB producing duplicate values due to not taking into account a leading double quote.

@@ -1,0 +1,16 @@
+Build #1336 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bugs With Tokenization Of Underbars In Unusual Cases
+
+Directory trunk:
+
+TOKENIZE.C:
+  Update copyright year.
+  Improve comments.
+  Fix bug in tokenization with Underbar immediately to the right of a
+    character constant, ambiguous dot, ambiguous jot, or pound sign.
+  In <fnPointDone>, handle :CONSTANTs encountered in )LOAD/)COPY.
+  In <fnDelDone>, replace old Syntax Coloring check with Assert as it's
+    handled elsewhere (<scDelDone>).
+  Use the correct struc member when saving UTF16_xxx characters

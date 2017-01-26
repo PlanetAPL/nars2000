@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -61,7 +61,17 @@ typedef enum tagMFO
     MFOE_DydEpsUnderbar  ,      // 23:  Dyadic Epsilon Underbar on empty args
     MFOE_DydConv         ,      // 24:  Dyadic derived function from Convolution
     MFOE_IdnConv         ,      // 25:  Identity function for Convolution
-    MFOE_LENGTH                 // 26:  # entries in this enum
+    MFOE_DydScan         ,      // 26:  Dyadic Scan
+    MFOE_DydScan1        ,      // 27:  Dyadic Scan, first dimension
+    MFOE_RoS1L           ,      // 28:  Reduction of Singletons, type #1, left identity element
+    MFOE_RoS1R           ,      // 29:  ...                           #1, right ...
+    MFOE_RoS2            ,      // 2A:  ...                           #2
+    MFOE_RoS3            ,      // 2B:  ...                           #3
+    MFOE_MDIU            ,      // 2C:  Multiset dyadic iota underbar
+    MFOE_DetSing         ,      // 2D:  Determinant of a singleton
+    MFOE_DydVOFact       ,      // 2E:  Pochhammer symbol:  rising/falling factorial
+    MFOE_MonExecute      ,      // 2F:  Monadic Execute with []FPC localized
+    MFOE_LENGTH                 // 30:  # entries in this enum
 } MFO, *LPMFO;
 
 // Magic Function/Operator Names
@@ -103,6 +113,16 @@ typedef enum tagMFO
 #define MFON_DydEpsUnderbar     L"#DydEpsUnderbar"
 #define MFON_DydConv            L"#DydConv"
 #define MFON_IdnConv            L"#IdnConv"
+#define MFON_DydScan            L"#DydScan"
+#define MFON_DydScan1           L"#DydScan1"
+#define MFON_RoS1L              L"#RoS1L"
+#define MFON_RoS1R              L"#RoS1R"
+#define MFON_RoS2               L"#RoS2"
+#define MFON_RoS3               L"#RoS3"
+#define MFON_MDIU               L"#MDIU"
+#define MFON_DetSing            L"#DetSing"
+#define MFON_DydVOFact          L"#DydVOFact"
+#define MFON_MonExecute         L"#MonExecute"
 
 // Magic Function/Operator Variables
 #define $ALPHA          WS_UTF16_ALPHA
@@ -187,7 +207,7 @@ typedef enum tagMFO
 #define $QUAD_MS        WS_UTF16_QUAD SYSLBL_MS
 #define $QUAD_NC        WS_UTF16_QUAD L"NC"
 #define $QUAD_PRO       WS_UTF16_QUAD SYSLBL_PRO
-#define $QUAD_SGL       WS_UTF16_QUAD SYSLBL_SGL
+#define $QUAD_RL        WS_UTF16_QUAD L"RL"
 #define $QUAD_TCNL      WS_UTF16_QUAD L"TCNL"
 #define $QUAD_WSID      WS_UTF16_QUAD L"WSID"
 #define $RANK           WS_UTF16_DIERESISJOT

@@ -1,0 +1,9 @@
+Build #1501 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In UDFO Call With Axis Token Not From Function Strand
+
+Directory trunk:
+
+EXECDFN.C:
+  Fix bug in <ExecDfnGlb_EM_YY> in the case where a call is made passing in an axis token not from the function strand.

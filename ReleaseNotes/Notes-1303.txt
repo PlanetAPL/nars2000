@@ -1,0 +1,9 @@
+Build #1303 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Displaying )LIB Names
+
+Directory trunk:
+
+SC_LIB.C:
+  In <DisplayLibNames>, avoid writing WC_EOS past the end of the line.

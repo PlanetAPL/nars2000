@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,8 +37,7 @@ LPTOKEN CheckAxisOper
 {
     if (lpYYFcnStr
      && lpYYFcnStr->TknCount > 1
-     && (lpYYFcnStr[1].tkToken.tkFlags.TknType EQ TKT_AXISIMMED
-      || lpYYFcnStr[1].tkToken.tkFlags.TknType EQ TKT_AXISARRAY))
+     && IsTknTypeAxis (lpYYFcnStr[1].tkToken.tkFlags.TknType))
         return &lpYYFcnStr[1].tkToken;
     else
         return NULL;
@@ -119,7 +118,7 @@ UBOOL CheckAxisImm
             goto ERROR_EXIT;
 
         // Lock the memory to get a ptr it
-        *lplpAxisStart = *lplpAxisHead = MyGlobalLock (*lphGlbAxis);
+        *lplpAxisStart = *lplpAxisHead = MyGlobalLock000 (*lphGlbAxis);
 
         // Point to the start of the trailing axes
         lpAxisTail = &(*lplpAxisHead)[aplRankCmp - *lpaplNELM];
@@ -170,7 +169,7 @@ UBOOL CheckAxisImm
             // Note that because aplRank and aplRankCmp
             //   are unsigned, we don't need to check
             //   for below zero
-            bRet = bRet && (aplRank < aplRankCmp);
+            bRet &= (aplRank < aplRankCmp);
 
             break;
 
@@ -223,44 +222,45 @@ NORMAL_EXIT:
 #endif
 
 UBOOL CheckAxisGlb
-    (HGLOBAL      hGlbData,         // The global handle to check
-     LPTOKEN      lptkAxis,         // The Axis values
-     APLRANK      aplRankCmp,       // Comparison rank
-     UBOOL        bSingleton,       // TRUE iff scalar or one-element vector only
-                                    //   is allowed
-     UBOOL        bSortAxes,        // TRUE iff the axes should be sorted
-                                    //   (i.e., the order of the axes is unimportant)
-     UBOOL        bContiguous,      // TRUE iff the axes must be contiguous
-     UBOOL        bAllowDups,       // TRUE iff duplicate axes are allowed
-     LPUBOOL      lpbFract,         // Return TRUE iff fractional values are present,
-                                    //   (may be NULL if fractional values not allowed)
-     LPAPLINT     lpaplLastAxis,    // Return last axis value or ceiling if fractional
-                                    //   (may be NULL if caller is not interested)
-     LPAPLNELM    lpaplNELMAxis,    // Return # elements in axis
-                                    //   (may be NULL if caller is not interested)
-     HGLOBAL     *lphGlbAxis,       // Ptr to HGLOBAL where the cleaned up axis
-                                    //   is to be stored.  If the return is FALSE,
-                                    //   this ptr must be set to NULL.
-                                    //   (may be NULL if caller is not interested)
-     LPAPLNELM    lpaplNELM,        // Local var for NELM
-     LPAPLINT    *lplpAxisStart,    // Ptr to ptr to start of Axis values in *lphGlbAxis
-     LPAPLINT    *lplpAxisHead,     // ...                    user axis values in *lphGlbAxis
-     LPAPLUINT    lpaplAxisContLo,  // Contiguous low axis (not NULL)
-     LPPERTABDATA lpMemPTD)         // Ptr to PerTabData global memory
+    (HGLOBAL      hGlbData,             // The global handle to check
+     LPTOKEN      lptkAxis,             // The Axis values
+     APLRANK      aplRankCmp,           // Comparison rank
+     UBOOL        bSingleton,           // TRUE iff scalar or one-element vector only
+                                        //   is allowed
+     UBOOL        bSortAxes,            // TRUE iff the axes should be sorted
+                                        //   (i.e., the order of the axes is unimportant)
+     UBOOL        bContiguous,          // TRUE iff the axes must be contiguous
+     UBOOL        bAllowDups,           // TRUE iff duplicate axes are allowed
+     LPUBOOL      lpbFract,             // Return TRUE iff fractional values are present,
+                                        //   (may be NULL if fractional values not allowed)
+     LPAPLINT     lpaplLastAxis,        // Return last axis value or ceiling if fractional
+                                        //   (may be NULL if caller is not interested)
+     LPAPLNELM    lpaplNELMAxis,        // Return # elements in axis
+                                        //   (may be NULL if caller is not interested)
+     HGLOBAL     *lphGlbAxis,           // Ptr to HGLOBAL where the cleaned up axis
+                                        //   is to be stored.  If the return is FALSE,
+                                        //   this ptr must be set to NULL.
+                                        //   (may be NULL if caller is not interested)
+     LPAPLNELM    lpaplNELM,            // Local var for NELM
+     LPAPLINT    *lplpAxisStart,        // Ptr to ptr to start of Axis values in *lphGlbAxis
+     LPAPLINT    *lplpAxisHead,         // ...                    user axis values in *lphGlbAxis
+     LPAPLUINT    lpaplAxisContLo,      // Contiguous low axis (not NULL)
+     LPPERTABDATA lpMemPTD)             // Ptr to PerTabData global memory
 
 {
-    UBOOL     bRet = TRUE;          // TRUE iff the result is valid
-    LPVOID    lpMem;                // Ptr to incoming data global memory
-    LPAPLBOOL lpDup = NULL;         // Ptr to duplciate axes global memory
-    HGLOBAL   hGlbDup = NULL;       // Duplicate axes global memory handle
-    UINT      uBitMask;             // Bit mask for looping through Booleans
-    APLUINT   ByteDup,              // # bytes for the duplicate axis test
-              ByteAxis,             // # bytes for the axis vector
-              uCnt;                 // Loop counter
-    APLSTYPE  aplTypeLcl;           // Incoming data storage type
-    APLRANK   aplRankLcl;           // Incoming data rank
-    LPAPLINT  lpAxisTail;           // Ptr to grade up of AxisHead
-    APLBOOL   bQuadIO;              // []IO
+    UBOOL             bRet = TRUE;      // TRUE iff the result is valid
+    LPVARARRAY_HEADER lpMemHdrData;     // Ptr to data header
+    LPVOID            lpMemData;        // Ptr to incoming data global memory
+    LPAPLBOOL         lpMemDup = NULL;  // Ptr to duplciate axes global memory
+    HGLOBAL           hGlbDup = NULL;   // Duplicate axes global memory handle
+    UINT              uBitMask;         // Bit mask for looping through Booleans
+    APLUINT           ByteDup,          // # bytes for the duplicate axis test
+                      ByteAxis,         // # bytes for the axis vector
+                      uCnt;             // Loop counter
+    APLSTYPE          aplTypeLcl;       // Incoming data storage type
+    APLRANK           aplRankLcl;       // Incoming data rank
+    LPAPLINT          lpAxisTail;       // Ptr to grade up of AxisHead
+    APLBOOL           bQuadIO;          // []IO
 
     // Get the current value of []IO
     bQuadIO = GetQuadIO ();
@@ -269,9 +269,9 @@ UBOOL CheckAxisGlb
     Assert (IsGlbTypeVarDir_PTB (hGlbData));
 
     // Lock the memory to get a ptr to it
-    lpMem = MyGlobalLock (hGlbData);
+    lpMemHdrData = MyGlobalLockVar (hGlbData);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMem)
+#define lpHeader    lpMemHdrData
     // Get the Array Type, NELM, and Rank
     aplTypeLcl = lpHeader->ArrType;
    *lpaplNELM  = lpHeader->NELM;
@@ -280,7 +280,9 @@ UBOOL CheckAxisGlb
 
     // Check the axis rank and the NELM (if singletons only)
     if (IsMultiRank (aplRankLcl)
-     || (bSingleton && !IsSingleton (*lpaplNELM)))
+     || (bSingleton && !IsSingleton (*lpaplNELM))
+     || IsSimpleChar (aplTypeLcl)
+     || IsPtrArray (aplTypeLcl))
         goto ERROR_EXIT;
 
     // Return the # elements
@@ -306,7 +308,7 @@ UBOOL CheckAxisGlb
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        *lplpAxisStart = *lplpAxisHead = MyGlobalLock (*lphGlbAxis);
+        *lplpAxisStart = *lplpAxisHead = MyGlobalLock000 (*lphGlbAxis);
 
         // Point to the start of the trailing axes
         lpAxisTail = &(*lplpAxisHead)[aplRankCmp - *lpaplNELM];
@@ -324,15 +326,20 @@ UBOOL CheckAxisGlb
 
     // Allocate global memory bit vector to test for duplicates
     hGlbDup = DbgGlobalAlloc (GHND, (APLU3264) ByteDup);
-    if (!hGlbDup)
+    if (hGlbDup EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to the
     //   duplicate indices testing area
-    lpDup = MyGlobalLock (hGlbDup);
+    lpMemDup = MyGlobalLockInt (hGlbDup);       // Might be only 1 byte
 
     // Skip over the header and dimensions to the data
-    lpMem = VarArrayBaseToData (lpMem, aplRankLcl);
+    lpMemData = VarArrayDataFmBase (lpMemHdrData);
+
+    // If the axis value is an empty char array, ...
+    if (IsCharEmpty (aplTypeLcl, *lpaplNELM))
+        // Treat it as an empty Boolean array
+        aplTypeLcl = ARRAY_BOOL;
 
     // Split cases based upon the array type
     switch (aplTypeLcl)
@@ -344,7 +351,7 @@ UBOOL CheckAxisGlb
             for (uCnt = 0; bRet && uCnt < *lpaplNELM; uCnt++)
             {
                 // Get the next bit value
-                aplRankLcl = (uBitMask & *(LPAPLBOOL) lpMem) ? TRUE : FALSE;
+                aplRankLcl = (uBitMask & *(LPAPLBOOL) lpMemData) ? TRUE : FALSE;
                 aplRankLcl -= bQuadIO; // Less the index origin
 
                 // Check for negative indices [-aplRankCmp, -1]
@@ -366,7 +373,7 @@ UBOOL CheckAxisGlb
 
                 // Test for duplicates
                 if (bRet)
-                    bRet = TestDupAxis (lpDup, aplRankLcl, bAllowDups);
+                    bRet = TestDupAxis (lpMemDup, aplRankLcl, bAllowDups);
 
                 if (bRet)
                 {
@@ -377,7 +384,7 @@ UBOOL CheckAxisGlb
                     if (uBitMask EQ END_OF_BYTE)
                     {
                         uBitMask = BIT0;        // Start over
-                        ((LPAPLBOOL) lpMem)++;  // Skip to next byte
+                        ((LPAPLBOOL) lpMemData)++;  // Skip to next byte
                     } // End IF
                 } // End IF
             } // End FOR
@@ -386,7 +393,7 @@ UBOOL CheckAxisGlb
 
         case ARRAY_INT:
 
-#define lpaplInteger    ((LPAPLINT) lpMem)
+#define lpaplInteger    ((LPAPLINT) lpMemData)
 
             // Loop through the elements
             for (uCnt = 0; bRet && uCnt < *lpaplNELM; uCnt++)
@@ -412,7 +419,7 @@ UBOOL CheckAxisGlb
 
                 // Test for duplicates
                 if (bRet)
-                    bRet = TestDupAxis (lpDup, aplRankLcl, bAllowDups);
+                    bRet = TestDupAxis (lpMemDup, aplRankLcl, bAllowDups);
             } // End FOR
 
 #undef  lpaplInteger
@@ -421,7 +428,7 @@ UBOOL CheckAxisGlb
 
         case ARRAY_FLOAT:
 
-#define lpaplFloat      ((LPAPLFLOAT) lpMem)
+#define lpaplFloat      ((LPAPLFLOAT) lpMemData)
 
             // Loop through the elements
             for (uCnt = 0; bRet && uCnt < *lpaplNELM; uCnt++)
@@ -458,7 +465,7 @@ UBOOL CheckAxisGlb
 
                 // Test for duplicates
                 if (bRet)
-                    bRet = TestDupAxis (lpDup, aplRankLcl, bAllowDups);
+                    bRet = TestDupAxis (lpMemDup, aplRankLcl, bAllowDups);
             } // End FOR
 
 #undef  lpaplFloat
@@ -471,7 +478,7 @@ UBOOL CheckAxisGlb
                    apaMul,
                    apaLen;
 
-#define lpAPA       ((LPAPLAPA) lpMem)
+#define lpAPA       ((LPAPLAPA) lpMemData)
 
             // Get the APA parameters
             apaOff = lpAPA->Off;
@@ -514,7 +521,7 @@ UBOOL CheckAxisGlb
 
                 // Test for duplicates
                 if (bRet)
-                    bRet = TestDupAxis (lpDup, aplRankLcl, bAllowDups);
+                    bRet = TestDupAxis (lpMemDup, aplRankLcl, bAllowDups);
             } // End FOR
 
             break;
@@ -530,7 +537,7 @@ UBOOL CheckAxisGlb
 
         case ARRAY_RAT:
 
-#define lpaplRat        ((LPAPLRAT) lpMem)
+#define lpaplRat        ((LPAPLRAT) lpMemData)
 
             // Loop through the elements
             for (uCnt = 0; bRet && uCnt < *lpaplNELM; uCnt++)
@@ -567,7 +574,7 @@ UBOOL CheckAxisGlb
 
                 // Test for duplicates
                 if (bRet)
-                    bRet = TestDupAxis (lpDup, aplRankLcl, bAllowDups);
+                    bRet = TestDupAxis (lpMemDup, aplRankLcl, bAllowDups);
             } // End FOR
 
 #undef  lpaplRat
@@ -576,7 +583,7 @@ UBOOL CheckAxisGlb
 
         case ARRAY_VFP:
 
-#define lpaplVfp        ((LPAPLVFP) lpMem)
+#define lpaplVfp        ((LPAPLVFP) lpMemData)
 
             // Loop through the elements
             for (uCnt = 0; bRet && uCnt < *lpaplNELM; uCnt++)
@@ -613,7 +620,7 @@ UBOOL CheckAxisGlb
 
                 // Test for duplicates
                 if (bRet)
-                    bRet = TestDupAxis (lpDup, aplRankLcl, bAllowDups);
+                    bRet = TestDupAxis (lpMemDup, aplRankLcl, bAllowDups);
             } // End FOR
 
 #undef  lpaplVfp
@@ -633,11 +640,11 @@ UBOOL CheckAxisGlb
     {
         uBitMask = BIT0;
 
-        // Loop through the lpDup values looking for zeros
+        // Loop through the lpMemDup values looking for zeros
         for (uCnt = 0; uCnt < aplRankCmp; uCnt++)
         {
             // If the bit is a zero, ...
-            if (!(uBitMask & *lpDup))
+            if (!(uBitMask & *lpMemDup))
                 // Save the next value
                 *(*lplpAxisHead)++ = uCnt;
             else            // the bit is a one
@@ -652,7 +659,7 @@ UBOOL CheckAxisGlb
             if (uBitMask EQ END_OF_BYTE)
             {
                 uBitMask = BIT0;        // Start over
-                lpDup++;                // Skip to next byte
+                lpMemDup++;             // Skip to next byte
             } // End IF
         } // End FOR
     } // End IF
@@ -662,8 +669,8 @@ UBOOL CheckAxisGlb
     {
         // Unlock and lock the memory to reset the
         //   ptr to the start
-        MyGlobalUnlock (hGlbDup); lpDup = NULL;
-        lpDup = MyGlobalLock (hGlbDup);
+        MyGlobalUnlock (hGlbDup); lpMemDup = NULL;
+        lpMemDup = MyGlobalLockInt (hGlbDup);   // Might be only 1 byte
 
         uBitMask = BIT0;
 
@@ -671,7 +678,7 @@ UBOOL CheckAxisGlb
         for (uCnt = 0; uCnt < aplRankCmp; uCnt++)
         {
             // If it's a 1, break
-            if (uBitMask & *lpDup)
+            if (uBitMask & *lpMemDup)
                 break;
 
             // Shift over the bit mask
@@ -681,7 +688,7 @@ UBOOL CheckAxisGlb
             if (uBitMask EQ END_OF_BYTE)
             {
                 uBitMask = BIT0;        // Start over
-                lpDup++;                // Skip to next byte
+                lpMemDup++;             // Skip to next byte
             } // End IF
         } // End FOR
 
@@ -692,7 +699,7 @@ UBOOL CheckAxisGlb
         for (; uCnt < aplRankCmp; uCnt++)
         {
             // If it's a 0, break
-            if (!(uBitMask & *lpDup))
+            if (!(uBitMask & *lpMemDup))
                 break;
 
             // Shift over the bit mask
@@ -702,7 +709,7 @@ UBOOL CheckAxisGlb
             if (uBitMask EQ END_OF_BYTE)
             {
                 uBitMask = BIT0;        // Start over
-                lpDup++;                // Skip to next byte
+                lpMemDup++;             // Skip to next byte
             } // End IF
         } // End FOR
 
@@ -714,7 +721,7 @@ UBOOL CheckAxisGlb
         for (; uCnt < aplRankCmp; uCnt++)
         {
             // If it's a 1, break
-            if (uBitMask & *lpDup)
+            if (uBitMask & *lpMemDup)
                 break;
 
             // Shift over the bit mask
@@ -724,7 +731,7 @@ UBOOL CheckAxisGlb
             if (uBitMask EQ END_OF_BYTE)
             {
                 uBitMask = BIT0;        // Start over
-                lpDup++;                // Skip to next byte
+                lpMemDup++;             // Skip to next byte
             } // End IF
         } // End FOR
 
@@ -735,9 +742,16 @@ UBOOL CheckAxisGlb
 
     // If we allow duplicates, ...
     if (bRet && bAllowDups && aplRankCmp NE 0)
+    {
+        // Unlock and lock the memory to reset the
+        //   ptr to the start
+        MyGlobalUnlock (hGlbDup); lpMemDup = NULL;
+        lpMemDup = MyGlobalLockInt (hGlbDup);   // Might be only 1 byte
+
         // If so (it's slicing dyadic transpose), so the axes
         //   must be contiguous starting at []IO.
-        bRet = (*lpDup & BIT0);
+        bRet = (*lpMemDup & BIT0);
+    } // End IF
 
     goto NORMAL_EXIT;
 
@@ -750,20 +764,11 @@ ERROR_EXIT:
     // Mark as in error
     bRet = FALSE;
 NORMAL_EXIT:
-    if (hGlbDup)
-    {
-        if (lpDup)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbDup); lpDup = NULL;
-        } // End IF
-
-        // We no longer need this HGLOBAL
-        DbgGlobalFree (hGlbDup); hGlbDup = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbDup, lpMemDup);
 
     // We no longer need this ptr
-    MyGlobalUnlock (hGlbData); lpMem = NULL;
+    MyGlobalUnlock (hGlbData); lpMemData = NULL;
 
     return bRet;
 } // End CheckAxisGlb
@@ -861,7 +866,7 @@ UBOOL CheckAxis_EM
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemAxis = MyGlobalLock (*lphGlbAxis);
+        lpMemAxis = MyGlobalLock000 (*lphGlbAxis);
 
         // Fill the memory with [0, alpRankCmp-1]
         for (uCnt = 0; uCnt < aplRankCmp; uCnt++)
@@ -909,7 +914,7 @@ UBOOL CheckAxis_EM
         case TKT_AXISIMMED:
             // Get the immediate type and value
             immType    = lptkAxis->tkFlags.ImmType;
-            aplLongest = lptkAxis->tkData.tkLongest;
+            aplLongest = *GetPtrTknLongest (lptkAxis);
 
             break;
 
@@ -1055,24 +1060,24 @@ NORMAL_EXIT:
 //***************************************************************************
 
 UBOOL TestDupAxis
-    (LPAPLBOOL lpDup,
+    (LPAPLBOOL lpMemDup,
      APLRANK   aplRank,
      UBOOL     bAllowDups)
 
 {
     UBOOL bRet = TRUE;
-    UINT uBitMask;
+    UINT  uBitMask;
 
     // Calculate the bit mask
     uBitMask = (BIT0 << (UINT) (aplRank % NBIB));
 
     // See if this value has already been seen
     if (!bAllowDups)
-        bRet = !(uBitMask & lpDup[aplRank >> LOG2NBIB]);
+        bRet = !(uBitMask & lpMemDup[aplRank >> LOG2NBIB]);
 
     // Set this value for the next time if necessary
     if (bRet || bAllowDups)
-        lpDup[aplRank >> LOG2NBIB] |= uBitMask;
+        lpMemDup[aplRank >> LOG2NBIB] |= uBitMask;
 
     return bRet;
 } // End TestDupAxis

@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -469,7 +469,7 @@ __try
             if (hGlbFormat2)
             {
                 // Lock the memory to get a ptr to it
-                lpwszFormat2 = MyGlobalLock (hGlbFormat2);
+                lpwszFormat2 = MyGlobalLock000 (hGlbFormat2);
 
                 // If there's an old save area, ...
                 if (hGlbFormat)
@@ -484,7 +484,7 @@ __try
 ////////////////////MyGlobalUnlock (hGbFormat); lpwszFormat = NULL;
 
                     // We no longer need this resource
-                    MyGlobalFree (hGlbFormat); hGlbFormat = NULL;
+                    DbgGlobalFree (hGlbFormat); hGlbFormat = NULL;
 ////////////////} else
 ////////////////{
 ////////////////    // Copy the old data to the new memory
@@ -540,11 +540,11 @@ __try
     // Now we can allocate the storage for the result
     //***************************************************************
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -694,14 +694,8 @@ QUICK_EXIT:
         MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
     } // End IF
 
-    if (hGlbFormat && lpwszFormat)
-    {
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbFormat); lpwszFormat = NULL;
-
-        // We no longer need this resource
-        MyGlobalFree (hGlbFormat); hGlbFormat = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbFormat, lpwszFormat);
 
     return lpYYRes;
 } // End PrimFnMonDownTackJot_EM_YY
@@ -779,7 +773,6 @@ LPAPLCHAR CompileArrBool
 ////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
 ////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
 ////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
-        lpFmtRowLcl->aplType     = ARRAY_BOOL;      // Initialize the storage type
 
         // Link into the row chain
         lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
@@ -814,6 +807,8 @@ LPAPLCHAR CompileArrBool
         } // End FOR
 
         // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
         lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
 
         // Save as ptr to next row struc
@@ -849,279 +844,6 @@ LPAPLCHAR CompileArrBool
 
 
 //***************************************************************************
-//  $CompileArrInteger
-//
-//  Compile an array of integers
-//***************************************************************************
-
-LPAPLCHAR CompileArrInteger
-    (LPAPLINT    lpMem,         // Ptr to data to format
-     LPFMTHEADER lpFmtHeader,   // Ptr to parent FMTHEADER
-     LPFMTCOLSTR lpFmtColStr,   // Ptr to vector of <aplDimNCols> FMTCOLSTRs
-     LPAPLCHAR   lpaplChar,     // Ptr to next available format position
-     APLDIM      aplDimNRows,   // # rows to format (actually it's x/ all but last dim)
-     APLDIM      aplDimNCols,   // # cols to format
-     APLRANK     aplRank,       // Rank of data to format
-     LPAPLDIM    lpMemDim,      // Ptr to dimension vector
-     UBOOL       bTopLevel)     // TRUE iff top level array
-
-{
-    UINT        uLen;               // Length of integer part
-    APLDIM      aplDimCol,          // Loop counter
-                aplDimRow;          // ...
-    LPAPLCHAR   lpwszOut;           // Ptr to output buffer
-    LPFMTROWSTR lpFmtRowLcl = NULL; // Ptr to local FMTROWSTR
-
-    // Loop through the cols, setting the column type
-    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
-        // Set column type
-        lpFmtColStr[aplDimCol].colType = COLTYPE_NOTCHAR;
-
-    // Loop through the rows
-    for (aplDimRow = 0; aplDimRow < aplDimNRows; aplDimRow++)
-    {
-        // Create a new FMTROWSTR
-        lpFmtRowLcl = (LPFMTROWSTR) lpaplChar;
-        ZeroMemory (lpFmtRowLcl, sizeof (lpFmtRowLcl[0]));
-#ifdef DEBUG
-        lpFmtRowLcl->Sig.nature  = FMTROWSTR_SIGNATURE;
-        lpFmtRowLcl->lpFmtColUp  = lpFmtColStr;
-#endif
-////////lpFmtRowLcl->uAccWid     = 0;               // Initialize the accumulated width
-        lpFmtRowLcl->uFmtRows    = 1;               // Initialize the count
-////////lpFmtRowLcl->bRptCol     = FALSE;           // Initialize as not repeating a col
-////////lpFmtRowLcl->bDone       = FALSE;           // Initialize as not done with output
-        lpFmtRowLcl->bRealRow    = TRUE;            // Initialize as a real row
-////////lpFmtRowLcl->bBlank      = FALSE;           // Initialize as not all blank
-////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
-////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
-////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
-        lpFmtRowLcl->aplType     = ARRAY_INT;       // Initialize the storage type
-
-        // Link into the row chain
-        lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
-
-        // Skip over the FMTROWSTR to the next available position
-        lpaplChar = (LPAPLCHAR) &lpFmtRowLcl[1];
-
-        // Save the ptr to the 1st value
-        lpFmtRowLcl->lpNxtChar   = lpaplChar;
-
-        // Loop through the cols
-        for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
-        {
-            // Format the integer
-            lpaplChar =
-              FormatAplint (lpwszOut = lpaplChar,
-                            *lpMem++);
-            // Zap the trailing blank
-            lpaplChar[-1] = WC_EOS;
-
-            // Count in another item
-            lpFmtRowLcl->uItemCount++;
-
-            // Include a leading blank if not 1st col
-            uLen = (aplDimCol NE 0);
-
-            // Max the current leading blanks with this
-            lpFmtColStr[aplDimCol].uLdBlMax = max (lpFmtColStr[aplDimCol].uLdBlMax, uLen);
-
-            // Calculate the length of the integer part
-            uLen = (UINT) (lpaplChar - lpwszOut) - 1;
-
-            // Max the current integer width with this
-            lpFmtColStr[aplDimCol].uInts = max (lpFmtColStr[aplDimCol].uInts, uLen);
-
-////////////// Calculate the length of the fractional part
-////////////uLen = 0;
-////////////
-////////////// Max the current fractional width with this
-////////////lpFmtColStr[aplDimCol].uFrcs = max (lpFmtColStr[aplDimCol].uFrcs, uLen);
-        } // End FOR
-
-        // Save the ptr to the terminating zero
-        lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
-
-        // Save as ptr to next row struc
-        lpFmtRowLcl->lpFmtRowNxt = (LPFMTROWSTR) lpaplChar;
-
-        // If this is not at the top level and not the last row,
-        //   we need to count the interplanar spacing
-        //   as blank rows in the row count
-        if ((!bTopLevel)                        // Not top level
-         && aplDimRow NE (aplDimNRows - 1))     // Not last row
-            lpaplChar = CompileBlankRows (lpaplChar,        // Ptr to output buffer
-                                          lpMemDim,         // Ptr to item dimensions
-                                          0,                // Maximum row rank of next row
-                                          aplRank,          // Item rank
-                                          aplDimRow,        // Item row #
-                                          lpFmtColStr);     // Ptr to item FMTCOLSTR
-    } // End FOR
-
-    // Loop through the cols, ...
-    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
-        // Set the interior width
-        lpFmtColStr[aplDimCol].uIntWid = lpFmtColStr[aplDimCol].uInts;
-
-    // Mark as last row struc
-    if (lpFmtRowLcl)
-        lpFmtRowLcl->lpFmtRowNxt = NULL;
-
-    // Propagate the row & col count up the line
-    PropagateRowColCount (lpFmtHeader);
-
-    return lpaplChar;
-} // End CompileArrInteger
-
-
-//***************************************************************************
-//  $CompileArrFloat
-//
-//  Compile an array of floats
-//***************************************************************************
-
-LPAPLCHAR CompileArrFloat
-    (LPAPLFLOAT  lpMem,         // Ptr to data to format
-     LPFMTHEADER lpFmtHeader,   // Ptr to parent FMTHEADER
-     LPFMTCOLSTR lpFmtColStr,   // Ptr to vector of <aplDimNCols> FMTCOLSTRs
-     LPAPLCHAR   lpaplChar,     // Ptr to next available format position
-     APLDIM      aplDimNRows,   // # rows to format (actually it's x/ all but last dim)
-     APLDIM      aplDimNCols,   // # cols to format
-     APLRANK     aplRank,       // Rank of data to format
-     LPAPLDIM    lpMemDim,      // Ptr to dimension vector
-     UBOOL       bTopLevel)     // TRUE iff top level array
-
-{
-    UINT        uLen;
-    APLDIM      aplDimCol,
-                aplDimRow;
-    LPAPLCHAR   lpwszOut;
-    LPWCHAR     lpwsz;
-    LPFMTROWSTR lpFmtRowLcl = NULL;
-
-    // Loop through the cols, setting the column type
-    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
-        // Set column type
-        lpFmtColStr[aplDimCol].colType = COLTYPE_NOTCHAR;
-
-    // Loop through the rows
-    for (aplDimRow = 0; aplDimRow < aplDimNRows; aplDimRow++)
-    {
-        // Create a new FMTROWSTR
-        lpFmtRowLcl = (LPFMTROWSTR) lpaplChar;
-        ZeroMemory (lpFmtRowLcl, sizeof (lpFmtRowLcl[0]));
-#ifdef DEBUG
-        lpFmtRowLcl->Sig.nature  = FMTROWSTR_SIGNATURE;
-        lpFmtRowLcl->lpFmtColUp  = lpFmtColStr;
-#endif
-////////lpFmtRowLcl->uAccWid     = 0;               // Initialize the accumulated width
-        lpFmtRowLcl->uFmtRows    = 1;               // Initialize the count
-////////lpFmtRowLcl->bRptCol     = FALSE;           // Initialize as not repeating a col
-////////lpFmtRowLcl->bDone       = FALSE;           // Initialize as not done with output
-        lpFmtRowLcl->bRealRow    = TRUE;            // Initialize as a real row
-////////lpFmtRowLcl->bBlank      = FALSE;           // Initialize as not all blank
-////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
-////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
-////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
-        lpFmtRowLcl->aplType     = ARRAY_FLOAT;     // Initialize the storage type
-
-        // Link into the row chain
-        lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
-
-        // Skip over the FMTROWSTR to the next available position
-        lpaplChar = (LPAPLCHAR) &lpFmtRowLcl[1];
-
-        // Save the ptr to the 1st value
-        lpFmtRowLcl->lpNxtChar   = lpaplChar;
-
-        // Loop through the cols
-        for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
-        {
-            // Format the float
-            lpaplChar =
-              FormatFloat (lpwszOut = lpaplChar,    // Ptr to output save area
-                           *lpMem++,                // The floating point value
-                           0);                      // Use default significant digits
-            // Zap the trailing blank
-            lpaplChar[-1] = WC_EOS;
-
-            // Count in another item
-            lpFmtRowLcl->uItemCount++;
-
-            // Include a leading blank if not 1st col
-            uLen = (aplDimCol NE 0);
-
-            // Max the current leading blanks with this
-            lpFmtColStr[aplDimCol].uLdBlMax = max (lpFmtColStr[aplDimCol].uLdBlMax, uLen);
-
-            // Check for decimal point
-            lpwsz = strchrW (lpwszOut, L'.');
-            if (lpwsz)
-            {
-                // Calculate the length of the integer part
-                uLen = (UINT) (lpwsz - lpwszOut);
-
-                // Max the current integer width with this
-                lpFmtColStr[aplDimCol].uInts = max (lpFmtColStr[aplDimCol].uInts, uLen);
-
-                // Calculate the length of the fractional part
-                //   including the decimal point
-                uLen = (UINT) (lpaplChar - lpwsz) - 1;
-
-                // Max the current fractional width with this
-                lpFmtColStr[aplDimCol].uFrcs = max (lpFmtColStr[aplDimCol].uFrcs, uLen);
-            } else  // No decimal point
-            {
-                // Calculate the length of the integer part
-                uLen = (UINT) (lpaplChar - lpwszOut) - 1;
-
-                // Max the current integer width with this
-                lpFmtColStr[aplDimCol].uInts = max (lpFmtColStr[aplDimCol].uInts, uLen);
-
-////////////////// Calculate the length of the fractional part
-////////////////uLen = 0;
-////////////////
-////////////////// Max the current fractional width with this
-////////////////lpFmtColStr[aplDimCol].uFrcs = max (lpFmtColStr[aplDimCol].uFrcs, uLen);
-            } // End IF/ELSE
-        } // End FOR
-
-        // Save the ptr to the terminating zero
-        lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
-
-        // Save as ptr to next row struc
-        lpFmtRowLcl->lpFmtRowNxt = (LPFMTROWSTR) lpaplChar;
-
-        // If this is not at the top level and not the last row,
-        //   we need to count the interplanar spacing
-        //   as blank rows in the row count
-        if ((!bTopLevel)                        // Not top level
-         && aplDimRow NE (aplDimNRows - 1))     // Not last row
-            lpaplChar = CompileBlankRows (lpaplChar,        // Ptr to output buffer
-                                          lpMemDim,         // Ptr to item dimensions
-                                          0,                // Maximum row rank of next row
-                                          aplRank,          // Item rank
-                                          aplDimRow,        // Item row #
-                                          lpFmtColStr);     // Ptr to item FMTCOLSTR
-    } // End FOR
-
-    // Loop through the cols, ...
-    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
-        // Set the interior width
-        lpFmtColStr[aplDimCol].uIntWid = lpFmtColStr[aplDimCol].uInts
-                                       + lpFmtColStr[aplDimCol].uFrcs;
-    // Mark as last row struc
-    if (lpFmtRowLcl)
-        lpFmtRowLcl->lpFmtRowNxt = NULL;
-
-    // Propagate the row & col count up the line
-    PropagateRowColCount (lpFmtHeader);
-
-    return lpaplChar;
-} // End CompileArrFloat
-
-
-//***************************************************************************
 //  $CompileArrChar
 //
 //  Compile an array of chars
@@ -1142,7 +864,6 @@ LPAPLCHAR CompileArrChar
     APLDIM      aplDimRow,      // Loop counter
                 aplDimCol;      // ...
     LPFMTROWSTR lpFmtRowLcl = NULL; // Ptr to local FMTROWSTR
-    UINT        uCurPos;        // Current col position
 
     // Set column type
     lpFmtColStr[0].colType   = max (lpFmtColStr[0].colType, COLTYPE_ALLCHAR);
@@ -1166,7 +887,6 @@ LPAPLCHAR CompileArrChar
 ////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
 ////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
 ////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
-        lpFmtRowLcl->aplType     = ARRAY_CHAR;      // Initialize the storage type
 
         // Link into the row chain
         lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
@@ -1179,24 +899,24 @@ LPAPLCHAR CompileArrChar
 
         // Copy the data including a terminating zero
         //  and launder special chars
-        for (aplDimCol = uCurPos = 0;
+        for (aplDimCol = 0;
              aplDimCol < aplDimNCols;
              aplDimCol++)
         // Split cases based upon the char
         switch (lpMem[aplDimCol])
         {
-            case TCNUL:         // []TCNUL -- Ignore this
+            case WC_EOS:        // []TCNUL -- Substitute for this
+                lpaplChar[aplDimCol] = UTF16_REPLACEMENT0000;
                 break;
 
             default:            // Insert a new char
-                lpaplChar[uCurPos] = lpMem[aplDimCol];
-                uCurPos++;
+                lpaplChar[aplDimCol] = lpMem[aplDimCol];
 
                 break;
         } // End FOR/SWITCH
 
         // Skip over the current item width
-        lpaplChar += uCurPos;
+        lpaplChar += aplDimNCols;
 
         // Skip over the right arg cols
         lpMem     += aplDimNCols;
@@ -1208,9 +928,11 @@ LPAPLCHAR CompileArrChar
         lpFmtRowLcl->uItemCount++;
 
         // Max the current width with the width of this col
-        lpFmtColStr[0].uChrs = max (lpFmtColStr[0].uChrs, uCurPos);
+        lpFmtColStr[0].uChrs = max (lpFmtColStr[0].uChrs, (UINT) aplDimNCols);
 
         // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
         lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
 
         // Save as ptr to next row struc
@@ -1243,139 +965,6 @@ LPAPLCHAR CompileArrChar
 
     return lpaplChar;
 } // End CompileArrChar
-
-
-//***************************************************************************
-//  $CompileArrAPA
-//
-//  Compile an array of APA
-//***************************************************************************
-
-LPAPLCHAR CompileArrAPA
-    (LPAPLAPA    lpAPA,         // Ptr to data to format
-     LPFMTHEADER lpFmtHeader,   // Ptr to parent FMTHEADER
-     LPFMTCOLSTR lpFmtColStr,   // Ptr to vector of <aplDimNCols> FMTCOLSTRs
-     LPAPLCHAR   lpaplChar,     // Ptr to next available format position
-     APLDIM      aplDimNRows,   // # rows to format (actually it's x/ all but last dim)
-     APLDIM      aplDimNCols,   // # cols to format
-     APLRANK     aplRank,       // Rank of data to format
-     LPAPLDIM    lpMemDim,      // Ptr to dimension vector
-     UBOOL       bTopLevel)     // TRUE iff top level array
-
-{
-    APLINT      apaOff,
-                apaMul,
-                apaAcc;
-    UINT        uLen;
-    APLDIM      aplDimCol,      // Loop counter
-                aplDimRow;      // ...
-    LPAPLCHAR   lpwszOut;
-    LPFMTROWSTR lpFmtRowLcl = NULL;
-
-    // Loop through the cols, setting the column type
-    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
-        // Set column type
-        lpFmtColStr[aplDimCol].colType = COLTYPE_NOTCHAR;
-
-    // Get the APA parameters
-    apaOff = lpAPA->Off;
-    apaMul = lpAPA->Mul;
-
-    // Loop through the rows
-    for (aplDimRow = apaAcc = 0; aplDimRow < aplDimNRows; aplDimRow++)
-    {
-        // Create a new FMTROWSTR
-        lpFmtRowLcl = (LPFMTROWSTR) lpaplChar;
-        ZeroMemory (lpFmtRowLcl, sizeof (lpFmtRowLcl[0]));
-#ifdef DEBUG
-        lpFmtRowLcl->Sig.nature  = FMTROWSTR_SIGNATURE;
-        lpFmtRowLcl->lpFmtColUp  = lpFmtColStr;
-#endif
-////////lpFmtRowLcl->uAccWid     = 0;               // Initialize the accumulated width
-        lpFmtRowLcl->uFmtRows    = 1;               // Initialize the count
-////////lpFmtRowLcl->bRptCol     = FALSE;           // Initialize as not repeating a col
-////////lpFmtRowLcl->bDone       = FALSE;           // Initialize as not done with output
-        lpFmtRowLcl->bRealRow    = TRUE;            // Initialize as a real row
-////////lpFmtRowLcl->bBlank      = FALSE;           // Initialize as not all blank
-////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
-////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
-////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
-        lpFmtRowLcl->aplType     = ARRAY_INT;       // Initialize the storage type
-
-        // Link into the row chain
-        lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
-
-        // Skip over the FMTROWSTR to the next available position
-        lpaplChar = (LPAPLCHAR) &lpFmtRowLcl[1];
-
-        // Save the ptr to the 1st value
-        lpFmtRowLcl->lpNxtChar   = lpaplChar;
-
-        // Loop through the cols
-        for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++, apaAcc++)
-        {
-            // Format the integer
-            lpaplChar =
-              FormatAplint (lpwszOut = lpaplChar,
-                            apaOff + apaMul * apaAcc);
-            // Zap the trailing blank
-            lpaplChar[-1] = WC_EOS;
-
-            // Count in another item
-            lpFmtRowLcl->uItemCount++;
-
-            // Include a leading blank if not 1st col
-            uLen = (aplDimCol NE 0);
-
-            // Max the current leading blanks with this
-            lpFmtColStr[aplDimCol].uLdBlMax = max (lpFmtColStr[aplDimCol].uLdBlMax, uLen);
-
-            // Calculate the length of the integer part
-            uLen = (UINT) (lpaplChar - lpwszOut) - 1;
-
-            // Max the current integer width with this
-            lpFmtColStr[aplDimCol].uInts = max (lpFmtColStr[aplDimCol].uInts, uLen);
-
-////////////// Calculate the length of the fractional part
-////////////uLen = 0;
-////////////
-////////////// Max the current fractional width with this
-////////////lpFmtColStr[aplDimCol].uFrcs = max (lpFmtColStr[aplDimCol].uFrcs, uLen);
-        } // End FOR
-
-        // Save the ptr to the terminating zero
-        lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
-
-        // Save as ptr to next row struc
-        lpFmtRowLcl->lpFmtRowNxt = (LPFMTROWSTR) lpaplChar;
-
-        // If this is not at the top level and not the last row,
-        //   we need to count the interplanar spacing
-        //   as blank rows in the row count
-        if ((!bTopLevel)                        // Not top level
-         && aplDimRow NE (aplDimNRows - 1))     // Not last row
-            lpaplChar = CompileBlankRows (lpaplChar,        // Ptr to output buffer
-                                          lpMemDim,         // Ptr to item dimensions
-                                          0,                // Maximum row rank of next row
-                                          aplRank,          // Item rank
-                                          aplDimRow,        // Item row #
-                                          lpFmtColStr);     // Ptr to item FMTCOLSTR
-    } // End FOR
-
-    // Loop through the cols, ...
-    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
-        // Set the interior width
-        lpFmtColStr[aplDimCol].uIntWid = lpFmtColStr[aplDimCol].uInts;
-
-    // Mark as last row struc
-    if (lpFmtRowLcl)
-        lpFmtRowLcl->lpFmtRowNxt = NULL;
-
-    // Propagate the row & col count up the line
-    PropagateRowColCount (lpFmtHeader);
-
-    return lpaplChar;
-} // End CompileArrAPA
 
 
 //***************************************************************************
@@ -1429,7 +1018,6 @@ LPAPLCHAR CompileArrHetero
 ////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
 ////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
 ////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
-        lpFmtRowLcl->aplType     = ARRAY_HETERO;    // Initialize the storage type
 
         // Link into the row chain
         lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
@@ -1461,7 +1049,7 @@ LPAPLCHAR CompileArrHetero
 
                 case PTRTYPE_HGLOBAL:
                     // Get the attributes of the global memory handle
-                    AttrsOfGlb (*(HGLOBAL *) lpMem, &aplTypeItm, NULL, NULL, NULL);
+                    AttrsOfGlb (MakeGlbFromPtr (lpMem), &aplTypeItm, NULL, NULL, NULL);
 
                     // Save the immediate type
                     immTypeCur = TranslateArrayTypeToImmType (aplTypeItm);
@@ -1512,6 +1100,8 @@ LPAPLCHAR CompileArrHetero
                 lpFmtColStr[aplDimCol].uInts = max (lpFmtColStr[aplDimCol].uInts, uLen);
 
                 // Calculate the length of the fractional part
+                // Note that <lpaplChar> points to the 2nd trailing zero after the number
+                //   so we have to subtract 1 to get the correct length
                 uLen = (UINT) (lpaplChar - lpwsz) - 1;
 
                 // Max the current fractional width with this
@@ -1551,6 +1141,8 @@ LPAPLCHAR CompileArrHetero
         } // End IF
 
         // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
         lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
 
         // Save as ptr to next row struc
@@ -1649,7 +1241,6 @@ LPAPLCHAR CompileArrNested
 ////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
 ////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
 ////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
-        lpFmtRowLcl->aplType     = ARRAY_NESTED;    // Initialize the storage type
 
         // Link into the row chain
         lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
@@ -1703,6 +1294,8 @@ LPAPLCHAR CompileArrNested
         } // End FOR
 
         // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
         lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
 
         // Save as ptr to next row struc
@@ -1729,7 +1322,7 @@ LPAPLCHAR CompileArrNested
 
             case PTRTYPE_HGLOBAL:
                 // Lock the memory to get a ptr to it
-                lpTmp = MyGlobalLock (((LPAPLHETERO) lpMem)[aplDimCol]);
+                lpTmp = MyGlobalLockVar (((LPAPLHETERO) lpMem)[aplDimCol]);
 
                 // Use the larger rank
                 aplRowRankNxt = max (aplRowRankNxt, lpTmp->Rank);
@@ -1923,6 +1516,7 @@ LPAPLCHAR CompileArrNestedCon
     lpFmtColUp->uInts   = max (lpFmtColUp->uInts,   lpFmtColStr->uInts);
     lpFmtColUp->uChrs   = max (lpFmtColUp->uChrs,   lpFmtColStr->uChrs);
     lpFmtColUp->uFrcs   = max (lpFmtColUp->uFrcs,   lpFmtColStr->uFrcs);
+
     uMax = max (lpFmtColUp->uInts, lpFmtColUp->uChrs)
          + lpFmtColUp->uFrcs;
     lpFmtColUp->uIntWid = max (lpFmtColUp->uIntWid, uMax);
@@ -1974,7 +1568,7 @@ LPAPLCHAR CompileArrNestedGlb
     AttrsOfGlb (hGlb, &aplType, &aplNELM, &aplRank, NULL);
 
     // Lock the memory to get a ptr to it
-    lpMem = MyGlobalLock (hGlb);
+    lpMem = MyGlobalLockVar (hGlb);
 
     // Skip over the header to the dimensions
     lpMemDim = VarArrayBaseToDim (lpMem);
@@ -2220,6 +1814,417 @@ LPAPLCHAR CompileArrNestedGlb
 
 
 //***************************************************************************
+//  $CompileArrInteger
+//
+//  Compile an array of integers
+//***************************************************************************
+
+LPAPLCHAR CompileArrInteger
+    (LPAPLINT    lpMem,         // Ptr to data to format
+     LPFMTHEADER lpFmtHeader,   // Ptr to parent FMTHEADER
+     LPFMTCOLSTR lpFmtColStr,   // Ptr to vector of <aplDimNCols> FMTCOLSTRs
+     LPAPLCHAR   lpaplChar,     // Ptr to next available format position
+     APLDIM      aplDimNRows,   // # rows to format (actually it's x/ all but last dim)
+     APLDIM      aplDimNCols,   // # cols to format
+     APLRANK     aplRank,       // Rank of data to format
+     LPAPLDIM    lpMemDim,      // Ptr to dimension vector
+     UBOOL       bTopLevel)     // TRUE iff top level array
+
+{
+    UINT        uLen;               // Length of integer part
+    APLDIM      aplDimCol,          // Loop counter
+                aplDimRow;          // ...
+    LPAPLCHAR   lpwszOut;           // Ptr to output buffer
+    LPFMTROWSTR lpFmtRowLcl = NULL; // Ptr to local FMTROWSTR
+
+    // Loop through the cols, setting the column type
+    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
+        // Set column type
+        lpFmtColStr[aplDimCol].colType = COLTYPE_NOTCHAR;
+
+    // Loop through the rows
+    for (aplDimRow = 0; aplDimRow < aplDimNRows; aplDimRow++)
+    {
+        // Create a new FMTROWSTR
+        lpFmtRowLcl = (LPFMTROWSTR) lpaplChar;
+        ZeroMemory (lpFmtRowLcl, sizeof (lpFmtRowLcl[0]));
+#ifdef DEBUG
+        lpFmtRowLcl->Sig.nature  = FMTROWSTR_SIGNATURE;
+        lpFmtRowLcl->lpFmtColUp  = lpFmtColStr;
+#endif
+////////lpFmtRowLcl->uAccWid     = 0;               // Initialize the accumulated width
+        lpFmtRowLcl->uFmtRows    = 1;               // Initialize the count
+////////lpFmtRowLcl->bRptCol     = FALSE;           // Initialize as not repeating a col
+////////lpFmtRowLcl->bDone       = FALSE;           // Initialize as not done with output
+        lpFmtRowLcl->bRealRow    = TRUE;            // Initialize as a real row
+////////lpFmtRowLcl->bBlank      = FALSE;           // Initialize as not all blank
+////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
+////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
+////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
+
+        // Link into the row chain
+        lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
+
+        // Skip over the FMTROWSTR to the next available position
+        lpaplChar = (LPAPLCHAR) &lpFmtRowLcl[1];
+
+        // Save the ptr to the 1st value
+        lpFmtRowLcl->lpNxtChar   = lpaplChar;
+
+        // Loop through the cols
+        for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
+        {
+            // Format the integer
+            lpaplChar =
+              FormatAplInt (lpwszOut = lpaplChar,
+                            *lpMem++);
+            // Zap the trailing blank
+            lpaplChar[-1] = WC_EOS;
+
+            // Count in another item
+            lpFmtRowLcl->uItemCount++;
+
+            // Include a leading blank if not 1st col
+            uLen = (aplDimCol NE 0);
+
+            // Max the current leading blanks with this
+            lpFmtColStr[aplDimCol].uLdBlMax = max (lpFmtColStr[aplDimCol].uLdBlMax, uLen);
+
+            // Calculate the length of the integer part
+            uLen = (UINT) (lpaplChar - lpwszOut) - 1;
+
+            // Max the current integer width with this
+            lpFmtColStr[aplDimCol].uInts = max (lpFmtColStr[aplDimCol].uInts, uLen);
+
+////////////// Calculate the length of the fractional part
+////////////uLen = 0;
+////////////
+////////////// Max the current fractional width with this
+////////////lpFmtColStr[aplDimCol].uFrcs = max (lpFmtColStr[aplDimCol].uFrcs, uLen);
+        } // End FOR
+
+        // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
+        lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
+
+        // Save as ptr to next row struc
+        lpFmtRowLcl->lpFmtRowNxt = (LPFMTROWSTR) lpaplChar;
+
+        // If this is not at the top level and not the last row,
+        //   we need to count the interplanar spacing
+        //   as blank rows in the row count
+        if ((!bTopLevel)                        // Not top level
+         && aplDimRow NE (aplDimNRows - 1))     // Not last row
+            lpaplChar = CompileBlankRows (lpaplChar,        // Ptr to output buffer
+                                          lpMemDim,         // Ptr to item dimensions
+                                          0,                // Maximum row rank of next row
+                                          aplRank,          // Item rank
+                                          aplDimRow,        // Item row #
+                                          lpFmtColStr);     // Ptr to item FMTCOLSTR
+    } // End FOR
+
+    // Loop through the cols, ...
+    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
+        // Set the interior width
+        lpFmtColStr[aplDimCol].uIntWid = lpFmtColStr[aplDimCol].uInts;
+
+    // Mark as last row struc
+    if (lpFmtRowLcl)
+        lpFmtRowLcl->lpFmtRowNxt = NULL;
+
+    // Propagate the row & col count up the line
+    PropagateRowColCount (lpFmtHeader);
+
+    return lpaplChar;
+} // End CompileArrInteger
+
+
+//***************************************************************************
+//  $CompileArrFloat
+//
+//  Compile an array of floats
+//***************************************************************************
+
+LPAPLCHAR CompileArrFloat
+    (LPAPLFLOAT  lpMem,         // Ptr to data to format
+     LPFMTHEADER lpFmtHeader,   // Ptr to parent FMTHEADER
+     LPFMTCOLSTR lpFmtColStr,   // Ptr to vector of <aplDimNCols> FMTCOLSTRs
+     LPAPLCHAR   lpaplChar,     // Ptr to next available format position
+     APLDIM      aplDimNRows,   // # rows to format (actually it's x/ all but last dim)
+     APLDIM      aplDimNCols,   // # cols to format
+     APLRANK     aplRank,       // Rank of data to format
+     LPAPLDIM    lpMemDim,      // Ptr to dimension vector
+     UBOOL       bTopLevel)     // TRUE iff top level array
+
+{
+    UINT        uLen;
+    APLDIM      aplDimCol,
+                aplDimRow;
+    LPAPLCHAR   lpwszOut;
+    LPWCHAR     lpwsz;
+    LPFMTROWSTR lpFmtRowLcl = NULL;
+
+    // Loop through the cols, setting the column type
+    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
+        // Set column type
+        lpFmtColStr[aplDimCol].colType = COLTYPE_NOTCHAR;
+
+    // Loop through the rows
+    for (aplDimRow = 0; aplDimRow < aplDimNRows; aplDimRow++)
+    {
+        // Create a new FMTROWSTR
+        lpFmtRowLcl = (LPFMTROWSTR) lpaplChar;
+        ZeroMemory (lpFmtRowLcl, sizeof (lpFmtRowLcl[0]));
+#ifdef DEBUG
+        lpFmtRowLcl->Sig.nature  = FMTROWSTR_SIGNATURE;
+        lpFmtRowLcl->lpFmtColUp  = lpFmtColStr;
+#endif
+////////lpFmtRowLcl->uAccWid     = 0;               // Initialize the accumulated width
+        lpFmtRowLcl->uFmtRows    = 1;               // Initialize the count
+////////lpFmtRowLcl->bRptCol     = FALSE;           // Initialize as not repeating a col
+////////lpFmtRowLcl->bDone       = FALSE;           // Initialize as not done with output
+        lpFmtRowLcl->bRealRow    = TRUE;            // Initialize as a real row
+////////lpFmtRowLcl->bBlank      = FALSE;           // Initialize as not all blank
+////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
+////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
+////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
+
+        // Link into the row chain
+        lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
+
+        // Skip over the FMTROWSTR to the next available position
+        lpaplChar = (LPAPLCHAR) &lpFmtRowLcl[1];
+
+        // Save the ptr to the 1st value
+        lpFmtRowLcl->lpNxtChar   = lpaplChar;
+
+        // Loop through the cols
+        for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
+        {
+            // Format the float
+            lpaplChar =
+              FormatAplFlt (lpwszOut = lpaplChar,   // Ptr to output save area
+                           *lpMem++,                // The floating point value
+                            0);                     // Use default significant digits
+            // Zap the trailing blank
+            lpaplChar[-1] = WC_EOS;
+
+            // Count in another item
+            lpFmtRowLcl->uItemCount++;
+
+            // Include a leading blank if not 1st col
+            uLen = (aplDimCol NE 0);
+
+            // Max the current leading blanks with this
+            lpFmtColStr[aplDimCol].uLdBlMax = max (lpFmtColStr[aplDimCol].uLdBlMax, uLen);
+
+            // Check for decimal point
+            lpwsz = strchrW (lpwszOut, L'.');
+            if (lpwsz)
+            {
+                // Calculate the length of the integer part
+                uLen = (UINT) (lpwsz - lpwszOut);
+
+                // Max the current integer width with this
+                lpFmtColStr[aplDimCol].uInts = max (lpFmtColStr[aplDimCol].uInts, uLen);
+
+                // Calculate the length of the fractional part
+                //   including the decimal point
+                uLen = (UINT) (lpaplChar - lpwsz) - 1;
+
+                // Max the current fractional width with this
+                lpFmtColStr[aplDimCol].uFrcs = max (lpFmtColStr[aplDimCol].uFrcs, uLen);
+            } else  // No decimal point
+            {
+                // Calculate the length of the integer part
+                // Note that <lpaplChar> points to the 2nd trailing zero after the number
+                //   so we have to subtract 1 to get the correct length
+                uLen = (UINT) (lpaplChar - lpwszOut) - 1;
+
+                // Max the current integer width with this
+                lpFmtColStr[aplDimCol].uInts = max (lpFmtColStr[aplDimCol].uInts, uLen);
+
+////////////////// Calculate the length of the fractional part
+////////////////uLen = 0;
+////////////////
+////////////////// Max the current fractional width with this
+////////////////lpFmtColStr[aplDimCol].uFrcs = max (lpFmtColStr[aplDimCol].uFrcs, uLen);
+            } // End IF/ELSE
+        } // End FOR
+
+        // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
+        lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
+
+        // Save as ptr to next row struc
+        lpFmtRowLcl->lpFmtRowNxt = (LPFMTROWSTR) lpaplChar;
+
+        // If this is not at the top level and not the last row,
+        //   we need to count the interplanar spacing
+        //   as blank rows in the row count
+        if ((!bTopLevel)                        // Not top level
+         && aplDimRow NE (aplDimNRows - 1))     // Not last row
+            lpaplChar = CompileBlankRows (lpaplChar,        // Ptr to output buffer
+                                          lpMemDim,         // Ptr to item dimensions
+                                          0,                // Maximum row rank of next row
+                                          aplRank,          // Item rank
+                                          aplDimRow,        // Item row #
+                                          lpFmtColStr);     // Ptr to item FMTCOLSTR
+    } // End FOR
+
+    // Loop through the cols, ...
+    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
+        // Set the interior width
+        lpFmtColStr[aplDimCol].uIntWid = lpFmtColStr[aplDimCol].uInts
+                                       + lpFmtColStr[aplDimCol].uFrcs;
+    // Mark as last row struc
+    if (lpFmtRowLcl)
+        lpFmtRowLcl->lpFmtRowNxt = NULL;
+
+    // Propagate the row & col count up the line
+    PropagateRowColCount (lpFmtHeader);
+
+    return lpaplChar;
+} // End CompileArrFloat
+
+
+//***************************************************************************
+//  $CompileArrAPA
+//
+//  Compile an array of APA
+//***************************************************************************
+
+LPAPLCHAR CompileArrAPA
+    (LPAPLAPA    lpAPA,         // Ptr to data to format
+     LPFMTHEADER lpFmtHeader,   // Ptr to parent FMTHEADER
+     LPFMTCOLSTR lpFmtColStr,   // Ptr to vector of <aplDimNCols> FMTCOLSTRs
+     LPAPLCHAR   lpaplChar,     // Ptr to next available format position
+     APLDIM      aplDimNRows,   // # rows to format (actually it's x/ all but last dim)
+     APLDIM      aplDimNCols,   // # cols to format
+     APLRANK     aplRank,       // Rank of data to format
+     LPAPLDIM    lpMemDim,      // Ptr to dimension vector
+     UBOOL       bTopLevel)     // TRUE iff top level array
+
+{
+    APLINT      apaOff,
+                apaMul,
+                apaAcc;
+    UINT        uLen;
+    APLDIM      aplDimCol,      // Loop counter
+                aplDimRow;      // ...
+    LPAPLCHAR   lpwszOut;
+    LPFMTROWSTR lpFmtRowLcl = NULL;
+
+    // Loop through the cols, setting the column type
+    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
+        // Set column type
+        lpFmtColStr[aplDimCol].colType = COLTYPE_NOTCHAR;
+
+    // Get the APA parameters
+    apaOff = lpAPA->Off;
+    apaMul = lpAPA->Mul;
+
+    // Loop through the rows
+    for (aplDimRow = apaAcc = 0; aplDimRow < aplDimNRows; aplDimRow++)
+    {
+        // Create a new FMTROWSTR
+        lpFmtRowLcl = (LPFMTROWSTR) lpaplChar;
+        ZeroMemory (lpFmtRowLcl, sizeof (lpFmtRowLcl[0]));
+#ifdef DEBUG
+        lpFmtRowLcl->Sig.nature  = FMTROWSTR_SIGNATURE;
+        lpFmtRowLcl->lpFmtColUp  = lpFmtColStr;
+#endif
+////////lpFmtRowLcl->uAccWid     = 0;               // Initialize the accumulated width
+        lpFmtRowLcl->uFmtRows    = 1;               // Initialize the count
+////////lpFmtRowLcl->bRptCol     = FALSE;           // Initialize as not repeating a col
+////////lpFmtRowLcl->bDone       = FALSE;           // Initialize as not done with output
+        lpFmtRowLcl->bRealRow    = TRUE;            // Initialize as a real row
+////////lpFmtRowLcl->bBlank      = FALSE;           // Initialize as not all blank
+////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
+////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
+////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
+
+        // Link into the row chain
+        lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
+
+        // Skip over the FMTROWSTR to the next available position
+        lpaplChar = (LPAPLCHAR) &lpFmtRowLcl[1];
+
+        // Save the ptr to the 1st value
+        lpFmtRowLcl->lpNxtChar   = lpaplChar;
+
+        // Loop through the cols
+        for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++, apaAcc++)
+        {
+            // Format the integer
+            lpaplChar =
+              FormatAplInt (lpwszOut = lpaplChar,
+                            apaOff + apaMul * apaAcc);
+            // Zap the trailing blank
+            lpaplChar[-1] = WC_EOS;
+
+            // Count in another item
+            lpFmtRowLcl->uItemCount++;
+
+            // Include a leading blank if not 1st col
+            uLen = (aplDimCol NE 0);
+
+            // Max the current leading blanks with this
+            lpFmtColStr[aplDimCol].uLdBlMax = max (lpFmtColStr[aplDimCol].uLdBlMax, uLen);
+
+            // Calculate the length of the integer part
+            uLen = (UINT) (lpaplChar - lpwszOut) - 1;
+
+            // Max the current integer width with this
+            lpFmtColStr[aplDimCol].uInts = max (lpFmtColStr[aplDimCol].uInts, uLen);
+
+////////////// Calculate the length of the fractional part
+////////////uLen = 0;
+////////////
+////////////// Max the current fractional width with this
+////////////lpFmtColStr[aplDimCol].uFrcs = max (lpFmtColStr[aplDimCol].uFrcs, uLen);
+        } // End FOR
+
+        // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
+        lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
+
+        // Save as ptr to next row struc
+        lpFmtRowLcl->lpFmtRowNxt = (LPFMTROWSTR) lpaplChar;
+
+        // If this is not at the top level and not the last row,
+        //   we need to count the interplanar spacing
+        //   as blank rows in the row count
+        if ((!bTopLevel)                        // Not top level
+         && aplDimRow NE (aplDimNRows - 1))     // Not last row
+            lpaplChar = CompileBlankRows (lpaplChar,        // Ptr to output buffer
+                                          lpMemDim,         // Ptr to item dimensions
+                                          0,                // Maximum row rank of next row
+                                          aplRank,          // Item rank
+                                          aplDimRow,        // Item row #
+                                          lpFmtColStr);     // Ptr to item FMTCOLSTR
+    } // End FOR
+
+    // Loop through the cols, ...
+    for (aplDimCol = 0; aplDimCol < aplDimNCols; aplDimCol++)
+        // Set the interior width
+        lpFmtColStr[aplDimCol].uIntWid = lpFmtColStr[aplDimCol].uInts;
+
+    // Mark as last row struc
+    if (lpFmtRowLcl)
+        lpFmtRowLcl->lpFmtRowNxt = NULL;
+
+    // Propagate the row & col count up the line
+    PropagateRowColCount (lpFmtHeader);
+
+    return lpaplChar;
+} // End CompileArrAPA
+
+
+//***************************************************************************
 //  $CompileArrRat
 //
 //  Compile an array of Rationals
@@ -2268,7 +2273,6 @@ LPAPLCHAR CompileArrRat
 ////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
 ////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
 ////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
-        lpFmtRowLcl->aplType     = ARRAY_RAT;       // Initialize the storage type
 
         // Link into the row chain
         lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
@@ -2337,6 +2341,8 @@ LPAPLCHAR CompileArrRat
         } // End FOR
 
         // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
         lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
 
         // Save as ptr to next row struc
@@ -2424,7 +2430,6 @@ LPAPLCHAR CompileArrVfp
 ////////lpFmtRowLcl->uColOff     = 0;               // Initialize the col offset
 ////////lpFmtRowLcl->uItemCount  = 0;               // Initialize the # items to follow
 ////////lpFmtRowLcl->lpFmtRowNxt = NULL;            // Initialize the ptr
-        lpFmtRowLcl->aplType     = ARRAY_VFP;       // Initialize the storage type
 
         // Link into the row chain
         lpFmtHeader->lpFmtRowLst = lpFmtRowLcl;
@@ -2494,6 +2499,8 @@ LPAPLCHAR CompileArrVfp
         } // End FOR
 
         // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
         lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
 
         // Save as ptr to next row struc
@@ -2823,6 +2830,8 @@ LPAPLCHAR InsertBlankRow
         lpFmtRowLcl->lpNxtChar   = lpaplChar;
 
         // Save the ptr to the terminating zero
+        // Note that <lpaplChar> points to the 2nd trailing zero after the number
+        //   so we have to subtract 1 to get the correct length
         lpFmtRowLcl->lpEndChar   = lpaplChar - 1;
     } // End WHILE
 
@@ -3583,7 +3592,7 @@ LPAPLCHAR FormatArrNestedGlb
     AttrsOfGlb (hGlb, &aplType, NULL, &aplRank, NULL);
 
     // Lock the memory to get a ptr to it
-    lpMem = MyGlobalLock (hGlb);
+    lpMem = MyGlobalLockVar (hGlb);
 
     // Skip over the header to the dimensions
     lpMemDim = VarArrayBaseToDim (lpMem);
@@ -3830,14 +3839,14 @@ LPPL_YYSTYPE PrimFnDydDownTackJot_EM_YY
 
     // Allocate temp storage for the normalized left arg
     hGlbWidPrc = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbWidPrc)
+    if (hGlbWidPrc EQ NULL)
         goto WSFULL_EXIT;
 
     // Copy left arg to temp storage (as WIDPRCs),
     //   and check the left arg for valid values
 
     // Lock the memory to get a ptr to it
-    lpMemWidPrc = MyGlobalLock (hGlbWidPrc);
+    lpMemWidPrc = MyGlobalLock000 (hGlbWidPrc);
 
     if (hGlbLft)
         // Skip over the header to the data
@@ -4184,6 +4193,7 @@ __try
                     if (lpMemRht)
                         GetNextValueMem (lpMemRht,                              // Ptr to right arg global memory data
                                          aplTypeRht,                            // Right arg  storage type
+                                         aplNELMRht,                            // Right arg  NELM
                                          aplDimCol + aplDimRow * aplDimNCols,   // Index into right arg
                                         &hGlbItmRht,                            // Ptr to result LPSYMENTRY or HGLOBAL (may be NULL)
                                         &aplLongestRht,                         // Ptr to result immediate value (may be NULL)
@@ -4248,7 +4258,7 @@ __try
                         // The item must be a char vector
 
                         // Lock the memory to get a ptr to it
-                        lpMemItmRht = MyGlobalLock (hGlbItmRht);
+                        lpMemItmRht = MyGlobalLockVar (hGlbItmRht);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemItmRht)
                         // Get the array parameters
@@ -4283,7 +4293,7 @@ __try
                             {
                                 // Format the number
                                 lpaplChar =
-                                  FormatAplintFC (lpaplChar,        // Ptr to output save area
+                                  FormatAplIntFC (lpaplChar,        // Ptr to output save area
                                                   aplLongestRht,    // The value to format
                                                   aplCharOverbar);  // Char to use as overbar
                                 // Zap the trailing blank
@@ -4301,13 +4311,13 @@ __try
                             {
                                 // Format the number
                                 lpaplChar =
-                                  FormatFloatFC (lpaplChar,                         // Ptr to output save area
-                                                 (APLFLOAT) (APLINT) aplLongestRht, // The value to format
-                                                 -iPrc,                             // Precision to use
-                                                 aplCharDecimal,                    // Char to use as decimal separator
-                                                 aplCharOverbar,                    // Char to use as overbar
-                                                 FLTDISPFMT_E,                      // Float display format
-                                                 FALSE);                            // TRUE iff we're to substitute text for infinity
+                                  FormatAplFltFC (lpaplChar,        // Ptr to output save area
+                              (APLFLOAT) (APLINT) aplLongestRht,    // The value to format
+                                                  -iPrc,            // Precision to use
+                                                  aplCharDecimal,   // Char to use as decimal separator
+                                                  aplCharOverbar,   // Char to use as overbar
+                                                  FLTDISPFMT_E,     // Float display format
+                                                  FALSE);           // TRUE iff we're to substitute text for infinity
                                 // Zap the trailing blank
                                 lpaplChar[-1] = WC_EOS;
                             } // End IF/ELSE
@@ -4322,35 +4332,35 @@ __try
                             if (iPrc > 0)
                                 // Format the number
                                 lpaplChar =
-                                  FormatFloatFC (lpaplChar,                             // Ptr to output save area
-                                                *(LPAPLFLOAT) &aplLongestRht,           // The value to format
-                                                 iPrc,                                  // Precision for F-format, significant digits for E-format
-                                                 aplCharDecimal,                        // Char to use as decimal separator
-                                                 aplCharOverbar,                        // Char to use as overbar
-                                                 FLTDISPFMT_F,                          // Float display format
-                                                 FALSE);                                // TRUE iff we're to substitute text for infinity
+                                  FormatAplFltFC (lpaplChar,                            // Ptr to output save area
+                                                 *(LPAPLFLOAT) &aplLongestRht,          // The value to format
+                                                  iPrc,                                 // Precision for F-format, significant digits for E-format
+                                                  aplCharDecimal,                       // Char to use as decimal separator
+                                                  aplCharOverbar,                       // Char to use as overbar
+                                                  FLTDISPFMT_F,                         // Float display format
+                                                  FALSE);                               // TRUE iff we're to substitute text for infinity
                             else
                             if (iPrc EQ 0)
                                 // Format the number
                                 lpaplChar =
-                                  FormatFloatFC (lpaplChar,                             // Ptr to output save area
-                                                *(LPAPLFLOAT) &aplLongestRht,           // The value to format
-                                                 DBL_MAX_10_EXP + 2,                    // Precision for F-format, significant digits for E-format
-                                                 aplCharDecimal,                        // Char to use as decimal separator
-                                                 aplCharOverbar,                        // Char to use as overbar
-                                                 FLTDISPFMT_RAWINT,                     // Float display format
-                                                 FALSE);                                // TRUE iff we're to substitute text for infinity
+                                  FormatAplFltFC (lpaplChar,                            // Ptr to output save area
+                                                 *(LPAPLFLOAT) &aplLongestRht,          // The value to format
+                                                  DBL_MAX_10_EXP + 2,                   // Precision for F-format, significant digits for E-format
+                                                  aplCharDecimal,                       // Char to use as decimal separator
+                                                  aplCharOverbar,                       // Char to use as overbar
+                                                  FLTDISPFMT_RAWINT,                    // Float display format
+                                                  FALSE);                               // TRUE iff we're to substitute text for infinity
                             else
 ////////////////////////////if (iPrc < 0)
                                 // Format the number
                                 lpaplChar =
-                                  FormatFloatFC (lpaplChar,                             // Ptr to output save area
-                                                *(LPAPLFLOAT) &aplLongestRht,           // The value to format
-                                                 -iPrc,                                 // Precision for F-format, significant digits for E-format
-                                                 aplCharDecimal,                        // Char to use as decimal separator
-                                                 aplCharOverbar,                        // Char to use as overbar
-                                                 FLTDISPFMT_E,                          // Float display format
-                                                 FALSE);                                // TRUE iff we're to substitute text for infinity
+                                  FormatAplFltFC (lpaplChar,                            // Ptr to output save area
+                                                 *(LPAPLFLOAT) &aplLongestRht,          // The value to format
+                                                  -iPrc,                                // Precision for F-format, significant digits for E-format
+                                                  aplCharDecimal,                       // Char to use as decimal separator
+                                                  aplCharOverbar,                       // Char to use as overbar
+                                                  FLTDISPFMT_E,                         // Float display format
+                                                  FALSE);                               // TRUE iff we're to substitute text for infinity
                             // Zap the trailing blank
                             lpaplChar[-1] = WC_EOS;
 
@@ -4367,6 +4377,8 @@ __try
                     } // End SWITCH
 
                     // Get the formatted length
+                    // Note that <lpaplChar> points to the 2nd trailing zero after the number
+                    //   so we have to subtract 1 to get the correct length
                     uLen = (UINT) (lpaplChar - lpaplCharIni) - 1;
 
                     // If we're using E-format, ...
@@ -4450,11 +4462,11 @@ __try
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -4585,17 +4597,8 @@ ERROR_EXIT:
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbWidPrc)
-    {
-        if (lpMemWidPrc)
-        {
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbWidPrc); lpMemWidPrc = NULL;
-        } // End IF
-
-        // We no longer need this storage
-        DbgGlobalFree (hGlbWidPrc); hGlbWidPrc = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWidPrc, lpMemWidPrc);
 
     if (hGlbLft && lpMemLft)
     {

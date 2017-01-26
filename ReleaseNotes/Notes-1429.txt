@@ -1,0 +1,22 @@
+Build #1429 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In Modify Assignment
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+ASSIGN.C:
+  Pass same types vars to <AssignNamedVars_EM> as to <ModifyAssignNamedVars_EM>.
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+
+PARSELINE.C:
+  Define new Left and Right stack length macros for use in <pl_yylexCOM/TKT_VARNAMED/NAMETYPE_VAR>.
+  In <plRedLNR_SPA>, test for presence of <lpplYYFcnCurry> function and, if found, call
+    <ModifyAssignnamedVars_EM> instead of <AssignNamedVars_EM>.
+  In <pl_yylexCOM/TKT_VARNAMED/NAMETYPE_VAR>, check for assignment of the name in
+    <NAM F {is} A>, <NAM [A] F {is} A>, and <(NAM ... NAM) F {is} A> and mark it as such.
+
+STARTADDR.H:
+  Change the name of <ModifyAssignNameVals_EM> to <ModifyAssignNamedVars_EM> to parallel
+    that of <AssignNamedVars_EM>.

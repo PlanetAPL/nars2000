@@ -57,19 +57,20 @@ OTHER DEALINGS IN THE SOFTWARE.
 #include "macros.h"
 #include "enums.h"
 #include "defines.h"
-#include "types.h"
 #include "dictionary.h"
+
+typedef unsigned int   uint32_t;
 
 // Include prototypes unless prototyping
 #ifndef PROTO
 #include "dictionary.pro"
 #include "iniparser.pro"
+uint32_t hashlittleConv (const uint32_t * key, size_t length, uint32_t initval);
 #endif
 
-#include "bjhash.pro"
-
-typedef unsigned int   uint32_t;
+#ifdef DEBUG
 extern void nop (void);
+#endif
 
 /** Minimal allocated number of entries in a dictionary */
 #define DICTMINSZ   128
@@ -114,13 +115,13 @@ static void *mem_double
  */
 /*--------------------------------------------------------------------------*/
 UINT dictionary_hash
-    (WCHAR *lpwKey)
+    (LPWCHAR lpwKey)
 
 {
     // Hash the key
-    return hashlittle
+    return hashlittleConv
            ((const uint32_t *) lpwKey,                  // A ptr to the name to hash
-             lstrlenW (lpwKey) * sizeof (lpwKey[0]),    // The # bytes pointed to
+             lstrlenW (lpwKey),                         // The # WCHARs pointed to
              0);                                        // Initial value or previous hash
 } // End dictionary_hash
 
@@ -147,7 +148,7 @@ LPDICTIONARY dictionary_new
         size = DICTMINSZ;
 
     lpDict = (LPDICTIONARY) calloc (1, sizeof (DICTIONARY));
-    if (!lpDict)
+    if (lpDict EQ NULL)
         return NULL;
 
     lpDict->size      = size;
@@ -184,19 +185,24 @@ void dictionary_del
         if (lpDict->key[i] NE NULL
          && !(lpDict->inifile <= lpDict->key[i]
            &&                    lpDict->key[i] < (lpDict->inifile + lpDict->size)))
-            free (lpDict->key[i]);
+        {
+            free (lpDict->key[i]); lpDict->key[i] = NULL;
+        } // End IF
+
         // If the value is non-empty and not within the file contents, ...
         if (lpDict->val[i] NE NULL
          && !(lpDict->inifile <= lpDict->val[i]
            &&                    lpDict->val[i] < (lpDict->inifile + lpDict->size)))
-            free (lpDict->val[i]);
+        {
+            free (lpDict->val[i]); lpDict->val[i] = NULL;
+        } // End IF
     } // End FOR
 
-    free (lpDict->val);
-    free (lpDict->key);
-    free (lpDict->hash);
-    free (lpDict->inifile);
-    free (lpDict);
+    free (lpDict->val);     lpDict->val     = NULL;
+    free (lpDict->key);     lpDict->key     = NULL;
+    free (lpDict->hash);    lpDict->hash    = NULL;
+    free (lpDict->inifile); lpDict->inifile = NULL;
+    free (lpDict);          lpDict          = NULL;
 } // End dictionary_del
 
 
@@ -217,7 +223,8 @@ void dictionary_del
 LPWCHAR dictionary_get
     (LPDICTIONARY lpDict,       // Ptr to workspace dictionary
      LPWCHAR      lpwKey,
-     LPWCHAR      lpwDef)
+     LPWCHAR      lpwDef,
+     LPINT        lpIndex)      // Ptr to index on output (may be NULL)
 
 {
     UINT hash;
@@ -225,21 +232,30 @@ LPWCHAR dictionary_get
 
     Assert (lpDict NE NULL);
 
+    // If it's valid, ...
+    if (lpIndex NE NULL)
+        // Initialize it
+        *lpIndex = -1;
+
     // Hash the key
     hash = dictionary_hash (lpwKey);
 
     for (i = 0; i < lpDict->size; i++)
+    if (lpDict->key[i] NE NULL)
     {
-        if (lpDict->key[i] EQ NULL)
-            continue;
         /* Compare hash */
         if (hash EQ lpDict->hash[i])
         {
             /* Compare string, to avoid hash collisions */
             if (!lstrcmpW (lpwKey, lpDict->key[i]))
+            {
+                if (lpIndex NE NULL)
+                    *lpIndex = i;
+
                 return lpDict->val[i];
+            } // End IF
         } // End IF
-    } // End FOR
+    } // End FOR/IF
 
     return lpwDef;
 } // End dictionary_get
@@ -290,36 +306,67 @@ int dictionary_set
     if (lpDict->n > 0)
     {
         for (i = 0; i < lpDict->size; i++)
+        if (lpDict->key[i] NE NULL)
         {
-            if (lpDict->key[i] EQ NULL)
-                continue;
             if (hash EQ lpDict->hash[i])
             { /* Same hash value */
                 if (!lstrcmpW (lpwKey, lpDict->key[i]))
                 {   /* Same key */
-////                /* Found a value: modify and return */
-////                if (lpDict->val[i] NE NULL)
-////                    free (lpDict->val[i]);
-                    lpDict->val[i] = lpwVal;
+                    /* Found a value: modify and return */
+                    if (lpwVal EQ NULL
+                     || (lpDict->inifile <= lpwVal
+                      &&                    lpwVal < (lpDict->inifile + lpDict->size)))
+                        lpDict->val[i] = lpwVal;
+                    else
+                    {
+                        if (lpDict->val[i] NE NULL)
+                        {
+                            free (lpDict->val[i]); lpDict->val[i] = NULL;
+                        } // End IF
+
+                        if (lpwVal NE NULL)
+                        {
+                            lpwVal = strdupW (lpwVal);
+                            if (lpwVal EQ NULL)
+                                return -1;
+                        } // End IF
+
+                        lpDict->val[i] = lpwVal;
+                    } // End IF/ELSE
 
                     /* Value has been modified: return */
                     return 0;
                 } // End IF
             } // End IF
-        } // End FOR
+        } // End FOR/IF
     } // End IF
 
     /* Add a new value */
     /* See if dictionary needs to grow */
     if (lpDict->n EQ lpDict->size)
     {
+        LPWCHAR *val;               // Ptr to list of string values
+        LPWCHAR *key;               // Ptr to list of string keys
+        LPUINT   hash;              // Ptr to list of hash values for keys
+
         /* Reached maximum size: reallocate dictionary */
-        lpDict->val  = (LPWCHAR *) mem_double (lpDict->val,  lpDict->size * sizeof (*lpDict->val));
-        lpDict->key  = (LPWCHAR *) mem_double (lpDict->key,  lpDict->size * sizeof (*lpDict->key));
-        lpDict->hash = (LPUINT)    mem_double (lpDict->hash, lpDict->size * sizeof (*lpDict->hash));
-        if ((lpDict->val EQ NULL) || (lpDict->key EQ NULL) || (lpDict->hash EQ NULL))
+        val  = (LPWCHAR *) mem_double (lpDict->val,  lpDict->size * sizeof (*lpDict->val));
+        key  = (LPWCHAR *) mem_double (lpDict->key,  lpDict->size * sizeof (*lpDict->key));
+        hash = (LPUINT)    mem_double (lpDict->hash, lpDict->size * sizeof (*lpDict->hash));
+        if ((val EQ NULL) || (key EQ NULL) || (hash EQ NULL))
+        {
+            // Replace the values that succeeded in doubling
+            if (val  NE NULL) lpDict->val  = val;
+            if (key  NE NULL) lpDict->key  = key;
+            if (hash NE NULL) lpDict->hash = hash;
+
             /* Cannot grow dictionary */
             return -1;
+        } // End IF
+
+        lpDict->val  = val;
+        lpDict->key  = key;
+        lpDict->hash = hash;
 
         /* Double size */
         lpDict->size *= 2;
@@ -352,6 +399,11 @@ int dictionary_set
         lpDict->val[i] = lpwVal;
     else
     {
+        if (lpDict->val[i] NE NULL)
+        {
+            free (lpDict->val[i]); lpDict->val[i] = NULL;
+        } // End IF
+
         lpDict->val[i] = strdupW (lpwVal);
         if (lpDict->val[i] EQ NULL)
             return -1;
@@ -364,7 +416,6 @@ int dictionary_set
 } // End dictionary_set
 
 
-#ifdef TESTDIC
 /*-------------------------------------------------------------------------*/
 /**
   @brief    Delete a key in a dictionary
@@ -385,15 +436,14 @@ void dictionary_unset
     int  i;
 
     Assert (lpDict NE NULL);
-    Assert (lpwKey NE NULL)
+    Assert (lpwKey NE NULL);
 
     // Hash the key
     hash = dictionary_hash (lpwKey);
 
     for (i = 0; i < lpDict->size; i++)
+    if (lpDict->key[i] NE NULL)
     {
-        if (lpDict->key[i] EQ NULL)
-            continue;
         /* Compare hash */
         if (hash EQ lpDict->hash[i])
         {
@@ -402,24 +452,25 @@ void dictionary_unset
                 /* Found key */
                 break;
         } // End IF
-    } // End FOR
+    } // End FOR/IF
 
     if (i >= lpDict->size)
         /* Key not found */
         return;
 
+    // Free the key
     free (lpDict->key[i]); lpDict->key[i] = NULL;
 
+    // Free values if they were allocated
     if (lpDict->val[i] NE NULL)
     {
-////    free (lpDict->val[i]);
+        free (lpDict->val[i]);
         lpDict->val[i] = NULL;
     } // End IF
 
     lpDict->hash[i] = 0;
     lpDict->n--;
 } // End dictionary_unset
-#endif
 
 
 /*-------------------------------------------------------------------------*/
@@ -497,7 +548,7 @@ int main
     for (i = 0; i < NVALS; i++)
     {
         wsprintfW (cval, L"%04d", i);
-        lpwVal = dictionary_get (lpDict, cval, DICT_INVALID_KEY);
+        lpwVal = dictionary_get (lpDict, cval, DICT_INVALID_KEY, NULL);
         if (lpwVal EQ DICT_INVALID_KEY)
             printf ("cannot get value for key [%s]\n", cval);
     } // End FOR

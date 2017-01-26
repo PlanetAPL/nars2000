@@ -1,0 +1,10 @@
+Build #1401 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bug In Tokenization
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <fnDiaDone>, catch trailing diamonds after a control structure at the end of a
+    line.  We don't handle them correctly elsewhere.

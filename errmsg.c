@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -42,16 +42,17 @@
 #endif
 
 void BreakMessage
-    (HWND         hWndSM,       // SM window handle
-     LPSIS_HEADER lpSISCur)     // Ptr to current SIS entry (may be NULL if none)
+    (HWND         hWndSM,                   // SM window handle
+     LPSIS_HEADER lpSISCur)                 // Ptr to current SIS entry (may be NULL if none)
 
 {
-    LPAPLCHAR    lpMemName;     // Ptr to function name global memory
-    APLNELM      aplNELMRes;    // Length of function name[line #]
-    APLUINT      ByteRes;       // # bytes in the result
-    LPAPLCHAR    lpMemRes;      // Ptr to result global memory
-    HGLOBAL      hGlbRes;       // Result global memory handle
-    LPPERTABDATA lpMemPTD;      // Ptr to PerTabData global memory
+    LPAPLCHAR         lpMemName;            // Ptr to function name global memory
+    APLNELM           aplNELMRes;           // Length of function name[line #]
+    APLUINT           ByteRes;              // # bytes in the result
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // Ptr to result header
+    LPAPLCHAR         lpMemRes;             // Ptr to result global memory
+    HGLOBAL           hGlbRes;              // Result global memory handle
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
@@ -60,31 +61,42 @@ void BreakMessage
     SetEventTypeMessage (EVENTTYPE_BREAK, NULL, NULL);
 
     // If it's valid, ...
-    if (lpSISCur)
+    if (lpSISCur NE NULL)
     {
         // Mark as suspended
-        lpSISCur->Suspended = TRUE;
+        lpSISCur->bSuspended = TRUE;
 
-        // Lock the memory to get a ptr to it
-        lpMemName = MyGlobalLock (lpSISCur->hGlbFcnName);
+        // While the SIS layer is valid
+        //   and the function name is invalid, ...
+        while (lpSISCur NE NULL
+            && lpSISCur->hGlbFcnName EQ NULL)
+            // Try the previous SIS layer
+            lpSISCur = lpSISCur->lpSISPrv;
+        if (lpSISCur NE NULL)
+        {
+            // Lock the memory to get a ptr to it
+            lpMemName = MyGlobalLockWsz (lpSISCur->hGlbFcnName);
 
-        // Copy the leading text
-        lstrcpyW (lpMemPTD->lpwszTemp, ERRMSG_ELLIPSIS WS_CR);
+////////////// Copy the leading text
+////////////strcpyW (lpMemPTD->lpwszTemp, ERRMSG_ELLIPSIS WS_CR);
+////////////
+////////////// Calculate the length so far
+////////////aplNELMRes = lstrlenW (lpMemPTD->lpwszTemp);
 
-        // Calculate the length so far
-        aplNELMRes = lstrlenW (lpMemPTD->lpwszTemp);
+            aplNELMRes = 0;
 
-        // Format the name and line #
-        aplNELMRes +=
-          wsprintfW (&lpMemPTD->lpwszTemp[aplNELMRes],
-                      L"%s[%d]",
-                      lpMemName,
-                      lpSISCur->CurLineNum);
-        // We no longer need this ptr
-        MyGlobalUnlock (lpSISCur->hGlbFcnName); lpMemName = NULL;
+            // Format the name and line #
+            aplNELMRes +=
+              wsprintfW (&lpMemPTD->lpwszTemp[aplNELMRes],
+                          L"%s[%d]",
+                          lpMemName,
+                          lpSISCur->CurLineNum);
+            // We no longer need this ptr
+            MyGlobalUnlock (lpSISCur->hGlbFcnName); lpMemName = NULL;
 
-        // Save the ptr
-        lpMemPTD->lpwszErrorMessage = lpMemPTD->lpwszTemp;
+            // Save the ptr
+            lpMemPTD->lpwszErrorMessage = lpMemPTD->lpwszTemp;
+        } // End IF
     } else
     {
         // Prepend an ellipsis
@@ -103,13 +115,13 @@ void BreakMessage
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = ARRAY_CHAR;
@@ -121,16 +133,16 @@ void BreakMessage
 #undef  lpHeader
 
     // Fill in the dimension
-    *VarArrayBaseToDim (lpMemRes) = aplNELMRes;
+    *VarArrayBaseToDim (lpMemHdrRes) = aplNELMRes;
 
     // Skip over the header and dimension to the data
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // Copy the function name[line #] to the result
     CopyMemoryW (lpMemRes, lpMemPTD->lpwszErrorMessage, (APLU3264) aplNELMRes);
 
     // We no longer need this ptr
-    MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
     // Free the old value
     FreeResultGlobalVar (lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_DM]->stData.stGlbData); lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_DM]->stData.stGlbData = NULL;
@@ -141,7 +153,7 @@ void BreakMessage
     return;
 
 WSFULL_EXIT:
-    MessageBoxW (hWndSM,
+    MessageBoxW (hWndMF,
                  L"Unable to allocate space for " $QUAD_DM,
                  lpwszAppName,
                  MB_OK | MB_ICONWARNING | MB_APPLMODAL);
@@ -156,50 +168,98 @@ WSFULL_EXIT:
 //  Append the (suspended) function name and line #.
 //***************************************************************************
 
-LPMEMTXT_UNION AppendFcnNameLineNum
+HGLOBAL AppendFcnNameLineNum
     (LPPERTABDATA  lpMemPTD,            // Ptr to PerTabData global memory
      LPSIS_HEADER  lpSISCur,            // Ptr to current SIS header
-     LPUINT        lpuNameLen)          // Ptr to length of function name[line #]
+     UBOOL         bItsEC,              // TRUE iff the current level is []EC
+     LPUINT        lpuNameLen,          // Ptr to length of function name[line #]
+     LPUINT        lpuCaret,            // Ptr to position of caret (origin-0)
+     LPWCHAR      *lplpwszLine)         // Ptr to ptr to the line which generated the error
 
 {
     LPAPLCHAR      lpMemName;           // Ptr to function name global memory
     LPDFN_HEADER   lpMemDfnHdr;         // Ptr to user-defined function/operator header global memory
     LPFCNLINE      lpFcnLines;          // Ptr to array function line structs (FCNLINE[numFcnLines])
-    LPMEMTXT_UNION lpMemTxtLine;        // Ptr to text header/line global memory
+    HGLOBAL        hGlbTxtLine = NULL;  // Ptr to text global memory
 
     // Include the function name & line #
+    //   unless it's an MFO and we're not debugging
 
-    // Lock the memory to get a ptr to it
-    lpMemName = MyGlobalLock (lpSISCur->hGlbFcnName);
+    // In case it's an MFO
+    lpMemPTD->lpwszTemp[0] = WC_EOS;
+    *lpuNameLen            = 0;
+    *lplpwszLine           = NULL;
 
-    // Format the name and line #
-    *lpuNameLen =
-      wsprintfW (lpMemPTD->lpwszTemp,
-                 L"%s[%d] ",
-                 lpMemName,
-                 lpSISCur->CurLineNum);
-    // We no longer need this ptr
-    MyGlobalUnlock (lpSISCur->hGlbFcnName); lpMemName = NULL;
-
-    // Lock the memory to get a ptr to it
-    lpMemDfnHdr = MyGlobalLock (lpSISCur->hGlbDfnHdr);
-
-    // Get a ptr to the line # in error
-    if (lpSISCur->CurLineNum EQ 0)
-        lpMemTxtLine = MyGlobalLock (lpMemDfnHdr->hGlbTxtHdr);
-    else
+    // If it's an MFO, ...
+    if (lpSISCur->bMFO)
     {
-        // Get ptr to array of function line structs (FCNLINE[numFcnLines])
-        lpFcnLines = (LPFCNLINE) ByteAddr (lpMemDfnHdr, lpMemDfnHdr->offFcnLines);
+        // Strip back the SIS to a level that's not an MFO
+        while (lpSISCur && lpSISCur->bMFO)
+            lpSISCur = lpSISCur->lpSISPrv;
 
-        // Get a ptr to the function line, converting to origin-0 from origin-1
-        lpMemTxtLine = MyGlobalLock (lpFcnLines[lpSISCur->CurLineNum - 1].hGlbTxtLine);
+        // If it's not valid, ...
+        if (lpSISCur EQ NULL)
+            goto NORMAL_EXIT;
+
+        // Set the new caret postion
+        *lpuCaret = lpSISCur->iCharIndex;
+    } // End IF
+
+    // If it's valid, ...
+    if (lpSISCur->hGlbFcnName)
+    {
+        // Lock the memory to get a ptr to it
+        lpMemName = MyGlobalLockWsz (lpSISCur->hGlbFcnName);
+
+        // Format the name and line #
+        *lpuNameLen =
+          wsprintfW (lpMemPTD->lpwszTemp,
+                     L"%s[%d] ",
+                     lpMemName,
+                     lpSISCur->CurLineNum);
+        // We no longer need this ptr
+        MyGlobalUnlock (lpSISCur->hGlbFcnName); lpMemName = NULL;
+
+        // If it's not under control of []EC, ...
+        if (lpSISCur->lpSISErrCtrl EQ NULL
+         && !lpMemPTD->lpSISCur->bItsEC
+         && !bItsEC)
+            // Mark as suspended
+            lpSISCur->bSuspended = TRUE;
+    } // End IF
+
+    // If it's valid, ...
+    if (lpSISCur->hGlbDfnHdr NE NULL)
+    {
+        // Lock the memory to get a ptr to it
+        lpMemDfnHdr = MyGlobalLockDfn (lpSISCur->hGlbDfnHdr);
+
+        // Get a ptr to the line # in error
+        if (lpSISCur->CurLineNum EQ 0)
+            hGlbTxtLine = lpMemDfnHdr->hGlbTxtHdr;
+        else
+        {
+            // Get ptr to array of function line structs (FCNLINE[numFcnLines])
+            lpFcnLines = (LPFCNLINE) ByteAddr (lpMemDfnHdr, lpMemDfnHdr->offFcnLines);
+
+            // Get a ptr to the function line, converting to origin-0 from origin-1
+            hGlbTxtLine = lpFcnLines[lpSISCur->CurLineNum - 1].hGlbTxtLine;
+        } // End IF/ELSE
+
+        // We no longer need this ptr
+        MyGlobalUnlock (lpSISCur->hGlbDfnHdr); lpMemDfnHdr = NULL;
+    } else
+    {
+        // Look in this level's plLocalVars
+        if (lpSISCur->lpplLocalVars->hGlbTxtLine NE NULL)
+            // Return this global memory handle
+            hGlbTxtLine = lpSISCur->lpplLocalVars->hGlbTxtLine;
+        else
+            // Save the ptr to the line
+            *lplpwszLine = lpSISCur->lpplLocalVars->lpwszLine;
     } // End IF/ELSE
-
-    // We no longer need this ptr
-    MyGlobalUnlock (lpSISCur->hGlbDfnHdr); lpMemDfnHdr = NULL;
-
-    return lpMemTxtLine;
+NORMAL_EXIT:
+    return hGlbTxtLine;
 } // End AppendFcnNameLineNum
 
 
@@ -217,28 +277,32 @@ LPMEMTXT_UNION AppendFcnNameLineNum
 
 void ErrorMessageDirect
     (LPWCHAR lpwszMsg,          // Ptr to error message text
-     LPWCHAR lpwszLine,         // Ptr to the line which generated the error
+     LPWCHAR lpwszLine,         // Ptr to the line which generated the error (may be NULL)
      UINT    uCaret)            // Position of caret (origin-0)
 
 {
-    APLNELM        aplNELMRes;      // Result NELM
-    APLUINT        ByteRes;         // # bytes in the result
-    HGLOBAL        hGlbRes;         // Result global memory handle
-    LPAPLCHAR      lpMemRes;        // Ptr to result global memory
-    LPPERTABDATA   lpMemPTD;        // Ptr to PerTabData global memory
-    LPSIS_HEADER   lpSISCur,        // Ptr to current SIS header
-                   lpSISPrv;        // ...    previous ...
-    UINT           uErrMsgLen,      // Error message length
-                   uNameLen,        // Length of function name[line #]
-                   uErrLinLen,      // Error line length
-                   uCaretLen,       // Caret line length
-                   uTailLen,        // Length of line tail
-                   uMaxLen,         // Maximum length
-                   uExecCnt;        // # execute levels
-    LPMEMTXT_UNION lpMemTxtLine = NULL; // Ptr to text header/line global memory
-    HGLOBAL       *lphGlbQuadEM;    // Ptr to active hGlbQuadEM (in either lpSISCur or lpMemPTD)
+    APLNELM           aplNELMRes;           // Result NELM
+    APLUINT           ByteRes;              // # bytes in the result
+    HGLOBAL           hGlbRes;              // Result global memory handle
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // Ptr to result header
+    LPAPLCHAR         lpMemRes;             // Ptr to result global memory
+    LPPERTABDATA      lpMemPTD;             // Ptr to PerTabData global memory
+    LPSIS_HEADER      lpSISCur,             // Ptr to current SIS header
+                      lpSISPrv;             // ...    previous ...
+    UINT              uErrMsgLen,           // Error message length
+                      uNameLen,             // Length of function name[line #]
+                      uErrLinLen,           // Error line length
+                      uCaretLen,            // Caret line length
+                      uTailLen,             // Length of line tail
+                      uMaxLen,              // Maximum length
+                      uExecCnt;             // # execute levels
+    HGLOBAL          *lphGlbQuadEM,         // Ptr to active hGlbQuadEM (in either lpSISCur or lpMemPTD)
+                      hGlbTxtLine = NULL;   // Text header/line global memory handle
+    LPMEMTXT_UNION    lpMemTxtLine = NULL;  // Ptr to text header/line global memory
+    LPWCHAR           lpwszLine2 = NULL;    // Ptr to the line which generated the error
+    UBOOL             bItsEC = FALSE;       // TRUE iff the current level is []EC
 
-#define ERROR_CARET     UTF16_UPCARET   // UTF16_CIRCUMFLEX
+#define ERROR_CARET     UTF16_UPCARET   // as opposed to UTF16_CIRCUMFLEX
 
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
@@ -247,87 +311,136 @@ void ErrorMessageDirect
     lpSISCur = lpMemPTD->lpSISCur;
 
     // Split cases based upon the DfnType
-    if (lpSISCur)
+    if (lpSISCur NE NULL && lpwszLine NE NULL)
     {
         // No signalling from here
         lpSISCur->hSigaphore = NULL;
 
         // Unwind through SI levels as appropriate
-        while (lpSISCur && lpSISCur->Unwind)
+        while (lpSISCur NE NULL && lpSISCur->bUnwind)
+        {
+            // Save bItsEC flag
+            bItsEC |= lpSISCur->bItsEC;
+
+            // Point to the previous header
             lpSISCur = lpSISCur->lpSISPrv;
+        } // End WHILE
 
         // If there's an SIS level, ...
-        if (lpSISCur)
-        // Split cases based upon the defined function type
-        switch (lpSISCur->DfnType)
+        if (lpSISCur NE NULL)
         {
-            case DFNTYPE_OP1:
-            case DFNTYPE_OP2:
-            case DFNTYPE_FCN:
-                // Include the function name & line #
-                lpMemTxtLine =
-                  AppendFcnNameLineNum (lpMemPTD, lpSISCur, &uNameLen);
+            // Save bItsEC flag
+            bItsEC |= lpSISCur->bItsEC;
 
-                // Ptr to the text
-                lpwszLine = &lpMemTxtLine->C;
-
-                break;
-
-            case DFNTYPE_EXEC:
-            case DFNTYPE_ERRCTRL:
-                // Unwind to non-execute level
-                for (lpSISPrv = lpSISCur,
-                       uExecCnt = 0;
-                     lpSISPrv
-                  && (lpSISPrv->DfnType EQ DFNTYPE_EXEC
-                   || lpSISPrv->DfnType EQ DFNTYPE_ERRCTRL);
-                     lpSISPrv = lpSISPrv->lpSISPrv,
-                       uExecCnt++)
-                    ;
-
-                // If the preceding SI level is a UDFO, ...
-                if (lpSISPrv
-                 && (lpSISPrv->DfnType EQ DFNTYPE_OP1
-                  || lpSISPrv->DfnType EQ DFNTYPE_OP2
-                  || lpSISPrv->DfnType EQ DFNTYPE_FCN))
-                {
+            // Split cases based upon the defined function type
+            switch (lpSISCur->DfnType)
+            {
+                case DFNTYPE_OP1:
+                case DFNTYPE_OP2:
+                case DFNTYPE_FCN:
                     // Include the function name & line #
-                    lpMemTxtLine =
-                      AppendFcnNameLineNum (lpMemPTD, lpSISPrv, &uNameLen);
+                    hGlbTxtLine =
+                      AppendFcnNameLineNum (lpMemPTD, lpSISCur, bItsEC, &uNameLen, &uCaret, &lpwszLine2);
 
-                    // Zap trailing blank
-                    lpMemPTD->lpwszTemp[lstrlenW (lpMemPTD->lpwszTemp) - 1] = WC_EOS;
-                    uNameLen--;
+                    // If the handle is valid, ...
+                    if (hGlbTxtLine NE NULL)
+                    {
+                        // Lock the memory to get a ptr to it
+                        lpMemTxtLine = MyGlobalLockTxt (hGlbTxtLine);
 
-                    // Count in appended execute symbols plus trailing blank
-                    uNameLen += uExecCnt + 1;
+                        // Ptr to the text
+                        lpwszLine = &lpMemTxtLine->C;
+                    } else
+                    // If it's valid, ...
+                    if (lpwszLine2 NE NULL)
+                        lpwszLine = lpwszLine2;
+                    else
+                    {
+                        uCaret = NEG1U;
+                        lpwszLine = L"";
+                    } // End IF/ELSE
 
-                    // Include leading marker(s)
-                    while (uExecCnt--)
-                        lstrcatW (lpMemPTD->lpwszTemp, WS_UTF16_UPTACKJOT);
-                    // ...and a trailing blank
-                    lstrcatW (lpMemPTD->lpwszTemp, L" ");
-                } else
-                {
-                    // Include a leading marker
-                    lstrcpyW (lpMemPTD->lpwszTemp, WS_UTF16_UPTACKJOT L"     ");
-                    uNameLen = 6;
-                } // End IF/ELSE
+                    break;
 
-                break;
+                case DFNTYPE_EXEC:
+                case DFNTYPE_ERRCTRL:
+                    // Unwind to non-execute level
+                    for (lpSISPrv = lpSISCur,
+                           uExecCnt = 0;
+                         lpSISPrv
+                      && (lpSISPrv->DfnType EQ DFNTYPE_EXEC
+                       || lpSISPrv->DfnType EQ DFNTYPE_ERRCTRL);
+                         lpSISPrv = lpSISPrv->lpSISPrv,
+                           uExecCnt++)
+                    {
+                        // Save bItsEC flag
+                        bItsEC |= lpSISPrv->bItsEC;
+                    } // End FOR
 
-            case DFNTYPE_IMM:       // No action
-            case DFNTYPE_QUAD:      // ...
-                uNameLen = 0;
+                    // If the preceding SI level is a UDFO, ...
+                    if (lpSISPrv NE NULL
+                     && (lpSISPrv->DfnType EQ DFNTYPE_OP1
+                      || lpSISPrv->DfnType EQ DFNTYPE_OP2
+                      || lpSISPrv->DfnType EQ DFNTYPE_FCN))
+                    {
+                        // Include the function name & line #
+                        hGlbTxtLine =
+                          AppendFcnNameLineNum (lpMemPTD, lpSISPrv, bItsEC, &uNameLen, &uCaret, &lpwszLine2);
 
-                break;
+                        // If the handle is valid, ...
+                        if (hGlbTxtLine NE NULL)
+                        {
+                            // Lock the memory to get a ptr to it
+                            lpMemTxtLine = MyGlobalLockTxt (hGlbTxtLine);
 
-            case DFNTYPE_QQUAD:
-            defstop
-                break;
-        } // End IF/SWITCH
+                            // Zap trailing blank
+                            lpMemPTD->lpwszTemp[lstrlenW (lpMemPTD->lpwszTemp) - 1] = WC_EOS;
+                            uNameLen--;
+
+                            // Count in appended execute symbols plus trailing blank
+                            uNameLen += uExecCnt + 1;
+
+                            // Include leading marker(s)
+                            while (uExecCnt--)
+                                strcatW (lpMemPTD->lpwszTemp, WS_UTF16_UPTACKJOT);
+                            // ...and a trailing blank
+                            strcatW (lpMemPTD->lpwszTemp, L" ");
+                        } else
+                        // If it's valid, ...
+                        if (lpwszLine2 NE NULL)
+                            lpwszLine = lpwszLine2;
+                        else
+                        {
+                            uCaret = NEG1U;
+                            lpwszLine = L"";
+                        } // End IF/ELSE/...
+                    } else
+                    {
+                        // Include a leading marker
+                        strcpyW (lpMemPTD->lpwszTemp, WS_UTF16_UPTACKJOT L"     ");
+                        uNameLen = 6;
+                    } // End IF/ELSE
+
+                    break;
+
+                case DFNTYPE_IMM:       // No action
+                case DFNTYPE_QUAD:      // ...
+                    uNameLen = 0;
+
+                    break;
+
+                case DFNTYPE_QQUAD:
+                defstop
+                    break;
+            } // End SWITCH
+        } // End IF
     } else
+    {
         uNameLen = 0;
+
+        if (lpwszLine EQ NULL)
+            lpwszLine = L"";
+    } // End IF/ELSE
 
     // Calculate the various lengths
     uErrMsgLen = lstrlenW (lpwszMsg);
@@ -335,11 +448,11 @@ void ErrorMessageDirect
     if (uCaret EQ NEG1U)
         uCaretLen = 0;
     else
-        uCaretLen  = uNameLen + uCaret;
+        uCaretLen = uNameLen + uCaret;
 
     // Calculate the length of the []DM vector
     aplNELMRes = uErrMsgLen
-               + NL_LEN
+               + (((uNameLen EQ 0) && (uErrLinLen EQ 0) && (uCaret EQ NEG1U)) ? 0 : NL_LEN)
                + uNameLen
                + uErrLinLen
                + ((uCaret EQ NEG1U) ? 0
@@ -354,13 +467,13 @@ void ErrorMessageDirect
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_DM_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = ARRAY_CHAR;
@@ -372,17 +485,19 @@ void ErrorMessageDirect
 #undef  lpHeader
 
     // Fill in the dimension
-    *VarArrayBaseToDim (lpMemRes) = aplNELMRes;
+    *VarArrayBaseToDim (lpMemHdrRes) = aplNELMRes;
 
     // Skip over the header and dimension to the data
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // Copy the error message to the result
     CopyMemoryW (lpMemRes, lpwszMsg, uErrMsgLen);
     lpMemRes += uErrMsgLen;
 
-    // Copy a line terminator to the result
-    *lpMemRes++ = WC_CR;
+    // If there's a trailing part to the error message, ...
+    if ((uNameLen NE 0) || (uErrLinLen NE 0) || (uCaret NE NEG1U))
+        // Copy a line terminator to the result
+        *lpMemRes++ = WC_CR;
 
     // Copy the function name[line #] to the result
     CopyMemoryW (lpMemRes, lpMemPTD->lpwszTemp, uNameLen);
@@ -404,13 +519,13 @@ void ErrorMessageDirect
         uLen = uCaret + uNameLen;
 
         // Append the caret
-        lpMemRes = FillMemoryW (lpMemRes, uLen, L' ');
+        lpMemRes   = FillMemoryW (lpMemRes, uLen, L' ');
        *lpMemRes++ = ERROR_CARET;
 ///////*lpMemRes++ = WC_EOS;                // Already zero from (GHND)
     } // End IF
 
     // We no longer need this ptr
-    MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
     // Free the old value
     FreeResultGlobalVar (lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_DM]->stData.stGlbData); lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_DM]->stData.stGlbData = NULL;
@@ -438,12 +553,12 @@ void ErrorMessageDirect
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EM_EXIT;
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = ARRAY_CHAR;
@@ -455,7 +570,7 @@ void ErrorMessageDirect
 #undef  lpHeader
 
     // Skip over the header to the dimensions
-    lpMemRes = (LPAPLCHAR) VarArrayBaseToDim (lpMemRes);
+    lpMemRes = (LPAPLCHAR) VarArrayBaseToDim (lpMemHdrRes);
 
     // Fill in the result's dimensions
     *((LPAPLDIM) lpMemRes)++ = 3;
@@ -490,7 +605,7 @@ void ErrorMessageDirect
         lpMemRes = FillMemoryW (lpMemRes, uMaxLen, L' ');
 
     // We no longer need this ptr
-    MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
     // Free the old value of []EM
     FreeResultGlobalVar (*lphGlbQuadEM); *lphGlbQuadEM = NULL;
@@ -498,20 +613,21 @@ void ErrorMessageDirect
     // Save the global in the current SIS header
     *lphGlbQuadEM = MakePtrTypeGlb (hGlbRes);
 
-    if (lpMemTxtLine)
+    if (lpMemTxtLine NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (MyGlobalHandle (lpMemTxtLine));
     } // End IF
 
-    return;
+    goto NORMAL_EXIT;
 
 WSFULL_DM_EXIT:
     MessageBoxW (hWndMF,
                  L"Unable to allocate space for " $QUAD_DM,
                  lpwszAppName,
                  MB_OK | MB_ICONWARNING | MB_APPLMODAL);
-    return;
+    goto NORMAL_EXIT;
+
 WSFULL_EM_EXIT:
     // WS FULL, so leave it alone
     *lphGlbQuadEM = hGlbQuadEM_DEF;
@@ -520,6 +636,16 @@ WSFULL_EM_EXIT:
                  L"Unable to allocate space for " $QUAD_EM,
                  lpwszAppName,
                  MB_OK | MB_ICONWARNING | MB_APPLMODAL);
+    goto NORMAL_EXIT;
+
+NORMAL_EXIT:
+    // If it's valid, ...
+    if (hGlbTxtLine NE NULL && lpMemTxtLine NE NULL)
+    {
+        // We no longer need this ptr
+        MyGlobalUnlock (hGlbTxtLine); lpMemTxtLine = NULL;
+    } // End IF
+
     return;
 } // End ErrorMessageDirect
 #undef  ERROR_CARET
@@ -542,7 +668,7 @@ HGLOBAL *GetPtrQuadEM
     lpSISCur = lpMemPTD->lpSISCur;
 
     // If there's a []EA/[]EC parent in control, ...
-    if (lpSISCur
+    if (lpSISCur NE NULL
      && lpSISCur->lpSISErrCtrl NE NULL)
         // Get ptr to current []EA/[]EC parent of the current SI stack
         lpSISCur = lpSISCur->lpSISErrCtrl;
@@ -555,7 +681,7 @@ HGLOBAL *GetPtrQuadEM
             lpSISCur = lpSISCur->lpSISPrv;
 
     // If there's an SIS level, ...
-    if (lpSISCur)
+    if (lpSISCur NE NULL)
         return &lpSISCur->hGlbQuadEM;
     else
         return &lpMemPTD->hGlbQuadEM;
@@ -620,7 +746,7 @@ void ErrorMessageSetToken
 //***************************************************************************
 
 void ErrorMessageSetCharIndex
-    (int tkCharIndex)               // Error char index
+    (int tkErrorCharIndex)          // Error char index
 
 {
     LPPLLOCALVARS lpplLocalVars;    // Ptr to local plLocalVars
@@ -629,9 +755,34 @@ void ErrorMessageSetCharIndex
     lpplLocalVars = (LPPLLOCALVARS) TlsGetValue (dwTlsPlLocalVars);
 
     // Set the error char index if we're inside ParseLine
-    if (lpplLocalVars)
-        lpplLocalVars->tkErrorCharIndex = tkCharIndex;
+    if (lpplLocalVars NE NULL)
+        lpplLocalVars->tkErrorCharIndex = tkErrorCharIndex;
+    else
+        GetMemPTD ()->tkErrorCharIndex = tkErrorCharIndex;
 } // End ErrorMessageSetCharIndex
+
+
+//***************************************************************************
+//  $ErrorMessageGetCharIndex
+//
+//  Get the error char index for an error message
+//***************************************************************************
+
+int ErrorMessageGetCharIndex
+    (void)
+
+{
+    LPPLLOCALVARS lpplLocalVars;    // Ptr to local plLocalVars
+
+    // Get this thread's LocalVars ptr
+    lpplLocalVars = (LPPLLOCALVARS) TlsGetValue (dwTlsPlLocalVars);
+
+    // Get the error char index if we're inside ParseLine
+    if (lpplLocalVars NE NULL)
+        return lpplLocalVars->tkErrorCharIndex;
+    else
+        return GetMemPTD ()->tkErrorCharIndex;
+} // End ErrorMessageGetCharIndex
 
 
 //***************************************************************************

@@ -1,0 +1,99 @@
+Version 0.4.19.xx consists of the following Builds:
+
+
+Build #1612 -- Version 0.4.19.xx
+--------------------------------
+
+* Scroll Text Caret Into View Upon Window Activation
+
+Directory trunk:
+
+EDITFCN.C:
+SESSMAN.C:
+  Scroll the text caret into view upon window activation.
+
+
+Build #1611 -- Version 0.4.19.xx
+--------------------------------
+
+* Fix Bugs In Dyadic Epsilon And Iota Code
+
+Directory trunk:
+
+CONVERT.C:
+  Fix typo in comment.
+
+PF_EPSILON.C:
+  Merge dyadic epsilon code with the code from NewTypes to use TPA_ routines
+    which greatly simplifies and reduces the code volume.
+
+PF_IOTA.C:
+  Merge dyadic iota code with the code from NewTypes to use TPA_ routines
+    which greatly simplifies and reduces the code volume.
+
+PRIMFNS.C:
+  Append comment to MyGlobalLockXXX lines to indicate that the suffix is not needed.
+
+TYPEMOTE.C:
+  Fix bugs in TPA_xxx routines to handle the case where the input and output args overlap.
+
+
+Build #1610 -- Version 0.4.19.xx
+--------------------------------
+
+* In New Tab Show )XLOAD or )LOAD As Appropriate
+
+Directory trunk:
+
+SC_LOAD.C:
+  In <LoadWorkspace_EM>, save the incoming []LX flag and use to display the proper load command in the new workspace.
+
+TABCTRL.C:
+  Delete the separate []LX flag in favor of the one already in <SM_CREATESTRUCTW>.
+
+
+Build #1609 -- Version 0.4.19.xx
+--------------------------------
+
+* Merge Epsilon And Iota Code With NewTypes
+
+Directory trunk:
+
+PF_EPSILON.C:
+PF_IOTA.C:
+  Merge Epsilon and Iota code with NewTypes.
+
+
+Build #1608 -- Version 0.4.19.xx
+--------------------------------
+
+* Fix Bug In Dyadic Epsilon On RAT/VFP v. Booleans With []CT = 0
+* Fix Bug In Dyadic Epsilon On VFP v. RAT
+* Fix Bug In Dyadic Iota    On RAT v. VFP
+
+Directory trunk:
+
+GETFNS.C:
+  Define function to return the next item from a memory ptr as a VFP.
+
+PF_EPSILON.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In IF stmts always compare ptr against NULL.
+  Fix bug so as call <PrimFnDydEspilonNvV_EM> for VFP v. RAT instead of <PrimFnDydEpsilonNvR_EM>.
+  Fix Bug in <PrimFnDydEpsilonNvB>, <PrimFnDydEpsilonNvA>, and <PrimFnDydEpsilonNvP_EM> by calling MPFR functions sensitive to []CT.
+  Fix bug in <PrimFnDydEpsilonNvV_EM> by calling above function to convert the next item to VFP instead of assuming that it is always VFP.
+
+PF_IOTA.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In IF stmts always compare ptr against NULL.
+  Fix bug so as call <PrimFnDydIotaVvN_EM> for RAT v. VFP instead of <PrimFnDydIotaRvN_EM>.
+  Fix bug in <PrimFnDydIotaVvN_EM> by calling above function to convert the next item to VFP instead of assuming that it is always VFP.
+
+VER.RC:
+  Increment version # to 0.4.19.xx.
+
+
+Directory trunk\htdocs:
+
+CONTRIBUTORS-BODY.AHTML:
+  Include additional contributors.

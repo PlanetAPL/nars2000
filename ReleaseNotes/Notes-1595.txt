@@ -1,0 +1,9 @@
+Build #1595 -- Version 0.4.18.xx
+--------------------------------
+
+* Remove More References To Vector And Matrix Editors
+
+Directory trunk:
+
+NARS2000.VCXPROJ:
+  Remove more references to both Vector and Matrix Editors

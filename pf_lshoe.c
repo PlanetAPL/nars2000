@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ LPPL_YYSTYPE PrimFnLeftShoe_EM_YY
         return PrimFnMonLeftShoe_EM_YY             (lptkFunc, lptkRhtArg, lptkAxis);
     else
         return PrimFnDydLeftShoe_EM_YY (lptkLftArg, lptkFunc, lptkRhtArg, lptkAxis);
-} // End PrimFnLeftShoe_EM
+} // End PrimFnLeftShoe_EM_YY
 #undef  APPEND_NAME
 
 
@@ -331,7 +331,7 @@ LPPL_YYSTYPE PrimFnMonLeftShoeGlb_EM_YY
     aplRankRes = aplRankRht - aplNELMAxis;
 
     // Lock the memory to get a ptr to it
-    lpMemRht = MyGlobalLock (hGlbRht);
+    lpMemRht = MyGlobalLockVar (hGlbRht);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRht)
     // Get the Array Type and NELM
@@ -363,7 +363,7 @@ LPPL_YYSTYPE PrimFnMonLeftShoeGlb_EM_YY
     if (lptkAxis NE NULL)
     {
         // Lock the memory to get a ptr to it
-        lpMemAxisHead = MyGlobalLock (hGlbAxis);
+        lpMemAxisHead = MyGlobalLockInt (hGlbAxis);
 
         // Point to the grade-up of the first
         //   <aplRankRht> values in lpMemAxisHead
@@ -395,11 +395,11 @@ LPPL_YYSTYPE PrimFnMonLeftShoeGlb_EM_YY
     // Now we can allocate the storage for the result.
     //***************************************************************
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -504,7 +504,7 @@ LPPL_YYSTYPE PrimFnMonLeftShoeGlb_EM_YY
                             goto WSFULL_EXIT;
 
                         // Lock the memory to get a ptr to it
-                        lpMemProto = MyGlobalLock (hSymGlbProto);
+                        lpMemProto = MyGlobalLock000 (hSymGlbProto);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemProto)
                         // Fill in the header
@@ -558,11 +558,11 @@ LPPL_YYSTYPE PrimFnMonLeftShoeGlb_EM_YY
         //   {times}{backscan}1{drop}({rho}R),1
         //***************************************************************
         hGlbWVec = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbWVec)
+        if (hGlbWVec EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemWVec = MyGlobalLock (hGlbWVec);
+        lpMemWVec = MyGlobalLock000 (hGlbWVec);
 
         // Loop through the dimensions of the right arg in reverse
         //   order {backscan} and compute the cumulative product
@@ -588,11 +588,11 @@ LPPL_YYSTYPE PrimFnMonLeftShoeGlb_EM_YY
         //   in the right arg, with values initially all zero (thanks to GHND).
         //***************************************************************
         hGlbOdo = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-        if (!hGlbOdo)
+        if (hGlbOdo EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemOdo = MyGlobalLock (hGlbOdo);
+        lpMemOdo = MyGlobalLock000 (hGlbOdo);
 
         //***************************************************************
         // Calculate space needed for each subarray.
@@ -1187,23 +1187,14 @@ UNLOCK_EXIT:
         MyGlobalUnlock (hGlbRht);  lpMemRht  = NULL;
     } // End IF
 QUICK_EXIT:
-    if (hGlbWVec)
-    {
-        // We no longer need this storage
-        DbgGlobalFree (hGlbWVec); hGlbWVec = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWVec, lpMemWVec);
 
-    if (hGlbOdo)
-    {
-        // We no longer need this storage
-        DbgGlobalFree (hGlbOdo); hGlbOdo = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdo, lpMemOdo);
 
-    if (hGlbAxis)
-    {
-        // We no longer need this storage
-        DbgGlobalFree (hGlbAxis); hGlbAxis = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbAxis, lpMemAxisHead);
 
     return lpYYRes;
 } // End PrimFnMonLeftShoeGlb_EM_YY
@@ -1253,7 +1244,7 @@ UBOOL PrimFnMonLeftShoeProto_EM
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemProto = MyGlobalLock (*lphGlbProto);
+    lpMemProto = MyGlobalLock000 (*lphGlbProto);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemProto)
     // Fill in the header
@@ -1300,7 +1291,7 @@ WSFULL_EXIT:
         } // End IF
 
         // We no longer need this storage
-        MyGlobalFree (*lphGlbProto); *lphGlbProto = NULL;
+        DbgGlobalFree (*lphGlbProto); *lphGlbProto = NULL;
     } // End IF
 
     return FALSE;
@@ -1352,7 +1343,7 @@ UBOOL PrimFnMonLeftShoeGlbSub_EM
     *lpMemRes = MakePtrTypeGlb (*lphGlbSub);
 
     // Lock the memory to get a ptr to it
-    *lplpMemSub = MyGlobalLock (*lphGlbSub);
+    *lplpMemSub = MyGlobalLock000 (*lphGlbSub);
 
 #define lpHeader    (*(LPVARARRAY_HEADER *) lplpMemSub)
     // Fill in the subarray header
@@ -1535,7 +1526,7 @@ LPPL_YYSTYPE PrimFnDydLeftShoeGlb_EM
         goto RIGHT_RANK_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRht = MyGlobalLock (hGlbRht);
+    lpMemRht = MyGlobalLockVar (hGlbRht);
 
     // Skip over the header to the dimension
     lpMemDimRht = VarArrayBaseToDim (lpMemRht);
@@ -1614,6 +1605,7 @@ LPPL_YYSTYPE PrimFnDydLeftShoeGlb_EM
             // Get the next value from memory
             GetNextValueMem (lpMemLft,          // Ptr to item global memory data
                              aplTypeLft,        // Item storage type
+                             aplNELMLft,        // Item NELM
                              uCnt,              // Index into item
                             &lpSymGlbLft,       // Ptr to result LPSYMENTRY or HGLOBAL (may be NULL)
                             &aplLongestLft,     // Ptr to result immediate value (may be NULL)
@@ -1730,11 +1722,11 @@ LPPL_YYSTYPE PrimFnDydLeftShoeGlb_EM
 
     // Allocate space for the result.
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -1837,11 +1829,11 @@ LPPL_YYSTYPE PrimFnDydLeftShoeGlb_EM
 
                         // Allocate space for the result.
                         hGlbPro = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-                        if (!hGlbPro)
+                        if (hGlbPro EQ NULL)
                             goto WSFULL_EXIT;
 
                         // Lock the memory to get a ptr to it
-                        lpMemPro = MyGlobalLock (hGlbPro);
+                        lpMemPro = MyGlobalLock000 (hGlbPro);
 
 #define lpHeader    ((LPVARARRAY_HEADER) lpMemPro)
                         // Fill in the header
@@ -1900,6 +1892,7 @@ LPPL_YYSTYPE PrimFnDydLeftShoeGlb_EM
             // Get the next value from memory
             GetNextValueMem (lpMemLft,          // Ptr to item global memory data
                              aplTypeLft,        // Item storage type
+                             aplNELMLft,        // Item NELM
                              uCnt,              // Index into item
                             &lpSymGlbLft,       // Ptr to result LPSYMENTRY or HGLOBAL (may be NULL)
                             &aplLongestLft,     // Ptr to result immediate value (may be NULL)
@@ -1952,6 +1945,7 @@ LPPL_YYSTYPE PrimFnDydLeftShoeGlb_EM
                     //   and starts a new one
                     if (!PrimFnDydLeftShoeAppend_EM (lpMemRht,      // Ptr to right arg global memory
                                                      aplTypeRht,    // Right arg storage type
+                                                     aplNELMRht,    // Right arg NELM
                                                      uDimAxRht,     // Right arg axis length
                                                      uStartCnt,     // Starting index into right arg along axis dimension
                                                      uCnt,          // Ending ...
@@ -1983,6 +1977,7 @@ LPPL_YYSTYPE PrimFnDydLeftShoeGlb_EM
                 // This element ends the previous item
                 if (!PrimFnDydLeftShoeAppend_EM (lpMemRht,      // Ptr to right arg global memory
                                                  aplTypeRht,    // Right arg storage type
+                                                 aplNELMRht,    // Right arg NELM
                                                  uDimAxRht,     // Right arg axis length
                                                  uStartCnt,     // Starting index into right arg along axis dimension
                                                  uCnt,          // Ending ...
@@ -2007,6 +2002,7 @@ LPPL_YYSTYPE PrimFnDydLeftShoeGlb_EM
         // One last case
         if (!PrimFnDydLeftShoeAppend_EM (lpMemRht,      // Ptr to right arg global memory
                                          aplTypeRht,    // Right arg storage type
+                                         aplNELMRht,    // Right arg NELM
                                          uDimAxRht,     // Right arg axis length
                                          uStartCnt,     // Starting index into right arg along axis dimension
                                          uCnt,          // Ending ...
@@ -2116,6 +2112,7 @@ NORMAL_EXIT:
 UBOOL PrimFnDydLeftShoeAppend_EM
     (LPVOID       lpMemRht,             // Ptr to right arg global memory
      APLSTYPE     aplTypeRht,           // Right arg storage type
+     APLNELM      aplNELMRht,           // Right arg NELM
      APLDIM       uDimAxRht,            // Right arg axis length
      UINT         uStartCnt,            // Starting index into right arg along axis dimension
      UINT         uEndCnt,              // Ending ...
@@ -2168,11 +2165,11 @@ UBOOL PrimFnDydLeftShoeAppend_EM
         // Now we can allocate the storage for the item.
         //***************************************************************
         hGlbItm = DbgGlobalAlloc (GHND, (APLU3264) ByteItm);
-        if (!hGlbItm)
+        if (hGlbItm EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemItm = MyGlobalLock (hGlbItm);
+        lpMemItm = MyGlobalLock000 (hGlbItm);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemItm)
         // Fill in the header
@@ -2215,6 +2212,7 @@ UBOOL PrimFnDydLeftShoeAppend_EM
                     // Get the next value from right arg global memory
                     GetNextValueMem (lpMemRht,          // Ptr to item global memory data
                                      aplTypeRht,        // Item storage type
+                                     aplNELMRht,        // Item NELM
                                      uRht,              // Index into item
                                     &lpSymGlbRht,       // Ptr to result LPSYMENTRY or HGLOBAL (may be NULL)
                                     &aplLongestRht,     // Ptr to result immediate value (may be NULL)

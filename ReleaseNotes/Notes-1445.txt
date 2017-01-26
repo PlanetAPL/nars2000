@@ -1,0 +1,10 @@
+Build #1445 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Memory Leak In L..R
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+PF_DOTDOT.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  Fix memory leak in <PrimFnDydDotDot_EM_YY> where we fail to free Global Numerics
+    that were initialized unnecessarily.

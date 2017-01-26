@@ -1,0 +1,23 @@
+Build #1409 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bugs In []STOP And []TRACE
+
+Directory trunk:
+
+EXECDFN.C:
+  In <ExecuteFunction_EM_YY>, note that the argument <lptkFunc> may be NULL.
+
+PRIMFNS.C:
+  In <MakeNoValue_YY>, note that the argument <lptkFunc> may be NULL.
+  In <MakeNoValue_YY>, if <lptkFunc> is NULL, use -1 as the character index.
+  In <IsTknTrain>, ensure that the argument is a function array before processing it as one.
+
+QF_STRACE.C:
+  Remove DEBUG requirement from named MFO in monadic and dyadic []STOP and []TRACE.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Document that []STOP and []TRACE are implemented as optional facilities of the EAS.

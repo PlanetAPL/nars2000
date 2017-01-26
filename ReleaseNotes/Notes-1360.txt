@@ -1,0 +1,15 @@
+Build #1360 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In .ZIP File Not Including Correct Crash Reporting Files
+
+Directory trunk:
+
+MAKEFILE.INC:
+  Change makefile to include the <sendrpt.exe> file in the .zip.
+  Remove definitions of <CS_LIB> as it's not used.
+
+MAIN.C:
+  Change text on missing <crashrpt.dll> to indicate that one of its missing dependencies might be the cause of the error.
+
+These files were mistakenly included in the previous build.

@@ -1,0 +1,14 @@
+Build #1528 -- Version 0.4.15.xx
+--------------------------------
+
+* Ensure All Calls To MessageBox Use The Main Function's Window handle
+
+Directory trunk:
+
+CS_PARSE.Y:
+EDITFCN.C:
+ERRMSG.C:
+EXECMFN.C:
+FH_PARSE.Y:
+SAVEFCN.C:
+  Ensure that all calls to MessageBox[W] use hWndMF so as to avoid a lock up when the Message Box is displayed.

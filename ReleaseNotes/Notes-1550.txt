@@ -1,0 +1,9 @@
+Build #1550 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Dyadic Up Arrow With Global Numeric Left Arg
+
+Directory trunk:
+
+PF_UARROW.C:
+  Fix bug in test for LEFT DOMAIN ERROR to allow global numerics.

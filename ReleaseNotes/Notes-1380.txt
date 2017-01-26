@@ -1,0 +1,15 @@
+Build #1380 -- Version 0.4.11.xx
+--------------------------------
+
+* Include File Omitted From Last Build
+* Fix Bug In <makefile.inc> Missing Crash Server File
+
+Directory trunk:
+
+DATATYPE.H:
+  Define new ALLTYPES entry.
+
+MAKEFILE.INC:
+  Update copyright notice.
+  Include compiler flags for new optimizations.
+  Include additional CrashServer file in .zip file.

@@ -1,0 +1,84 @@
+Build #1276 -- Version 0.4.9.xx
+-------------------------------
+
+* Use Leading Underscore In Name For Macro Expansions Only
+
+Directory trunk:
+
+CONVERT.C:
+  Move <FloatToAplInt_CT> to a macro calling <_FloatToAplInt_CT>.
+  Move <CompareCT> to a macro calling <_CompareCT>.
+
+DEBUG.C:
+EXECDFN.C:
+MPIFNS.C:
+  Remove underscore from function header reference block so as to find it more easily.
+
+EXECMFN.C:
+  Rename <_AssignDefaultSysVars> to <AssignDefaultHTSSysVars> as leading underscore in the name is reserved for macros.
+
+MACROS.H:
+  Rename <iadd64>,  <isub64>  and <imul64>  as <iadd64_RE>, <isub64_RE>, and <imul64_RE>.
+  Rename <_iadd64>, <_isub64> and <_imul64> as <iadd64>,    <isub64>,    and <imul64>.
+  Move <FloatToAplInt_CT> to a macro calling <_FloatToAplInt_CT>.
+  Move <CompareCT> to a macro calling <_CompareCT>.
+  Move <mpq_get_sctsx> to a macro calling <_mpq_get_ctsx>.
+  Move <mpq_get_ctsx> to a macro calling <_mpq_get_ctsx>.
+  Move <mpfr_get_ctsx> to a macro calling <_mpfr_get_ctsx>.
+  Move <mpfr_cmp_ct> to a macro calling <_mpfr_cmp_ct>.
+
+MPFNS.C:
+  Move <mpq_get_sctsx> to a macro calling <_mpq_get_ctsx>.
+  Move <mpq_get_ctsx> to a macro calling <_mpq_get_ctsx>.
+  Move <mpfr_get_ctsx> to a macro calling <_mpfr_get_ctsx>.
+  Move <mpfr_cmp_ct> to a macro calling <_mpfr_cmp_ct>.
+
+PARSELINE.C:
+  If DEBUGging, define <PushVarStrand>, <MakeVarStrand>, <PushFcnStrand>, and <MakeFcnStrand>
+    as <DbgXXX> versions.
+  Remove underscore from function header reference block so as to find it more easily.
+
+PF_BAR.C:
+PF_CIRCLE.C:
+PF_DARROW.C:
+PF_IOTA.C:
+PF_IOTAUND.C:
+PF_PLUS.C:
+PF_QDOT.C:
+PF_RHO.C:
+PF_STAR.C:
+PF_TIMES.C:
+PF_UTACK.C:
+PN_PROC.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+PO_SLASH.C:
+PO_SLOPE.C:
+PRIMFNS.C:
+QF_DR.C:
+  Rename <iadd64>,  <isub64>  and <imul64>  as <iadd64_RE>, <isub64_RE>, and <imul64_RE>.
+  Rename <_iadd64>, <_isub64> and <_imul64> as <iadd64>,    <isub64>,    and <imul64>.
+
+REFCNT.C:
+RESDEBUG.C:
+STRAND.C:
+YYFNS.C:
+  Remove underscore from function header reference block so as to find it more easily.
+
+SAVEFCN.C:
+  Rename <_AssignDefaultSysVars> to <AssignDefaultHTSSysVars> as a leading underscore in the name is reserved for macros.
+
+STARTADDR.H:
+  Rename <_pl_yylex> to <pl_yylexCOM> as a leading underscore in the name is reserved for macros
+  Rename <iadd64>,  <isub64>  and <imul64>  as <iadd64_RE>, <isub64_RE>, and <imul64_RE>.
+  Rename <_AssignDefaultSysVars> to <AssignDefaultHTSSysVars> as a leading underscore in the name is reserved for macros.
+
+SYMTAB.C:
+  Rename <_SymTabXxx> to <SymTabHTSXxx> as a leading underscore in the name is reserved for macros.
+
+SYSVARS.C:
+  Rename <_SymTabXxx> to <SymTabHTSXxx> as a leading underscore in the name is reserved for macros.
+  Rename <_AssignDefaultSysVars> to <AssignDefaultHTSSysVars> as a leading underscore in the name is reserved for macros.
+
+TOKENIZE.C:
+  Rename <_SymTabXxx> to <SymTabHTSXxx> as a leading underscore in the name is reserved for macros.

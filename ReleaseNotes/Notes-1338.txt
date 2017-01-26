@@ -1,0 +1,11 @@
+Build #1338 -- Version 0.4.9.xx
+-------------------------------
+
+* DEBUG Code In Session Manager
+
+Directory trunk:
+
+SESSMAN.C:
+  Update copyright year.
+  Use macros instead of absolute constants when calling []LX.
+  Put in more DEBUG stmts for F2 and F11.

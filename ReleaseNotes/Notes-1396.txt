@@ -1,0 +1,9 @@
+Build #1396 -- Version 0.4.11.xx
+--------------------------------
+
+* Fix Bugs In Helper Functions From Previous Build
+
+Directory trunk:
+
+COMMON.C:
+  Fix bugs in <strcpyn> and <strcpynW> w.r.t. # bytes to copy.

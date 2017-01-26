@@ -1,0 +1,9 @@
+Build #1301 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When Passing A System Function To A User-Defined Operator
+
+Directory trunk:
+
+EXECDFN.C:
+  In <InitFcnSTEs>, check for named internal functions as an operand.

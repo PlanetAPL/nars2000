@@ -1,0 +1,16 @@
+Build #1503 -- Version 0.4.15.xx
+--------------------------------
+
+* Implement Pochhammer Symbol Through Variant Operator
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define name of magic function for Pochhammer symbol.
+
+MF_VARIANT.H:
+  Define magic function in APL for Pochhammer symbol.
+
+PO_VARIANT.C:
+  Allow Variant operator to implement Pochhammer symbol.

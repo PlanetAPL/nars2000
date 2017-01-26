@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2012 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -134,7 +134,7 @@ LPPL_YYSTYPE SysFnDydEA_EM_YY
                 TRUE,                   // Restartable
                 TRUE);                  // LinkIntoChain
     // Fill in the non-default SIS header entries
-////lpMemPTD->lpSISCur->ItsEC = FALSE;  // Already zero from FillSISNxt
+    lpMemPTD->lpSISCur->bItsEC = TRUE;  // So we don't suspend our caller
 
     // Get the attributes (Type, NELM, and Rank)
     //   of the left & right args
@@ -159,7 +159,7 @@ LPPL_YYSTYPE SysFnDydEA_EM_YY
     // If it's global, ...
     if (hGlbRht)
         // Skip over the header and dimensions to the data
-        lpMemRht = VarArrayBaseToData (lpMemRht, aplRankRht);
+        lpMemRht = VarArrayDataFmBase (lpMemRht);
      else
         // Point to the immediate value
         lpMemRht = (LPAPLCHAR) &aplLongestRht;
@@ -185,7 +185,7 @@ LPPL_YYSTYPE SysFnDydEA_EM_YY
     // If it's global, ...
     if (hGlbLft)
         // Skip over the header and dimensions to the data
-        lpMemLft = VarArrayBaseToData (lpMemLft, aplRankLft);
+        lpMemLft = VarArrayDataFmBase (lpMemLft);
     else
         // Point to the immediate value
         lpMemLft = (LPAPLCHAR) &aplLongestLft;
@@ -237,7 +237,7 @@ NORMAL_EXIT:
 
     // Unlocalize the STEs on the innermost level
     //   and strip off one level
-    UnlocalizeSTEs ();
+    UnlocalizeSTEs (NULL);
 
     return lpYYRes;
 } // End SysFnDydEA_EM_YY

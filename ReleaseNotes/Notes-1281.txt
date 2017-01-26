@@ -1,0 +1,13 @@
+Build #1281 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Handling Trains and Niladic Functions
+
+Directory trunk:
+
+PARSELINE.C:
+  Delete code which treats niladic function specially as that breaks Trains.
+  In <pl_yylexCOM>, simplify SWITCH code by merging empty stmts.
+
+STRAND.C:
+  In <MakeFcnStrand_EM_YY>, treat <fnNameType> train as no change to its RefCnt.

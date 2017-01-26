@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2010 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -82,6 +82,12 @@ AXIS_SYNTAX_EXIT:
 //  Create the global memory value for []AV
 //***************************************************************************
 
+#ifdef DEBUG
+#define APPEND_NAME     L" -- MakeQuadAV"
+#else
+#define APPEND_NAME
+#endif
+
 void MakeQuadAV
     (void)
 
@@ -103,14 +109,14 @@ void MakeQuadAV
     } // End IF
 
     // Create []AV
-    hGlbQuadAV = MyGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbQuadAV)
+    hGlbQuadAV = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
+    if (hGlbQuadAV EQ NULL)
     {
         DbgStop ();         // We should never get here
     } // End IF
 
     // Lock the memory to get a ptr to it
-    lpHeader = MyGlobalLock (hGlbQuadAV);
+    lpHeader = MyGlobalLock000 (hGlbQuadAV);
 
     // Fill in the header values
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
@@ -125,7 +131,7 @@ void MakeQuadAV
     *VarArrayBaseToDim (lpHeader) = QUADAV_LEN;
 
     // Skip over the header and dimensions to the data
-    lpMemRes = VarArrayBaseToData (lpHeader, 1);
+    lpMemRes = VarArrayDataFmBase (lpHeader);
 
     // Fill in the result with 0-0xFFFF
     for (uRes = 0; uRes < QUADAV_LEN;  uRes++)
@@ -134,6 +140,7 @@ void MakeQuadAV
     // We no longer need this ptr
     MyGlobalUnlock (hGlbQuadAV); lpMemRes = NULL;
 } // End MakeQuadAV
+#undef  APPEND_NAME
 
 
 //***************************************************************************

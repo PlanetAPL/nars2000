@@ -1,0 +1,13 @@
+Build #1456 -- Version 0.4.13.xx
+--------------------------------
+
+* When )LOADing Or )COPYing A Workspace, Display The Workspace Version # If DEBUGging
+
+Directory trunk:
+
+SC_COMMON.C:
+  In <DisplayWorkspaceStamp>, pass the workspace version # to <DisplaySavedMsg> for display if DEBUGging.
+  In <DisplaySavedMsg>, display the workspace version # if DEBUGging.
+
+SC_LOAD.C:
+  When calling <DisplaySavedMsg>, pass NULL as workspace version #.

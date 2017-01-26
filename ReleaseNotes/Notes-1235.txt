@@ -1,0 +1,16 @@
+Build #1235 -- Version 0.4.7.xx
+-------------------------------
+
+* Fix Bug In Dyadic Scan On First Dimension
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define entries for new magic function/operator.
+
+MF_DYDSCAN.H:
+  Define APL code for new magic function/operator.
+
+PO_SLOPE.C:
+  Use separate magic function/operator if no axis specified and scanning on first dimension.

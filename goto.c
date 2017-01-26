@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ EXIT_TYPES GotoLine_EM
     IMM_TYPES      immType;         // Right arg first value immediate type
     APLINT         aplIntegerRht;   // First value as integer
     APLFLOAT       aplFloatRht;     // ...            float
+    APLLONGEST     aplLongest;      // Immediate value
     LPSIS_HEADER   lpSISCur;        // Ptr to current SIS header
     TOKEN_TYPES    TknType;         // Target token type
     LPTOKEN_HEADER lpMemTknHdr;     // Ptr to tokenized line header
@@ -62,8 +63,7 @@ EXIT_TYPES GotoLine_EM
     LPPLLOCALVARS  lpplLocalVars;   // Ptr to PL local vars
     TOKEN          tkNxt;           // Token of next stmt
     UINT           uTknNum = 0;     // Starting token #
-    UBOOL          bExecEC,         // TRUE iff we're executing under []EC
-                   bRet;            // TRUE iff the result is valid
+    UBOOL          bRet;            // TRUE iff the result is valid
     HGLOBAL        lpSymGlb;        // Ptr to global numeric value
     LPDFN_HEADER   lpMemDfnHdr;     // Ptr to user-defined function/operator header ...
 
@@ -86,10 +86,15 @@ EXIT_TYPES GotoLine_EM
                            &aplIntegerRht,  // Ptr to integer result
                            &aplFloatRht,    // Ptr to float ...
                             NULL,           // Ptr to WCHAR ...
-                            NULL,           // Ptr to longest ...
+                           &aplLongest,     // Ptr to longest ...
                            &lpSymGlb,       // Ptr to lpSym/Glb ...
                            &immType,        // Ptr to ...immediate type ...
                             NULL);          // Ptr to array type ...
+        // If the value is an immediate, ...
+        if (lpSymGlb EQ NULL)
+            // Point to the data
+            lpSymGlb = &aplLongest;
+
         // Split cases based upon the right arg storage type
         switch (aplTypeRht)
         {
@@ -169,19 +174,22 @@ EXIT_TYPES GotoLine_EM
             defstop
                 break;
         } // End SWITCH
-    } // End IF
+    } else
+    // If it's neither a simple nor global numeric, ...
+    if (!IsSimpleGlbNum (aplTypeRht))
+        goto DOMAIN_EXIT;
 
     // Copy ptr to current SI level
     lpSISCur = lpMemPTD->lpSISCur;
 
     // Check for not restartable SI level
     if (lpSISCur->DfnType EQ DFNTYPE_IMM    // This level is Immediate
-     && lpSISCur->lpSISPrv                  // There is a previous level
-     && !lpSISCur->lpSISPrv->Restartable)   // and it's not restartable
+     && lpSISCur->lpSISPrv NE NULL          // There is a previous level
+     && !lpSISCur->lpSISPrv->bRestartable)  // and it's not restartable
         goto NORESTART_EXIT;
 
-    // Save the {goto} target if we're executing under []EC
-    bExecEC = SaveGotoTarget (lpMemPTD, lptkRhtArg);
+    // Save the {goto} target if we're executing under []EA/[]EC
+    SaveGotoTarget (lpMemPTD, lptkRhtArg);
 
     // If the right arg is empty, ...
     if (IsEmpty (aplNELMRht))
@@ -200,16 +208,16 @@ EXIT_TYPES GotoLine_EM
     while (lpSISCur
         && (lpSISCur->DfnType EQ DFNTYPE_IMM
          || lpSISCur->DfnType EQ DFNTYPE_QUAD
-         || lpSISCur->DfnType EQ DFNTYPE_EXEC))
+         || lpSISCur->DfnType EQ DFNTYPE_EXEC
+         || lpSISCur->DfnType EQ DFNTYPE_ERRCTRL))
         lpSISCur = lpSISCur->lpSISPrv;
 
     // If we're at a UDFO layer, ...
     if (lpSISCur NE NULL)
         // Lock the memory to get a ptr to it
-        lpMemDfnHdr = MyGlobalLock (lpSISCur->hGlbDfnHdr);
+        lpMemDfnHdr = MyGlobalLockDfn (lpSISCur->hGlbDfnHdr);
 
     if (lpSISCur NE NULL
-     && !bExecEC
      && aplIntegerRht > 0
      && aplIntegerRht <= lpMemDfnHdr->numFcnLines)
     {
@@ -284,14 +292,11 @@ EXIT_TYPES GotoLine_EM
 
     // If we're at a UDFO layer, ...
     if (lpSISCur NE NULL)
+    {
         // We no longer need this ptr
         MyGlobalUnlock (lpSISCur->hGlbDfnHdr); lpMemDfnHdr = NULL;
+    } // End IF
 
-    // Save the exit type
-    exitType = EXITTYPE_GOTO_LINE;
-
-    // If we're not executing under []EC, ...
-    if (!bExecEC)
     // Split cases based upon the function type
     switch (lpMemPTD->lpSISCur->DfnType)
     {
@@ -304,7 +309,7 @@ EXIT_TYPES GotoLine_EM
                 lpMemPTD->lpSISCur->lpSISPrv->NxtTknNum  = uTknNum;
 
                 // Mark as no longer suspended
-                lpMemPTD->lpSISCur->lpSISPrv->Suspended = FALSE;
+                lpMemPTD->lpSISCur->lpSISPrv->bSuspended = FALSE;
             } // End IF
 
             break;
@@ -320,18 +325,18 @@ EXIT_TYPES GotoLine_EM
                 lpMemPTD->lpSISCur->NxtTknNum  = uTknNum;
 
                 // Mark as no longer suspended
-                lpMemPTD->lpSISCur->Suspended = FALSE;
+                lpMemPTD->lpSISCur->bSuspended = FALSE;
             } // End IF
 
             break;
 
         case DFNTYPE_EXEC:
         case DFNTYPE_QUAD:
-            // Peel back to the first non-Imm/Exec layer
+            // Peel back to the first non-Imm/Exec/ErrCtrl layer
             //   starting with the previous SIS header
             lpSISCur = GetSISLayer (lpMemPTD->lpSISCur->lpSISPrv);
 
-            // If there's a suspended user-defined function/operator, ...
+            // If there's an active or suspended user-defined function/operator, ...
             if (lpSISCur
              && (lpSISCur->DfnType EQ DFNTYPE_OP1
               || lpSISCur->DfnType EQ DFNTYPE_OP2
@@ -342,7 +347,7 @@ EXIT_TYPES GotoLine_EM
                 lpSISCur->NxtTknNum  = uTknNum;
 
                 // Mark as no longer suspended
-                lpSISCur->Suspended = FALSE;
+                lpSISCur->bSuspended = FALSE;
 
                 // Save the suspended function's semaphore as the one to signal
                 lpMemPTD->lpSISCur->hSigaphore = lpSISCur->hSemaphore;
@@ -353,6 +358,9 @@ EXIT_TYPES GotoLine_EM
         defstop
             break;
     } // End IF/SWITCH
+
+    // Save the exit type
+    exitType = EXITTYPE_GOTO_LINE;
 
     goto NORMAL_EXIT;
 
@@ -413,8 +421,6 @@ UBOOL SaveGotoTarget
     if (lpSISCur
      && lpSISCur->DfnType EQ DFNTYPE_ERRCTRL)
     {
-        // If we're executing under []EC but not []EA, ...
-        if (lpSISCur->ItsEC)
         // Split cases based upon the token type
         switch (lptkGoto->tkFlags.TknType)
         {

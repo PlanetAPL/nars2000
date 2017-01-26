@@ -1,0 +1,19 @@
+Build #1594 -- Version 0.4.18.xx
+--------------------------------
+
+* Remove References To Vector And Matrix Editors
+* Fix Bug In Reference To /LTCG In MAKEFILE.INC
+
+Directory trunk:
+
+COMPRO.H:
+DEFINES.H:
+EDITMAT.C:
+EDITVEC.V:
+ENUMS.H:
+EXTERNS.H:
+MAIN.C:
+MAKEFILE.INC:
+MAKEFILE.SRC:
+STARTADDR.H:
+  Remove references to both Vector and Matrix Editors

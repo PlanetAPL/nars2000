@@ -1,0 +1,10 @@
+Build #1496 -- Version 0.4.15.xx
+--------------------------------
+
+* Handle Failed )LOAD By Restoring Previous Tab Correctly
+
+Directory trunk:
+
+TABCTRL.C:
+  If a )LOAD fails for whatever reason, ensure the previous tab is restored.
+  In IF stmts always compare ptr against NULL.

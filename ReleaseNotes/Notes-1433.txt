@@ -1,0 +1,13 @@
+Build #1433 -- Version 0.4.12.xx
+--------------------------------
+
+* Fix Bug In N-Wise Reduction For Negative Left Args On Non-default Axes
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+PO_SLASH.C:
+  Include "Hdr" in name of result of <MyGlobalLock> and elsewhere.
+  In <PrimOpMonSlashCommon_EM_YY>, handle immediate right arg.
+  In <PrimOpMonSlashCommon_EM_YY>, specify the function token when calling
+    <PrimFnMonCircleStile_EM_YY> so as to get the correct axis.

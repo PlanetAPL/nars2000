@@ -1,0 +1,15 @@
+Build #1546 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Grade Primitives Not Handling Nested And Hetero Arrays
+
+Directory trunk:
+
+CONVERT.C:
+  Define comparison routines necessary for grading nested and hetero arrays.
+
+DATATYPE.H:
+  Define Boolean member in ALLTYPES used when grading nested and hetero arrays.
+
+PF_DELTASTILE.C:
+  Allow nested and hetero arrays to be graded.

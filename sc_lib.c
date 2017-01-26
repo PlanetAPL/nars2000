@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -105,20 +105,20 @@ UBOOL CmdLibCom_EM
     lpwszFormat = lpMemPTD->lpwszFormat;
 
     // Split out the drive and path from the module filename
-    _wsplitpath (lpwszTail, wszDrive, wszDir, NULL, NULL);
+    //   skipping over any leading double quote
+    _wsplitpath (&lpwszTail[lpwszTail[0] EQ WC_DQ], wszDrive, wszDir, NULL, NULL);
 
     // Lock the memory to get a ptr to it
     lpwszLibDirs = MyGlobalLock (hGlbLibDirs);
 
     // Allocate temp storage for the saved names
-    lpwszSaveBase = MyGlobalAlloc (GPTR, 64*1024*sizeof (WCHAR));
+    lpwszSaveBase = DbgGlobalAlloc (GPTR, 64*1024*sizeof (WCHAR));
     if (lpwszSaveBase EQ NULL)
         goto WSFULL_EXIT;
 
     // If the command tail starts with a drive letter, or a backslash, ...
     if (wszDrive[0]
      || wszDir[0] EQ WC_SLOPE)
-    {
         // Process this directory
         CmdLibProcess (wszFileName,             // Ptr to canonical dir
                        lpwszFormat,             // Ptr to temp storage
@@ -129,10 +129,9 @@ UBOOL CmdLibCom_EM
                        NULL,                    // Ptr to LibDirs (may be NULL)
                        uArgCnt,                 // # args after the system command
                        bUniqWs);                // TRUE iff listing unique workspaces only
-    } else
+    else
     // Loop through the search dirs
     for (uCnt = 0; uCnt < uNumLibDirs; uCnt++)
-    {
         // Process this directory
         CmdLibProcess (wszFileName,             // Ptr to canonical dir
                        lpwszFormat,             // Ptr to temp storage
@@ -143,8 +142,6 @@ UBOOL CmdLibCom_EM
                       &lpwszLibDirs[uCnt],      // Ptr to LibDirs (may be NULL)
                        uArgCnt,                 // # args after the system command
                        bUniqWs);                // TRUE iff listing unique workspaces only
-    } // End FOR
-
     // Mark as successful
     bRet = TRUE;
 
@@ -161,7 +158,7 @@ NORMAL_EXIT:
     if (lpwszSaveBase)
     {
         // We no longer need this storage
-        MyGlobalFree (lpwszSaveBase); lpwszSaveBase = NULL;
+        DbgGlobalFree (lpwszSaveBase); lpwszSaveBase = NULL;
     } // End IF
 
     // If we locked it, ...
@@ -183,7 +180,7 @@ NORMAL_EXIT:
 //***************************************************************************
 
 void CmdLibProcess
-    (LPWCHAR      wszFileName,          // Ptr to canonical dir
+    (LPWCHAR      lpwszFileName,        // Ptr to canonical dir
      LPWCHAR      lpwszFormat,          // Ptr to temp storage
      LPWCHAR      lpwszSaveBase,        // Ptr to base of Saved Names
      LPWCHAR      lpwszLeadRange,       // Ptr to leading range
@@ -204,7 +201,7 @@ void CmdLibProcess
     if (uArgCnt > 0
      && lplpwszArgs[0][0] NE LIBCMD_SWITCH)
     {
-        lstrcpyW (lpwszFormat, lplpwszArgs[0]);
+        strcpyW (lpwszFormat, lplpwszArgs[0]);
 
         // Get the length to test for trailing backslash
         uExtLen = lstrlenW (lpwszFormat);
@@ -228,12 +225,12 @@ void CmdLibProcess
         } // End IF
 
         // Convert the given workspace name into a canonical form (without WS_WKSEXT)
-        MakeWorkspaceNameCanonical (wszFileName, lpwszFormat, (lpwszLibDirs NE NULL) ? *lpwszLibDirs : L"");
+        MakeWorkspaceNameCanonical (lpwszFileName, lpwszFormat, (lpwszLibDirs NE NULL) ? *lpwszLibDirs : L"");
     } else
-        lstrcpyW (wszFileName, *lpwszLibDirs);
+        strcpyW (lpwszFileName, *lpwszLibDirs);
 
     // Get the length of the filename so far
-    uExtLen = lstrlenW (wszFileName);
+    uExtLen = lstrlenW (lpwszFileName);
 
     // Initialize the name counter and name ptr
     uNameCnt = 0;
@@ -242,7 +239,7 @@ void CmdLibProcess
 
     // Accumulate the workspaces (*.ws.nars)
     lpwszSaveName =
-      CmdLibFiles (wszFileName,             // Ptr to file name root
+      CmdLibFiles (lpwszFileName,           // Ptr to file name root
                    WS_WKSEXT,               // Extension to use
                    FALSE,                   // TRUE iff we should show the extension
                    lpwszLeadRange,          // Ptr to leading range
@@ -252,11 +249,11 @@ void CmdLibProcess
                   &uNameCnt,                // Ptr to name counter
                    bUniqWs);                // TRUE iff listing unique workspaces only
     // Zap so we start off at the same place
-    wszFileName[uExtLen] = WC_EOS;
+    lpwszFileName[uExtLen] = WC_EOS;
 
     // Accumulate the atf files (*.atf)
     lpwszSaveName =
-      CmdLibFiles (wszFileName,             // Ptr to file name root
+      CmdLibFiles (lpwszFileName,           // Ptr to file name root
                    WS_ATFEXT,               // Extension to use
                    TRUE,                    // TRUE iff we should show the extension
                    lpwszLeadRange,          // Ptr to leading range
@@ -266,14 +263,14 @@ void CmdLibProcess
                   &uNameCnt,                // Ptr to name counter
                    bUniqWs);                // TRUE iff listing unique workspaces only
     // Zap so we start off at the same place
-    wszFileName[uExtLen] = WC_EOS;
+    lpwszFileName[uExtLen] = WC_EOS;
 
     // If there are any files, ...
     if (uNameCnt)
     {
         // Display the current search dir
         AppendLine (L"\"", FALSE, FALSE);
-        AppendLine (wszFileName, FALSE, FALSE);
+        AppendLine (lpwszFileName, FALSE, FALSE);
         AppendLine (L"\"", FALSE, TRUE);
 
         // Sort the names
@@ -292,8 +289,8 @@ void CmdLibProcess
 //***************************************************************************
 
 LPWCHAR CmdLibFiles
-    (LPWCHAR  wszFileName,              // Ptr to file name root
-     LPWCHAR  wszExt,                   // Extension to use
+    (LPWCHAR  lpwszFileName,            // Ptr to file name root
+     LPWCHAR  lpwszExt,                 // Extension to use
      UBOOL    bShowExt,                 // TRUE iff we should show the extension
      LPWCHAR  lpwszLeadRange,           // Ptr to leading range
      LPWCHAR  lpwszTailRange,           // ...    trailing ...  (may be NULL if no separator)
@@ -310,33 +307,33 @@ LPWCHAR CmdLibFiles
     UBOOL            bEndDQ;            // TRUE iff the string ends with a Double Quote
 
     // Append a backslash to the incoming filename if not already there
-    AppendBackslash (wszFileName);
+    AppendBackslash (lpwszFileName);
 
-    // Get the length to append trailing extension (wszExt)
-    uFileLen = lstrlenW (wszFileName);
+    // Get the length to append trailing extension (lpwszExt)
+    uFileLen = lstrlenW (lpwszFileName);
 
     // If it ends in a double quote, ...
-    bEndDQ = (wszFileName[uFileLen - 1] EQ WC_DQ);
+    bEndDQ = (lpwszFileName[uFileLen - 1] EQ WC_DQ);
 
     // Create the wildcard string to search for workspaces
-    lstrcpyW (&wszFileName[uFileLen - bEndDQ], L"*");
+    strcpyW (&lpwszFileName[uFileLen - bEndDQ], L"*");
     uFileLen++;
-    lstrcpyW (&wszFileName[uFileLen - bEndDQ], wszExt);
-    uFileLen += lstrlenW (wszExt);
+    strcpyW (&lpwszFileName[uFileLen - bEndDQ], lpwszExt);
+    uFileLen += lstrlenW (lpwszExt);
 
     // If it ended with a double quote, ...
     if (bEndDQ)
     {
         // Append it again
-        wszFileName[uFileLen + 0] = WC_DQ;
-        wszFileName[uFileLen + 1] = WC_EOS;
+        lpwszFileName[uFileLen + 0] = WC_DQ;
+        lpwszFileName[uFileLen + 1] = WC_EOS;
     } // End IF
 
     // Get length of workspace extension
-    uExtLen = lstrlenW (wszExt);
+    uExtLen = lstrlenW (lpwszExt);
 
     // Find the first (if any) workspace
-    hFind = FindFirstFileW (wszFileName, &FindData);
+    hFind = FindFirstFileW (lpwszFileName, &FindData);
 
     if (hFind NE INVALID_HANDLE_VALUE)
     {
@@ -419,7 +416,7 @@ LPWCHAR CmdLibCheckMatch
            && lstrcmpiW (WS_BAKEXT, &cFileName[uWsLen - WS_BAKEXT_LEN]) EQ 0))
         {
             // Accumulate the workspace name
-            lstrcpyW (lpwszSaveName, cFileName);
+            strcpyW (lpwszSaveName, cFileName);
 
             // Add in another name
             (*lpuCntNames)++;
@@ -447,7 +444,7 @@ void DisplayLibNames
      UINT     uNameCnt)                     // # names
 
 {
-    WCHAR   wszLine[DEF_MAX_QUADPW];        // Save area for output line
+    LPWCHAR lpwszLine;                      // Ptr to temp line
     UINT    uCnt,                           // Loop counter
             uLineChar,                      // Current char # in output line
             uNameLen,                       // Length of the current name
@@ -466,55 +463,65 @@ void DisplayLibNames
         // Get the current value of []PW
         uQuadPW = (UINT) GetQuadPW ();
 
-        // Initialize the output area
-        FillMemoryW (wszLine, uQuadPW, L' ');
+        // Allocate space for one line
+        lpwszLine = MyGlobalAlloc (GPTR, sizeof (WCHAR) * (uQuadPW + 1));
 
-        // Display the names
-        for (bLineCont = FALSE, uLineChar = LINE_INDENT, uCnt = 0;
-             uCnt < uNameCnt;
-             uCnt++)
+        // Check for errors
+        if (lpwszLine NE NULL)
         {
-            // Point to the name
-            lpMemName = lplpwszPtr[uCnt];
+            // Initialize the output area
+            FillMemoryW (lpwszLine, uQuadPW, L' ');
 
-            // Get the name length
-            uNameLen = lstrlenW (lpMemName);
+            // Display the names
+            for (bLineCont = FALSE, uLineChar = LINE_INDENT, uCnt = 0;
+                 uCnt < uNameCnt;
+                 uCnt++)
+            {
+                // Point to the name
+                lpMemName = lplpwszPtr[uCnt];
 
-            // If the line is too long, skip to the next one
-            if ((uLineChar + uNameLen) > uQuadPW
-             && uLineChar > LINE_INDENT)
+                // Get the name length
+                uNameLen = lstrlenW (lpMemName);
+
+                // If the line is too long, skip to the next one
+                if ((uLineChar + uNameLen) > uQuadPW
+                 && uLineChar > LINE_INDENT)
+                {
+                    // Ensure properly terminated
+                    lpwszLine[min (uLineChar, uQuadPW)] = WC_EOS;
+
+                    // Output the current line
+                    AppendLine (lpwszLine, bLineCont, TRUE);
+
+                    // Mark all lines from here on as continuations
+                    bLineCont = TRUE;
+
+                    // Re-initialize the output area
+                    FillMemoryW (lpwszLine, uQuadPW, L' ');
+
+                    // Re-initialize the char counter
+                    uLineChar = LINE_INDENT;
+                } // End IF
+
+                // Copy the name to the output area
+                CopyMemoryW (&lpwszLine[uLineChar], lpMemName, uNameLen);
+
+                // Skip to the next name boundary
+                uLineChar += NAME_WIDTH * (1 + uNameLen / NAME_WIDTH);
+            } // End FOR
+
+            // If there's still text in the buffer, output it
+            if (uLineChar > LINE_INDENT)
             {
                 // Ensure properly terminated
-                wszLine[min (uLineChar, uQuadPW)] = WC_EOS;
+                lpwszLine[min (uLineChar, uQuadPW)] = WC_EOS;
 
                 // Output the current line
-                AppendLine (wszLine, bLineCont, TRUE);
-
-                // Mark all lines from here on as continuations
-                bLineCont = TRUE;
-
-                // Re-initialize the output area
-                FillMemoryW (wszLine, uQuadPW, L' ');
-
-                // Re-initialize the char counter
-                uLineChar = LINE_INDENT;
+                AppendLine (lpwszLine, TRUE, TRUE);
             } // End IF
 
-            // Copy the name to the output area
-            CopyMemoryW (&wszLine[uLineChar], lpMemName, uNameLen);
-
-            // Skip to the next name boundary
-            uLineChar += NAME_WIDTH * (1 + uNameLen / NAME_WIDTH);
-        } // End FOR
-
-        // If there's still text in the buffer, output it
-        if (uLineChar > LINE_INDENT)
-        {
-            // Ensure properly terminated
-            wszLine[uLineChar] = WC_EOS;
-
-            // Output the current line
-            AppendLine (wszLine, TRUE, TRUE);
+            // We no longer need this storage
+            MyGlobalFree (lpwszLine); lpwszLine = NULL;
         } // End IF
     } // End IF
 } // End DisplayLibNames

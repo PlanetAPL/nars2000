@@ -1,0 +1,15 @@
+Build #1346 -- Version 0.4.9.xx
+-------------------------------
+
+* Implement Assembler Routines for Certain Circle Functions
+
+Directory trunk:
+
+DBGBRK.ASM:
+DBGBRK.PRO:
+  Define FPU code for some circle functions.
+
+PF_CIRCLE.C:
+  Move ASM code into DBGBRK.ASM.
+  Check for Complex results (NONCE ERRORs).
+  Check for NaN results (DOMAIN ERRORs).

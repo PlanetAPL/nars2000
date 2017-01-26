@@ -1,0 +1,14 @@
+Build #1589 -- Version 0.4.18.xx
+--------------------------------
+
+* Extend Variant Operator Shorthand For []FPC To The Execute Function
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+MF_VARIANT.H:
+  Define magic function to localize []FPC, set its value to the left arg, and execute the character vector right arg.
+
+PO_VARIANT.C:
+  Extend Variant operator shorthand for []FPC (number only) to the Execute function.

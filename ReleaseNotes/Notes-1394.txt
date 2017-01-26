@@ -1,0 +1,28 @@
+Build #1394 -- Version 0.4.11.xx
+--------------------------------
+
+* Include "Hdr" In Name Of Result Of MyGlobalLock
+* In IF Stmts Always Compare Ptr Against NULL
+* Mark Argument To <CalcNumIDs> As Pointer To Var Header
+
+Directory trunk:
+
+ERRMSG.C:
+  Include "Hdr" in name of result of MyGlobalLock.
+  In IF stmts always compare ptr against NULL.
+
+QF_AT.C:
+QF_EX.C:
+QF_MF.C:
+QF_NC.C:
+  Include "Hdr" in name of result of MyGlobalLock.
+  Mark argument to <CalcNumIDs> as pointer to var header.
+  In IF stmts always compare ptr against NULL.
+
+QF_SYSID.C:
+  Include "Hdr" in name of result of MyGlobalLock.
+  In IF stmts always compare ptr against NULL.
+  Define and use new function to handle filling in result token for globals.
+
+YYFNS.C:
+  Define and use new function to handle filling in result token for globals.

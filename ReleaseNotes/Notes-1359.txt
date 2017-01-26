@@ -1,0 +1,38 @@
+Build #1359 -- Version 0.4.9.xx
+-------------------------------
+
+* Rename <signum> Functions
+* Fix Bug In LCM Result Sign
+
+Directory trunk:
+
+COMMON.C:
+  Define <signumXXX> functions for various datatypes making sure to handle negative 0 as negative.
+  Replace <signumf> with <signumflt> to parallel the other <signumXXX> fucntions.
+
+CONVERT.C:
+  Update copyright year.
+  Replace <signumf> with <signumflt> to parallel the other <signumXXX> fucntions.
+
+MACROS.H:
+  Define <signumrat> as an alias of <mpq_sgn> as it already returns -1, 0, 1.
+
+MPFNS.C:
+PF_DELTASTILE.C:
+PF_DSTILE.C:
+PF_IOTA.C:
+PF_PI.C:
+PF_STAR.C:
+PF_TIMES.C:
+QF_NFNS.C:
+  Use <signumXXX> functions in place of previous ones as they are more aptly named and we control them.
+
+MPIFNS.C:
+  Move <signumint> and <signumflt> to <common.c>.
+
+PF_UCARET.C:
+  Use <signumXXX> functions in place of previous ones as they are more aptly named and we control them.
+  Fix bug in LCM so as to return the sign of the result as the product of the signs of the args.
+
+STARTADDR.H:
+  Include new functions.

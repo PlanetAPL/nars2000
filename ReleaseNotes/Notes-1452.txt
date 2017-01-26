@@ -1,0 +1,30 @@
+Build #1452 -- Version 0.4.13.xx
+--------------------------------
+
+* Use Macro When Reading From Token That Could Be Named Or Unnamed
+* Include "Hdr" In Name Of Result Of <MyGlobalLock>
+
+Directory trunk:
+
+ASSIGN.C:
+AXISFNS.C:
+DISPDBG.C:
+DISPLAY.C:
+PO_DOT.C:
+PO_JOTDOT.C:
+TYPEMOTE.C:
+  Use macro when reading <tkLongest> or <tkGlbData> in case the token is named.
+
+EXECDFN.C:
+  Use macro when reading <tkLongest> or <tkGlbData> in case the token is named.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+
+GETFNS.C:
+  Use macro when reading <tkLongest> or <tkGlbData> in case the token is named.
+  In <GetNextHetero>, allow result args to be NULL.
+  Define <GetNextHetero2> as with <GetNextHetero> but ensuring that if the ptr to Sym/Glb is valid, that its value is set.
+
+PF_INDEX.C:
+PF_SQUAD.C:
+  Use macro when reading <tkLongest> or <tkGlbData> in case the token is named.
+  Include "Hdr" in name of result of <MyGlobalLock>.

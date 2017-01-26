@@ -1,0 +1,12 @@
+Build #1584 -- Version 0.4.18.xx
+--------------------------------
+
+* Implement "Copy" Button In The About Box
+
+Directory trunk:
+
+MAIN.RC:
+RESOURCE.H:
+VER.C:
+UNICODE.H:
+  Implement "Copy" button in the About box.

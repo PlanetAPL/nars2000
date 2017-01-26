@@ -1,0 +1,763 @@
+Version 0.4.15.xx consists of the following Builds:
+
+
+Build #1551 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Subroutine To []SYSID
+
+Directory trunk:
+
+YYFNS.C:
+  Fix bug in <YYAllocGlb> to mark the global handle as such.
+
+
+Build #1550 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Dyadic Up Arrow With Global Numeric Left Arg
+
+Directory trunk:
+
+PF_UARROW.C:
+  Fix bug in test for LEFT DOMAIN ERROR to allow global numerics.
+
+
+Build #1549 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Pick Where Either Argument Is Global Numeric
+
+Directory trunk:
+
+PF_RSHOE.C:
+  Fix bug in <PrimFnDydRightShoeGlbGlb_EM_YY> where either arg is global numeric
+    by backing out of Build #1502.
+
+
+Build #1548 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In )COPY Of A UDFO On Top Of A Function Array
+
+Directory trunk:
+
+SAVEFCN.C:
+  In <SaveFunctionCom>, if a UDFO is replacing a function array, we fail and mark the workspace as corrupt.
+
+
+Build #1547 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Display Of Certain Derived Functions
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFcnSub>, fix the poor handling of monadic and dyadic operators as
+    well as the axis operator when combined with the same objects.
+
+
+Build #1546 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Grade Primitives Not Handling Nested And Hetero Arrays
+
+Directory trunk:
+
+CONVERT.C:
+  Define comparison routines necessary for grading nested and hetero arrays.
+
+DATATYPE.H:
+  Define Boolean member in ALLTYPES used when grading nested and hetero arrays.
+
+PF_DELTASTILE.C:
+  Allow nested and hetero arrays to be graded.
+
+
+Build #1545 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Syntax Analyzer With Modified Indexed Assignment And A Derived Function
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+SYNOBJ.H:
+  Define new object (ADX) to handle A[A] F MOP SPA.
+
+
+Build #1544 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug When Calling Dyadic Squad As A Prototype
+
+Directory trunk:
+
+PF_INDEX.C:
+  Pass prototyping flag to <PrimFnDydSquadGlb_EM_YY>.
+
+PF_SQUAD.C:
+  Use local routine instead of global mixed routine to handle prototypes.
+  Pass prototyping flag to various routines.
+  Split out common code to handle prototyping.
+  Skip index range checks if prototyping.
+
+
+Build #1543 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug When Loading A Workspace With A Name Assigned To An Existing User Function/Operator
+
+Directory trunk:
+
+SC_LOAD.C:
+  Fix a bug when loading a workspace with an existing user defined function/operator (say F)
+    which has been assigned to another name as in G {is} F.  In this case, the STE for G is
+    not setup properly.
+
+
+Build #1542 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Catenate Between Empty Array And APA Of Differing Ranks
+
+Directory trunk:
+
+PF_COMMA.C:
+  Fix a bug when catenating an empty array (e.g., 0 4{rho}0) and an APA (e.g. {iota}4) of differing ranks.
+
+
+Build #1541 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Magic Function For Rising And Falling Factorials
+
+Directory trunk:
+
+MF_VARIANT.H:
+  Fix a bug in the magic function which implements the Pochhammer k-symbol for rising and falling factorials.
+
+
+Build #1540 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In A[A][A]
+* Fix Bug In {is}NF (Sink Of Niladic Function)
+
+Directory trunk:
+
+PARSELINE.C:
+  Fix bug in A[A][A] where the trailing indices are ignored.
+  Fix bug in A[A][A] where the curried indices are linked together in the wrong order.
+  Fix bug in syntax analysis of {is}NF where NF is a niladic function.
+
+
+Build #1539 -- Version 0.4.15.xx
+--------------------------------
+
+* Rename Certain Function Args To Better Reflect Their Purpose
+
+Directory trunk:
+
+EXECMFN.C:
+  Improve comment.
+  In <Init1MagicFunction>, compare against 0 explicitly instead of implicitly.
+
+MPFNS.C:
+  In <mpq_mod>, <mpfr_mod>, and <mpfr_mod_sub> rename the args to Operand/Modulus instead of left/right.
+
+
+Build #1538 -- Version 0.4.15.xx
+--------------------------------
+
+* Allow -1 As File Offset In []NREPLACE []NREAD To Mean Current Offset
+
+Directory trunk:
+
+QF_NFNS.C:
+  Remove test for parenthesized list as it can't occur due to the syntax analyzer.
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  In IF stmts always compare ptr against NULL and value against 0.
+  In []NREPLACE and []NREAD allow a file offset of -1 to mean the current offset.
+  In <SysFnCreateTie_EM_YY>, in the call to <CreateFileW> ensure the normal attribute flag is set.
+
+
+Build #1537 -- Version 0.4.15.xx
+--------------------------------
+
+* Copy More SysVars For Use Within AFOs Often Indirectly
+
+Directory trunk:
+
+SYSVARS.C:
+  In IF stmts always compare ptr against NULL and value against 0.
+  In <CopySysVars> and <DeleSysVars> copy more sys vars so they may be referenced from AFOs, often indirectly.
+
+
+Build #1536 -- Version 0.4.15.xx
+--------------------------------
+
+* Use 32-/64-bit Size For Certain Functions
+
+Directory trunk:
+
+RESDEBUG.C:
+  Use <size_t> as 32-/64-bit size unit for certain functions.
+
+SYMTAB.C:
+  Improve comments.
+  Use <size_t> as 32-/64-bit size unit for certain functions.
+  In IF stmts always compare ptr against NULL and value against 0.
+
+
+Build #1535 -- Version 0.4.15.xx
+--------------------------------
+
+* Display Workspace Version Numbers If There Is A Mismatch On )LOAD/)COPY
+
+Directory trunk:
+
+SC_COPY.C:
+SC_LOAD.C:
+  Display the workspace version numbers if there is a mismatch on )LOAD/)COPY.
+
+
+Build #1534 -- Version 0.4.15.xx
+--------------------------------
+
+* Display {cr} And {lf} In Workspace Plaintext Instead Of The Hex Equivalent
+
+Directory trunk:
+
+SYMBOLNAMES.H:
+  Define {cr} and {lf} as names for \r and \n.
+
+
+Build #1533 -- Version 0.4.15.xx
+--------------------------------
+
+* Implement Command Line Args For Symbol & Hash Table Sizes
+
+Directory trunk:
+
+DEFINES.H:
+  Define alias for another string comparison function.
+
+EXTERNS.H:
+  Define extern vars for command line keyword values.
+
+MAIN.C:
+  Change the NOT LOADED message for the Crash Report DLL to be more visible.
+  Implement test for command line args.
+
+MAIN.RC:
+  Make room in the About dialog for the Symbol and Hash Table sizes.
+
+SESSMAN.C:
+  When allocating Symbol and Hash Tables, use the calculated values from the command line.
+
+SYMTAB.H:
+  Define Symbol and Hash Table multipliers for later use.
+
+VER.C:
+  Use the word "Version" when describing the version #.
+  Display the Symbol and Hash Tables sizes in the About box.
+
+
+Build #1532 -- Version 0.4.15.xx
+--------------------------------
+
+* Miscellaneous Changes
+
+Directory trunk:
+
+APLERRORS.H:
+  Fix typo in FILE ACCESS ERROR message.
+
+PF_UTACK.C:
+  Reword comment to be consistent with same comment elsewhere.
+
+PRIMSPEC.C:
+  Avoid printing Initiating/Restarting Exception error message.
+  Reword comment to be consistent with same comment elsewhere.
+
+
+Build #1531 -- Version 0.4.15.xx
+--------------------------------
+
+* Mention GCD/LCM in Language bar Tooltip
+
+Directory trunk:
+
+REBAR.C:
+  Mention GCD and LCM in the Language Bar tooltip.
+
+
+Build #1530 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bugs In GCD & LCM On VFP & RAT Numbers
+
+Directory trunk:
+
+PF_DCARET.C:
+  Fix memory leak in GCD/LCM RAT.
+  Fix bug in GCD/LCM VFP where the loop termination needs to be based on smaller than a small positive number rather than equal to zero.
+  Fix memory leak in GCD/LCM VFP.
+
+
+Build #1529 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In N f/ When Promoting Floating Point Numbers
+
+Directory trunk:
+
+PO_SLASH.C:
+  In IF stmts always compare ptr against NULL.
+  Fix bug in <PrimOpMonSlashCommon_EM_YY> and <PrimOpDydSlashCommon_EM_YY> when calling <aTypeActPromote> to use the correct datatype.
+
+
+Build #1528 -- Version 0.4.15.xx
+--------------------------------
+
+* Ensure All Calls To MessageBox Use The Main Function's Window handle
+
+Directory trunk:
+
+CS_PARSE.Y:
+EDITFCN.C:
+ERRMSG.C:
+EXECMFN.C:
+FH_PARSE.Y:
+SAVEFCN.C:
+  Ensure that all calls to MessageBox[W] use hWndMF so as to avoid a lock up when the Message Box is displayed.
+
+
+Build #1527 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bugs In <ParseLine> On Error
+* Fix Bug In f/ When Promoting Floating Point Numbers
+* Fix Bug In )RESET Not Being Passed Up The Line
+
+Directory trunk:
+
+EXECDFN.C:
+  Handle )RESET in <ExecuteFunction_EM_YY> which causes it not to be passed up the line.
+
+PARSELINE.C:
+  Fix bug in <ParseLine> to check for SYNTAX & VALUE ERRORs before EOS/EOS so as to signal those errors first.
+  Fix bug in <ParseLine> after executing []ELX to display the result instead of passing on the result to an AFO.
+
+PO_SLASH.C:
+  Delete spurious call to <aTypeActPromote>.
+  Remove suprious DEBUG stmt.
+  Fix bug in <PrimOpMonSlashCommon_EM_YY> when calling <aTypeActPromote> to use the correct datatype (ARRAY_FLOAT).
+  Delete unused <aplTypeTmp>.
+
+RESDEBUG.C:
+  Remove #define to debug the heap to save some time when running in DEBUG mode.
+
+
+Build #1526 -- Version 0.4.15.xx
+--------------------------------
+
+* Rename Bitmaps To Be More Consistent
+
+Directory trunk:
+
+COMMON.C:
+CUSTOMIZE.C:
+  Rename <hBitMap> to <hBitmap> to be more consistent with other uses.
+
+EDITFCN.C:
+  In IF stmts always compare ptr against NULL.
+  Rename <hBitMap> to <hBitmap> to be more consistent with other uses.
+
+EXTERNS.H:
+  Rename <hBitMap> to <hBitmap> to be more consistent with other uses.
+
+MAIN.C:
+  In IF stmts always compare ptr against NULL.
+  Rename <hBitMap> to <hBitmap> to be more consistent with other uses.
+
+TOKENIZE.C:
+  More diamond aliases fixes.
+
+
+Build #1525 -- Version 0.4.15.xx
+--------------------------------
+
+* Define Additional Diamond Aliases
+
+Directory trunk:
+
+MACROS.H:
+  Expand the macro to detect a diamond and its various aliases.
+
+SYMBOLNAMES.H:
+  Include the new diamond aliases in <aSymbolNames>.
+
+UNICODE.H:
+  Include the new diamond aliases as Unicode code points.
+
+UNITRANSTAB.H:
+  Include the new diamond aliases in <uniTransTab>.
+
+
+Build #1524 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Base Point Notation
+
+Directory trunk:
+
+PN_PARSE.Y:
+  Fix bug in Base Point Notation (BPN) where with multiple BPN instances in a strand later instances overflow because a counter isn't reset.
+
+
+Build #1523 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Rank Operator With Nested Result
+
+Directory trunk:
+
+PO_DIJOT.C:
+  Fix bug in <PrimOpDieresisJotCommon_EM_YY> with a nested result.
+
+
+Build #1522 -- Version 0.4.15.xx
+--------------------------------
+
+* Insert Blank Column On Left Of Empty Array Output Of Monadic []FMT
+
+Directory trunk:
+
+MF_QUADFMT.H:
+  In <#MonFMT>, insert a blank column on the left of an empty array display inside the outer box
+    so as to avoid the dimension eliding with the value.
+  Re-organize the lines so as to be more readable.
+
+
+Build #1521 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug When Passing A System Function To An Operator
+
+Directory trunk:
+
+EXECDFN.C:
+  In <UnlocalizeSTEs>, don't free a system function (duh!).
+
+
+Build #1520 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Transpose With Eight Or More Axes.
+
+Directory trunk:
+
+AXISFNS.C:
+  Include "Hdr" in name of result of <MyGlobalLock>.
+  Fix bug which fails to catch character or nested array arguments.
+  Fix bug in Transpose with eight or more axes because of a bug in <CheckAxisGlb> where
+    a ptr is not pointing to the first element but is used as if it were thus signaling
+    an error when it shouldn't.
+
+
+Build #1519 -- Version 0.4.15.xx
+--------------------------------
+
+* Implement )FOPS and Its Alias )FOP, Part 2
+
+Directory trunk:
+
+ENUMS.H:
+  Implement )FOPS and its alias )FOP to display both functions and operators.
+
+
+Build #1518 -- Version 0.4.15.xx
+--------------------------------
+
+* Implement )FOPS and Its Alias )FOP
+
+Directory trunk:
+
+SC_FNOV.C:
+SYSCMDS.C:
+  Implement )FOPS and its alias )FOP to display both functions and operators.
+
+
+Build #1510 -- Version 0.4.15.xx
+--------------------------------
+
+* Allow More SysVars To Be Used With Variant Operator In Long Form Notation
+
+Directory trunk:
+
+EXTERNS.H:
+PO_VARIANT.C:
+SYSVARS.C:
+  Allow more SysVars to be used with the variant operator in the long form notation, e.g. ('FPC' 60).
+
+
+Build #1509 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Ctrl-Break Display And Subsequent )RESET
+
+Directory trunk:
+
+ERRMSG.C:
+  In IF stmts always compare ptr against NULL.
+  In <BreakMessage>, omit leading ellipsis from text.
+  Change one-bit struc names to have a leading 'b'.
+  In <ErrorMessageDirect>, allow line text ptr to be NULL to indicate do not create []DM and []EM.
+
+EXCEPT.C:
+PRIMFNS.C:
+SC_SI.C:
+SIS.H:
+  Change one-bit struc names to have a leading 'b'.
+
+EXECDFN.C:
+  In <ExecDfnGlb_EM_YY>, change Assert stmt to allow axes ptr to be the same.
+  Change one-bit struc names to have a leading 'b'.
+  In <ExecuteFunction_EM_YY>, display function name/line # on []STOP only.
+  In <ExecuteFunction_EM_YY> with RESETFLAG_ALL, return NULL not NoValue.
+
+GOTO.C:
+  In <GotoLine_EM>, set var in case the value is immediate.
+  Change one-bit struc names to have a leading 'b'.
+
+PARSELINE.C:
+  Change one-bit struc names to have a leading 'b'.
+  In <ParseLine>, note whether or not <BreakMessage> has been called so we don't overwrite []DM/[]EM.
+
+SESSMAN.C:
+  In IF stmts always compare ptr against NULL.
+  Change one-bit struc names to have a leading 'b'.
+
+
+Build #1508 -- Version 0.4.15.xx
+--------------------------------
+
+* Disallow SysVars As Named Var In :FOR ... :IN Stmts
+
+Directory trunk:
+
+ERRMSG.C:
+  In <ErrorMessageSetCharIndex>, if not inside <ParseLine>, save error message char index in <lpMemPTD>.
+  Define new function <ErrorMessageGetCharIndex> to return error message char index.
+
+TOKENIZE.C:
+  In IF stmts always compare ptr against NULL.
+  In <fnCtrlDone>, disallow system vars as named var in :FOR ... :IN stmts.
+  In <fnPointDone>, fix scoping bug.
+
+
+Build #1507 -- Version 0.4.15.xx
+--------------------------------
+
+* Restore Values To PTD Cached Copy Of []FEATURE Upon Unlocalization
+
+Directory trunk:
+
+EXECDFN.C:
+  In <UnlocalizeSTEs>, if the var being unlocalized is []FEATURE, restore the old values to the cached copy in the PTD.
+
+PERTAB.H:
+STARTADDR.H:
+SYSVARS.C:
+  Define new function <SetCurrentFeatureFromSysVar> to restore PTD cached copy values of []FEATURE from SysVar values.
+  Define common subroutine to restore PTD cached copy values of []FEATURE from a global memory handle.
+  Rename <SetCurrentFeatureCWS> to <SetCurrentFeatureFromCWS> and call the above subroutine to finish the job.
+
+
+Build #1506 -- Version 0.4.15.xx
+--------------------------------
+
+* More Fixes For Reduction/Scan With Demotion Of Temporary Float
+
+Directory trunk:
+
+PO_SLASH.C:
+PO_SLOPE.C:
+  Fix bug in dyadic reduction/scan where a temporary float result is demoted to integer
+    but stored as if it were a float.
+
+
+Build #1505 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In 2 +/0 1.5 2.5 Same As In Scan With Demotion Of Temporary Float
+
+Directory trunk:
+
+PO_SLASH.C:
+  Fix bug in <PrimOpDydSlashCommon_EM_YY> where a temporary float result is demoted to integer
+    but stored as if it were a float.
+
+
+Build #1504 -- Version 0.4.15.xx
+--------------------------------
+
+* Change Operand For Pochhammer Symbol To Specify Number Of Steps
+
+Directory trunk:
+
+MF_VARIANT.H:
+  Change the second element of the right operand to the Variant operator on Shreik to specify the number of steps.
+
+
+Build #1503 -- Version 0.4.15.xx
+--------------------------------
+
+* Implement Pochhammer Symbol Through Variant Operator
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define name of magic function for Pochhammer symbol.
+
+MF_VARIANT.H:
+  Define magic function in APL for Pochhammer symbol.
+
+PO_VARIANT.C:
+  Allow Variant operator to implement Pochhammer symbol.
+
+
+Build #1502 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In Pick Where Either Argument Is Global Numeric
+
+Directory trunk:
+
+PF_RSHOE.C:
+  Fix bug in <PrimFnDydRightShoeGlbGlb_EM_YY> where either arg is global numeric.
+
+
+Build #1501 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In UDFO Call With Axis Token Not From Function Strand
+
+Directory trunk:
+
+EXECDFN.C:
+  Fix bug in <ExecDfnGlb_EM_YY> in the case where a call is made passing in an axis token not from the function strand.
+
+
+Build #1500 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In +\1.5 2.5 Where A Temporary Float Result Is Demoted To Integer
+
+Directory trunk:
+
+PO_SLOPE.C:
+  Fix bug in <PrimOpMonSlopeCommon_EM_YY> where a temporary float result is demoted to integer
+    but stored as if it were a float.
+
+
+Build #1499 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Bug In SimpleScalar vs. Nested Array Using A Primitive Scalar Dyadic Function
+
+Directory trunk:
+
+PRIMSPEC.C:
+  Improve comments.
+  Fix bug in <PrimFnDydSiScNest_EM> where it calls the wrong function when recursing down the depths of a nested array.
+
+
+Build #1498 -- Version 0.4.15.xx
+--------------------------------
+
+* Fix Datatype Bug In Rational Exponentiation With Negative Integer Exponent
+
+Directory trunk:
+
+PF_STAR.C:
+  Fix bug in <PrimFnDydStarRisRvR> where we used unsigned rather than signed and thus didn't retain the Rational datatype for 2x*-3x.
+
+
+Build #1497 -- Version 0.4.15.xx
+--------------------------------
+
+* Handle A[;][;]{is}B More Cleanly
+
+Directory trunk:
+
+PARSELINE.C:
+PARSELINE.H:
+  Define and use new reduction routine <plRedIDX_IDX> to handle multiple indexed assignment parts.
+
+PF_INDEX.C:
+STARTADDR.H:
+  Delete unused routine <ListIndexRef_EM_YY>.
+
+
+Build #1496 -- Version 0.4.15.xx
+--------------------------------
+
+* Handle Failed )LOAD By Restoring Previous Tab Correctly
+
+Directory trunk:
+
+TABCTRL.C:
+  If a )LOAD fails for whatever reason, ensure the previous tab is restored.
+  In IF stmts always compare ptr against NULL.
+
+
+Build #1495 -- Version 0.4.15.xx
+--------------------------------
+
+* Handle /L: In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  Handle /L: in syntax analyzer.
+
+
+Build #1494 -- Version 0.4.15.xx
+--------------------------------
+
+* Handle Missing Cases With Global Numerics As Set Argument
+
+Directory trunk:
+
+PF_RSHOE.C:
+  Handle missing cases in indexed assignment with Global Numerics as set argument.
+
+
+Build #1493 -- Version 0.4.15.xx
+--------------------------------
+
+* Include Section On Alpha Versions
+* Fix Minor Formatting Bugs
+
+Directory trunk:
+VER.RC:
+  Increment version # to 0.4.15.xx.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Fix minor HTML formatting bugs found by W3C Validation.
+
+
+Directory trunk\htdocs\download:
+
+DOWNLOAD-BODY.PHP:
+DOWNLOAD-LEFT.PHP:
+  Include section on "Alpha Versions".

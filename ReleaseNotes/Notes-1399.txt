@@ -1,0 +1,18 @@
+Build #1399 -- Version 0.4.11.xx
+--------------------------------
+
+* Optionally Display MP Suffix of 'x' or 'v'
+
+Directory trunk:
+
+CUSTOMIZE.C:
+DEFINES.H:
+DISPLAY.C:
+EXTERNS.H:
+INIFILE.C:
+MAIN.RC:
+QF_FMT.C
+RESOURCE.H:
+SC_LOAD.C
+SC_SAVE.C:
+  Optionally display multi-precision numbers with a suffix of 'x' or 'v' as appropriate.

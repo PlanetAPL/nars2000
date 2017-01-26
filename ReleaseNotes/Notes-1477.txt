@@ -1,0 +1,42 @@
+Build #1477 -- Version 0.4.14.xx
+--------------------------------
+
+* Fix Bug In AFO With Query Primitive Not Changing Global Value Of []RL
+
+Directory trunk:
+
+EXECDFN.C:
+  Save Localized []RL flag in State Indicator Stack.
+  Save ptr to previous HSHTABSTR in SIS.
+
+EXECMFN.H:
+  Define shorthand for []RL text.
+
+FH_PARSE.H:
+  Define Localized []RL bit in two strucs.
+
+FH_PARSE.Y:
+  In <fh_yylex>, set Localized []RL flag as appropriate.
+
+GETFNS.C:
+  Rename <QuadRL> to <uQuadRL> to reflect its datatype.
+  In <RestPrimSpecRL>, if the value to save is new, pass it on up the line to more
+    global HSHTABSTRs for which []RL is not localized in case we're in an AFO.
+
+PF_QUERY.C:
+PRIMSPEC.H:
+  Rename <QuadRL> to <uQuadRL> to reflect its datatype.
+
+SAVEFCN.C:
+  In <SaveFunctionCom>, pass Localized []RL flag from <fh_parse> to the UDFO header.
+  In <SaveFunctionCom>, if we're in an AFO, pass the Localize []RL flag to the UDFO header.
+
+SAVEFCN.H:
+  In <tagSF_FCNS> struc, define a Localized []RL flag.
+
+SIS.H:
+  In <tagSIS_HEADER>, define a Lcalized []RL flag.
+  In <tagSIS_HEADER>, define a ptr to the previous HSHTABSTR.
+
+TOKENIZE.C:
+  In <fnAsnDone>, if the []var being assigned to is []RL, set a Localized []RL flag in <tagSF_FCNS> struc.

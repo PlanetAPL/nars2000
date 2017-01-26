@@ -1,0 +1,18 @@
+Build #1300 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug When An AFO Passes A Special STE In A Global Or A Result
+
+Directory trunk:
+
+GETFNS.C:
+IDENTFNS.C:
+PERTAB.H:
+PF_UARROW.C:
+PO_SLASH.C:
+PRIMFNS.C:
+SESSMAN.C:
+SYMTAB.C:
+  When referencing special STEs (i.e., Zero, One, Blank), always use the global symentry
+    in case an AFO passes one such value outside the AFO.  If we use the local STE, the
+    matching HTS is gone after the AFO terminates.

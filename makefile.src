@@ -4,7 +4,7 @@
 #
 #/***************************************************************************
 #    NARS2000 -- An Experimental APL Interpreter
-#    Copyright (C) 2006-2014 Sudley Place Software
+#    Copyright (C) 2006-2016 Sudley Place Software
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
 SRC_PARSE=              \
 $(O)cs_parse.???        \
 $(O)fh_parse.???        \
-$(O)pl_parse.???        \
 $(O)pn_parse.???
 
 SRC=                    \
@@ -40,6 +39,7 @@ $(O)bjhash.???          \
 $(O)common.???          \
 $(O)convert.???         \
 $(O)crash.???           \
+$(O)cr_proc.???         \
 $(O)cs_proc.???         \
 $(O)customize.???       \
 $(O)debug.???           \
@@ -49,8 +49,6 @@ $(O)display.???         \
 $(O)dtoa.???            \
 $(O)editctrl.???        \
 $(O)editfcn.???         \
-$(O)editmat.???         \
-$(O)editvec.???         \
 $(O)errmsg.???          \
 $(O)except.???          \
 $(O)execdfn.???         \
@@ -77,6 +75,7 @@ $(O)malloc.???          \
 $(O)mp.???              \
 $(O)mpfns.???           \
 $(O)mpifns.???          \
+$(O)parseline.???       \
 $(O)perfmon.???         \
 $(O)pf_bar.???          \
 $(O)pf_circle.???       \
@@ -157,6 +156,7 @@ $(O)qf_a.???            \
 $(O)qf_at.???           \
 $(O)qf_av.???           \
 $(O)qf_cr.???           \
+$(O)qf_d.???            \
 $(O)qf_dl.???           \
 $(O)qf_dr.???           \
 $(O)qf_ea.???           \
@@ -173,8 +173,10 @@ $(O)qf_mf.???           \
 $(O)qf_nc.???           \
 $(O)qf_nfns.???         \
 $(O)qf_nl.???           \
+$(O)qf_strace.???       \
 $(O)qf_sysid.???        \
 $(O)qf_sysver.???       \
+$(O)qf_t.???            \
 $(O)qf_tc.???           \
 $(O)qf_tf.???           \
 $(O)qf_ts.???           \

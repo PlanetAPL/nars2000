@@ -1,0 +1,18 @@
+Build #1306 -- Version 0.4.9.xx
+-------------------------------
+
+* Replace A Function With Its Expanded Equivalent
+
+Directory trunk:
+
+FREE.C:
+STARTADDR.H:
+  Delete <FreeYYFcn1> as it is not longer used.
+
+PARSELINE.C:
+  Replace <FreeYYFcn1> in favor of the expanded version so we can more easily see what's happening.
+  In most calls to <PushFcnStrand_YY>, use <IsFcnStrDirect> instead of a constant.
+  In <ParseLine> when setting <rht2SynObj>, avoid Asserting as sometimes it's invalid.
+
+PL_PROC.C:
+  Replace <FreeYYFcn1> in favor of the expanded version so we can more easily see what's happening.

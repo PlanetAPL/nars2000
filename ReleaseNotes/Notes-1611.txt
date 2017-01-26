@@ -1,0 +1,23 @@
+Build #1611 -- Version 0.4.19.xx
+--------------------------------
+
+* Fix Bugs In Dyadic Epsilon And Iota Code
+
+Directory trunk:
+
+CONVERT.C:
+  Fix typo in comment.
+
+PF_EPSILON.C:
+  Merge dyadic epsilon code with the code from NewTypes to use TPA_ routines
+    which greatly simplifies and reduces the code volume.
+
+PF_IOTA.C:
+  Merge dyadic iota code with the code from NewTypes to use TPA_ routines
+    which greatly simplifies and reduces the code volume.
+
+PRIMFNS.C:
+  Append comment to MyGlobalLockXXX lines to indicate that the suffix is not needed.
+
+TYPEMOTE.C:
+  Fix bugs in TPA_xxx routines to handle the case where the input and output args overlap.

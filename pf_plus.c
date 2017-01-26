@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2012 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -127,11 +127,11 @@ APLSTYPE PrimSpecPlusStorageTypeMon
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
-    if (IsSimpleChar (*lpaplTypeRht)
-     || *lpaplTypeRht EQ ARRAY_LIST)
+    // Weed out chars & heteros
+    if (IsSimpleCH (*lpaplTypeRht))
         return ARRAY_ERROR;
 
     // The storage type of the result is
@@ -289,12 +289,12 @@ APLSTYPE PrimSpecPlusStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // Calculate the storage type of the result
@@ -327,8 +327,8 @@ APLINT PrimFnDydPlusIisIvI
      LPPRIMSPEC lpPrimSpec)
 
 {
-    // Add the two integers and signal overflow exception in <iadd64>
-    return iadd64 (aplIntegerLft, aplIntegerRht);
+    // Add the two integers and signal overflow exception in <iadd64_RE>
+    return iadd64_RE (aplIntegerLft, aplIntegerRht);
 } // End PrimFnDydPlusIisIvI
 
 
@@ -361,16 +361,88 @@ APLFLOAT PrimFnDydPlusFisFvF
      LPPRIMSPEC lpPrimSpec)
 
 {
+    // Check for indeterminates:  _ + -_  or  -_ + _
+
     // If the args are both infinite and of opposite signs, ...
-    if (IsInfinity (aplFloatLft)
-     && IsInfinity (aplFloatRht)
+    if (IsFltInfinity (aplFloatLft)
+     && IsFltInfinity (aplFloatRht)
      && SIGN_APLFLOAT (aplFloatLft) NE SIGN_APLFLOAT (aplFloatRht))
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_InfSUBInf,
-                                     aplFloatRht);
-
+                                     aplFloatRht,
+                                     FALSE);
     return (aplFloatLft + aplFloatRht);
 } // End PrimFnDydPlusFisFvF
+
+
+//***************************************************************************
+//  $PrimFnDydPlusRisRvR
+//
+//  Primitive scalar function dyadic Plus:  R {is} R fn R
+//***************************************************************************
+
+APLRAT PrimFnDydPlusRisRvR
+    (APLRAT     aplRatLft,
+     APLRAT     aplRatRht,
+     LPPRIMSPEC lpPrimSpec)
+
+{
+    APLRAT mpqRes = {0};
+
+    // Check for indeterminates:  _ + -_  or  -_ + _
+
+    // If the args are both infinite and of opposite signs, ...
+    if (mpq_inf_p (&aplRatLft)
+     && mpq_inf_p (&aplRatRht)
+     && mpq_sgn (&aplRatLft) NE mpq_sgn (&aplRatRht))
+        return *mpq_QuadICValue (&aplRatRht,        // No left arg
+                                  ICNDX_InfSUBInf,
+                                 &aplRatRht,
+                                 &mpqRes,
+                                  FALSE);
+    // Initialize the result to 0/1
+    mpq_init (&mpqRes);
+
+    // Add the two Rationals
+    mpq_add (&mpqRes, &aplRatLft, &aplRatRht);
+
+    return mpqRes;
+} // End PrimFnDydPlusRisRvR
+
+
+//***************************************************************************
+//  $PrimFnDydPlusVisVvV
+//
+//  Primitive scalar function dyadic Plus:  V {is} V fn V
+//***************************************************************************
+
+APLVFP PrimFnDydPlusVisVvV
+    (APLVFP     aplVfpLft,
+     APLVFP     aplVfpRht,
+     LPPRIMSPEC lpPrimSpec)
+
+{
+    APLVFP mpfRes = {0};
+
+    // Check for indeterminates:  _ + -_  or  -_ + _
+
+    // If the args are both infinite and of opposite signs, ...
+    if (mpfr_inf_p (&aplVfpLft)
+     && mpfr_inf_p (&aplVfpRht)
+     && mpfr_sgn (&aplVfpLft) NE mpfr_sgn (&aplVfpRht))
+        return *mpfr_QuadICValue (&aplVfpRht,       // No left arg
+                                   ICNDX_InfSUBInf,
+                                  &aplVfpRht,
+                                  &mpfRes,
+                                   FALSE);
+    // Initialize the result to NaN
+    mpfr_init (&mpfRes);
+
+    // Add the VFPs
+    mpfr_add (&mpfRes, &aplVfpLft, &aplVfpRht, MPFR_RNDN);
+
+    return mpfRes;
+} // End PrimFnDydPlusVisVvV
 
 
 //***************************************************************************
@@ -443,10 +515,10 @@ UBOOL PrimFnDydPlusAPA_EM
         goto ERROR_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (*lphGlbRes);
+    lpMemRes = MyGlobalLockVar (*lphGlbRes);
 
     // Skip over the header and dimensions to the data
-    lpMemRes = VarArrayBaseToData (lpMemRes, aplRankRes);
+    lpMemRes = VarArrayDataFmBase (lpMemRes);
 
 #define lpAPA       ((LPAPLAPA) lpMemRes)
 
@@ -475,50 +547,6 @@ ERROR_EXIT:
     return bRet;
 } // End PrimFnDydPlusAPA_EM
 #undef  APPEND_NAME
-
-
-//***************************************************************************
-//  $PrimFnDydPlusRisRvR
-//
-//  Primitive scalar function dyadic Plus:  R {is} R fn R
-//***************************************************************************
-
-APLRAT PrimFnDydPlusRisRvR
-    (APLRAT     aplRatLft,
-     APLRAT     aplRatRht,
-     LPPRIMSPEC lpPrimSpec)
-
-{
-    APLRAT mpqRes = {0};
-
-    // Add the two Rationals
-    mpq_init (&mpqRes);
-    mpq_add (&mpqRes, &aplRatLft, &aplRatRht);
-
-    return mpqRes;
-} // End PrimFnDydPlusRisRvR
-
-
-//***************************************************************************
-//  $PrimFnDydPlusVisVvV
-//
-//  Primitive scalar function dyadic Plus:  V {is} V fn V
-//***************************************************************************
-
-APLVFP PrimFnDydPlusVisVvV
-    (APLVFP     aplVfpLft,
-     APLVFP     aplVfpRht,
-     LPPRIMSPEC lpPrimSpec)
-
-{
-    APLVFP mpfRes = {0};
-
-    // Add the two Variable FPs
-    mpfr_init0 (&mpfRes);
-    mpfr_add (&mpfRes, &aplVfpLft, &aplVfpRht, MPFR_RNDN);
-
-    return mpfRes;
-} // End PrimFnDydPlusVisVvV
 
 
 //***************************************************************************

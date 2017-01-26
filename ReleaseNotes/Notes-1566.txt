@@ -1,0 +1,9 @@
+Build #1566 -- Version 0.4.18.xx
+--------------------------------
+
+* []EX Now Returns A Shy Result
+
+Directory trunk:
+
+QF_EX.C:
+  []EX now returns a shy result.

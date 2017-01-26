@@ -1,0 +1,24 @@
+Build #1411 -- Version 0.4.11.xx
+--------------------------------
+
+* Use Actual Function Name For AFOs In []STOP And []TRACE
+
+Directory trunk:
+
+EXECDFN.C:
+  Pass function token to <ParseLine> in order to get AFO function name for []TRACE & []STOP display purposes.
+  In <ExecuteFunction_EM_YY>, if AFO, use actual function name, instead of {del} for []TRACE & []STOP display purposes.
+  In <TraceExit>, pass ptr to function token in order to get AFO function name for []TRACE & []STOP display purposes.
+
+EXECMFN.C:
+IMMEXEC.C:
+PF_UTACKJOT.C:
+  Pass function token to <ParseLine> in order to get AFO function name for []TRACE & []STOP display purposes.
+
+PARSELINE.C:
+  Pass function token to <ParseLine> in order to get AFO function name for []TRACE & []STOP display purposes.
+  In <TraceLine>, pass ptr to function token in order to get AFO function name for []TRACE & []STOP display purposes.
+
+QF_STRACE.C:
+  In <TraceLine> and <TraceExit>, pass ptr to function token in order to get AFO function name for []TRACE & []STOP display purposes.
+  In <TraceLine> and <TraceExit>, if AFO, use actual function name, instead of {del} for []TRACE & []STOP display purposes.

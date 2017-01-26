@@ -1,0 +1,13 @@
+Build #1332 -- Version 0.4.9.xx
+-------------------------------
+
+* Use Correct Struc Member When Saving UTF16_xxx Characters
+
+Directory trunk:
+
+IDENTFNS.C:
+PF_CSLOPE.C:
+PF_SQUAD.C:
+PF_UARROW.C:
+PO_VARIANT.C:
+  Use the correct struc member when saving UTF16_xxx characters

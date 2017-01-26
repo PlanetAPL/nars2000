@@ -1,0 +1,9 @@
+Build #1459 -- Version 0.4.13.xx
+--------------------------------
+
+* Demote More Immediate Vars
+
+Directory trunk:
+
+TYPEMOTE.C:
+  In <TypeDemote> for immediate vars, demote Boolean-valued to Boolean and INT-like FLTs to INTs.

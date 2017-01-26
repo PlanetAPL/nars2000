@@ -1,0 +1,9 @@
+Build #1285 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Memory Leak As In (a b c){is]...
+
+Directory trunk:
+
+ASSIGN.C:
+  Fix memory leak when assigning to a list of named vars.

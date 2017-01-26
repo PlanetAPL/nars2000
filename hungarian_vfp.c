@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ LPROWCOL kuhn_start_vfp (LPAPLVFP oldTable, long n, long m, UBOOL bMaxFcn)
         // If this is MaxFcn, ...
         if (bMaxFcn)
             // Negate to do MaxFcn
-            mpfr_neg0 (&table[i], &table[i], MPFR_RNDN);
+            mpfr_neg (&table[i], &table[i], MPFR_RNDN);
     } // End FOR
 
     resLong = kuhn_match_vfp (table, n, m);

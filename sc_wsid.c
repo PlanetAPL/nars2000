@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ UBOOL CmdWsid_EM
     lpMemPTD = GetMemPTD ();
 
     // Lock the memory to get a ptr to it
-    lpMemWSID = MyGlobalLock (lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_WSID]->stData.stGlbData);
+    lpMemWSID = MyGlobalLockVar (lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_WSID]->stData.stGlbData);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemWSID)
     // Get the NELM and Rank
@@ -92,11 +92,11 @@ UBOOL CmdWsid_EM
 
         // Allocate space for the WSID
         hGlbWSID = DbgGlobalAlloc (GHND, (APLU3264) ByteWSID);
-        if (!hGlbWSID)
+        if (hGlbWSID EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemWSID = MyGlobalLock (hGlbWSID);
+        lpMemWSID = MyGlobalLock000 (hGlbWSID);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemWSID)
         // Fill in the header
@@ -113,7 +113,7 @@ UBOOL CmdWsid_EM
         *VarArrayBaseToDim (lpMemWSID) = uLen;
 
         // Skip over the header and dimensions to the data
-        lpMemWSID = VarArrayBaseToData (lpMemWSID, 1);
+        lpMemWSID = VarArrayDataFmBase (lpMemWSID);
 
         // Copy data to the []WSID
         CopyMemoryW (lpMemWSID, wszTailDPFE, uLen);
@@ -122,10 +122,10 @@ UBOOL CmdWsid_EM
         MyGlobalUnlock (hGlbWSID); lpMemWSID = NULL;
 
         // Lock the memory to get a ptr to it
-        lpMemWSID = MyGlobalLock (lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_WSID]->stData.stGlbData);
+        lpMemWSID = MyGlobalLockVar (lpMemPTD->lphtsPTD->lpSymQuad[SYSVAR_WSID]->stData.stGlbData);
 
         // Skip over the header and dimensions to the data
-        lpMemWSID = VarArrayBaseToData (lpMemWSID, aplRankWSID);
+        lpMemWSID = VarArrayDataFmBase (lpMemWSID);
 
         // Display the old WSID
         AppendLine (L"WAS ", FALSE, FALSE);
@@ -161,7 +161,7 @@ UBOOL CmdWsid_EM
         else
         {
             // Skip over the header and dimensions to the data
-            lpMemWSID = VarArrayBaseToData (lpMemWSID, aplRankWSID);
+            lpMemWSID = VarArrayDataFmBase (lpMemWSID);
 
             // Because the global memory has a zero terminator,
             //   we don't need to copy the data to a temporary location and then

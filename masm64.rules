@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="MASM64"
 			DisplayName="Microsoft Macro Assembler - AMD64"
-			CommandLine="$(MSVC)bin\amd64\ml64.exe /c [AllOptions] [AdditionalOptions] /Ta[inputs]"
+			CommandLine="$(MSVC)bin\x86_amd64\ml64.exe /c [AllOptions] [AdditionalOptions] /Ta[inputs]"
 			Outputs="[$ObjectFileName]"
 			FileExtensions="*.asm"
 			ExecutionDescription="Assembling..."

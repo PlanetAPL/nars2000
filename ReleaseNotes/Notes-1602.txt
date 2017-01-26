@@ -1,0 +1,12 @@
+Build #1602 -- Version 0.4.18.xx
+--------------------------------
+
+* Fix Bug Not Recognizing System Labels As Goto Targets
+
+Directory trunk:
+
+EXECDFN.C:
+  In <LocalizeLabels>. set the <DfnSysLabel> flag if a System Label.
+
+SAVEFCN.C:
+  In <GetLabelNums>, if it's a System Label, fill in the appropriate entry in the list of line labels.

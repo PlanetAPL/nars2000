@@ -1,0 +1,162 @@
+Version 0.4.7.xx consists of the following Builds:
+
+
+Build #1239 -- Version 0.4.7.xx
+-------------------------------
+
+* Fix Bug In Bracket Indexing
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexRef_EM_YY>, allow items of the list arg to be scalars as well as vectors.
+    This allows bracket indexing to be more like {pick}{each]{enclose}.
+
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Use a more specific target as the link for "Extra APL Glyphs".
+
+
+Build #1238 -- Version 0.4.7.xx
+-------------------------------
+
+* Force Decimal Point In Numeric Constant To Return Float
+
+Directory trunk:
+
+PN_PARSE.Y:
+  In the grammar, force a decimal point in a numeric constant to return a float.
+
+
+Build #1237 -- Version 0.4.7.xx
+-------------------------------
+
+* Handle Infinity In Another MPZ Function
+
+Directory trunk:
+
+MPIFNS.C:
+MPIFNS.H:
+  Define another substitute <mpz_> function to handle infinities.
+
+
+Build #1236 -- Version 0.4.7.xx
+-------------------------------
+
+* Miscellaneous Bug Fixes
+
+Directory trunk:
+
+MAKEFILE.INC:
+  For DEBUG versions, use <libcmtd.lib> instead of <libcmt.lib>.
+
+Directory trunk\htdocs:
+
+INDEX-BODY.AHTML:
+  Fix typo in Partition Operator.
+
+
+Build #1235 -- Version 0.4.7.xx
+-------------------------------
+
+* Fix Bug In Dyadic Scan On First Dimension
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Define entries for new magic function/operator.
+
+MF_DYDSCAN.H:
+  Define APL code for new magic function/operator.
+
+PO_SLOPE.C:
+  Use separate magic function/operator if no axis specified and scanning on first dimension.
+
+
+Build #1234 -- Version 0.4.7.xx
+-------------------------------
+
+* Fix Bug In DEBUG Display Of Function Header
+
+Directory trunk:
+
+DISPDBG.C:
+  In <DisplayFnHdr>, also display the axis value if present.
+
+MF_DYDSCAN.H:
+  Use correct name of the operator so it can be displayed via []VR, etc.
+  Simplify the APL code for re-arranging the axes when catenating the array of identity elements.
+
+
+Build #1233 -- Version 0.4.7.xx
+-------------------------------
+
+* Implement Dyadic Scan As Magic Function/Operator
+
+Directory trunk:
+
+EXECMFN.C:
+EXECMFN.H:
+  Update copyright year.
+  Define entries for new magic function/operator.
+
+MF_DYDSCAN.H:
+  Define new file for magic function/operator code.
+
+PO_SLOPE.C:
+  Update copyright year.
+  Implement dyadic scan as magic function/operator.
+
+
+Build #1232 -- Version 0.4.7.xx
+-------------------------------
+
+* Fix Bug When Syntax Coloring
+
+Directory trunk:
+
+TOKENIZE.C:
+  In <scCtrlDone>, if we have selected the tail of a line that ends with a
+    control structure, we might overwrite the next memory block and crash.
+
+
+Build #1231 -- Version 0.4.7.xx
+-------------------------------
+
+* Implement []D  As Shorthand for '0123456789'
+
+Directory trunk:
+
+COMPRO.H:
+  Include new prototype file.
+
+DATATYPE.H:
+  Update copyright year.
+  Define PERMNDX_xxx for new permanent array.
+
+EXTERNS.H:
+  Update copyright year.
+  Define global memory handle for new permanent array.
+
+MAKEFILE.INC:
+MAKEFILE.SRC:
+NARS2000.32.VCPROJ:
+NARS2000.64.VCPROJ:
+  Include makefile dependency for new file.
+
+QF_D.C:
+  Create new source file for []D.
+
+QF_EC.C:
+  Miscellaneous define to avoid duplicate constants.
+
+SYSVARS.C:
+  Update copyright year.
+  Include table entry for []D in <aSystemNames>.
+  Create the global memory for []D.
+
+VER.RC:
+  Increment version # to 0.4.7.xx.

@@ -1,0 +1,9 @@
+Build #1495 -- Version 0.4.15.xx
+--------------------------------
+
+* Handle /L: In Syntax Analyzer
+
+Directory trunk:
+
+PARSELINE.C:
+  Handle /L: in syntax analyzer.

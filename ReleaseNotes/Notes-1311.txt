@@ -1,0 +1,20 @@
+Build #1311 -- Version 0.4.9.xx
+-------------------------------
+
+* Improve Comments
+
+Directory trunk:
+
+COMMON.C:
+GETFNS.C:
+IDENTFNS.C:
+SYMTAB.C:
+TOKENIZE.C:
+  Improve comments.
+
+EXTERNS.H:
+  Include the index name in the comments for the list of default values for []IC.
+
+HEADERS.H:
+  Improve comments.
+  Surround arg to <mpfr_init0> with parens in case it is complicated.

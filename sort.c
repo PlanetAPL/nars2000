@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -151,8 +151,8 @@ int CmpLPSYMENTRY
     int       iCmp;         // Comparison result
 
     // Lock the memory to get a ptr to it
-    lpMemLft = MyGlobalLock (lpSymLft->stHshEntry->htGlbName);
-    lpMemRht = MyGlobalLock (lpSymRht->stHshEntry->htGlbName);
+    lpMemLft = MyGlobalLockWsz (lpSymLft->stHshEntry->htGlbName);
+    lpMemRht = MyGlobalLockWsz (lpSymRht->stHshEntry->htGlbName);
 
     // Compare the two names
     iCmp = aplcmp (lpMemLft, lpMemRht);
@@ -184,8 +184,8 @@ int CmpLPLBLENTRY
     int       iCmp;         // Comparison result
 
     // Lock the memory to get a ptr to it
-    lpMemLft = MyGlobalLock (lpLblLft->lpSymEntry->stHshEntry->htGlbName);
-    lpMemRht = MyGlobalLock (lpLblRht->lpSymEntry->stHshEntry->htGlbName);
+    lpMemLft = MyGlobalLockWsz (lpLblLft->lpSymEntry->stHshEntry->htGlbName);
+    lpMemRht = MyGlobalLockWsz (lpLblRht->lpSymEntry->stHshEntry->htGlbName);
 
     // Compare the two names
     iCmp = aplcmp (lpMemLft, lpMemRht);

@@ -1,0 +1,10 @@
+Build #1485 -- Version 0.4.14.xx
+--------------------------------
+
+* Ensure []FEATURE Has A Minimum Length
+
+Directory trunk:
+
+SYSVARS.C:
+  In <ValidateCharVector_EM>, test for <CHECK_TEMP_OPEN> and related macros only if the []VAR is []WSID.
+  In <ValidSetFEATURE_EM>, check for minimum length to copy from incoming variable to <aplCurrentFEATURE>.

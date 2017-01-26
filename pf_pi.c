@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -223,7 +223,7 @@ LPPL_YYSTYPE PrimFnMonPi_EM_YY
 
         case ARRAY_RAT:
             // Lock the memory to get a ptr to it
-            lpMemRht = MyGlobalLock (hGlbRht);
+            lpMemRht = MyGlobalLockVar (hGlbRht);
 
             // Skip over the header and dimensions to the data
             lpMemRht = VarArrayDataFmBase (lpMemRht);
@@ -247,7 +247,7 @@ LPPL_YYSTYPE PrimFnMonPi_EM_YY
 
         case ARRAY_VFP:
             // Lock the memory to get a ptr to it
-            lpMemRht = MyGlobalLock (hGlbRht);
+            lpMemRht = MyGlobalLockVar (hGlbRht);
 
             // Skip over the header and dimensions to the data
             lpMemRht = VarArrayDataFmBase (lpMemRht);
@@ -288,7 +288,7 @@ LPPL_YYSTYPE PrimFnMonPi_EM_YY
     // Lock the memory to get a ptr to it
     memTmp.lpMemOrg =
     memTmp.lpMemNxt =
-      MyGlobalLock (memTmp.hGlbMem);
+      MyGlobalLock000 (memTmp.hGlbMem);
 
     // Initialize the # allocated entries
     memTmp.uMaxEntry = INIT_FACTOR_CNT;
@@ -329,11 +329,11 @@ LPPL_YYSTYPE PrimFnMonPi_EM_YY
 
     // Allocate space for the result.
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -437,7 +437,7 @@ NORMAL_EXIT:
         MyGlobalUnlock (memTmp.lpMemOrg); memTmp.lpMemOrg = memTmp.lpMemNxt = NULL;
 
         // We no longer need this storage
-        MyGlobalFree (memTmp.hGlbMem); memTmp.hGlbMem = NULL;
+        DbgGlobalFree (memTmp.hGlbMem); memTmp.hGlbMem = NULL;
     } // End IF
 
     // We no longer need this storage
@@ -639,11 +639,11 @@ RESTART_RAT:
     // Now we can allocate the storage for the result
     //***************************************************************
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -1214,6 +1214,12 @@ NORMAL_EXIT:
 //  Resize the factor memory struc if needed
 //***************************************************************************
 
+#ifdef DEBUG
+#define APPEND_NAME     L" -- ResizeFactorStruc"
+#else
+#define APPEND_NAME
+#endif
+
 UBOOL ResizeFactorStruc
     (LPMEMTMP lpMemTmp)
 
@@ -1231,13 +1237,16 @@ UBOOL ResizeFactorStruc
         // Calculate the new length
         uLen = (lpMemTmp->uMaxEntry + INIT_FACTOR_INC) * sizeof (APLMPI);
 
+        // Reallocate up the struc
+        //   moving the old data to the new location, and
+        //   freeing the old global memory
         hGlbMem =
           MyGlobalReAlloc (lpMemTmp->hGlbMem,
                            uLen,
-                           GMEM_MOVEABLE | GMEM_ZEROINIT);
+                           GHND);
         if (hGlbMem)
             // Lock the memory to get a ptr to it
-            lpMemNew = MyGlobalLock (hGlbMem);
+            lpMemNew = MyGlobalLockInt (hGlbMem);
         else
         {
             // Attempt to allocate a new struc
@@ -1246,10 +1255,10 @@ UBOOL ResizeFactorStruc
             if (hGlbMem)
             {
                 // Lock the old memory to get a ptr to it
-                lpMemTmp->lpMemOrg = MyGlobalLock (lpMemTmp->hGlbMem);
+                lpMemTmp->lpMemOrg = MyGlobalLock000 (lpMemTmp->hGlbMem);
 
                 // Lock the new memory to get a ptr to it
-                lpMemNew = MyGlobalLock (hGlbMem);
+                lpMemNew = MyGlobalLock000 (hGlbMem);
 
                 // Copy the factors in the old memory to the new memory
                 CopyMemory (lpMemNew,
@@ -1280,6 +1289,7 @@ UBOOL ResizeFactorStruc
 
     return TRUE;
 } // End ResizeFactorStruc
+#undef  APPEND_NAME
 
 
 //***************************************************************************
@@ -1479,7 +1489,7 @@ APLMPI PrimeFactor
                                                                                                         \
         swprintf (wszTemp,                                                                              \
                  countof (wszTemp),                                                                     \
-                 L"B1 = %.20g, B2 = %.20g, N = %d, Bits = %I64d, D = %d",                               \
+                 L"B1 = %.20g, B2 = %.20g, N = %d, Bits = %I64d, D = %I64d",                            \
                  dB1, dB2, N, bits, digs);                                                              \
         DbgMsgW (wszTemp);                                                                              \
     }
@@ -1487,11 +1497,11 @@ APLMPI PrimeFactor
 #define DPRINTF
 #endif
 
-#define TryECM(Method,dB1,dB2)                                                                                  \
+#define TryECM(Method,dB1,dB2,iCnt,N)                                                                           \
     ecmParams->method    = Method;                                                                              \
     mpz_set_d (ecmParams->B2, dB2);                                                                             \
                                                                                                                 \
-    dprintfWL0 (L"Trying %S", szMethods[Method]);                                                               \
+    dprintfWL0 (L"Trying %S %u of %u", szMethods[Method], iCnt, N);                                             \
     DPRINTF (dB1, dB2, N);                                                                                      \
                                                                                                                 \
     /* Try ECM */                                                                                               \
@@ -1534,17 +1544,20 @@ APLMPI PrimeFactor
     ecmParams->B1done    = PRECOMPUTED_PRIME_MAX;
 
     // Try P-1 once with 10*B1 and B2
-    TryECM (ECM_PM1, 10*B1, B2);
+    TryECM (ECM_PM1, 10*B1, B2, 0, 0);
 
     // Try P+1 three times with 5*B1 and B2
-    TryECM (ECM_PP1,  5*B1, B2);
-    TryECM (ECM_PP1,  5*B1, B2);
-    TryECM (ECM_PP1,  5*B1, B2);
+    TryECM (ECM_PP1,  5*B1, B2, 0, 3);
+    TryECM (ECM_PP1,  5*B1, B2, 1, 3);
+    TryECM (ECM_PP1,  5*B1, B2, 2, 3);
+
+    // LIMIT N to 2 ***FIXME***
+    N = min (N, 2);
 
     // Try ECM N(B1, B2, D) times
     for (iCnt = 0; iCnt < N; iCnt++)
     {
-        TryECM (ECM_ECM, B1, B2);
+        TryECM (ECM_ECM, B1, B2, iCnt, N);
     } // End FOR
 
     /* Uninitialize ecmParams */
@@ -2283,7 +2296,7 @@ APLMPI PrimFnPiNumPrimes
             mpz_set_sx (&mpzRes, NthPrimeTab[iMid]);
 
             // Check for a match
-            switch (signum (mpz_cmp (&aplMPIArg, &mpzRes)))
+            switch (signumint (mpz_cmp (&aplMPIArg, &mpzRes)))
             {
                 case -1:
                     iMax = iMid - 1;

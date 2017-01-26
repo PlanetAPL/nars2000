@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2011 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -106,18 +106,20 @@ __try
 
             // If we didn't match the name (some non-Web Color), ...
             if (lpwName EQ NULL)
-                wsprintfW (wszTemp,
+                MySprintfW (wszTemp,
+                            sizeof (wszTemp),
                            L" The color you are replacing is %u, %u, %u (#%02X%02X%02X) for category \"%s\".",
-                           GetRValue (scnMatch.syntClr.crFore), GetGValue (scnMatch.syntClr.crFore), GetBValue (scnMatch.syntClr.crFore),
-                           GetRValue (scnMatch.syntClr.crFore), GetGValue (scnMatch.syntClr.crFore), GetBValue (scnMatch.syntClr.crFore),
-                           scnMatch.lpwSCName);
+                            GetRValue (scnMatch.syntClr.crFore), GetGValue (scnMatch.syntClr.crFore), GetBValue (scnMatch.syntClr.crFore),
+                            GetRValue (scnMatch.syntClr.crFore), GetGValue (scnMatch.syntClr.crFore), GetBValue (scnMatch.syntClr.crFore),
+                            scnMatch.lpwSCName);
             else
-                wsprintfW (wszTemp,
+                MySprintfW (wszTemp,
+                            sizeof (wszTemp),
                            L" The color you are replacing is \"%s\" for category \"%s\".",
-                           lpwName,
-                           scnMatch.lpwSCName);
+                            lpwName,
+                            scnMatch.lpwSCName);
             // Append common text
-            lstrcatW (wszTemp, WS_LF L" Click on a new color to replace and exit, or click on Cancel to exit without replacing.");
+            MyStrcatW (wszTemp, sizeof (wszTemp), WS_LF L" Click on a new color to replace and exit, or click on Cancel to exit without replacing.");
 
             // Insert the text about what color we're replacing
             SendDlgItemMessageW (hDlg,
@@ -193,11 +195,12 @@ __try
                         clrRef = aColorNames[idCtl].clrRef;
 
                         // Format the tooltip text
-                        wsprintfW (TooltipText,
+                        MySprintfW (TooltipText,
+                                    sizeof (TooltipText),
                                    L"%s %u, %u, %u (#%02X%02X%02X)",
-                                   aColorNames[idCtl].lpwName,
-                                   GetRValue (clrRef), GetGValue (clrRef), GetBValue (clrRef),
-                                   GetRValue (clrRef), GetGValue (clrRef), GetBValue (clrRef));
+                                    aColorNames[idCtl].lpwName,
+                                    GetRValue (clrRef), GetGValue (clrRef), GetBValue (clrRef),
+                                    GetRValue (clrRef), GetGValue (clrRef), GetBValue (clrRef));
                         // Return the ptr to the caller
                         lpttt->lpszText = TooltipText;
 #undef  lpttt
@@ -291,8 +294,9 @@ __try
                               0,
                               (LPARAM) (LPTOOLINFOW) &tti);
             } // End FOR
+
             // Quit this dialog
-            EndDialog (hDlg, ((UBOOL) lParam) ? (COLORREF) lParam : -1);
+            EndDialog (hDlg, ((UBOOL) wParam) ? (COLORREF) lParam : -1);
 
             DlgMsgDone (hDlg);      // We handled the msg
 

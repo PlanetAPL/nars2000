@@ -1,0 +1,39 @@
+Build #1605 -- Version 0.4.18.xx
+--------------------------------
+
+* Handle Syntax:  NAM    F            SPA
+* Handle Syntax:  NAM[A] F            SPA
+* Handle Syntax:  NAM    F[A]         SPA
+* Handle Syntax:  NAM[A] F[A]         SPA
+* Handle Syntax:  NAM    F    MOP     SPA
+* Handle Syntax:  NAM[A] F    MOP     SPA
+* Handle Syntax:  NAM    F[A] MOP     SPA
+* Handle Syntax:  NAM[A] F[A] MOP     SPA
+* Handle Syntax:  NAM    F    MOP[A]  SPA
+* Handle Syntax:  NAM[A] F    MOP[A]  SPA
+* Handle Syntax:  NAM    F[A] MOP[A]  SPA
+* Handle Syntax:  NAM[A] F[A] MOP[A]  SPA
+* Handle Syntax:  (A F) MOP A
+* Handle Syntax:  F{is}A
+* Handle Syntax:  GOTO SYSLBL
+
+Directory trunk:
+
+PARSELINE.C:
+  Define tools needed to handle some of the above syntax cases.
+  Change <GetLstSynObj> to <GetLftToken> so as to test the TknType for a named var.
+  In <plRedMF_A>, pick out left argument evern if it's on the curried function which handles (A F) MOP A.
+  After <PARSELINE_START>, use the appropriate <MyGlobalLock>.
+  After <PARSELINE_SCAN1>, pick off cases where we convert an IDX to an ADX which handles the rest of the above syntax cases.
+  After <PARSELINE_DONE>, do not set the bSink flag if there's a curried function as that's a SYNTAX ERROR which handles F{is}A.
+  In <pl_yylexCOM/case TKT_VARNAMED/case NAMETYPE_VAR>, handle the case of GOTO SYSLBL by not confusing it with a System Function.
+  In <pl_yylexCOM/case TKT_VARNAMED/case NAMETYPE_VAR>, handle the above cases with SPA by marking NAM as a vars being assigned to.
+
+PARSELINE.H:
+  Lower the binding strength of F SPA so as be lower than that of DOP F so that DOP F SPA binds DOP F before F SPA.
+
+STARTADDR.H:
+  Change <GetLstSynObj> to <GetLftToken> so as to test the TknType for a named var.
+
+SYNOBJ.H:
+  Comment change.

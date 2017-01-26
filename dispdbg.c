@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2014 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #define STRICT
 #include <windows.h>
 #include "headers.h"
+#include "debug.h"              // For xxx_TEMP_OPEN macros
 
 #ifdef DEBUG
 // Resource debugging variables
@@ -59,11 +60,12 @@ void DisplayHshTab
 
     DbgMsgW (L"********** Start Hash Table ****************************");
 
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"lpHshTab = %p, SplitNext = %p, Last = %p",
-               lpHTS->lpHshTab,
-               lpHTS->lpHshTabSplitNext,
-              &lpHTS->lpHshTab[lpHTS->iHshTabTotalNelm]);
+                lpHTS->lpHshTab,
+                lpHTS->lpHshTabSplitNext,
+               &lpHTS->lpHshTab[lpHTS->iHshTabTotalNelm]);
     DbgMsgW (wszTemp);
 
     // Display the hash table
@@ -72,7 +74,7 @@ void DisplayHshTab
          lpHshEntry++, i++)
     {
         // Format the HTE
-        FormatHTE (lpHshEntry, wszTemp, i);
+        FormatHTE (lpHshEntry, wszTemp, sizeof (wszTemp), i);
 
         DbgMsgW (wszTemp);
     } // End FOR
@@ -91,9 +93,10 @@ void DisplayHshTab
 //***************************************************************************
 
 void FormatHTE
-    (LPHSHENTRY lpHshEntry,
-     LPWCHAR    wszTemp,
-     UINT       i)
+    (LPHSHENTRY lpHshEntry,             // Ptr to hash entry struc
+     LPWCHAR    lpwszTemp,              // Ptr to output save area
+     APLI3264   iTempMaxSize,           // Maximum size of wszTemp
+     UINT       i)                      // Hash Table Entry
 
 {
     WCHAR wszFlags[128] = {WC_EOS};
@@ -121,9 +124,10 @@ void FormatHTE
     // Check for invalid HshEntry
     if (lpHshEntry EQ NULL)
     {
-        wsprintfW (wszTemp,
+        MySprintfW (lpwszTemp,
+                    iTempMaxSize,
                    L"HT:%3d ***INVALID HSHENTRY (NULL)***",
-                   i);
+                    i);
         return;
     } // End IF
 
@@ -133,8 +137,9 @@ void FormatHTE
          j < HT_FLAGNAMES_NROWS;
          j++)
     if (htFlags & ahtFlagNames[j].uMask)
-        lstrcatW (wszFlags, ahtFlagNames[j].lpwszName);
-
+        MyStrcatW (wszFlags,
+                   sizeof (wszFlags),
+                   ahtFlagNames[j].lpwszName);
     // In case we didn't find any matching flags,
     //   set the second byte to zero as well as
     //   when we do find flags, we skip over the
@@ -149,14 +154,15 @@ void FormatHTE
 
         lpSymEntry = lpHshEntry->htSymEntry;
         if (lpSymEntry->stFlags.Imm)
-            wsprintfW (wszTemp,
+            MySprintfW (lpwszTemp,
+                        iTempMaxSize,
                        L"HT:%3d uH=%08X, uH&M=%d, <%s>, ull=%I64X, Sym=%p",
-                       i,
-                       lpHshEntry->uHash,
-                       lpHshEntry->uHashAndMask,
-                      &wszFlags[1],
-                       lpSymEntry->stData.stInteger,
-                       lpSymEntry);
+                        i,
+                        lpHshEntry->uHash,
+                        lpHshEntry->uHashAndMask,
+                       &wszFlags[1],
+                        lpSymEntry->stData.stInteger,
+                        lpSymEntry);
         else
         if (lpSymEntry->stFlags.ObjName NE OBJNAME_NONE)
         {
@@ -165,27 +171,29 @@ void FormatHTE
             // Lock the memory to get a ptr to it
             lpwGlbName = GlobalLock (lpHshEntry->htGlbName); Assert (lpwGlbName NE NULL);
 
-            wsprintfW (wszTemp,
+            MySprintfW (lpwszTemp,
+                        iTempMaxSize,
                        L"HT:%3d uH=%08X, uH&M=%d, <%s>, <%s>, Sym=%p, %p-%p",
-                       i,
-                       lpHshEntry->uHash,
-                       lpHshEntry->uHashAndMask,
-                      &wszFlags[1],
-                       lpwGlbName,
-                       lpSymEntry,
-                       lpHshEntry->NextSameHash,
-                       lpHshEntry->PrevSameHash);
+                        i,
+                        lpHshEntry->uHash,
+                        lpHshEntry->uHashAndMask,
+                       &wszFlags[1],
+                        lpwGlbName,
+                        lpSymEntry,
+                        lpHshEntry->NextSameHash,
+                        lpHshEntry->PrevSameHash);
             // We no longer need this ptr
             GlobalUnlock (lpHshEntry->htGlbName); lpwGlbName = NULL;
         } // End IF/ELSE/IF
     } else
-        wsprintfW (wszTemp,
+        MySprintfW (lpwszTemp,
+                    iTempMaxSize,
                    L"HT:%3d (EMPTY) <%s>, Sym=%p, <%p-%p>",
-                   i,
-                  &wszFlags[1],
-                   lpHshEntry->htSymEntry,
-                   lpHshEntry->NextSameHash,
-                   lpHshEntry->PrevSameHash);
+                    i,
+                   &wszFlags[1],
+                    lpHshEntry->htSymEntry,
+                    lpHshEntry->NextSameHash,
+                    lpHshEntry->PrevSameHash);
 } // End FormatHTE
 
 
@@ -221,10 +229,11 @@ void DisplaySymTab
     } // End IF/ELSE -- DO NOT REMOVE as the DbgMsgW macro needs
     //                  this because of the trailing semicolon
 
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"lpSymTab = %p, Last = %p",
-               lpHTS->lpSymTab,
-              &lpHTS->lpSymTab[lpHTS->iSymTabTotalNelm]);
+                lpHTS->lpSymTab,
+               &lpHTS->lpSymTab[lpHTS->iSymTabTotalNelm]);
     DbgMsgW (wszTemp);
 
     // Display the symbol table
@@ -235,7 +244,7 @@ void DisplaySymTab
         lpSymEntry->stFlags.ObjName NE OBJNAME_SYS)
     {
         // Format the STE
-        FormatSTE (lpSymEntry, wszTemp);
+        FormatSTE (lpSymEntry, wszTemp, sizeof (wszTemp));
 
         DbgMsgW (wszTemp);
     } // End FOR
@@ -255,7 +264,8 @@ void DisplaySymTab
 
 void FormatSTE
     (LPSYMENTRY lpSymEntry,             // Ptr to the SYMENTRY to format
-     LPWCHAR    wszTemp)                // Ptr to output save area
+     LPWCHAR    lpwszTemp,              // Ptr to output save area
+     APLI3264   iTempMaxSize)           // Maximum size of wszTemp
 
 {
     WCHAR   wszFlags[128] = {WC_EOS};
@@ -295,30 +305,33 @@ void FormatSTE
     // Format the flags
     stFlags = lpSymEntry->stFlags;
     if (stFlags.Imm)
-        wsprintfW (&wszFlags[lstrlenW (wszFlags)],
+        MySprintfW (&wszFlags[lstrlenW (wszFlags)],
+                     sizeof (wszFlags) - (lstrlenW (wszFlags) * sizeof (wszFlags[0])),
                     L" Imm/Type=%d",
-                    stFlags.ImmType);
+                     stFlags.ImmType);
     if (stFlags.ObjName NE OBJNAME_NONE)
-        wsprintfW (&wszFlags[lstrlenW (wszFlags)],
+        MySprintfW (&wszFlags[lstrlenW (wszFlags)],
+                     sizeof (wszFlags) - (lstrlenW (wszFlags) * sizeof (wszFlags[0])),
                     L" ObjName=%s",
-                    lpwObjNameStr[stFlags.ObjName]);
+                     lpwObjNameStr[stFlags.ObjName]);
     if (stFlags.stNameType NE NAMETYPE_UNK)
-        wsprintfW (&wszFlags[lstrlenW (wszFlags)],
+        MySprintfW (&wszFlags[lstrlenW (wszFlags)],
+                     sizeof (wszFlags) - (lstrlenW (wszFlags) * sizeof (wszFlags[0])),
                     L" stNameType=%s",
-                    lpwNameTypeStr[stFlags.stNameType]);
-
+                     lpwNameTypeStr[stFlags.stNameType]);
     for (j = 0;
          j < ST_FLAGNAMES_NROWS;
          j++)
     if ((*(UINT *) &stFlags) & astFlagNames[j].uMask)
-        lstrcatW (wszFlags, astFlagNames[j].lpwszName);
-
+        MyStrcatW (wszFlags,
+                   sizeof (wszFlags),
+                   astFlagNames[j].lpwszName);
     if (IsNameTypeVar (stFlags.stNameType)
      && !stFlags.DfnSysLabel)
-        wsprintfW (&wszFlags[lstrlenW (wszFlags)],
+        MySprintfW (&wszFlags[lstrlenW (wszFlags)],
+                     sizeof (wszFlags) - (lstrlenW (wszFlags) * sizeof (wszFlags[0])),
                     L" SysVarValid=%d",
-                    stFlags.SysVarValid);
-
+                     stFlags.SysVarValid);
     // In case we didn't find any matching flags,
     //   set the second WCHAR to zero as well --
     //   when we do find flags, we skip over the
@@ -344,7 +357,7 @@ void FormatSTE
 
                 lpwGlbName = GlobalLock (lpHshEntry->htGlbName); Assert (lpwGlbName NE NULL);
 
-                lstrcpynW (wszName, lpwGlbName, WSZNAME_LEN);
+                strcpynW (wszName, lpwGlbName, WSZNAME_LEN);
 
                 // We no longer need this ptr
                 GlobalUnlock (lpHshEntry->htGlbName); lpwGlbName = NULL;
@@ -356,14 +369,15 @@ void FormatSTE
 
         if (lpSymEntry->stFlags.Imm)
         {
-            wsprintfW (wszTemp,
+            MySprintfW (lpwszTemp,
+                        iTempMaxSize,
                        L"ST:%p <%s> <%s>, ull=%I64X, Hsh=%p, Prv=%p",
-                       lpSymEntry,
-                       wszName,
-                      &wszFlags[1],
-                       lpSymEntry->stData.stInteger,
-                       lpSymEntry->stHshEntry,
-                       lpPrvEntry);
+                        lpSymEntry,
+                        wszName,
+                       &wszFlags[1],
+                        lpSymEntry->stData.stInteger,
+                        lpSymEntry->stHshEntry,
+                        lpPrvEntry);
         } else
         if (lpSymEntry->stFlags.ObjName NE OBJNAME_NONE)
         {
@@ -373,28 +387,31 @@ void FormatSTE
 
             if (lpHshEntry)
             {
-                wsprintfW (wszTemp,
+                MySprintfW (lpwszTemp,
+                            iTempMaxSize,
                            L"ST:%p <%s>, <%s>, Data=%p, Hsh=%p, Prv=%p",
-                           lpSymEntry,
-                           wszName,
-                          &wszFlags[1],
-                           lpSymEntry->stData.stVoid,
-                           lpHshEntry,
-                           lpPrvEntry);
+                            lpSymEntry,
+                            wszName,
+                           &wszFlags[1],
+                            lpSymEntry->stData.stVoid,
+                            lpHshEntry,
+                            lpPrvEntry);
             } else
-                wsprintfW (wszTemp,
+                MySprintfW (lpwszTemp,
+                            iTempMaxSize,
                            L"ST:%p <******>, <%s>, Hsh=0, Prv=%p",
-                           lpSymEntry,
-                          &wszFlags[1],
-                           lpPrvEntry);
+                            lpSymEntry,
+                           &wszFlags[1],
+                            lpPrvEntry);
         } // End IF/ELSE/IF
     } else
-        wsprintfW (wszTemp,
+        MySprintfW (lpwszTemp,
+                    iTempMaxSize,
                    L"ST:%p (EMPTY) <%s>, Hsh=%p, Prv=%p",
-                   lpSymEntry,
-                  &wszFlags[1],
-                   lpSymEntry->stHshEntry,
-                   lpSymEntry->stPrvEntry);
+                    lpSymEntry,
+                   &wszFlags[1],
+                    lpSymEntry->stHshEntry,
+                    lpSymEntry->stPrvEntry);
 } // End FormatSTE
 
 
@@ -450,7 +467,7 @@ void DisplayGlobals
 
     DbgMsgW (L"********** Start Globals *******************************");
 
-#define MAX_VAL_LEN     12
+#define MAX_VAL_LEN     80
     for (i = 0; i < MAXOBJ; i++)
     if (hGlb = ahGLBALLOC[i])
     {
@@ -459,19 +476,20 @@ void DisplayGlobals
 
         // Lock the memory to get a ptr to it
         lpMem = GlobalLock (hGlb);
-        if (!lpMem)
+        if (lpMem EQ NULL)
         {
-            wsprintfW (wszTemp,
+            MySprintfW (wszTemp,
+                        sizeof (wszTemp),
                        L"hGlb=%p *** INVALID ***",
-                       hGlb);
+                        hGlb);
             DbgMsgW (wszTemp);
 
             continue;
         } // End IF
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMem)
+#define lpHeader    ((LPHEADER_SIGNATURE) lpMem)
         // Split cases based upon the array signature
-        switch (lpHeader->Sig.nature)
+        switch (lpHeader->nature)
 #undef  lpHeader
         {
             case VARARRAY_HEADER_SIGNATURE:
@@ -494,7 +512,7 @@ void DisplayGlobals
                     else
                         aplDim = *VarArrayBaseToDim (lpHeader);
                     // Skip over the header and dimension to the data
-                    lpData = VarArrayBaseToData (lpHeader, lpHeader->Rank);
+                    lpData = VarArrayDataFmBase (lpHeader);
 
 #define MAXDISPLEN  7
 
@@ -587,7 +605,7 @@ void DisplayGlobals
                               FormatImmed (lpwsz,
                                            immType,
                                           &lpHeader->NELM);
-                            lstrcpyW (lpwsz, $QUAD_IO WS_UTF16_LEFTARROW L"0");
+                            strcpyW (lpwsz, $QUAD_IO WS_UTF16_LEFTARROW L"0");
 
                             break;
                         } // End ARRAY_APA
@@ -599,32 +617,56 @@ void DisplayGlobals
                             break;
 
                         case ARRAY_CHAR:
-                            lstrcpynW (aplArrChar, lpData, 1 + (UINT) min (MAX_VAL_LEN, lpHeader->NELM));
-                            aplArrChar[min (MAX_VAL_LEN, lpHeader->NELM)] = WC_EOS;
+                            if (IsEmpty (lpHeader->NELM))
+                            {
+                                aplArrChar[0] = UTF16_LEFTSINGLEQUOTE;
+                                aplArrChar[1] = UTF16_RIGHTSINGLEQUOTE;
+                                aplArrChar[2] = WC_EOS;
+                            } else
+                            {
+                                strcpynW (aplArrChar, lpData, 1 + (UINT) min (MAX_VAL_LEN, lpHeader->NELM));
+                                aplArrChar[min (MAX_VAL_LEN, lpHeader->NELM)] = WC_EOS;
+                            } // End IF/ELSE
 
                             break;
 
                         case ARRAY_LIST:
-                            lstrcpyW (aplArrChar, L"[...]");
+                            strcpyW (aplArrChar, L"[...]");
 
                             break;
 
                         case ARRAY_RAT:
-                            lpwsz =
-                              FormatAplRat (aplArrChar,             // Ptr to output save area
-                                           *(LPAPLRAT) lpData);     // The value to format
-                            // Zap the trailing blank
-                            lpwsz[-1] = WC_EOS;
+                            if (IsEmpty (lpHeader->NELM))
+                            {
+                                aplArrChar[0] = L'0';
+                                aplArrChar[1] = L'x';
+                                aplArrChar[2] = WC_EOS;
+                            } else
+                            {
+                                lpwsz =
+                                  FormatAplRat (aplArrChar,             // Ptr to output save area
+                                               *(LPAPLRAT) lpData);     // The value to format
+                                // Zap the trailing blank
+                                lpwsz[-1] = WC_EOS;
+                            } // End IF/ELSE
 
                             break;
 
                         case ARRAY_VFP:
-                            lpwsz =
-                              FormatAplVfp (aplArrChar,             // Ptr to output save area
-                                          *(LPAPLVFP) lpData,       // The value to format
-                                            0);                     // Use this many significant digits for VFP
-                            // Zap the trailing blank
-                            lpwsz[-1] = WC_EOS;
+                            if (IsEmpty (lpHeader->NELM))
+                            {
+                                aplArrChar[0] = L'0';
+                                aplArrChar[1] = L'v';
+                                aplArrChar[2] = WC_EOS;
+                            } else
+                            {
+                                lpwsz =
+                                  FormatAplVfp (aplArrChar,             // Ptr to output save area
+                                              *(LPAPLVFP) lpData,       // The value to format
+                                                0);                     // Use this many significant digits for VFP
+                                // Zap the trailing blank
+                                lpwsz[-1] = WC_EOS;
+                            } // End IF/ELSE
 
                             break;
 
@@ -639,20 +681,33 @@ void DisplayGlobals
                      || ((lpHeader->PermNdx EQ PERMNDX_NONE)
                   && (lpHeader->bMFOvar EQ FALSE)))
                     {
-                        wsprintfW (wszTemp,
-                                   L"%shGlb=%p AType=%c%c NELM=%3d RC=%2d Rnk=%2d Dim1=%3d Lck=%d (%S#%d) (%s)",
-                                   (lpHeader->RefCnt NE 1 || lpHeader->SkipRefCntIncr) ? WS_UTF16_REFCNT_NE1 : L"",
-                                   hGlb,
-                                   ArrayTypeAsChar[lpHeader->ArrType],
+                        WCHAR   wszDim[16];
+                        LPWCHAR lpwszDim;
+
+                        // If it's a scalar, skip the Dim1=
+                        if (LODWORD (lpHeader->Rank) EQ 0)
+                            lpwszDim = L"        ";
+                        else
+                            MySprintfW (lpwszDim = &wszDim[0],
+                                        sizeof (wszDim),
+                                       L"Dim1=%3d",
+                                        LODWORD (aplDim));
+                        MySprintfW (wszTemp,
+                                    sizeof (wszTemp),
+///////////////////////////////////L"%shGlb=%p AType=%c%c NELM=%3d RC=%2d Rnk=%2d Dim1=%3d Lck=%d (%S#%d) (%s)",
+                                   L"%shGlb=%p AType=%c%c NELM=%3d RC=%2d Rnk=%2d %s Lck=%d (%S#%d) (%s)",
+                                    (lpHeader->RefCnt NE 1) ? WS_UTF16_REFCNT_NE1 : L"",
+                                    hGlb,
+                                    TranslateArrayTypeToChar (lpHeader->ArrType),
                                    L" *"[lpHeader->PermNdx NE PERMNDX_NONE],
-                                   LODWORD (lpHeader->NELM),
-                                   lpHeader->RefCnt,
-                                   LODWORD (lpHeader->Rank),
-                                   LODWORD (aplDim),
-                                   (MyGlobalFlags (hGlb) & GMEM_LOCKCOUNT) - 1,
-                                   lpaFileNameGLBALLOC[i],
-                                   auLinNumGLBALLOC[i],
-                                   aplArrChar);
+                                    LODWORD (lpHeader->NELM),
+                                    lpHeader->RefCnt,
+                                    LODWORD (lpHeader->Rank),
+                                    lpwszDim,               // LODWORD (aplDim),
+                                    (MyGlobalFlags (hGlb) & GMEM_LOCKCOUNT) - 1,
+                                    lpaFileNameGLBALLOC[i],
+                                    auLinNumGLBALLOC[i],
+                                    aplArrChar);
                         DbgMsgW (wszTemp);
                     } // End IF
                 } // End IF
@@ -697,17 +752,18 @@ void DisplayGlobals
                     // Point to leading left paren
                     lpaplChar = &aplArrChar[1];
 
-                wsprintfW (wszTemp,
+                MySprintfW (wszTemp,
+                            sizeof (wszTemp),
                            L"%shGlb=%p NType=%sNELM=%3d RC=%2d                 Lck=%d (%S#%4d) %s",
-                           (lpHeader->RefCnt NE 1) ? WS_UTF16_REFCNT_NE1 : L"",
-                           hGlb,
-                           lpwNameTypeStr[lpHeader->fnNameType],
-                           lpHeader->tknNELM,
-                           lpHeader->RefCnt,
-                           (MyGlobalFlags (hGlb) & GMEM_LOCKCOUNT) - 1,
-                           lpaFileNameGLBALLOC[i],
-                           auLinNumGLBALLOC[i],
-                           lpaplChar);
+                            (lpHeader->RefCnt NE 1) ? WS_UTF16_REFCNT_NE1 : L"",
+                            hGlb,
+                            lpwNameTypeStr[lpHeader->fnNameType],
+                            lpHeader->tknNELM,
+                            lpHeader->RefCnt,
+                            (MyGlobalFlags (hGlb) & GMEM_LOCKCOUNT) - 1,
+                            lpaFileNameGLBALLOC[i],
+                            auLinNumGLBALLOC[i],
+                            lpaplChar);
                 DbgMsgW (wszTemp);
 
                 break;
@@ -721,33 +777,49 @@ void DisplayGlobals
                 // It's a valid HGLOBAL user-defined function/operator
                 Assert (IsGlbTypeDfnDir_PTB (MakePtrTypeGlb (hGlb)));
 
-                // Copy the user-defined function/operator name
-                CopySteName (lpMemPTD->lpwszTemp,       // Ptr to global memory
-                             lpHeader->steFcnName,      // Ptr to function symbol table entry
-                            &uNameLen);                 // Ptr to name length (may be NULL)
-
-                // If we're to display all globals or
-                //   this one is not a Magic Function/Operator, ...
-                if (uDispGlb EQ 2
-                 || (!IsMFOName (lpMemPTD->lpwszTemp)
-                  && !lpHeader->bMFO))
+                // If not a Magic Function/Operator, ...
+                if (!lpHeader->bMFO || lpHeader->RefCnt NE 1)
                 {
-                    // Copy the name to local storage
-                    lstrcpynW (aplArrChar, lpMemPTD->lpwszTemp, 1 + (UINT) min (MAX_VAL_LEN, uNameLen));
-                    aplArrChar[min (MAX_VAL_LEN, uNameLen)] = WC_EOS;
+                    // If it's a valid ptr, ...
+                    if (IsValidPtr (lpHeader->steFcnName, sizeof (lpHeader->steFcnName)))
+                        // Copy the user-defined function/operator name
+                        CopySteName (lpMemPTD->lpwszTemp,       // Ptr to global memory
+                                     lpHeader->steFcnName,      // Ptr to function symbol table entry
+                                    &uNameLen);                 // Ptr to name length (may be NULL)
+                    else
+                    {
+                        // Copy a default name
+                        MySprintfW (lpMemPTD->lpwszTemp,
+                                    lpMemPTD->iTempMaxSize,
+                                   L"***BAD PTR***:  steFcnName (%p)",
+                                    lpHeader->steFcnName);
+                        DbgNop ();      // We should never get here
+                    } // End IF/ELSE
 
-                    wsprintfW (wszTemp,
-                               L"%shGlb=%p DType=%c  NELM=%3d RC=%2d                 Lck=%d (%S#%4d) (%s)",
-                               (lpHeader->RefCnt NE 1) ? WS_UTF16_REFCNT_NE1 : L"",
-                               hGlb,
-                               cDfnTypeStr[lpHeader->DfnType],
-                               lpHeader->numFcnLines,
-                               lpHeader->RefCnt,
-                               (MyGlobalFlags (hGlb) & GMEM_LOCKCOUNT) - 1,
-                               lpaFileNameGLBALLOC[i],
-                               auLinNumGLBALLOC[i],
-                               aplArrChar);
-                    DbgMsgW (wszTemp);
+                    // If we're to display all globals or
+                    //   this one is not a Magic Function/Operator, ...
+                    if (uDispGlb EQ 2
+                     || (!IsMFOName (lpMemPTD->lpwszTemp)
+                      && !lpHeader->bMFO))
+                    {
+                        // Copy the name to local storage
+                        strcpynW (aplArrChar, lpMemPTD->lpwszTemp, 1 + (UINT) min (MAX_VAL_LEN, uNameLen));
+                        aplArrChar[min (MAX_VAL_LEN, uNameLen)] = WC_EOS;
+
+                        MySprintfW (wszTemp,
+                                    sizeof (wszTemp),
+                                   L"%shGlb=%p DType=%c  NELM=%3d RC=%2d                 Lck=%d (%S#%4d) (%s)",
+                                    (lpHeader->RefCnt NE 1) ? WS_UTF16_REFCNT_NE1 : L"",
+                                    hGlb,
+                                    cDfnTypeStr[lpHeader->DfnType],
+                                    lpHeader->numFcnLines,
+                                    lpHeader->RefCnt,
+                                    (MyGlobalFlags (hGlb) & GMEM_LOCKCOUNT) - 1,
+                                    lpaFileNameGLBALLOC[i],
+                                    auLinNumGLBALLOC[i],
+                                    aplArrChar);
+                        DbgMsgW (wszTemp);
+                    } // End IF
                 } // End IF
 
                 break;
@@ -756,10 +828,11 @@ void DisplayGlobals
             default:
                 if (uDispGlb EQ 2)
                 {
-                    wsprintfW (wszTemp,
+                    MySprintfW (wszTemp,
+                                sizeof (wszTemp),
                                L"hGlb=%p -- No NARS/FCNS Signature (%u bytes)",
-                               hGlb,
-                               MyGlobalSize (hGlb));
+                                hGlb,
+                                MyGlobalSize (hGlb));
                     DbgMsgW (wszTemp);
                 } // End IF/ELSE
 
@@ -778,11 +851,12 @@ void DisplayGlobals
     for (uValid = FALSE, i = 0; i < MAXOBJ; i++)
     if (hGlb = ahSEMAPHORE[i])
     {
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"hGlb=%p                                               (%S#%4d)",
-                   hGlb,
-                   lpaFileNameSEMAPHORE[i],
-                   auLinNumSEMAPHORE[i]);
+                    hGlb,
+                    lpaFileNameSEMAPHORE[i],
+                    auLinNumSEMAPHORE[i]);
         DbgMsgW (wszTemp);
 
         // Mark as valid
@@ -794,6 +868,269 @@ void DisplayGlobals
 
     UpdateDBWindow ();
 } // End DisplayGlobals
+#endif
+
+
+#ifdef DEBUG
+//***************************************************************************
+//  $DisplayGlbVar
+//
+//  Display a global memory var
+//***************************************************************************
+
+void DisplayGlbVar
+    (LPWCHAR lpwLabel,
+     HGLOBAL hGlb)
+
+{
+    LPPERTABDATA      lpMemPTD;     // Ptr to PerTabData global memory
+    LPWCHAR           lpwszTemp;    // Ptr to output save area
+    VARS_TEMP_OPEN
+
+    // Get ptr to PerTabData global memory
+    lpMemPTD = GetMemPTD ();
+
+    lpwszTemp   = lpMemPTD->lpwszTemp;
+    CHECK_TEMP_OPEN
+
+    // Start with the label
+    strcpyW (lpwszTemp, lpwLabel);
+
+    // Skip over it
+    lpwszTemp += lstrlenW (lpwLabel);
+
+    // If the global memory handle is valid, ...
+    if (hGlb)
+        // Do the rest in a subroutine so we may use it recursively
+        lpwszTemp =
+          DisplayGlbVarSub (hGlb, lpwszTemp);
+
+    // Ensure properly terminated
+    *lpwszTemp++ = WC_EOS;
+
+    // Display it
+    DbgMsgW (lpMemPTD->lpwszTemp);
+
+    UpdateDBWindow ();
+
+    EXIT_TEMP_OPEN
+} // End DisplayGlbVar
+#endif
+
+
+#ifdef DEBUG
+//***************************************************************************
+//  $DisplayGlbVarSub
+//
+//  Display a global memory var
+//***************************************************************************
+
+LPWCHAR DisplayGlbVarSub
+    (HGLOBAL hGlb,
+     LPWCHAR lpwszTemp)
+
+{
+    UINT              uCnt;         // Loop counter
+    LPVARARRAY_HEADER lpHdrGlb;     // Ptr to global memory header
+    LPAPLNESTED       lpMemGlb;     // Ptr to global memory data
+    IMM_TYPES         immType;      // Immediate type
+    APLSTYPE          aplType;      // Global memory storage type
+    APLNELM           aplNELM;      // Global memory NELM
+    APLRANK           aplRank;      // Global memory rank
+
+    // Split cases based upon the ptr type bits
+    if (GetPtrTypeDir (hGlb) EQ PTRTYPE_STCONST)
+    {
+        LPSYMENTRY lpSymEntry = hGlb;
+
+        // Point to the data
+        lpMemGlb = (LPVOID) &lpSymEntry->stData.stLongest;
+
+        immType = lpSymEntry->stFlags.ImmType;
+        aplType = TranslateImmTypeToArrayType (immType);
+        aplNELM = 1;
+        aplRank = 0;
+    } else
+    {
+        // Lock the memory to get a ptr to it
+        lpHdrGlb = MyGlobalLockVar (hGlb);
+
+        // Skip over the header and dimensions to the data
+        lpMemGlb = VarArrayDataFmBase (lpHdrGlb);
+
+        immType = TranslateArrayTypeToImmType (lpHdrGlb->ArrType);
+        aplType = lpHdrGlb->ArrType;
+        aplNELM = lpHdrGlb->NELM;
+        aplRank = lpHdrGlb->Rank;
+    } // End IF/ELSE
+
+    // Split case based upon the storage type
+    switch (aplType)
+    {
+        case ARRAY_BOOL:
+            if (IsEmpty (aplNELM))
+            {
+                *lpwszTemp++ = UTF16_ZILDE;
+                *lpwszTemp++ = L' ';
+            } else
+            {
+                UINT       uBitMask = BIT0;
+                APLLONGEST aplZero = 0,
+                           aplOne  = 1;
+
+                for (uCnt = 0; uCnt < aplNELM; uCnt++)
+                {
+                    lpwszTemp =
+                      FormatImmed (lpwszTemp,
+                                   immType,
+                                   (LPAPLLONGEST) ((uBitMask & *(LPAPLBOOL) lpMemGlb)) ? &aplOne : &aplZero);
+                    uBitMask <<= 1;
+                } // End FOR
+            } // End IF/ELSE
+
+            break;
+
+        case ARRAY_INT:
+        case ARRAY_FLOAT:
+            if (IsEmpty (aplNELM))
+            {
+                *lpwszTemp++ = UTF16_ZILDE;
+                *lpwszTemp++ = L' ';
+            } else
+            for (uCnt = 0; uCnt < aplNELM; uCnt++)
+                lpwszTemp =
+                  FormatImmed (lpwszTemp,
+                               immType,
+                              &((LPAPLLONGEST) lpMemGlb)[uCnt]);
+            break;
+
+        case ARRAY_APA:
+        {
+            APLINT apaOff,
+                   apaMul;
+
+            // Get the APA parameters
+            apaOff = ((LPAPLAPA) lpMemGlb)->Off;
+            apaMul = ((LPAPLAPA) lpMemGlb)->Mul;
+
+            lpwszTemp =
+              FormatAplInt (lpwszTemp,          // Ptr to output save area
+                            apaOff);            // The value to format
+            lpwszTemp[-1] = L'+';
+            lpwszTemp =
+              FormatAplInt (lpwszTemp,          // Ptr to output save area
+                            apaMul);            // The value to format
+            lpwszTemp[-1] = UTF16_TIMES;
+           *lpwszTemp++   = UTF16_IOTA;
+            lpwszTemp =
+              FormatAplInt (lpwszTemp,          // Ptr to output save area
+                            aplNELM);           // The value to format
+            break;
+        } // End ARRAY_APA
+
+        case ARRAY_CHAR:
+            // Leading single quote
+            *lpwszTemp++ = L'\'';
+
+            // Copy the data
+            CopyMemory (lpwszTemp, lpMemGlb, (APLU3264) (aplNELM * sizeof (WCHAR)));
+
+            // Skip over it
+            lpwszTemp += aplNELM;
+
+            // Trailing single quote
+            *lpwszTemp++ = L'\'';
+
+            break;
+
+        case ARRAY_RAT:
+            if (IsEmpty (aplNELM))
+            {
+                *lpwszTemp++ = UTF16_ZILDE;
+                *lpwszTemp++ = L' ';
+            } else
+            for (uCnt = 0; uCnt < aplNELM; uCnt++)
+                lpwszTemp =
+                  FormatAplRat (lpwszTemp,                  // Ptr to output save area
+                               *((LPAPLRAT) lpMemGlb)++);   // The value to format
+            Assert (lpwszTemp[-1] EQ L' ');
+
+            lpwszTemp[-1] = L'x';
+            *lpwszTemp++  = L' ';
+
+            break;
+
+        case ARRAY_VFP:
+            if (IsEmpty (aplNELM))
+            {
+                *lpwszTemp++ = UTF16_ZILDE;
+                *lpwszTemp++ = L' ';
+            } else
+            for (uCnt = 0; uCnt < aplNELM; uCnt++)
+                lpwszTemp =
+                  FormatAplVfp (lpwszTemp,                  // Ptr to output save area
+                              *((LPAPLVFP) lpMemGlb)++,     // The value to format
+                                0);                         // Use this many significant digits for VFP
+            Assert (lpwszTemp[-1] EQ L' ');
+
+            lpwszTemp[-1] = L'v';
+            *lpwszTemp++  = L' ';
+
+            break;
+
+        case ARRAY_HETERO:
+        case ARRAY_NESTED:
+            for (uCnt = 0; uCnt < aplNELM; uCnt++)
+            // Split cases based upon the item ptr bits
+            switch (GetPtrTypeDir (lpMemGlb[uCnt]))
+            {
+                case PTRTYPE_STCONST:
+                    lpwszTemp =
+                      FormatImmed (lpwszTemp,
+                                   ((LPSYMENTRY) lpMemGlb[uCnt])->stFlags.ImmType,
+                                  &((LPSYMENTRY) lpMemGlb[uCnt])->stData.stLongest);
+                    break;
+
+                case PTRTYPE_HGLOBAL:
+                    // Start with left paren
+                    *lpwszTemp++ = L'(';
+
+                    // Recurse into the nested array
+                    lpwszTemp =
+                      DisplayGlbVarSub (lpMemGlb[uCnt], lpwszTemp);
+
+                    // Check for "({zilde}) "
+                    if (lpwszTemp[-3] EQ L'('
+                     && lpwszTemp[-2] EQ UTF16_ZILDE
+                     && lpwszTemp[-1] EQ L' ')
+                    {
+                        lpwszTemp[-3] = UTF16_ZILDE;
+                        lpwszTemp[-2] = L' ';
+                        lpwszTemp = &lpwszTemp[-1];
+                    } else
+                        // End with right paren
+                        *lpwszTemp++ = L')';
+
+                    break;
+
+                defstop
+                    break;
+            } // End SWITCH
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
+
+    if (GetPtrTypeDir (hGlb) EQ PTRTYPE_HGLOBAL)
+    {
+        // We no longer need this ptr
+        MyGlobalUnlock (hGlb); lpMemGlb = NULL;
+    } // End IF
+
+    return lpwszTemp;
+} // End DisplayGlbVarSub
 #endif
 
 
@@ -826,29 +1163,32 @@ void DisplayHeap
     if (hGlb = ahHEAPALLOC[i])
     {
         // Weed out heap allocations for various constants
-        if (hGlb EQ mpzMinInt._mp_d
-         || hGlb EQ mpzMaxInt._mp_d
-         || hGlb EQ mpzMaxUInt._mp_d
-         || hGlb EQ mpqMinInt._mp_num._mp_d
-         || hGlb EQ mpqMinInt._mp_den._mp_d
-         || hGlb EQ mpqMaxInt._mp_num._mp_d
-         || hGlb EQ mpqMaxInt._mp_den._mp_d
-         || hGlb EQ mpqMaxUInt._mp_num._mp_d
-         || hGlb EQ mpqMaxUInt._mp_den._mp_d
-         || hGlb EQ mpqHalf._mp_num._mp_d
-         || hGlb EQ mpqHalf._mp_den._mp_d
-         || hGlb EQ mpfMinInt._mpfr_d
-         || hGlb EQ mpfMaxInt._mpfr_d
-         || hGlb EQ mpfMaxUInt._mpfr_d
-         || hGlb EQ lpMemPTD->mpfrE._mpfr_d
-         || hGlb EQ lpMemPTD->mpfrPi._mpfr_d
-         || hGlb EQ mpfHalf._mpfr_d
-         || hGlb EQ (HGLOBAL) ByteDiff (mpfMinInt       ._mpfr_d, 4)
-         || hGlb EQ (HGLOBAL) ByteDiff (mpfMaxInt       ._mpfr_d, 4)
-         || hGlb EQ (HGLOBAL) ByteDiff (mpfMaxUInt      ._mpfr_d, 4)
-         || hGlb EQ (HGLOBAL) ByteDiff (lpMemPTD->mpfrE ._mpfr_d, 4)
-         || hGlb EQ (HGLOBAL) ByteDiff (lpMemPTD->mpfrPi._mpfr_d, 4)
-         || hGlb EQ (HGLOBAL) ByteDiff (mpfHalf         ._mpfr_d, 4)
+        if (hGlb EQ mpzMinInt   ._mp_d
+         || hGlb EQ mpzMaxInt   ._mp_d
+         || hGlb EQ mpzMaxUInt  ._mp_d
+         || hGlb EQ mpqMinInt   ._mp_num._mp_d
+         || hGlb EQ mpqMinInt   ._mp_den._mp_d
+         || hGlb EQ mpqMaxInt   ._mp_num._mp_d
+         || hGlb EQ mpqMaxInt   ._mp_den._mp_d
+         || hGlb EQ mpqMaxUInt  ._mp_num._mp_d
+         || hGlb EQ mpqMaxUInt  ._mp_den._mp_d
+         || hGlb EQ mpqHalf     ._mp_num._mp_d
+         || hGlb EQ mpqHalf     ._mp_den._mp_d
+         || hGlb EQ mpfMinInt           ._mpfr_d
+         || hGlb EQ mpfMaxInt           ._mpfr_d
+         || hGlb EQ mpfMaxUInt          ._mpfr_d
+         || hGlb EQ lpMemPTD->mpfrE     ._mpfr_d
+         || hGlb EQ lpMemPTD->mpfrGamma ._mpfr_d
+         || hGlb EQ lpMemPTD->mpfrPi    ._mpfr_d
+         || hGlb EQ mpfHalf             ._mpfr_d
+         || hGlb EQ (HGLOBAL) ByteDiff (mpfMinInt           ._mpfr_d, 4)
+         || hGlb EQ (HGLOBAL) ByteDiff (mpfMaxInt           ._mpfr_d, 4)
+         || hGlb EQ (HGLOBAL) ByteDiff (mpfMaxUInt          ._mpfr_d, 4)
+         || hGlb EQ (HGLOBAL) ByteDiff (lpMemPTD->mpfrE     ._mpfr_d, 4)
+         || hGlb EQ (HGLOBAL) ByteDiff (lpMemPTD->mpfrGamma ._mpfr_d, 4)
+         || hGlb EQ (HGLOBAL) ByteDiff (lpMemPTD->mpfrPi    ._mpfr_d, 4)
+         || hGlb EQ (HGLOBAL) ByteDiff (mpfHalf             ._mpfr_d, 4)
+         || hGlb EQ lpMemPTD->randState->_mp_seed->_mp_d
            )
             continue;
         // Loop through NthPowerTab
@@ -862,12 +1202,13 @@ void DisplayHeap
 ////////aplSize = HeapSize (GetProcessHeap (), 0, hGlb);
         aplSize = dlmalloc_usable_size (hGlb);
 
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"hGlb=%p, size=%I64u (%S#%d)",
-                   hGlb,
-                   aplSize,
-                   "",      // lpaFileNameHEAPALLOC[i],
-                   auLinNumHEAPALLOC[i]);
+                    hGlb,
+                    aplSize,
+                    "",      // lpaFileNameHEAPALLOC[i],
+                    auLinNumHEAPALLOC[i]);
         DbgMsgW (wszTemp);
     } // End FOR/IF
 
@@ -900,7 +1241,7 @@ void DisplayTokens
     DbgMsgW (L"********** Start Tokens ********************************");
 
     // Ensure it's valid
-    if (!lpMemTknHdr)
+    if (lpMemTknHdr EQ NULL)
     {
         DbgMsgW (L"DisplayTokens:  ***INAVLID HANDLE***:  lpMemTknHdr EQ 0");
         return;
@@ -909,12 +1250,13 @@ void DisplayTokens
     // Get ptr to PerTabData global memory
     lpMemPTD = GetMemPTD ();
 
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"lpMemTknLine = %p, Version # = %d, TokenCnt = %d, PrevGroup = %d",
-               lpMemTknHdr,
-               lpMemTknHdr->Version,
-               lpMemTknHdr->TokenCnt,
-               lpMemTknHdr->PrevGroup);
+                lpMemTknHdr,
+                lpMemTknHdr->Version,
+                lpMemTknHdr->TokenCnt,
+                lpMemTknHdr->PrevGroup);
     DbgMsgW (wszTemp);
 
     iLen = lpMemTknHdr->TokenCnt;
@@ -923,12 +1265,15 @@ void DisplayTokens
 
     for (i = 0; i < iLen; i++, lpMemTknLine++)
     {
-        wsprintfW (wszTemp,
-                   L"(%2d) Data=%I64X, CharIndex=%2d, Type=%S",
-                   i,
-                   *(LPAPLINT) &lpMemTknLine->tkData.tkFloat,
-                   lpMemTknLine->tkCharIndex,
-                   GetTokenTypeName (lpMemTknLine->tkFlags.TknType));
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                   L"(%2d) Data=%I64X, CharIndex=%2d, Type=%S, so=<%s>",
+                    i,
+                    *(LPAPLINT) &lpMemTknLine->tkData.tkFloat,
+                    lpMemTknLine->tkCharIndex,
+                    GetTokenTypeName (lpMemTknLine->tkFlags.TknType),
+                    (lpMemTknLine->tkSynObj EQ soNONE) ? L"NONE"
+                                                       : soNames[lpMemTknLine->tkSynObj]);
         DbgMsgW (wszTemp);
     } // End FOR
 
@@ -965,7 +1310,7 @@ static TOKENNAMES tokenNames[] =
  {"LISTSEP"       , TKT_LISTSEP       },    // 07: List separator    (data is ';')
  {"LABELSEP"      , TKT_LABELSEP      },    // 08: Label ...         (data is ':')
  {"COLON"         , TKT_COLON         },    // 09: Colon             (data is ':')
- {"FCNIMMED"      , TKT_FCNIMMED      },    // 0A: Primitive function (any valence) (data is UTF16_***)
+ {"FCNIMMED"      , TKT_FCNIMMED      },    // 0A: Primitive function (any # args) (data is UTF16_***)
  {"OP1IMMED"      , TKT_OP1IMMED      },    // 0B: Monadic primitive operator (data is UTF16_***)
  {"OP2IMMED"      , TKT_OP2IMMED      },    // 0C: Dyadic  ...
  {"OP3IMMED"      , TKT_OP3IMMED      },    // 0D: Ambiguous ...
@@ -1059,9 +1404,10 @@ static TOKENNAMES tokenNames[] =
     {
         static char szTemp[64];
 
-        wsprintf (szTemp,
-                  "***Unknown Token Type:  %d***",
-                  uType);
+        MySprintf (szTemp,
+                   sizeof (szTemp),
+                   "***Unknown Token Type:  %d***",
+                   uType);
         return szTemp;
     } // End IF/ELSE
 } // End GetTokenTypeName
@@ -1104,13 +1450,11 @@ void DisplayFcnStrand
     {
         case TKT_VARNAMED:          // Because we don't distinguish between
                                     //   functions and variables in AssignName_EM
-            DbgBrk ();          // ***FINISHME*** -- TKT_VARNAMED in DisplayFcnStrand
-
-
-
-
-
-
+            // This DEBUG stmt probably never is triggered because
+            //    pl_yylex converts all unassigned named vars to temps
+#ifdef DEBUG
+            DbgStop ();         // ***Probably never executed***
+#endif
             break;
 
         case TKT_FCNIMMED:
@@ -1240,7 +1584,7 @@ LPWCHAR DisplayFcnGlb
     NAME_TYPES        fnNameType;               // Function array name type
 
     // Lock the memory to get a ptr to it
-    lpHeader = MyGlobalLock (hGlbFcnArr);
+    lpHeader = MyGlobalLockFcn (hGlbFcnArr);
 
     // Get the NELM and NAMETYPE_xxx
     tknNELM    = lpHeader->tknNELM;
@@ -1249,12 +1593,12 @@ LPWCHAR DisplayFcnGlb
 #ifdef DEBUG
     if (bDispHeader)
         lpaplChar += wsprintfW (lpaplChar,
-                                L"%sfnNameType=%s, NELM=%3d, RC=%2d%s, Fn:  ",
+                               L"%p = %sfnNameType=%s, NELM=%3d, RC=%2d, Fn:  ",
+                                hGlbFcnArr,
                                 (lpHeader->RefCnt NE 1) ? WS_UTF16_REFCNT_NE1 : L"",
                                 lpwNameTypeStr[lpHeader->fnNameType],
                                 tknNELM,
-                                lpHeader->RefCnt,
-                                lpHeader->SkipRefCntIncr ? L"*" : L" ");
+                                lpHeader->RefCnt);
 #endif
     // Skip over the function array header
     lpMemFcnArr = FcnArrayBaseToData (lpHeader);
@@ -1362,57 +1706,42 @@ LPWCHAR DisplayFcnSub
 {
     HGLOBAL      hGlbData;          // Function array global memory handle
     LPVOID       lpMemData;         // Ptr to function array global memory
-    UINT         TknCount;          // Token count
+    UINT         TknLftCount,       // Token count to the left operand
+                 TknRhtCount = 0;   // ...                right ...
     NAME_TYPES   fnNameType;        // Function array name type
     LPPL_YYSTYPE lpMemFcnArr;       // Ptr to function array data
     LPDFN_HEADER lpMemDfnHdr;       // Ptr to AFO global memory header
+    UBOOL        bAxisOper;         // TRUE iff there an axis operator
+
+    // Check for axis operator
+    bAxisOper = (tknNELM > 1
+              && IsTknTypeAxis (lpYYMem[1].tkToken.tkFlags.TknType));
 
     // Split cases based upon the token type
     switch (lpYYMem[0].tkToken.tkFlags.TknType)
     {
         case TKT_OP1IMMED:
         case TKT_OP3IMMED:
-            // Check for axis operator
-            if (tknNELM > 1
-             && (lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISIMMED
-              || lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISARRAY))
-            {
-                // If there's a function, ...
-                if (tknNELM > 2)
-                    lpaplChar =
-                      DisplayFcnSub (lpaplChar,                                         // Fcn
-                                    &lpYYMem[2],
-                                     tknNELM - 2,
-                                     lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
-                                     lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
-                                     lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
-                                     lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-                // Translate from INDEX_xxx to UTF16_xxx
-                *lpaplChar++ = TranslateFcnOprToChar (lpYYMem[0].tkToken.tkData.tkChar);// Op1
+            // Get the token count to the left operand
+            TknLftCount = 1 + bAxisOper;    // Skip over the function & axis (if any)
+
+            // If there's room for a left operand, ...
+            if (tknNELM > TknLftCount)
+                // Display the left operand
                 lpaplChar =
-                  DisplayFcnSub (lpaplChar,                                             // [X]
-                                &lpYYMem[1],
-                                 1,
+                  DisplayFcnSub (lpaplChar,                                         // Fcn
+                                &lpYYMem[TknLftCount],
+                                 lpYYMem[TknLftCount].TknCount,
                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-            } else
             // If the monadic operator is not INDEX_OPTRAIN, ...
             if (lpYYMem[0].tkToken.tkData.tkChar NE INDEX_OPTRAIN)
-            {
-                if (tknNELM > 1)
-                    lpaplChar =
-                      DisplayFcnSub (lpaplChar,                                         // Fcn
-                                    &lpYYMem[1],
-                                     tknNELM - 1,
-                                     lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
-                                     lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
-                                     lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
-                                     lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-                    // Translate from INDEX_xxx to UTF16_xxx
-                    *lpaplChar++ = TranslateFcnOprToChar (lpYYMem[0].tkToken.tkData.tkChar);// Op1
-            } else
+                // Translate from INDEX_xxx to UTF16_xxx
+                // Display the immediate operator
+                *lpaplChar++ = TranslateFcnOprToChar (lpYYMem[0].tkToken.tkData.tkChar);// Op1
+            else
             {
                 // Skip to the next entry
                 lpMemFcnArr = &lpYYMem[tknNELM];
@@ -1448,52 +1777,113 @@ LPWCHAR DisplayFcnSub
                 *lpaplChar++ = L')';
             } // End IF/ELSE/...
 
+            // Check for axis operator
+            if (bAxisOper)
+                // Display the axis operator
+                lpaplChar =
+                  DisplayFcnSub (lpaplChar,                                             // [X]
+                                &lpYYMem[1],
+                                 lpYYMem[1].TknCount,
+                                 lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
+                                 lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
             break;
 
         case TKT_OP2IMMED:
-            TknCount = 1 + lpYYMem[1].TknCount;
-            lpaplChar =
-              DisplayFcnSub (lpaplChar,                                                 // Lfcn
-                            &lpYYMem[1],
-                             lpYYMem[1].TknCount,
-                             lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
-                             lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
-                             lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
-                             lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
+            // Get the token count to the right operand
+            TknRhtCount = 1 + bAxisOper;    // Skip over the function & axis (if any)
+
+            // Get the token count to the left operand
+            TknLftCount = TknRhtCount + lpYYMem[TknRhtCount].TknCount;
+
+            // If there's room for a left operand, ...
+            if (tknNELM > TknLftCount)
+                // Display the left operand
+                lpaplChar =
+                  DisplayFcnSub (lpaplChar,                                                 // Lfcn
+                                &lpYYMem[TknLftCount],
+                                 lpYYMem[TknLftCount].TknCount,
+                                 lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
+                                 lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
             // Translate from INDEX_xxx to UTF16_xxx
+            // Display the immediate operator
             *lpaplChar++ = TranslateFcnOprToChar (lpYYMem[0].tkToken.tkData.tkChar);    // Op2
-            if (lpYYMem[TknCount].TknCount > 1)
+
+            // If the right operand has multiple tokens, ...
+            if (lpYYMem[TknRhtCount].TknCount > 1)
                 *lpaplChar++ = L'(';
+            // Display the right operand
             lpaplChar =
               DisplayFcnSub (lpaplChar,                                                 // Rfcn
-                            &lpYYMem[TknCount],
-                             lpYYMem[TknCount].TknCount,
+                            &lpYYMem[TknRhtCount],
+                             lpYYMem[TknRhtCount].TknCount,
                              lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                              lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                              lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                              lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-            if (lpYYMem[TknCount].TknCount > 1)
+            // If the right operand has multiple tokens, ...
+            if (lpYYMem[TknRhtCount].TknCount > 1)
                 *lpaplChar++ = L')';
             break;
 
         case TKT_FCNIMMED:
         case TKT_FILLJOT:
             // Translate from INDEX_xxx to UTF16_xxx
+            // Display the function
             *lpaplChar++ = TranslateFcnOprToChar (lpYYMem[0].tkToken.tkData.tkChar);    // Fcn
 
             // Check for axis operator
-            if (tknNELM > 1
-             && (lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISIMMED
-              || lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISARRAY))
+            if (bAxisOper)
+                // Display the axis operator
                 lpaplChar =
                   DisplayFcnSub (lpaplChar,                                             // [X]
                                 &lpYYMem[1],
-                                 1,
+                                 lpYYMem[1].TknCount,
                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
             break;
+
+        case TKT_OP1NAMED:
+        case TKT_OP2NAMED:
+        case TKT_OP3NAMED:
+            // If there's a right operand, ...
+            if (lpYYMem[0].tkToken.tkFlags.TknType EQ TKT_OP2NAMED)
+            {
+                // Get the token count to the right operand
+                TknRhtCount = 1 + bAxisOper;    // Skip over the function & axis (if any)
+
+                // Get the token count to the left operand
+                TknLftCount = TknRhtCount + lpYYMem[TknRhtCount].TknCount;
+            } else
+            {
+                // Get the token count to the right operand (none)
+                TknRhtCount = 0;
+
+                // Get the token count to the left operand
+                TknLftCount = 1 + bAxisOper;
+            } // End IF/ELSE
+
+            // If there's room for a left operand, ...
+            if (tknNELM > TknLftCount)
+            {
+                // Display the left operand
+                lpaplChar =
+                  DisplayFcnSub (lpaplChar,                                             // Lfcn
+                                &lpYYMem[TknLftCount],
+                                 lpYYMem[TknLftCount].TknCount,
+                                 lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
+                                 lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
+                *lpaplChar++ = L' ';                                                    // Sep
+            } // End IF
+
+            // Fall through to the function name display
 
         case TKT_FCNNAMED:
             // tkData is an LPSYMENTRY
@@ -1533,7 +1923,7 @@ LPWCHAR DisplayFcnSub
 
                         case DFN_HEADER_SIGNATURE:
                             // Lock the memory to get a ptr to it
-                            lpMemDfnHdr = MyGlobalLock (hGlbData);
+                            lpMemDfnHdr = MyGlobalLockDfn (hGlbData);
 
                             // Append the function name from the symbol table
                             lpaplChar = CopySteName (lpaplChar, lpMemDfnHdr->steFcnName, NULL);
@@ -1552,17 +1942,38 @@ LPWCHAR DisplayFcnSub
                 *lpaplChar++ = lpYYMem->tkToken.tkData.tkSym->stData.stChar;
 
             // Check for axis operator
-            if (tknNELM > 1
-             && (lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISIMMED
-              || lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISARRAY))
+            if (bAxisOper)
+                // Display the axis operator
                 lpaplChar =
                   DisplayFcnSub (lpaplChar,                                             // [X]
                                 &lpYYMem[1],
-                                 1,
+                                 lpYYMem[1].TknCount,
                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
+            // If there's a right operand, ...
+            if (TknRhtCount NE 0)
+            {
+                // If the right operand has multiple tokens, ...
+                if (lpYYMem[TknRhtCount].TknCount > 1)
+                    *lpaplChar++ = L'(';
+                else
+                    *lpaplChar++ = L' ';
+                // Display the right operand
+                lpaplChar =
+                  DisplayFcnSub (lpaplChar,                                                 // Rfcn
+                                &lpYYMem[TknRhtCount],
+                                 lpYYMem[TknRhtCount].TknCount,
+                                 lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
+                                 lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
+                // If the right operand has multiple tokens, ...
+                if (lpYYMem[TknRhtCount].TknCount > 1)
+                    *lpaplChar++ = L')';
+            } // End IF
+
             break;
 
         case TKT_OPJOTDOT:
@@ -1576,7 +1987,7 @@ LPWCHAR DisplayFcnSub
                 lpaplChar =
                   DisplayFcnSub (lpaplChar,                                             // Fcn
                                 &lpYYMem[1],
-                                tknNELM - 1,
+                                 lpYYMem[1].TknCount,
                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
@@ -1592,7 +2003,7 @@ LPWCHAR DisplayFcnSub
             lpaplChar =
               FormatImmed (lpaplChar,           // ***FIXME*** Use FormatImmedFC ??
                            lpYYMem[0].tkToken.tkFlags.ImmType,
-                          &lpYYMem[0].tkToken.tkData.tkLongest);
+                           GetPtrTknLongest (&lpYYMem[0].tkToken));
             lpaplChar[-1] = L']';   // Overwrite the trailing blank
 
             break;
@@ -1603,7 +2014,7 @@ LPWCHAR DisplayFcnSub
             // Display the var array
             lpaplChar =
               DisplayVarSub (lpaplChar,                         // Ptr to output save area
-                             lpYYMem->tkToken.tkData.tkGlbData, // Object global memory handle
+                             GetGlbHandle (&lpYYMem->tkToken),  // Object global memory handle
                              lpSavedWsGlbVarConv,               // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                              lpSavedWsGlbVarParm);              // Ptr to extra parameters for lpSavedWsGlbVarConv
 
@@ -1615,7 +2026,7 @@ LPWCHAR DisplayFcnSub
             lpaplChar =
               FormatImmed (lpaplChar,           // ***FIXME*** Use FormatImmedFC ??
                            lpYYMem[0].tkToken.tkFlags.ImmType,
-                          &lpYYMem[0].tkToken.tkData.tkLongest);
+                           GetPtrTknLongest (&lpYYMem[0].tkToken));
             if (lpaplChar[-1] EQ L' ')
                 lpaplChar--;            // Back over the trailing blank
             break;
@@ -1627,14 +2038,14 @@ LPWCHAR DisplayFcnSub
             // Display the var array
             lpaplChar =
               DisplayVarSub (lpaplChar,                         // Ptr to output save area
-                             lpYYMem->tkToken.tkData.tkGlbData, // Object global memory handle
+                             GetGlbHandle (&lpYYMem->tkToken),  // Object global memory handle
                              lpSavedWsGlbVarConv,               // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                              lpSavedWsGlbVarParm);              // Ptr to extra parameters for lpSavedWsGlbVarConv
             break;
 
         case TKT_FCNARRAY:
             // Get the function array global memory handle
-            hGlbData = lpYYMem->tkToken.tkData.tkGlbData;
+            hGlbData = GetGlbHandle (&lpYYMem->tkToken);
 
             // tkData is a valid HGLOBAL function array
             //   or user-defined function/operator
@@ -1642,7 +2053,7 @@ LPWCHAR DisplayFcnSub
                  || IsGlbTypeDfnDir_PTB (hGlbData));
 
             // Lock the memory to get a ptr to it
-            lpMemData = MyGlobalLock (hGlbData);
+            lpMemData = MyGlobalLockFcn (hGlbData);
 
             // Split cases based upon the array signature
             switch (GetSignatureMem (lpMemData))
@@ -1672,75 +2083,57 @@ LPWCHAR DisplayFcnSub
                     switch (((LPDFN_HEADER) lpMemData)->DfnType)
                     {
                         case DFNTYPE_OP1:
-                            // Check for axis operator
-                            if (tknNELM > 1
-                             && (lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISIMMED
-                              || lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISARRAY))
-                            {
-                                // If there's a function, ...
-                                if (tknNELM > 2)
-                                {
-                                    lpaplChar =
-                                      DisplayFcnSub (lpaplChar,                                         // Fcn
-                                                    &lpYYMem[2],
-                                                     tknNELM - 2,
-                                                     lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
-                                                     lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
-                                                     lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
-                                                     lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-                                    *lpaplChar++ = L' ';                                                // Sep
-                                } // End IF
+                            // Get the token count to the left operand
+                            TknLftCount = 1 + bAxisOper;    // Skip over the function & axis (if any)
 
+                            // If there's room for a left operand, ...
+                            if (tknNELM > TknLftCount)
+                                // Display the left operand
                                 lpaplChar =
-                                  FillDfnName (lpaplChar,               // Ptr to output save area      // Op1
-                                               hGlbData,                // Global memory handle
-                                               lpMemData,               // Ptr to global memory
-                                               lpSavedWsGlbFcnConv,     // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
-                                               lpSavedWsGlbFcnParm);    // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-                                *lpaplChar++ = L' ';                                                    // Sep
-                                lpaplChar =
-                                  DisplayFcnSub (lpaplChar,                                             // [X]
-                                                &lpYYMem[1],
-                                                 1,
+                                  DisplayFcnSub (lpaplChar,                                         // Fcn
+                                                &lpYYMem[TknLftCount],
+                                                 lpYYMem[TknLftCount].TknCount,
                                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                                                  lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-                            } else
-                            {
-                                if (tknNELM > 1)
-                                {
-                                    lpaplChar =
-                                      DisplayFcnSub (lpaplChar,                                         // Fcn
-                                                    &lpYYMem[1],
-                                                     tknNELM - 1,
-                                                     lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
-                                                     lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
-                                                     lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
-                                                     lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-                                    *lpaplChar++ = L' ';                                                // Sep
-                                } // End IF
+                            // Display the operator name
+                            lpaplChar =
+                              FillDfnName (lpaplChar,               // Ptr to output save area      // Op1
+                                           hGlbData,                // Global memory handle
+                                           lpMemData,               // Ptr to global memory
+                                           lpSavedWsGlbFcnConv,     // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
+                                           lpSavedWsGlbFcnParm);    // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
+                            *lpaplChar++ = L' ';                                                    // Sep
 
+                            // Check for axis operator
+                            if (bAxisOper)
+                                // Display the axis operator
                                 lpaplChar =
-                                  FillDfnName (lpaplChar,               // Ptr to output save area      // Op1
-                                               hGlbData,                // Global memory handle
-                                               lpMemData,               // Ptr to global memory
-                                               lpSavedWsGlbFcnConv,     // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
-                                               lpSavedWsGlbFcnParm);    // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-                            } // End IF/ELSE
-
+                                  DisplayFcnSub (lpaplChar,                                             // [X]
+                                                &lpYYMem[1],
+                                                 lpYYMem[1].TknCount,
+                                                 lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
+                                                 lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
+                                                 lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
+                                                 lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
                             break;
 
                         case DFNTYPE_OP2:
-                            TknCount = 1 + lpYYMem[1].TknCount;
+                            // Get the token count to the right operand
+                            TknRhtCount = 1 + bAxisOper;    // Skip over the function & axis (if any)
 
-                            // If there's a left operand, ...
-                            if (tknNELM > 2)
+                            // Get the token count to the left operand
+                            TknLftCount = TknRhtCount + lpYYMem[TknRhtCount].TknCount;
+
+                            // If there's room for a left operand, ...
+                            if (tknNELM > TknLftCount)
                             {
+                                // Display the left operand
                                 lpaplChar =
                                   DisplayFcnSub (lpaplChar,                                             // Lfcn
-                                                &lpYYMem[1],
-                                                 lpYYMem[1].TknCount,
+                                                &lpYYMem[TknLftCount],
+                                                 lpYYMem[TknLftCount].TknCount,
                                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
@@ -1748,25 +2141,28 @@ LPWCHAR DisplayFcnSub
                                 *lpaplChar++ = L' ';                                                    // Sep
                             } // End IF
 
+                            // Display the function name
                             lpaplChar =
                               FillDfnName (lpaplChar,               // Ptr to output save area          // Op2
                                            hGlbData,                // Global memory handle
                                            lpMemData,               // Ptr to global memory
                                            lpSavedWsGlbFcnConv,     // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                                            lpSavedWsGlbFcnParm);    // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-                            if (lpYYMem[TknCount].TknCount > 1)
+                            // If the right operand has multiple tokens, ...
+                            if (lpYYMem[TknRhtCount].TknCount > 1)
                                 *lpaplChar++ = L'(';
                             else
                                 *lpaplChar++ = L' ';
                             lpaplChar =
                               DisplayFcnSub (lpaplChar,                                                 // Rfcn
-                                            &lpYYMem[TknCount],
-                                             lpYYMem[TknCount].TknCount,
+                                            &lpYYMem[TknRhtCount],
+                                             lpYYMem[TknRhtCount].TknCount,
                                              lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                              lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                              lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                                              lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-                            if (lpYYMem[TknCount].TknCount > 1)
+                            // If the right operand has multiple tokens, ...
+                            if (lpYYMem[TknRhtCount].TknCount > 1)
                                 *lpaplChar++ = L')';
                             break;
 
@@ -1778,13 +2174,12 @@ LPWCHAR DisplayFcnSub
                                            lpSavedWsGlbFcnConv,     // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                                            lpSavedWsGlbFcnParm);    // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
                             // Check for axis operator
-                            if (tknNELM > 1
-                             && (lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISIMMED
-                              || lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISARRAY))
+                            if (bAxisOper)
+                                // Display the axis operator
                                 lpaplChar =
                                   DisplayFcnSub (lpaplChar,                                             // [X]
                                                 &lpYYMem[1],
-                                                 1,
+                                                 lpYYMem[1].TknCount,
                                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
@@ -1819,11 +2214,12 @@ LPWCHAR DisplayFcnSub
 
         case TKT_FCNAFO:
             // Get the AFO global memory handle
-            hGlbData = lpYYMem->tkToken.tkData.tkGlbData;
+            hGlbData = GetGlbHandle (&lpYYMem->tkToken);
 
             // Lock the memory to get a ptr to it
-            lpMemDfnHdr = MyGlobalLock (hGlbData);
+            lpMemDfnHdr = MyGlobalLockDfn (hGlbData);
 
+            // Display the function name
             lpaplChar =
               FillDfnName (lpaplChar,               // Ptr to output save area          // Fcn
                            hGlbData,                // Global memory handle
@@ -1831,13 +2227,12 @@ LPWCHAR DisplayFcnSub
                            lpSavedWsGlbFcnConv,     // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                            lpSavedWsGlbFcnParm);    // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
             // Check for axis operator
-            if (tknNELM > 1
-             && (lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISIMMED
-              || lpYYMem[1].tkToken.tkFlags.TknType EQ TKT_AXISARRAY))
+            if (bAxisOper)
+                // Display the axis operator
                 lpaplChar =
                   DisplayFcnSub (lpaplChar,                                             // [X]
                                 &lpYYMem[1],
-                                 1,
+                                 lpYYMem[1].TknCount,
                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
@@ -1849,17 +2244,22 @@ LPWCHAR DisplayFcnSub
 
         case TKT_OP1AFO:
             // Get the AFO global memory handle
-            hGlbData = lpYYMem->tkToken.tkData.tkGlbData;
+            hGlbData = GetGlbHandle (&lpYYMem->tkToken);
 
             // Lock the memory to get a ptr to it
-            lpMemDfnHdr = MyGlobalLock (hGlbData);
+            lpMemDfnHdr = MyGlobalLockDfn (hGlbData);
 
-            if (tknNELM > 1)
+            // Get the token count to the left operand
+            TknLftCount = 1 + bAxisOper;    // Skip over the function & axis (if any)
+
+            // If there's room for a left operand, ...
+            if (tknNELM > TknLftCount)
             {
+                // Display the left operand
                 lpaplChar =
                   DisplayFcnSub (lpaplChar,                                         // Fcn
-                                &lpYYMem[1],
-                                 tknNELM - 1,
+                                &lpYYMem[TknLftCount],
+                                 lpYYMem[TknLftCount].TknCount,
                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
@@ -1867,12 +2267,24 @@ LPWCHAR DisplayFcnSub
                 *lpaplChar++ = L' ';                                                // Sep
             } // End IF
 
+            // Display the function name
             lpaplChar =
               FillDfnName (lpaplChar,               // Ptr to output save area      // Op1
                            hGlbData,                // Global memory handle
                            lpMemDfnHdr,             // Ptr to global memory
                            lpSavedWsGlbFcnConv,     // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                            lpSavedWsGlbFcnParm);    // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
+            // Check for axis operator
+            if (bAxisOper)
+                // Display the axis operator
+                lpaplChar =
+                  DisplayFcnSub (lpaplChar,                                             // [X]
+                                &lpYYMem[1],
+                                 lpYYMem[1].TknCount,
+                                 lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
+                                 lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
+                                 lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
             // We no longer need this ptr
             MyGlobalUnlock (hGlbData); lpMemDfnHdr = NULL;
 
@@ -1880,20 +2292,25 @@ LPWCHAR DisplayFcnSub
 
         case TKT_OP2AFO:
             // Get the AFO global memory handle
-            hGlbData = lpYYMem->tkToken.tkData.tkGlbData;
+            hGlbData = GetGlbHandle (&lpYYMem->tkToken);
 
             // Lock the memory to get a ptr to it
-            lpMemDfnHdr = MyGlobalLock (hGlbData);
+            lpMemDfnHdr = MyGlobalLockDfn (hGlbData);
 
-            TknCount = 1 + lpYYMem[1].TknCount;
+            // Get the token count to the right operand
+            TknRhtCount = 1 + bAxisOper;    // Skip over the function & axis (if any)
 
-            // If there's a left operand, ...
-            if (tknNELM > 2)
+            // Get the token count to the left operand
+            TknLftCount = TknRhtCount + lpYYMem[TknRhtCount].TknCount;
+
+            // If there's room for a left operand, ...
+            if (tknNELM > TknLftCount)
             {
+                // Display the left operand
                 lpaplChar =
-                  DisplayFcnSub (lpaplChar,                                             // Lfcn
-                                &lpYYMem[1],
-                                 lpYYMem[1].TknCount,
+                  DisplayFcnSub (lpaplChar,                                                 // Lfcn
+                                &lpYYMem[TknLftCount],
+                                 lpYYMem[TknLftCount].TknCount,
                                  lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                                  lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                                  lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
@@ -1901,25 +2318,29 @@ LPWCHAR DisplayFcnSub
                 *lpaplChar++ = L' ';                                                    // Sep
             } // End IF
 
+            // Display the operator name
             lpaplChar =
               FillDfnName (lpaplChar,               // Ptr to output save area          // Op2
                            hGlbData,                // Global memory handle
                            lpMemDfnHdr,             // Ptr to global memory
                            lpSavedWsGlbFcnConv,     // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                            lpSavedWsGlbFcnParm);    // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-            if (lpYYMem[TknCount].TknCount > 1)
+            // If the right operand has multiple tokens, ...
+            if (lpYYMem[TknRhtCount].TknCount > 1)
                 *lpaplChar++ = L'(';
             else
                 *lpaplChar++ = L' ';
+            // Display the right operand
             lpaplChar =
               DisplayFcnSub (lpaplChar,                                                 // Rfcn
-                            &lpYYMem[TknCount],
-                             lpYYMem[TknCount].TknCount,
+                            &lpYYMem[1],
+                             lpYYMem[1].TknCount,
                              lpSavedWsGlbVarConv,   // Ptr to function to convert an HGLOBAL var to FMTSTR_GLBOBJ (may be NULL)
                              lpSavedWsGlbVarParm,   // Ptr to extra parameters for lpSavedWsGlbVarConv (may be NULL)
                              lpSavedWsGlbFcnConv,   // Ptr to function to convert an HGLOBAL fcn to FMTSTR_GLBOBJ (may be NULL)
                              lpSavedWsGlbFcnParm);  // Ptr to extra parameters for lpSavedWsGlbFcnConv (may be NULL)
-            if (lpYYMem[TknCount].TknCount > 1)
+            // If the right operand has multiple tokens, ...
+            if (lpYYMem[TknRhtCount].TknCount > 1)
                 *lpaplChar++ = L')';
 
             // We no longer need this ptr
@@ -1937,9 +2358,6 @@ LPWCHAR DisplayFcnSub
 
             break;
 
-        case TKT_OP1NAMED:          // At the moment, named operators are all one char
-        case TKT_OP2NAMED:          //   symbols (no assignment of {jot}{dot}), so they
-        case TKT_OP3NAMED:          //   are all immediates and are handled as such above.
         defstop
             break;
     } // End SWITCH
@@ -1991,10 +2409,10 @@ LPWCHAR DisplayVarSub
            && IsMultiNELM (aplNELM))))
         {
             // Lock the memory to get a ptr to it
-            lpMemData = MyGlobalLock (hGlbData);
+            lpMemData = MyGlobalLockVar (hGlbData);
 
             // Skip over the header and dimensions to the data
-            lpMemData = VarArrayBaseToData (lpMemData, aplRank);
+            lpMemData = VarArrayDataFmBase (lpMemData);
 
             // Split cases based upon the storage type
             switch (aplType)
@@ -2006,7 +2424,7 @@ LPWCHAR DisplayVarSub
                     for (uCnt = 0; uCnt < aplNELM; uCnt++)
                         // Format the next value as an integer
                         lpaplChar =
-                          FormatAplint (lpaplChar,                                  // Ptr to output save area
+                          FormatAplInt (lpaplChar,                                  // Ptr to output save area
                                         GetNextInteger (lpMemData, aplType, uCnt)); // The value to format
                     break;
 
@@ -2015,9 +2433,9 @@ LPWCHAR DisplayVarSub
                     for (uCnt = 0; uCnt < aplNELM; uCnt++)
                         // Format the next value as an integer
                         lpaplChar =
-                          FormatFloat (lpaplChar,                                   // Ptr to output savea area
-                                       GetNextFloat (lpMemData, aplType, uCnt),     // The value to format
-                                       0);                                          // Use default significant digits
+                          FormatAplFlt (lpaplChar,                                  // Ptr to output savea area
+                                        GetNextFloat (lpMemData, aplType, uCnt),    // The value to format
+                                        0);                                         // Use default significant digits
                     break;
 
                 case ARRAY_CHAR:
@@ -2148,10 +2566,10 @@ void DisplayFcnLine
     // If the handle is valid, ...
     if (hGlbTxtLine)
         // Lock the memory to get a ptr to it
-        lpMemTxtLine = MyGlobalLock (hGlbTxtLine);
+        lpMemTxtLine = MyGlobalLockTxt (hGlbTxtLine);
 
     // Lock the memory to get a ptr to it
-    lpMemFcnName = MyGlobalLock (lpMemPTD->lpSISCur->hGlbFcnName);
+    lpMemFcnName = MyGlobalLockWsz (lpMemPTD->lpSISCur->hGlbFcnName);
 
     if (uLineNum EQ NEG1U)
         wsprintfW (lpMemPTD->lpwszTemp,
@@ -2258,11 +2676,12 @@ void DisplayStrand
             break;
     } // End SWITCH
 
-    wsprintfW (wszTemp,
+    MySprintfW (wszTemp,
+                sizeof (wszTemp),
                L"Start=%p Base=%p Next=%p",
-               lpplLocalVars->lpYYStrArrStart[strType],
-               lpplLocalVars->lpYYStrArrBase[strType],
-               lpplLocalVars->lpYYStrArrNext[strType]);
+                lpplLocalVars->lpYYStrArrStart[strType],
+                lpplLocalVars->lpYYStrArrBase[strType],
+                lpplLocalVars->lpYYStrArrNext[strType]);
     DbgMsgW (wszTemp);
 
     for (lp = lpplLocalVars->lpYYStrArrStart[strType], lpLast = NULL;
@@ -2280,19 +2699,19 @@ void DisplayStrand
 
         // Get the function array
 
-        wsprintfW (wszTemp,
-                   L"Strand (%p): %-9.9S D=%8I64X CI=%2d TC=%1d%s IN=%1d F=%p B=%p",
-                   lp,
-                   GetTokenTypeName (lp->tkToken.tkFlags.TknType),
-                   bIsTknImmed
-                 ?           lp->tkToken.tkData.tkInteger
-                 : (APLUINT) lp->tkToken.tkData.tkGlbData,
-                   lp->tkToken.tkCharIndex,
-                   lp->TknCount,
-                   GetVFOArraySRCIFlag (&lp->tkToken) ? L"*" : L" ",
-                   lp->YYIndirect,
-                   lp->lpYYFcnBase,
-                   lpLast);
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
+                   L"Strand (%p): %-9.9S D=%8I64X CI=%2d TC=%1d IN=%1d F=%p B=%p",
+                    lp,
+                    GetTokenTypeName (lp->tkToken.tkFlags.TknType),
+                    bIsTknImmed
+                  ?           lp->tkToken.tkData.tkInteger
+                  : (APLUINT) GetGlbHandle (&lp->tkToken),
+                    lp->tkToken.tkCharIndex,
+                    lp->TknCount,
+                    lp->YYIndirect,
+                    lp->lpYYFcnBase,
+                    lpLast);
         DbgMsgW (wszTemp);
     } // End FOR
 
@@ -2393,7 +2812,7 @@ void DisplayUndo
         *p = WC_CR;
 
     if (bShift)
-        DbgBrk ();
+        DbgBrk ();          // #ifdef DEBUG
 
     // We no longer need this ptr
     MyGlobalUnlock (hGlbEC); lpwsz = NULL;
@@ -2408,13 +2827,14 @@ void DisplayUndo
     // Loop through the undo buffer entries
     for (; lpUndoBeg < lpUndoNxt; lpUndoBeg++)
     {
-        wsprintfW (wszTemp,
+        MySprintfW (wszTemp,
+                    sizeof (wszTemp),
                    L"Act = %9s, %2d-%2d, Group = %3d, Char = 0x%04X",
-                   Actions[lpUndoBeg->Action],
-                   lpUndoBeg->CharPosBeg,
-                   lpUndoBeg->CharPosEnd,
-                   lpUndoBeg->Group,
-                   lpUndoBeg->Char);
+                    Actions[lpUndoBeg->Action],
+                    lpUndoBeg->CharPosBeg,
+                    lpUndoBeg->CharPosEnd,
+                    lpUndoBeg->Group,
+                    lpUndoBeg->Char);
         DbgMsgW (wszTemp);
     } // End FOR
 
@@ -2425,12 +2845,12 @@ void DisplayUndo
 
 #ifdef DEBUG
 //***************************************************************************
-//  $DisplayFnHdr
+//  $DisplayFcnHdr
 //
 //  Display the function header
 //***************************************************************************
 
-void DisplayFnHdr
+void DisplayFcnHdr
     (LPFHLOCALVARS lpfhLocalVars)       // Ptr to Function Header local vars
 
 {
@@ -2444,7 +2864,7 @@ void DisplayFnHdr
         return;
 
     // Initialize the output string
-    lstrcpyW (wszTemp, L"Saving function header:  " WS_UTF16_DEL L" ");
+    strcpyW (wszTemp, L"Saving function header:  " WS_UTF16_DEL L" ");
 
     // Check for result
     if (lpfhLocalVars->lpYYResult)
@@ -2454,34 +2874,44 @@ void DisplayFnHdr
 
         // Append a separator
         if (uLen > 1)
-            lstrcatW (wszTemp, L"(");
-
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L"(");
         for (uItm = 0; uItm < uLen; uItm++)
         {
             // Get the Name's global memory handle
             hGlbName = lpfhLocalVars->lpYYResult[uItm].tkToken.tkData.tkSym->stHshEntry->htGlbName;
 
             // Lock the memory to get a ptr to it
-            lpMemName = MyGlobalLock (hGlbName);
+            lpMemName = MyGlobalLockWsz (hGlbName);
 
             // Copy the name
-            lstrcatW (wszTemp, lpMemName);
-
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                       lpMemName);
             // If we're not at the last item, separate with a space
             if (uItm < (uLen - 1))
-                lstrcatW (wszTemp, L" ");
-
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                          L" ");
             // We no longer need this ptr
             MyGlobalUnlock (hGlbName); lpMemName = NULL;
         } // End FOR
 
         // Append a separator
         if (uLen > 1)
-            lstrcatW (wszTemp, L")");
-
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L")");
         // Append a left arrow
-        lstrcatW (wszTemp, WS_UTF16_LEFTARROW);
+        MyStrcatW (wszTemp,
+                   sizeof (wszTemp),
+                   WS_UTF16_LEFTARROW);
     } // End IF
+
+    //***************************************************************
+    // Left Argument
+    //***************************************************************
 
     // Check for left argument
     if (lpfhLocalVars->lpYYLftArg)
@@ -2491,39 +2921,49 @@ void DisplayFnHdr
 
         // Append a separator
         if (lpfhLocalVars->FcnValence EQ FCNVALENCE_AMB)
-            lstrcatW (wszTemp, L"{");
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L"{");
         else
         if (uLen > 1)
-            lstrcatW (wszTemp, L"(");
-
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L"(");
         for (uItm = 0; uItm < uLen; uItm++)
         {
             // Get the Name's global memory handle
             hGlbName = lpfhLocalVars->lpYYLftArg[uItm].tkToken.tkData.tkSym->stHshEntry->htGlbName;
 
             // Lock the memory to get a ptr to it
-            lpMemName = MyGlobalLock (hGlbName);
+            lpMemName = MyGlobalLockWsz (hGlbName);
 
             // Copy the name
-            lstrcatW (wszTemp, lpMemName);
-
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                       lpMemName);
             // If we're not at the last item, separate with a space
             if (uItm < (uLen - 1))
-                lstrcatW (wszTemp, L" ");
-
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                          L" ");
             // We no longer need this ptr
             MyGlobalUnlock (hGlbName); lpMemName = NULL;
         } // End FOR
 
         // Append a separator
         if (lpfhLocalVars->FcnValence EQ FCNVALENCE_AMB)
-            lstrcatW (wszTemp, L"}");
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L"}");
         else
         if (uLen > 1)
-            lstrcatW (wszTemp, L")");
-
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L")");
         // Append a separator
-        lstrcatW (wszTemp, L" ");
+        MyStrcatW (wszTemp,
+                   sizeof (wszTemp),
+                  L" ");
     } // End IF
 
     // Split cases based upon the user-defined function/operator type
@@ -2532,149 +2972,321 @@ void DisplayFnHdr
         case DFNTYPE_OP1:
         case DFNTYPE_OP2:
             // Append a separator
-            lstrcatW (wszTemp, L"(");
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L"(");
+            //***************************************************************
+            // Left Operand
+            //***************************************************************
 
-            // Get the Name's global memory handle
-            hGlbName = lpfhLocalVars->lpYYLftOpr->tkToken.tkData.tkSym->stHshEntry->htGlbName;
-
-            // Lock the memory to get a ptr to it
-            lpMemName = MyGlobalLock (hGlbName);
-
-            // Copy the name
-            lstrcatW (wszTemp, lpMemName);
-
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbName); lpMemName = NULL;
-
-            // Append a separator
-            lstrcatW (wszTemp, L" ");
-
-            // Get the Name's global memory handle
-            hGlbName = lpfhLocalVars->lpYYFcnName->tkToken.tkData.tkSym->stHshEntry->htGlbName;
-
-            // Lock the memory to get a ptr to it
-            lpMemName = MyGlobalLock (hGlbName);
-
-            // Copy the name
-            lstrcatW (wszTemp, lpMemName);
-
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbName); lpMemName = NULL;
-
-            // Check for right operand
-            if (lpfhLocalVars->lpYYRhtOpr)
+            // If there's a left opr name, ...
+            if (lpfhLocalVars->lpYYLftOpr->tkToken.tkData.tkSym->stHshEntry NE NULL)
             {
-                // Append a separator
-                lstrcatW (wszTemp, L" ");
-
                 // Get the Name's global memory handle
-                hGlbName = lpfhLocalVars->lpYYRhtOpr->tkToken.tkData.tkSym->stHshEntry->htGlbName;
+                hGlbName = lpfhLocalVars->lpYYLftOpr->tkToken.tkData.tkSym->stHshEntry->htGlbName;
 
                 // Lock the memory to get a ptr to it
-                lpMemName = MyGlobalLock (hGlbName);
+                lpMemName = MyGlobalLockWsz (hGlbName);
 
                 // Copy the name
-                lstrcatW (wszTemp, lpMemName);
-
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                           lpMemName);
                 // We no longer need this ptr
                 MyGlobalUnlock (hGlbName); lpMemName = NULL;
             } // End IF
 
             // Append a separator
-            lstrcatW (wszTemp, L")");
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L" ");
+            //***************************************************************
+            // Operator Name
+            //***************************************************************
 
+            // If there's a function name, ...
+            if (lpfhLocalVars->lpYYFcnName->tkToken.tkData.tkSym->stHshEntry NE NULL)
+            {
+                // Get the Name's global memory handle
+                hGlbName = lpfhLocalVars->lpYYFcnName->tkToken.tkData.tkSym->stHshEntry->htGlbName;
+
+                // Lock the memory to get a ptr to it
+                lpMemName = MyGlobalLockWsz (hGlbName);
+
+                // Copy the name
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                           lpMemName);
+                // We no longer need this ptr
+                MyGlobalUnlock (hGlbName); lpMemName = NULL;
+            } // End IF
+
+            //***************************************************************
+            // Axis Operand
+            //***************************************************************
+
+            // Check for axis operand
+            if (lpfhLocalVars->lpYYAxisOpr)
+            {
+                // Append a separator
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                          L"[");
+                // If there's an axis opr name, ...
+                if (lpfhLocalVars->lpYYAxisOpr->tkToken.tkData.tkSym->stHshEntry NE NULL)
+                {
+                    // Get the Name's global memory handle
+                    hGlbName = lpfhLocalVars->lpYYAxisOpr->tkToken.tkData.tkSym->stHshEntry->htGlbName;
+
+                    // Lock the memory to get a ptr to it
+                    lpMemName = MyGlobalLockWsz (hGlbName);
+
+                    // Copy the name
+                    MyStrcatW (wszTemp,
+                               sizeof (wszTemp),
+                               lpMemName);
+                    // We no longer need this ptr
+                    MyGlobalUnlock (hGlbName); lpMemName = NULL;
+                } // End IF
+
+                // Append a separator
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                          L"]");
+            } // End IF
+
+            //***************************************************************
+            // Right Operand
+            //***************************************************************
+
+            // Check for right operand
+            if (lpfhLocalVars->lpYYRhtOpr)
+            {
+                // Append a separator
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                          L" ");
+                // If there's a rht opr name, ...
+                if (lpfhLocalVars->lpYYRhtOpr->tkToken.tkData.tkSym->stHshEntry NE NULL)
+                {
+                    // Get the Name's global memory handle
+                    hGlbName = lpfhLocalVars->lpYYRhtOpr->tkToken.tkData.tkSym->stHshEntry->htGlbName;
+
+                    // Lock the memory to get a ptr to it
+                    lpMemName = MyGlobalLockWsz (hGlbName);
+
+                    // Copy the name
+                    MyStrcatW (wszTemp,
+                               sizeof (wszTemp),
+                               lpMemName);
+                    // We no longer need this ptr
+                    MyGlobalUnlock (hGlbName); lpMemName = NULL;
+                } // End IF
+            } // End IF
+
+            // Append a separator
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L")");
             break;
 
         case DFNTYPE_FCN:
-            // Get the Name's global memory handle
-            hGlbName = lpfhLocalVars->lpYYFcnName->tkToken.tkData.tkSym->stHshEntry->htGlbName;
+            //***************************************************************
+            // Function Name
+            //***************************************************************
 
-            // Lock the memory to get a ptr to it
-            lpMemName = MyGlobalLock (hGlbName);
+            // If there's a function name, ...
+            if (lpfhLocalVars->lpYYFcnName->tkToken.tkData.tkSym->stHshEntry NE NULL)
+            {
+                // Get the Name's global memory handle
+                hGlbName = lpfhLocalVars->lpYYFcnName->tkToken.tkData.tkSym->stHshEntry->htGlbName;
 
-            // Copy the name
-            lstrcatW (wszTemp, lpMemName);
+                // Lock the memory to get a ptr to it
+                lpMemName = MyGlobalLockWsz (hGlbName);
 
-            // We no longer need this ptr
-            MyGlobalUnlock (hGlbName); lpMemName = NULL;
+                // Copy the name
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                           lpMemName);
+                // We no longer need this ptr
+                MyGlobalUnlock (hGlbName); lpMemName = NULL;
+            } // End IF
+
+            //***************************************************************
+            // Axis Operand
+            //***************************************************************
+
+            // Check for axis operand
+            if (lpfhLocalVars->lpYYAxisOpr)
+            {
+                // Append a separator
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                          L"[");
+                // If there's an axis opr name, ...
+                if (lpfhLocalVars->lpYYAxisOpr->tkToken.tkData.tkSym->stHshEntry NE NULL)
+                {
+                    // Get the Name's global memory handle
+                    hGlbName = lpfhLocalVars->lpYYAxisOpr->tkToken.tkData.tkSym->stHshEntry->htGlbName;
+
+                    // Lock the memory to get a ptr to it
+                    lpMemName = MyGlobalLockWsz (hGlbName);
+
+                    // Copy the name
+                    MyStrcatW (wszTemp,
+                               sizeof (wszTemp),
+                               lpMemName);
+                    // We no longer need this ptr
+                    MyGlobalUnlock (hGlbName); lpMemName = NULL;
+                } // End IF
+
+                // Append a separator
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                          L"]");
+            } // End IF
 
             break;
 
         case DFNTYPE_UNK:
-            lstrcatW (wszTemp, L"<empty>");
-
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L"<empty>");
             break;
 
         defstop
             break;
     } // End SWITCH
 
+    //***************************************************************
+    // Right Argument
+    //***************************************************************
+
     // Check for right argument
     if (lpfhLocalVars->lpYYRhtArg)
     {
         // Append a separator
-        lstrcatW (wszTemp, L" ");
-
+        MyStrcatW (wszTemp,
+                   sizeof (wszTemp),
+                  L" ");
         // Get the strand length
         uLen = lpfhLocalVars->lpYYRhtArg->uStrandLen;
 
         // Append a separator
         if (uLen > 1)
-            lstrcatW (wszTemp, L"(");
-
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L"(");
         for (uItm = 0; uItm < uLen; uItm++)
         {
             // Get the Name's global memory handle
             hGlbName = lpfhLocalVars->lpYYRhtArg[uItm].tkToken.tkData.tkSym->stHshEntry->htGlbName;
 
             // Lock the memory to get a ptr to it
-            lpMemName = MyGlobalLock (hGlbName);
+            lpMemName = MyGlobalLockWsz (hGlbName);
 
             // Copy the name
-            lstrcatW (wszTemp, lpMemName);
-
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                       lpMemName);
             // If we're not at the last item, separate with a space
             if (uItm < (uLen - 1))
-                lstrcatW (wszTemp, L" ");
-
+                MyStrcatW (wszTemp,
+                           sizeof (wszTemp),
+                          L" ");
             // We no longer need this ptr
             MyGlobalUnlock (hGlbName); lpMemName = NULL;
         } // End FOR
 
         // Append a separator
         if (uLen > 1)
-            lstrcatW (wszTemp, L")");
+            MyStrcatW (wszTemp,
+                       sizeof (wszTemp),
+                      L")");
     } // End IF
 
     // Display it in the debug window
     DbgMsgW (wszTemp);
-} // End DisplayFnHdr
+} // End DisplayFcnHdr
 #endif
 
 
 #ifdef DEBUG
 //***************************************************************************
-//  $DisplayYYRes
+//  $ValidObj
 //
-//  Display a YYRes
+//  Validate that the HGLOBAL is as specified
 //***************************************************************************
 
-void DisplayYYRes
-    (LPPL_YYSTYPE lpYYRes)
+HGLOBAL _ValidObj
+    (HGLOBAL hMem,          // Address of the global memory object
+     UINT    uSig)          // Signature of   ...
 
 {
-    LPDWORD lpdw;
+    LPVOID  lpMem;
+    UINT    uLen,
+            uSiz;
 
-    lpdw = (DWORD *) &lpYYRes->tkToken;
+    // Lock the memory to get a ptr to it
+    lpMem = GlobalLock (ClrPtrTypeDir(hMem));
 
-    wsprintfW (lpwszGlbTemp,
-               L"%08X-%08X-%08X-%08X",
-               lpdw[0],
-               lpdw[1],
-               lpdw[2],
-               lpdw[3]);
-    MBWC (lpwszGlbTemp)
-} // End DisplayYYRes
+    // Split cases based upon the signature
+    switch (uSig)
+    {
+        case 0:             // 000:  Check for zero signature dword
+            Assert (((LPHEADER_SIGNATURE) lpMem)->nature EQ 0);
+
+            break;
+
+        case 100:           // 100:  Check for zero signature word
+            Assert (LOWORD (((LPHEADER_SIGNATURE) lpMem)->nature) EQ 0);
+
+            break;
+
+        case 1:             // Wsz:  No signature -- check for wide character vector
+            // Get the interior length
+            // "+ 1" for the terminating zero
+            uLen = (lstrlenW (lpMem) + 1) * sizeof (WCHAR);
+
+            // Get the overall size
+            uSiz = GlobalSize (ClrPtrTypeDir(hMem));
+
+            Assert (uLen EQ uSiz);
+
+            break;
+
+        case 2:             // Int:  no checks
+            break;
+
+        case 3:             // Txt:  LPMEMTXT_UNION
+#define lpTxt       ((LPMEMTXT_UNION) lpMem)
+            // Get the interior length
+            // "+ 1" for the terminating zero
+            uLen = sizeof (lpTxt->U)
+                 + (lstrlenW (&lpTxt->C) + 1) * sizeof (WCHAR);
+            // Handle the case of a line from an AFO which has the
+            //   trailing right brace truncated
+            if (((LPWCHAR) ByteAddr (lpTxt, uLen))[0] EQ L'}')
+                uLen += 2 * sizeof (WCHAR);
+            // Get the overall size
+            uSiz = GlobalSize (ClrPtrTypeDir(hMem));
+
+            Assert (uLen EQ uSiz);
+#undef  lpTxt
+            break;
+
+        default:            // All other signatures
+            Assert (((LPHEADER_SIGNATURE) lpMem)->nature EQ uSig
+                 || ((LPHEADER_SIGNATURE) lpMem)->nature EQ 0);
+
+            break;
+    } // End SWITCH
+
+    // We no longer need this ptr
+    GlobalUnlock (ClrPtrTypeDir(hMem)); lpMem = NULL;
+
+    return hMem;
+} // End _ValidObj
 #endif
 
 

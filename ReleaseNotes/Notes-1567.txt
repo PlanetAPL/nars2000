@@ -1,0 +1,10 @@
+Build #1567 -- Version 0.4.18.xx
+--------------------------------
+
+* Don't Save []WSID Into The Workspace .INI File
+
+Directory trunk:
+
+SC_SAVE.C:
+  In IF stmts always compare ptr against NULL.
+  Don't save []WSID into the workspace .INI file.

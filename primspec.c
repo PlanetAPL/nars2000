@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,10 +43,10 @@ LPPL_YYSTYPE PrimFnSyntaxError_EM
     static WCHAR wszTemp[1024];
 
     // Copy the error message to the temp
-    lstrcpyW (wszTemp, ERRMSG_SYNTAX_ERROR);
+    MyStrcpyW (wszTemp, sizeof (wszTemp), ERRMSG_SYNTAX_ERROR);
 
     // Append the suffix to the temp
-    lstrcatW (wszTemp, APPEND_NAME);
+    MyStrcatW (wszTemp, sizeof (wszTemp), APPEND_NAME);
 
     ErrorMessageIndirectToken (wszTemp, lptkFunc);
 #else
@@ -75,10 +75,10 @@ LPPL_YYSTYPE PrimFnValenceError_EM
     static WCHAR wszTemp[1024];
 
     // Copy the error message to the temp
-    lstrcpyW (wszTemp, ERRMSG_VALENCE_ERROR);
+    MyStrcpyW (wszTemp, sizeof (wszTemp), ERRMSG_VALENCE_ERROR);
 
     // Append the suffix to the temp
-    lstrcatW (wszTemp, APPEND_NAME);
+    MyStrcatW (wszTemp, sizeof (wszTemp), APPEND_NAME);
 
     ErrorMessageIndirectToken (wszTemp, lptkFunc);
 #else
@@ -107,10 +107,10 @@ LPPL_YYSTYPE PrimFnNonceError_EM
     static WCHAR wszTemp[1024];
 
     // Copy the error message to the temp
-    lstrcpyW (wszTemp, ERRMSG_NONCE_ERROR);
+    MyStrcpyW (wszTemp, sizeof (wszTemp), ERRMSG_NONCE_ERROR);
 
     // Append the suffix to the temp
-    lstrcatW (wszTemp, APPEND_NAME);
+    MyStrcatW (wszTemp, sizeof (wszTemp), APPEND_NAME);
 
     ErrorMessageIndirectToken (wszTemp, lptkFunc);
 #else
@@ -139,10 +139,10 @@ LPPL_YYSTYPE PrimFnDomainError_EM
     static WCHAR wszTemp[1024];
 
     // Copy the error message to the temp
-    lstrcpyW (wszTemp, ERRMSG_DOMAIN_ERROR);
+    MyStrcpyW (wszTemp, sizeof (wszTemp), ERRMSG_DOMAIN_ERROR);
 
     // Append the suffix to the temp
-    lstrcatW (wszTemp, APPEND_NAME);
+    MyStrcatW (wszTemp, sizeof (wszTemp), APPEND_NAME);
 
     ErrorMessageIndirectToken (wszTemp, lptkFunc);
 #else
@@ -171,25 +171,25 @@ LPPL_YYSTYPE PrimFnValueError_EM
     static WCHAR wszTemp[1024];
 
     // Copy the error message to the temp
-    lstrcpyW (wszTemp, ERRMSG_VALUE_ERROR);
+    MyStrcpyW (wszTemp, sizeof (wszTemp), ERRMSG_VALUE_ERROR);
 
     // Append the suffix to the temp
-    lstrcatW (wszTemp, APPEND_NAME);
+    MyStrcatW (wszTemp, sizeof (wszTemp), APPEND_NAME);
 
     // If there's a name attached to this error, ...
     if ((IsTknNamed   (lptkFunc)
-      || IsTknTypeAFO (lptkFunc->tkFlags.TknType))
+      || IsTknAFO     (lptkFunc))
      && GetPtrTypeDir (lptkFunc->tkData.tkVoid) EQ PTRTYPE_STCONST
      && lptkFunc->tkData.tkSym->stHshEntry)
     {
         // Leading separator
-        lstrcatW (wszTemp, L" (");
+        MyStrcatW (wszTemp, sizeof (wszTemp), L" (");
 
         // Append the name
-        lstrcatW (wszTemp, lptkFunc->tkData.tkSym->stHshEntry->lpwCharName);
+        MyStrcatW (wszTemp, sizeof (wszTemp), lptkFunc->tkData.tkSym->stHshEntry->lpwCharName);
 
         // Trailing separator
-        lstrcatW (wszTemp, L")");
+        MyStrcatW (wszTemp, sizeof (wszTemp), L")");
     } // End IF
 
     ErrorMessageIndirectToken (wszTemp, lptkFunc);
@@ -248,7 +248,7 @@ LPPL_YYSTYPE PrimProtoFnMixed_EM_YY
                            lptkFunc,        // Ptr to function token
                            lptkRhtArg,      // Ptr to right arg token
                            lptkAxis);       // Ptr to axis token (may be NULL)
-    if (lpYYRes)
+    if (lpYYRes NE NULL)
     // As this is a prototype function, convert
     //   the result to a prototype
     // Split cases based upon the result token type
@@ -340,9 +340,9 @@ LPPL_YYSTYPE PrimProtoFnScalar_EM_YY
 
         // Make the prototype
         hSymGlbRes =
-          MakeMonPrototype_EM_PTB (MakePtrTypeGlb (hGlbRht),    // Proto arg handle
-                                   lptkFunc,                    // Ptr to function token
-                                   MP_NUMONLY);                 // Numerics only
+          MakeMonPrototype_EM_PTB (hGlbRht,     // Proto arg handle
+                                   lptkFunc,    // Ptr to function token
+                                   MP_NUMONLY); // Numerics only
     } else
     {
         //***************************************************************
@@ -370,11 +370,11 @@ LPPL_YYSTYPE PrimProtoFnScalar_EM_YY
         } // End IF
 
         // If the left arg is global, ...
-        if (hGlbLft)
+        if (hGlbLft NE NULL)
             // Set the ptr type bits
             hGlbLft = MakePtrTypeGlb (hGlbLft);
         // If the right arg is global, ...
-        if (hGlbRht)
+        if (hGlbRht NE NULL)
             // Set the ptr type bits
             hGlbRht = MakePtrTypeGlb (hGlbRht);
 
@@ -388,7 +388,7 @@ LPPL_YYSTYPE PrimProtoFnScalar_EM_YY
                                    lptkAxis);                   // Ptr to axis value token (may be NULL)
     } // End IF
 
-    if (!hSymGlbRes)
+    if (hSymGlbRes EQ NULL)
         goto ERROR_EXIT;
 
     Assert (GetPtrTypeDir (hSymGlbRes) EQ PTRTYPE_HGLOBAL);
@@ -436,29 +436,31 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
      LPTOKEN lptkAxis)                  // Ptr to axis token (may be NULL)
 
 {
-    LPPL_YYSTYPE lpYYRes = NULL;        // Ptr to identity element result
-    APLSTYPE     aplTypeRht,            // Right arg storage type
-                 aplTypeRes;            // Result    ...
-    APLNELM      aplNELMRht,            // Right arg NELM
-                 aplNELMRes,            // Result    ...
-                 aplNELMAxis;           // Axis      ...
-    APLRANK      aplRankRht,            // Right arg rank
-                 aplRankRes;            // Result    ...
-    HGLOBAL      hGlbRht = NULL,        // Right arg global memory handle
-                 hGlbRes = NULL,        // Result    ...
-                 hGlbAxis = NULL;       // Axis      ...
-    LPVOID       lpMemRht = NULL,       // Ptr to right arg global memory
-                 lpMemRes = NULL;       // Ptr to result    ...
-    LPAPLDIM     lpMemDimRht,           // Ptr to right arg dimensions
-                 lpMemDimRes;           // Ptr to result    ...
-    APLLONGEST   aplLongestRht;         // Right arg immediate value
-    APLUINT      ByteRes;               // # bytes in the result
-    LPAPLUINT    lpMemAxisHead = NULL,  // Ptr to axis values, fleshed out by CheckAxis_EM
-                 lpMemAxisTail = NULL;  // Ptr to grade up of AxisHead
-    LPPRIMSPEC   lpPrimSpec;            // Ptr to function PRIMSPEC
-    LPPRIMFLAGS  lpPrimFlags;           // Ptr to function PrimFlags entry
-    LPPRIMIDENT  lpPrimIdent;           // Ptr to function PrimIdent entry
-    APLUINT      uRht;                  // Loop counter
+    LPPL_YYSTYPE      lpYYRes = NULL;       // Ptr to identity element result
+    APLSTYPE          aplTypeRht,           // Right arg storage type
+                      aplTypeRes;           // Result    ...
+    APLNELM           aplNELMRht,           // Right arg NELM
+                      aplNELMRes,           // Result    ...
+                      aplNELMAxis;          // Axis      ...
+    APLRANK           aplRankRht,           // Right arg rank
+                      aplRankRes;           // Result    ...
+    HGLOBAL           hGlbRht = NULL,       // Right arg global memory handle
+                      hGlbRes = NULL,       // Result    ...
+                      hGlbAxis = NULL;      // Axis      ...
+    LPVARARRAY_HEADER lpMemHdrRht = NULL,   // Ptr to right arg header
+                      lpMemHdrRes = NULL;   // ...    result    ...
+    LPVOID            lpMemRht,             // Ptr to right arg global memory
+                      lpMemRes;             // Ptr to result    ...
+    LPAPLDIM          lpMemDimRht,          // Ptr to right arg dimensions
+                      lpMemDimRes;          // Ptr to result    ...
+    APLLONGEST        aplLongestRht;        // Right arg immediate value
+    APLUINT           ByteRes;              // # bytes in the result
+    LPAPLUINT         lpMemAxisHead = NULL, // Ptr to axis values, fleshed out by CheckAxis_EM
+                      lpMemAxisTail = NULL; // Ptr to grade up of AxisHead
+    LPPRIMSPEC        lpPrimSpec;           // Ptr to function PRIMSPEC
+    LPPRIMFLAGS       lpPrimFlags;          // Ptr to function PrimFlags entry
+    LPPRIMIDENT       lpPrimIdent;          // Ptr to function PrimIdent entry
+    APLUINT           uRht;                 // Loop counter
 
     // The right arg is the prototype item from
     //   the original empty arg.
@@ -474,7 +476,7 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
     lpPrimFlags = GetPrimFlagsPtr (lptkFunc);
 
     // If there's an identity element, ...
-    if (lpPrimFlags && lpPrimFlags->IdentElem)
+    if (lpPrimFlags NE NULL && lpPrimFlags->IdentElem)
         lpPrimIdent = &PrimIdent[lpPrimFlags->Index];
     else
         goto DOMAIN_EXIT;
@@ -499,7 +501,7 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
             return NULL;
 
         // Lock the memory to get a ptr to it
-        lpMemAxisHead = MyGlobalLock (hGlbAxis);
+        lpMemAxisHead = MyGlobalLockInt (hGlbAxis);
 
         // Get pointer to the axis tail (where the [X] values are)
         lpMemAxisTail = &lpMemAxisHead[aplRankRht - aplNELMAxis];
@@ -519,7 +521,7 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
     if (IsErrorType (aplTypeRes))
         goto DOMAIN_EXIT;
 
-    Assert (IsSimpleNum (aplTypeRes)
+    Assert (IsSimpleGlbNum (aplTypeRes)
          || IsNested (aplTypeRes));
 
     // If the result is simple numeric, ...
@@ -535,7 +537,7 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
     } // End IF
 
     // Get right arg global ptrs
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // If the right arg is a simple scalar, ...
     if (hGlbRht EQ NULL)
@@ -558,7 +560,7 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
     } // End IF
 
     // Skip over the header to the dimensions
-    lpMemDimRht = VarArrayBaseToDim (lpMemRht);
+    lpMemDimRht = VarArrayBaseToDim (lpMemHdrRht);
 
     //***************************************************************
     //  Code from here on down to the call to <PrimFnScalarCommon_EM>
@@ -568,7 +570,7 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
     //***************************************************************
     //  Calculate result NELM
     //***************************************************************
-    if (lpMemAxisTail)
+    if (lpMemAxisTail NE NULL)
         for (aplNELMRes = 1, uRht = 0; uRht < aplRankRes; uRht++)
             aplNELMRes *= lpMemDimRht[lpMemAxisTail[uRht]];
     else
@@ -589,13 +591,13 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
     // Now we can allocate the storage for the result
     //***************************************************************
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader        lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = aplTypeRes;
@@ -607,37 +609,72 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
 #undef  lpHeader
 
     // Skip over the header to the dimensions
-    lpMemDimRes = VarArrayBaseToDim (lpMemRes);
+    lpMemDimRes = VarArrayBaseToDim (lpMemHdrRes);
 
     //***************************************************************
     // Fill in the result's dimension
     //***************************************************************
-    if (lpMemAxisTail)
+    if (lpMemAxisTail NE NULL)
         for (uRht = 0; uRht < aplRankRes; uRht++)
             *lpMemDimRes++ = lpMemDimRht[lpMemAxisTail[uRht]];
     else
         CopyMemory (lpMemDimRes, lpMemDimRht, (APLU3264) aplRankRes * sizeof (APLDIM));
 
     // Skip over the header and dimensions to the data
-    lpMemRht = VarArrayDataFmBase (lpMemRht);
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
-    // If the right arg (and result) is simple (numeric), ...
-    if (IsSimpleNum (aplTypeRht))
+    // If the right arg (and result) is simple or Global (numeric), ...
+    if (IsSimpleGlbNum (aplTypeRht))
     {
         // Fill in the result data
         if (lpPrimIdent->IsBool)
         {
-            Assert (IsSimpleBool (aplTypeRes));
+            // Split cases based upon the storage type
+            switch (aplTypeRes)
+            {
+                case ARRAY_BOOL:
+                    // If the identity element is 1, ...
+                    if (lpPrimIdent->bIdentElem)
+                        FillMemory (lpMemRes, (APLU3264) RoundUpBitsToBytes (aplNELMRes), 0xFF);
+                    break;
 
-            if (lpPrimIdent->bIdentElem)
-                FillMemory (lpMemRes, (APLU3264) RoundUpBitsToBytes (aplNELMRes), 0xFF);
+                case ARRAY_RAT:
+                    for (uRht = 0; uRht < aplNELMRes; uRht++)
+                        mpq_init_set_sx (((LPAPLRAT) lpMemRes)++, lpPrimIdent->bIdentElem, 1);
+                    break;
+
+                case ARRAY_VFP:
+                    for (uRht = 0; uRht < aplNELMRes; uRht++)
+                        mpfr_init_set_si (((LPAPLVFP) lpMemRes)++, lpPrimIdent->bIdentElem, MPFR_RNDN);
+                    break;
+
+                defstop
+                    break;
+            } // End SWITCH
         } else
         {
-            Assert (IsSimpleFlt (aplTypeRes));
+            // Split cases based upon the storage type
+            switch (aplTypeRes)
+            {
+                case ARRAY_FLOAT:
+                    for (uRht = 0; uRht < aplNELMRes; uRht++)
+                        *((LPAPLFLOAT) lpMemRes)++ = lpPrimIdent->fIdentElem;
+                    break;
 
-            for (uRht = 0; uRht < aplNELMRes; uRht++)
-                *((LPAPLFLOAT) lpMemRes)++ = lpPrimIdent->fIdentElem;
+                case ARRAY_RAT:
+                    for (uRht = 0; uRht < aplNELMRes; uRht++)
+                        mpq_init_set_d  (((LPAPLRAT) lpMemRes)++, lpPrimIdent->fIdentElem);
+                    break;
+
+                case ARRAY_VFP:
+                    for (uRht = 0; uRht < aplNELMRes; uRht++)
+                        mpfr_init_set_d (((LPAPLVFP) lpMemRes)++, lpPrimIdent->fIdentElem, MPFR_RNDN);
+                    break;
+
+                defstop
+                    break;
+            } // End SWITCH
         } // End IF/ELSE
     } else
     {
@@ -659,10 +696,10 @@ LPPL_YYSTYPE PrimIdentFnScalar_EM_YY
     } // End IF/ELSE
 
     // Unlock the result global memory in case TypeDemote actually demotes
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
     // Allocate a new YYRes
@@ -691,31 +728,31 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbRes && lpMemRes)
+    if (hGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (hGlbAxis && lpMemAxisHead)
+    if (hGlbAxis NE NULL && lpMemAxisHead NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (hGlbAxis); lpMemAxisHead = lpMemAxisTail = NULL;
@@ -748,25 +785,27 @@ UBOOL PrimIdentFnScalarCommon_EM
      LPTOKEN     lptkFunc)                  // Ptr to function token
 
 {
-    APLUINT   uRht;                         // Loop counter
-    HGLOBAL   hGlbItm = NULL,               // Item global memory handle
-              hGlbRes2 = NULL,              // Result2 ...
-              hGlbAxis = NULL;              // Axis ...
-    APLSTYPE  aplTypeItm,                   // Item storage type
-              aplTypeRes2;                  // Result2 ...
-    APLNELM   aplNELMItm,                   // Item NELM
-              aplNELMRes2,                  // Result2 ...
-              aplNELMAxis;                  // Axis ...
-    APLRANK   aplRankItm,                   // Item rank
-              aplRankRes2;
-    LPVOID    lpMemItm = NULL,              // Ptr to item global memory
-              lpMemRes2 = NULL;             // ...    result2 ...
-    UBOOL     bRet = FALSE;                 // TRUE iff the result is valid
-    APLUINT   ByteRes2;                     // # bytes in the result2
-    LPAPLDIM  lpMemDimItm,                  // Ptr to item dimensions
-              lpMemDimRes2;                 // Ptr to result2    ...
-    LPAPLUINT lpMemAxisHead = NULL,         // Ptr to axis values, fleshed out by CheckAxis_EM
-              lpMemAxisTail = NULL;         // Ptr to grade up of AxisHead
+    APLUINT           uRht;                 // Loop counter
+    HGLOBAL           hGlbItm = NULL,       // Item global memory handle
+                      hGlbRes2 = NULL,      // Result2 ...
+                      hGlbAxis = NULL;      // Axis ...
+    APLSTYPE          aplTypeItm,           // Item storage type
+                      aplTypeRes2;          // Result2 ...
+    APLNELM           aplNELMItm,           // Item NELM
+                      aplNELMRes2,          // Result2 ...
+                      aplNELMAxis;          // Axis ...
+    APLRANK           aplRankItm,           // Item rank
+                      aplRankRes2;          // Result2 rank
+    LPVARARRAY_HEADER lpMemHdrItm = NULL,   // Ptr to item header
+                      lpMemHdrRes2 = NULL;  // ...    result2 ...
+    LPVOID            lpMemItm,             // Ptr to item global memory
+                      lpMemRes2;            // ...    result2 ...
+    UBOOL             bRet = FALSE;         // TRUE iff the result is valid
+    APLUINT           ByteRes2;             // # bytes in the result2
+    LPAPLDIM          lpMemDimItm,          // Ptr to item dimensions
+                      lpMemDimRes2;         // Ptr to result2    ...
+    LPAPLUINT         lpMemAxisHead = NULL, // Ptr to axis values, fleshed out by CheckAxis_EM
+                      lpMemAxisTail = NULL; // Ptr to grade up of AxisHead
 
     // Loop through the right arg
     for (uRht = 0; uRht < aplNELMRht; uRht++)
@@ -787,10 +826,10 @@ UBOOL PrimIdentFnScalarCommon_EM
                 hGlbItm = lpMemRht[uRht];
 
                 // Lock the memory to get a ptr to it
-                lpMemItm = MyGlobalLock (hGlbItm);
+                lpMemHdrItm = MyGlobalLockVar (hGlbItm);
 
                 // Get the item's attributes
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemItm)
+#define lpHeader        lpMemHdrItm
                 aplTypeItm = lpHeader->ArrType;
                 aplNELMItm = lpHeader->NELM;
                 aplRankItm = lpHeader->Rank;
@@ -812,7 +851,7 @@ UBOOL PrimIdentFnScalarCommon_EM
                         goto ERROR_EXIT;
 
                     // Lock the memory to get a ptr to it
-                    lpMemAxisHead = MyGlobalLock (hGlbAxis);
+                    lpMemAxisHead = MyGlobalLockInt (hGlbAxis);
 
                     // Get pointer to the axis tail (where the [X] values are)
                     lpMemAxisTail = &lpMemAxisHead[aplRankItm - aplNELMAxis];
@@ -848,12 +887,12 @@ UBOOL PrimIdentFnScalarCommon_EM
                 } // End IF
 
                 // Skip over the header to the dimensions
-                lpMemDimItm = VarArrayBaseToDim (lpMemItm);
+                lpMemDimItm = VarArrayBaseToDim (lpMemHdrItm);
 
                 //***************************************************************
                 //  Calculate result2 NELM
                 //***************************************************************
-                if (lpMemAxisTail)
+                if (lpMemAxisTail NE NULL)
                     for (aplNELMRes2 = 1, uRht = 0; uRht < aplRankRes2; uRht++)
                         aplNELMRes2 *= lpMemDimItm[lpMemAxisTail[uRht]];
                 else
@@ -874,13 +913,13 @@ UBOOL PrimIdentFnScalarCommon_EM
                 // Now we can allocate the storage for the result
                 //***************************************************************
                 hGlbRes2 = DbgGlobalAlloc (GHND, (APLU3264) ByteRes2);
-                if (!hGlbRes2)
+                if (hGlbRes2 EQ NULL)
                     goto WSFULL_EXIT;
 
                 // Lock the memory to get a ptr to it
-                lpMemRes2 = MyGlobalLock (hGlbRes2);
+                lpMemHdrRes2 = MyGlobalLock000 (hGlbRes2);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes2)
+#define lpHeader        lpMemHdrRes2
                 // Fill in the header
                 lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
                 lpHeader->ArrType    = aplTypeRes2;
@@ -892,20 +931,20 @@ UBOOL PrimIdentFnScalarCommon_EM
 #undef  lpHeader
 
                 // Skip over the header to the dimensions
-                lpMemDimRes2 = VarArrayBaseToDim (lpMemRes2);
+                lpMemDimRes2 = VarArrayBaseToDim (lpMemHdrRes2);
 
                 //***************************************************************
                 // Fill in the result's dimension
                 //***************************************************************
-                if (lpMemAxisTail)
+                if (lpMemAxisTail NE NULL)
                     for (uRht = 0; uRht < aplRankRes2; uRht++)
                         *lpMemDimRes2++ = lpMemDimItm[lpMemAxisTail[uRht]];
                 else
                     CopyMemory (lpMemDimRes2, lpMemDimItm, (APLU3264) aplRankRes2 * sizeof (APLDIM));
 
                 // Skip over the header and dimensions to the data
-                lpMemItm  = VarArrayDataFmBase (lpMemItm );
-                lpMemRes2 = VarArrayDataFmBase (lpMemRes2);
+                lpMemItm  = VarArrayDataFmBase (lpMemHdrItm );
+                lpMemRes2 = VarArrayDataFmBase (lpMemHdrRes2);
 
                 // If the item (and result2) is simple (numeric), ...
                 if (IsSimpleNum (aplTypeItm))
@@ -944,8 +983,8 @@ UBOOL PrimIdentFnScalarCommon_EM
                 } // End IF/ELSE
 
                 // We no longer need these ptrs
-                MyGlobalUnlock (hGlbItm);  lpMemItm  = NULL;
-                MyGlobalUnlock (hGlbRes2); lpMemRes2 = NULL;
+                MyGlobalUnlock (hGlbItm);  lpMemHdrItm  = NULL;
+                MyGlobalUnlock (hGlbRes2); lpMemHdrRes2 = NULL;
 
                 // Save in the result
                 *lpMemRes++ = MakePtrTypeGlb (hGlbRes2);
@@ -973,34 +1012,34 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbRes2)
+    if (hGlbRes2 NE NULL)
     {
-        if (lpMemRes2)
+        if (lpMemHdrRes2 NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes2); lpMemRes2 = NULL;
+            MyGlobalUnlock (hGlbRes2); lpMemHdrRes2 = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes2); hGlbRes2 = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (hGlbRes2 && lpMemRes2)
+    if (hGlbRes2 NE NULL && lpMemHdrRes2 NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes2); lpMemRes2 = NULL;
+        MyGlobalUnlock (hGlbRes2); lpMemHdrRes2 = NULL;
     } // End IF
 
-    if (hGlbItm && lpMemItm)
+    if (hGlbItm NE NULL && lpMemHdrItm NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbItm); lpMemItm = NULL;
+        MyGlobalUnlock (hGlbItm); lpMemHdrItm = NULL;
     } // End IF
 
-    if (hGlbAxis && lpMemAxisTail)
+    if (hGlbAxis NE NULL && lpMemAxisTail NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbAxis); lpMemAxisTail = NULL;
+        MyGlobalUnlock (hGlbAxis); lpMemAxisHead = lpMemAxisTail = NULL;
     } // End IF
 
     return bRet;
@@ -1036,12 +1075,6 @@ LPPL_YYSTYPE PrimFnMon_EM_YY
     PRIMSPEC     LclPrimSpec;       // Writable copy of PRIMSPEC
     APLVFP       mpfArg = {0},      // VFP arg
                  mpfRes = {0};      // VFP result
-
-    DBGENTER;
-
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
 
     // Check for axis present
     if (lptkAxis NE NULL)
@@ -1094,7 +1127,7 @@ LPPL_YYSTYPE PrimFnMon_EM_YY
                 hGlbRes = PrimFnMonGlb_EM (hGlbRes,
                                            lptkFunc,
                                           &LclPrimSpec);
-                if (!hGlbRes)
+                if (hGlbRes EQ NULL)
                 {
                     YYFree (lpYYRes); lpYYRes = NULL;
 
@@ -1108,10 +1141,8 @@ LPPL_YYSTYPE PrimFnMon_EM_YY
                 lpYYRes->tkToken.tkFlags.TknType   = TKT_VARARRAY;
 ////////////////lpYYRes->tkToken.tkFlags.ImmType   = IMMTYPE_ERROR; // Already zero from YYAlloc
 ////////////////lpYYRes->tkToken.tkFlags.NoDisplay = FALSE;         // Already zero from YYAlloc
-                lpYYRes->tkToken.tkData.tkGlbData  = MakePtrTypeGlb (hGlbRes);
+                lpYYRes->tkToken.tkData.tkGlbData  = hGlbRes;
                 lpYYRes->tkToken.tkCharIndex       = lptkFunc->tkCharIndex;
-
-                DBGLEAVE;
 
                 return lpYYRes;
             } // End IF
@@ -1130,7 +1161,7 @@ RESTART_EXCEPTION_VARNAMED:
 
             __try
             {
-                // Split cases based upon the storage type of the result
+                // Split cases based upon the result storage type
                 switch (aplTypeRes)
                 {
                     case ARRAY_BOOL:            // Res = BOOL
@@ -1222,10 +1253,12 @@ RESTART_EXCEPTION_VARNAMED:
                 } // SWITCH
             } __except (CheckException (GetExceptionInformation (), L"PrimFnMon_EM_YY #1"))
             {
-                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #1: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                 // Split cases based upon the ExceptionCode
-                switch (MyGetExceptionCode ())
+                switch (ExceptionCode)
                 {
                     case EXCEPTION_DOMAIN_ERROR:
                     case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -1257,7 +1290,7 @@ RESTART_EXCEPTION_VARNAMED:
                             // It's now a RAT result
                             aplTypeRes = ARRAY_RAT;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_VARNAMED;
                         } // End IF
@@ -1276,7 +1309,7 @@ RESTART_EXCEPTION_VARNAMED:
                             // It's now a VFP result
                             aplTypeRes = ARRAY_VFP;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_VARNAMED;
                         } // End IF
@@ -1298,7 +1331,7 @@ RESTART_EXCEPTION_VARNAMED:
                             // It's now a FLOAT result
                             aplTypeRes = ARRAY_FLOAT;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_VARNAMED;
                         } // End IF
@@ -1315,8 +1348,6 @@ RESTART_EXCEPTION_VARNAMED:
 
             // Restore the value of []RL from LclPrimSpec
             RestPrimSpecRL (&LclPrimSpec);
-
-            DBGLEAVE;
 
             return lpYYRes;
 
@@ -1471,10 +1502,12 @@ RESTART_EXCEPTION_VARIMMED:
                 } // End SWITCH
             } __except (CheckException (GetExceptionInformation (), L"PrimFnMon_EM_YY #2"))
             {
-                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #2: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #2: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                 // Split cases based upon the ExceptionCode
-                switch (MyGetExceptionCode ())
+                switch (ExceptionCode)
                 {
                     case EXCEPTION_DOMAIN_ERROR:
                     case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -1504,7 +1537,7 @@ RESTART_EXCEPTION_VARIMMED:
                             // It's now a RAT result
                             aplTypeRes = ARRAY_RAT;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #2: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_VARIMMED;
                         } // End IF
@@ -1523,7 +1556,7 @@ RESTART_EXCEPTION_VARIMMED:
                             // It's now a VFP result
                             aplTypeRes = ARRAY_VFP;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #2: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_VARIMMED;
                         } // End IF
@@ -1545,7 +1578,7 @@ RESTART_EXCEPTION_VARIMMED:
                             // It's now a FLOAT result
                             aplTypeRes = ARRAY_FLOAT;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #2: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #2: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_VARIMMED;
                         } // End IF
@@ -1563,8 +1596,6 @@ RESTART_EXCEPTION_VARIMMED:
             // Restore the value of []RL from LclPrimSpec
             RestPrimSpecRL (&LclPrimSpec);
 
-            DBGLEAVE;
-
             return lpYYRes;
 
         case TKT_VARARRAY:
@@ -1581,7 +1612,7 @@ RESTART_EXCEPTION_VARIMMED:
             hGlbRes = PrimFnMonGlb_EM (hGlbRes,
                                        lptkFunc,
                                       &LclPrimSpec);
-            if (!hGlbRes)
+            if (hGlbRes EQ NULL)
             {
                 YYFree (lpYYRes); lpYYRes = NULL;
 
@@ -1595,10 +1626,8 @@ RESTART_EXCEPTION_VARIMMED:
             lpYYRes->tkToken.tkFlags.TknType   = TKT_VARARRAY;
 ////////////lpYYRes->tkToken.tkFlags.ImmType   = IMMTYPE_ERROR; // Already zero from YYAlloc
 ////////////lpYYRes->tkToken.tkFlags.NoDisplay = FALSE;         // Already zero from YYAlloc
-            lpYYRes->tkToken.tkData.tkGlbData  = MakePtrTypeGlb (hGlbRes);
+            lpYYRes->tkToken.tkData.tkGlbData  = hGlbRes;
             lpYYRes->tkToken.tkCharIndex       = lptkFunc->tkCharIndex;
-
-            DBGLEAVE;
 
             return lpYYRes;
 
@@ -1639,6 +1668,7 @@ NONCE_EXIT:
 //  $PrimFnMonGlb_EM
 //
 //  Primitive scalar monadic function on a global memory object
+//  Returning an HGLOBAL with the ptr type bits significant
 //***************************************************************************
 
 #ifdef DEBUG
@@ -1648,30 +1678,32 @@ NONCE_EXIT:
 #endif
 
 HGLOBAL PrimFnMonGlb_EM
-    (HGLOBAL    hGlbRht,            // Right arg handle
-     LPTOKEN    lptkFunc,           // Ptr to function token
-     LPPRIMSPEC lpPrimSpec)         // Ptr to local PRIMSPEC
+    (HGLOBAL    hGlbRht,                    // Right arg handle
+     LPTOKEN    lptkFunc,                   // Ptr to function token
+     LPPRIMSPEC lpPrimSpec)                 // Ptr to local PRIMSPEC
 
 {
-    LPVOID        lpMemRht = NULL,  // Ptr to right arg global memory
-                  lpMemRes = NULL;  // Ptr to result    ...
-    HGLOBAL       hGlbRes = NULL,   // Result global memory handle
-                  hGlbSub;          // Subarray ...
-    APLSTYPE      aplTypeRht,       // Right arg storage type
-                  aplTypeRes;       // Result    ...
-    APLNELM       aplNELMRht,       // # elements in the array
-                  aplNELMTmp,       // Temporary NELM
-                  aplNELMRem;       // Remaining NELM
-    APLRANK       aplRankRht;       // The rank of the array
-    APLINT        uRes,             // Result loop counter
-                  apaOffRht,        // Right arg APA offset
-                  apaMulRht;        // ...           multiplier
-    APLUINT       ByteRes;          // # bytes in the result
-    UBOOL         bRet = TRUE;      // TRUE iff result is valid
-    UINT          uBitIndex;        // Bit index when marching through Booleans
-    LPPLLOCALVARS lpplLocalVars;    // Ptr to re-entrant vars
-    LPUBOOL       lpbCtrlBreak;     // Ptr to Ctrl-Break flag
-    APLVFP        mpfRes = {0};     // VFP result
+    LPVARARRAY_HEADER lpMemHdrRht = NULL,   // Ptr to right arg header
+                      lpMemHdrRes = NULL;   // ...    result    ...
+    LPVOID            lpMemRht,             // Ptr to right arg global memory
+                      lpMemRes;             // Ptr to result    ...
+    HGLOBAL           hGlbRes = NULL,       // Result global memory handle
+                      hGlbSub;              // Subarray ...
+    APLSTYPE          aplTypeRht,           // Right arg storage type
+                      aplTypeRes;           // Result    ...
+    APLNELM           aplNELMRht,           // # elements in the array
+                      aplNELMTmp,           // Temporary NELM
+                      aplNELMRem;           // Remaining NELM
+    APLRANK           aplRankRht;           // The rank of the array
+    APLINT            uRes,                 // Result loop counter
+                      apaOffRht,            // Right arg APA offset
+                      apaMulRht;            // ...           multiplier
+    APLUINT           ByteRes;              // # bytes in the result
+    UBOOL             bRet = TRUE;          // TRUE iff result is valid
+    UINT              uBitIndex;            // Bit index when marching through Booleans
+    LPPLLOCALVARS     lpplLocalVars;        // Ptr to re-entrant vars
+    LPUBOOL           lpbCtrlBreak;         // Ptr to Ctrl-Break flag
+    APLVFP            mpfRes = {0};         // VFP result
 
     // Get the thread's ptr to local vars
     lpplLocalVars = TlsGetValue (dwTlsPlLocalVars);
@@ -1679,12 +1711,10 @@ HGLOBAL PrimFnMonGlb_EM
     // Get the ptr to the Ctrl-Break flag
     lpbCtrlBreak = &lpplLocalVars->bCtrlBreak;
 
-    DBGENTER;
-
     // Lock the memory to get a ptr to it
-    lpMemRht = MyGlobalLock (hGlbRht);
+    lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRht)
+#define lpHeader    lpMemHdrRht
     // Get the Array Type, NELM, and Rank
     aplTypeRht = lpHeader->ArrType;
     aplNELMRht = lpHeader->NELM;
@@ -1719,10 +1749,12 @@ HGLOBAL PrimFnMonGlb_EM
                 goto NORMAL_EXIT;
         } __except (CheckException (GetExceptionInformation (), L"PrimFnMonGlb_EM"))
         {
-            dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+            EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+            dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #3: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
             // Split cases based upon the ExceptionCode
-            switch (MyGetExceptionCode ())
+            switch (ExceptionCode)
             {
                 case EXCEPTION_DOMAIN_ERROR:
                 case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -1749,21 +1781,21 @@ HGLOBAL PrimFnMonGlb_EM
                         aplTypeRes = ARRAY_RAT;
 
                         // We no longer need this ptr
-                        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+                        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
 
                         // Lock the memory to get a ptr to it
-                        lpMemRht = MyGlobalLock (hGlbRht);
+                        lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
-                        if (hGlbRes)
+                        if (hGlbRes NE NULL)
                         {
                             // We no longer need this ptr
-                            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+                            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
                             // We no longer need this storage
                             FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
                         } // End IF
 
-                        dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                        dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #3: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                         goto RESTART_EXCEPTION;
                     } // End IF
@@ -1783,21 +1815,21 @@ HGLOBAL PrimFnMonGlb_EM
                         aplTypeRes = ARRAY_VFP;
 
                         // We no longer need this ptr
-                        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+                        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
 
                         // Lock the memory to get a ptr to it
-                        lpMemRht = MyGlobalLock (hGlbRht);
+                        lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
-                        if (hGlbRes)
+                        if (hGlbRes NE NULL)
                         {
                             // We no longer need this ptr
-                            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+                            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
                             // We no longer need this storage
                             FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
                         } // End IF
 
-                        dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                        dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #3: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                         goto RESTART_EXCEPTION;
                     } // End IF
@@ -1820,21 +1852,21 @@ HGLOBAL PrimFnMonGlb_EM
                         aplTypeRes = ARRAY_FLOAT;
 
                         // We no longer need this ptr
-                        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+                        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
 
                         // Lock the memory to get a ptr to it
-                        lpMemRht = MyGlobalLock (hGlbRht);
+                        lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
-                        if (hGlbRes)
+                        if (hGlbRes NE NULL)
                         {
                             // We no longer need this ptr
-                            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+                            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
                             // We no longer need this storage
                             FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
                         } // End IF
 
-                        dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                        dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #3: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                         goto RESTART_EXCEPTION;
                     } // End IF
@@ -1859,13 +1891,13 @@ RESTART_EXCEPTION:
 
     // Allocate space for the result.
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLock000 (hGlbRes);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader    lpMemHdrRes
     // Fill in the header
     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
     lpHeader->ArrType    = aplTypeRes;
@@ -1877,8 +1909,8 @@ RESTART_EXCEPTION:
 #undef  lpHeader
 
     // Skip over the header to the dimensions
-    lpMemRes = VarArrayBaseToDim (lpMemRes);
-    lpMemRht = VarArrayBaseToDim (lpMemRht);
+    lpMemRes = VarArrayBaseToDim (lpMemHdrRes);
+    lpMemRht = VarArrayBaseToDim (lpMemHdrRht);
 
     //***************************************************************
     // Copy the dimensions from the right arg
@@ -1917,7 +1949,7 @@ RESTART_EXCEPTION:
                         aplNELMRem = aplNELMRht;
 
                         // Check for optimized chunking
-                        if (lpPrimSpec->B64isB64)
+                        if (lpPrimSpec->B64isB64 NE NULL)
                         {
                             // Calculate the # 64-bit chunks
                             aplNELMTmp  = aplNELMRem / 64;
@@ -1930,7 +1962,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB64) lpMemRes)++ =
                                   (*lpPrimSpec->B64isB64) (*((LPAPLB64) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -1946,7 +1978,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB32) lpMemRes)++ =
                                   (*lpPrimSpec->B32isB32) (*((LPAPLB32) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -1962,7 +1994,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB16) lpMemRes)++ =
                                   (*lpPrimSpec->B16isB16) (*((LPAPLB16) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -1978,7 +2010,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB08) lpMemRes)++ =
                                   (*lpPrimSpec->B08isB08) (*((LPAPLB08) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -1991,7 +2023,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL) lpMemRes) |=
                               (*lpPrimSpec->BisB) ((APLBOOL) (BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex)),
                                                    lpPrimSpec) << uBitIndex;
@@ -2014,7 +2046,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL) lpMemRes) |=
                               (*lpPrimSpec->BisI) (*((LPAPLINT) lpMemRht)++,
                                                    lpPrimSpec) << uBitIndex;
@@ -2040,7 +2072,7 @@ RESTART_EXCEPTION:
                         {
                             APLB64 aplB64APA;
 
-                            if (lpAPA->Off)
+                            if (lpAPA->Off NE 0)
                                 aplB64APA = 0xFFFFFFFFFFFFFFFF;
                             else
                                 aplB64APA = 0x0000000000000000;
@@ -2056,7 +2088,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB64) lpMemRes)++ =
                                   (*lpPrimSpec->B64isB64) ((APLB64) aplB64APA, lpPrimSpec);
                             } // End FOR
@@ -2072,7 +2104,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB32) lpMemRes)++ =
                                   (*lpPrimSpec->B32isB32) ((APLB32) aplB64APA, lpPrimSpec);
                             } // End FOR
@@ -2088,7 +2120,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB16) lpMemRes)++ =
                                   (*lpPrimSpec->B16isB16) ((APLB16) aplB64APA, lpPrimSpec);
                             } // End FOR
@@ -2104,7 +2136,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB08) lpMemRes)++ =
                                   (*lpPrimSpec->B08isB08) ((APLB08) aplB64APA, lpPrimSpec);
                             } // End FOR
@@ -2117,7 +2149,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL) lpMemRes) |=
                               (*lpPrimSpec->BisI) (apaOffRht + apaMulRht * uRes,
                                                    lpPrimSpec) << uBitIndex;
@@ -2140,7 +2172,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL) lpMemRes) |=
                               (*lpPrimSpec->BisF) (*((LPAPLFLOAT) lpMemRht)++,
                                                    lpPrimSpec) << uBitIndex;
@@ -2173,7 +2205,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLINT) lpMemRes)++ =
                               (*lpPrimSpec->IisI) (BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex),
                                                    lpPrimSpec);
@@ -2196,7 +2228,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLINT) lpMemRes)++ =
                               (*lpPrimSpec->IisI) (*((LPAPLINT) lpMemRht)++,
                                                    lpPrimSpec);
@@ -2212,7 +2244,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLINT) lpMemRes)++ =
                               (*lpPrimSpec->IisF) (*((LPAPLFLOAT) lpMemRht)++,
                                                    lpPrimSpec);
@@ -2228,7 +2260,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLINT) lpMemRes)++ =
                               (*lpPrimSpec->IisI) (apaOffRht + apaMulRht * uRes,
                                                    lpPrimSpec);
@@ -2254,7 +2286,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLFLOAT) lpMemRes)++ =
                               (*lpPrimSpec->FisI) (BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex),
                                                    lpPrimSpec);
@@ -2276,7 +2308,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLFLOAT) lpMemRes)++ =
                               (*lpPrimSpec->FisI) (*((LPAPLINT) lpMemRht)++,
                                                    lpPrimSpec);
@@ -2292,7 +2324,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLFLOAT) lpMemRes)++ =
                               (*lpPrimSpec->FisI) (apaOffRht + apaMulRht * uRes,
                                                    lpPrimSpec);
@@ -2308,7 +2340,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLFLOAT) lpMemRes)++ =
                               (*lpPrimSpec->FisF) (*((LPAPLFLOAT) lpMemRht)++,
                                                    lpPrimSpec);
@@ -2355,7 +2387,7 @@ RESTART_EXCEPTION:
                             lpSymDst = CopyImmSymEntry_EM (lpSymSrc,
                                                            TranslateArrayTypeToImmType (aplTypeRes2),
                                                            lptkFunc);
-                            if (lpSymDst)
+                            if (lpSymDst NE NULL)
                             {
                                 // Split cases based upon the result storage type
                                 switch (aplTypeRes2)
@@ -2460,9 +2492,9 @@ RESTART_EXCEPTION:
                             hGlbSub = PrimFnMonGlb_EM (ClrPtrTypeInd (lpMemRht),
                                                        lptkFunc,
                                                        lpPrimSpec);
-                            if (hGlbSub)
-                                // Save in result
-                                *((LPAPLNESTED) lpMemRes)++ = MakePtrTypeGlb (hGlbSub);
+                            if (hGlbSub NE NULL)
+                                // Save in the result
+                                *((LPAPLNESTED) lpMemRes)++ = hGlbSub;
                             else
                                 bRet = FALSE;
                             break;
@@ -2484,7 +2516,7 @@ RESTART_EXCEPTION:
                     if (CheckCtrlBreak (*lpbCtrlBreak))
                         goto ERROR_EXIT;
 
-                    // Save in result
+                    // Save in the result
                     *((LPAPLRAT) lpMemRes)++ =
                       (*lpPrimSpec->RisR) (*((LPAPLRAT) lpMemRht)++,
                                            lpPrimSpec);
@@ -2510,7 +2542,7 @@ RESTART_EXCEPTION:
                             // Convert the BOOL to a VFP
                             mpfr_set_si (&mpfRes, BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex), MPFR_RNDN);
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLVFP) lpMemRes)++ =
                               (*lpPrimSpec->VisV) (mpfRes,
                                                    lpPrimSpec);
@@ -2535,7 +2567,7 @@ RESTART_EXCEPTION:
                             // Convert the INT to a VFP
                             mpfr_set_sx (&mpfRes, *((LPAPLINT) lpMemRht)++, MPFR_RNDN);
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLVFP) lpMemRes)++ =
                               (*lpPrimSpec->VisV) (mpfRes,
                                                    lpPrimSpec);
@@ -2554,7 +2586,7 @@ RESTART_EXCEPTION:
                             // Convert the APA to a VFP
                             mpfr_set_sx (&mpfRes, apaOffRht + apaMulRht * uRes, MPFR_RNDN);
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLVFP) lpMemRes)++ =
                               (*lpPrimSpec->VisV) (mpfRes,
                                                    lpPrimSpec);
@@ -2573,7 +2605,7 @@ RESTART_EXCEPTION:
                             // Convert the FLOAT to a VFP
                             mpfr_set_d (&mpfRes, *((LPAPLFLOAT) lpMemRht)++, MPFR_RNDN);
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLVFP) lpMemRes)++ =
                               (*lpPrimSpec->VisV) (mpfRes,
                                                    lpPrimSpec);
@@ -2592,7 +2624,7 @@ RESTART_EXCEPTION:
                             // Convert the RAT to a VFP
                             mpfr_set_q (&mpfRes, ((LPAPLRAT) lpMemRht)++, MPFR_RNDN);
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLVFP) lpMemRes)++ =
                               (*lpPrimSpec->VisV) (mpfRes,
                                                    lpPrimSpec);
@@ -2608,7 +2640,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLVFP) lpMemRes)++ =
                               (*lpPrimSpec->VisV) (*((LPAPLVFP) lpMemRht)++,
                                                    lpPrimSpec);
@@ -2630,10 +2662,12 @@ RESTART_EXCEPTION:
         } // End SWITCH
     } __except (CheckException (GetExceptionInformation (), L"PrimFnMonGlb_EM"))
     {
-        dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+        EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+        dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #4: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
         // Split cases based upon the ExceptionCode
-        switch (MyGetExceptionCode ())
+        switch (ExceptionCode)
         {
             case EXCEPTION_DOMAIN_ERROR:
             case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -2660,18 +2694,18 @@ RESTART_EXCEPTION:
                     aplTypeRes = ARRAY_RAT;
 
                     // We no longer need this ptr
-                    MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+                    MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
 
                     // Lock the memory to get a ptr to it
-                    lpMemRht = MyGlobalLock (hGlbRht);
+                    lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
                     // We no longer need this ptr
-                    MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+                    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
                     // We no longer need this storage
                     FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #4: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION;
                 } // End IF
@@ -2691,18 +2725,18 @@ RESTART_EXCEPTION:
                     aplTypeRes = ARRAY_VFP;
 
                     // We no longer need this ptr
-                    MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+                    MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
 
                     // Lock the memory to get a ptr to it
-                    lpMemRht = MyGlobalLock (hGlbRht);
+                    lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
                     // We no longer need this ptr
-                    MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+                    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
                     // We no longer need this storage
                     FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #4: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION;
                 } // End IF
@@ -2725,18 +2759,18 @@ RESTART_EXCEPTION:
                     aplTypeRes = ARRAY_FLOAT;
 
                     // We no longer need this ptr
-                    MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+                    MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
 
                     // Lock the memory to get a ptr to it
-                    lpMemRht = MyGlobalLock (hGlbRht);
+                    lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
                     // We no longer need this ptr
-                    MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+                    MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
 
                     // We no longer need this storage
                     FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #4: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION;
                 } // End IF
@@ -2774,34 +2808,37 @@ WSFULL_EXIT:
 ERROR_EXIT:
     bRet = FALSE;
 
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
+    // If the result global memory handle is valid, ...
+    if (hGlbRes NE NULL)
+        // Make it into a ptr type
+        hGlbRes = MakePtrTypeGlb (hGlbRes);
+
     // We no longer need this storage
     Myf_clear (&mpfRes);
 
-    if (lpMemRht)
+    if (lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (lpMemRes)
+    if (lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
-
-    DBGLEAVE;
 
     return hGlbRes;
 } // End PrimFnMonGlb_EM
@@ -2828,40 +2865,34 @@ LPPL_YYSTYPE PrimFnDyd_EM_YY
      LPPRIMSPEC lpPrimSpec)         // Ptr to local PRIMSPEC
 
 {
-    APLRANK      aplRankLft,            // Left arg rank
-                 aplRankRht,            // Right ...
-                 aplRankRes;            // Result   ...
-    APLNELM      aplNELMLft,            // Left arg NELM
-                 aplNELMRht,            // Right ...
-                 aplNELMRes,            // Result   ...
-                 aplNELMAxis;           // Axis     ...
-    APLLONGEST   aplLongestLft,         // Left arg longest value
-                 aplLongestRht;         // Right ...
-    HGLOBAL      hGlbLft = NULL,        // Left arg global memory handle
-                 hGlbRht = NULL,        // Right ...
-                 hGlbRes = NULL,        // Result   ...
-                 hGlbAxis = NULL;       // Axis     ...
-    APLSTYPE     aplTypeLft,            // Left arg storage type
-                 aplTypeRht,            // Right ...
-                 aplTypeRes;            // Result   ...
-    LPAPLUINT    lpMemAxisHead = NULL,  // Ptr to axis values, fleshed out by CheckAxis_EM
-                 lpMemAxisTail = NULL;  // Ptr to grade up of AxisHead
-    LPVOID       lpMemLft = NULL,       // Ptr to left arg global memory
-                 lpMemRht = NULL;       // Ptr to right ...
-    APLINT       aplInteger;            // Temporary integer value
-    UBOOL        bRet = TRUE,           // TRUE iff result is valid
-                 bLftIdent,             // TRUE iff the function has a left identity element and the Axis tail is valid
-                 bRhtIdent;             // ...                         right ...
-    LPPRIMFN_DYD_SNvSN lpPrimFn;        // Ptr to dyadic scalar SimpNest vs. SimpNest function
-    LPPL_YYSTYPE lpYYRes = NULL;        // Ptr to the result
-    LPPRIMFLAGS  lpPrimFlags;           // Ptr to function PrimFlags entry
-    PRIMSPEC     LclPrimSpec;           // Writable copy of PRIMSPEC
-
-    DBGENTER;
-
-    // If the right arg is a list, ...
-    if (IsTknParList (lptkRhtArg))
-        return PrimFnSyntaxError_EM (lptkFunc APPEND_NAME_ARG);
+    APLRANK            aplRankLft,              // Left arg rank
+                       aplRankRht,              // Right ...
+                       aplRankRes;              // Result   ...
+    APLNELM            aplNELMLft,              // Left arg NELM
+                       aplNELMRht,              // Right ...
+                       aplNELMRes,              // Result   ...
+                       aplNELMAxis;             // Axis     ...
+    APLLONGEST         aplLongestLft,           // Left arg longest value
+                       aplLongestRht;           // Right ...
+    HGLOBAL            hGlbLft = NULL,          // Left arg global memory handle
+                       hGlbRht = NULL,          // Right ...
+                       hGlbRes = NULL,          // Result   ...
+                       hGlbAxis = NULL;         // Axis     ...
+    APLSTYPE           aplTypeLft,              // Left arg storage type
+                       aplTypeRht,              // Right ...
+                       aplTypeRes;              // Result   ...
+    LPAPLUINT          lpMemAxisHead = NULL,    // Ptr to axis values, fleshed out by CheckAxis_EM
+                       lpMemAxisTail = NULL;    // Ptr to grade up of AxisHead
+    LPVARARRAY_HEADER  lpMemHdrLft = NULL,      // Ptr to left arg header
+                       lpMemHdrRht = NULL;      // ...    right    ...
+    APLINT             aplInteger;              // Temporary integer value
+    UBOOL              bRet = TRUE,             // TRUE iff result is valid
+                       bLftIdent,               // TRUE iff the function has a left identity element and the Axis tail is valid
+                       bRhtIdent;               // ...                         right ...
+    LPPRIMFN_DYD_SNvSN lpPrimFn;                // Ptr to dyadic scalar Simp/Nest vs. Simp/Nest function
+    LPPL_YYSTYPE       lpYYRes = NULL;          // Ptr to the result
+    LPPRIMFLAGS        lpPrimFlags;             // Ptr to function PrimFlags entry
+    PRIMSPEC           LclPrimSpec;             // Writable copy of PRIMSPEC
 
     // Save a writable copy of PRIMSPEC
     LclPrimSpec = *lpPrimSpec;
@@ -2904,7 +2935,7 @@ LPPL_YYSTYPE PrimFnDyd_EM_YY
             return NULL;
 
         // Lock the memory to get a ptr to it
-        lpMemAxisHead = MyGlobalLock (hGlbAxis);
+        lpMemAxisHead = MyGlobalLockInt (hGlbAxis);
 
         // Get pointer to the axis tail (where the [X] values are)
         lpMemAxisTail = &lpMemAxisHead[aplRankRes - aplNELMAxis];
@@ -2925,8 +2956,8 @@ LPPL_YYSTYPE PrimFnDyd_EM_YY
          || IsNested  (aplTypeRes));
 
     // Get left and right arg's global ptrs
-    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemLft);
-    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemRht);
+    aplLongestLft = GetGlbPtrs_LOCK (lptkLftArg, &hGlbLft, &lpMemHdrLft);
+    aplLongestRht = GetGlbPtrs_LOCK (lptkRhtArg, &hGlbRht, &lpMemHdrRht);
 
     // Get a ptr to the Primitive Function Flags
     lpPrimFlags = GetPrimFlagsPtr (lptkFunc);
@@ -2941,10 +2972,10 @@ LPPL_YYSTYPE PrimFnDyd_EM_YY
     if (!CheckRankLengthError_EM (aplRankRes,
                                   aplRankLft,
                                   aplNELMLft,
-                                  lpMemLft,
+                                  lpMemHdrLft,
                                   aplRankRht,
                                   aplNELMRht,
-                                  lpMemRht,
+                                  lpMemHdrRht,
                                   aplNELMAxis,
                                   lpMemAxisTail,
                                   bLftIdent,
@@ -2969,27 +3000,60 @@ LPPL_YYSTYPE PrimFnDyd_EM_YY
             aplInteger = aplLongestRht;
         else
             aplInteger = aplLongestLft;
-        if (!(*lpPrimSpec->ApaResultDyd_EM) (lpYYRes,
-                                             lptkFunc,
-                                             hGlbLft,
-                                             hGlbRht,
-                                            &hGlbRes,
-                                             aplRankLft,
-                                             aplRankRht,
-                                             aplNELMLft,
-                                             aplNELMRht,
-                                             aplInteger,
-                                            &LclPrimSpec))
-            goto ERROR_EXIT;
-        else
-            goto NORMAL_EXIT;
+        __try
+        {
+            if (!(*lpPrimSpec->ApaResultDyd_EM) (lpYYRes,
+                                                 lptkFunc,
+                                                 hGlbLft,
+                                                 hGlbRht,
+                                                &hGlbRes,
+                                                 aplRankLft,
+                                                 aplRankRht,
+                                                 aplNELMLft,
+                                                 aplNELMRht,
+                                                 aplInteger,
+                                                &LclPrimSpec))
+                goto ERROR_EXIT;
+            else
+                goto NORMAL_EXIT;
+        } __except (CheckException (GetExceptionInformation (), L"PrimFnDyd_EM_YY #1"))
+        {
+            EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+            dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #11: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
+
+            // Split cases based upon the ExceptionCode
+            switch (ExceptionCode)
+            {
+                case EXCEPTION_RESULT_FLOAT:
+                    MySetExceptionCode (EXCEPTION_SUCCESS); // Reset
+
+                    // It's now a FLOAT result
+                    aplTypeRes = ARRAY_FLOAT;
+
+                    if (hGlbRes NE NULL)
+                    {
+                        // We need to start over with the result
+                        FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
+                    } // End IF
+
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #11: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
+
+                    break;
+
+                defstop
+                    RaiseException (ExceptionCode, 0, 0, NULL);
+
+                    break;
+            } // End SWITCH
+        } // End __try/__except
     } // End IF
 
     // Allocate space for result
     if (!PrimScalarFnDydAllocate_EM (lptkFunc,
                                     &hGlbRes,
-                                     lpMemLft,
-                                     lpMemRht,
+                                     lpMemHdrLft,
+                                     lpMemHdrRht,
                                      aplRankLft,
                                      aplRankRht,
                                     &aplRankRes,
@@ -3010,23 +3074,23 @@ LPPL_YYSTYPE PrimFnDyd_EM_YY
     //   Nested     Nested     Nested
 
     // Split cases based upon the combined left vs. right types
-    if (IsNested (aplTypeLft)
-     && IsNested (aplTypeRht))
+    if ( IsNested (aplTypeLft)
+     &&  IsNested (aplTypeRht))
         // Left arg is NESTED, right arg is NESTED
         lpPrimFn = &PrimFnDydNestNest_EM;
     else
-    if ((!IsNested (aplTypeLft))
-     && IsNested (aplTypeRht))
+    if (!IsNested (aplTypeLft)
+     &&  IsNested (aplTypeRht))
         // Left arg is SIMPLE, right arg is NESTED
         lpPrimFn = &PrimFnDydSimpNest_EM;
     else
-    if (IsNested (aplTypeLft)
+    if ( IsNested (aplTypeLft)
      && !IsNested (aplTypeRht))
         // Left arg is NESTED, right arg is SIMPLE
         lpPrimFn = &PrimFnDydNestSimp_EM;
     else
-    if ((!IsNested (aplTypeLft))
-     && (!IsNested (aplTypeRht)))
+    if (!IsNested (aplTypeLft)
+     && !IsNested (aplTypeRht))
         // Left arg is SIMPLE, right arg is SIMPLE
         lpPrimFn = &PrimFnDydSimpSimp_EM;
     else
@@ -3044,8 +3108,8 @@ LPPL_YYSTYPE PrimFnDyd_EM_YY
                       hGlbLft,
                       hGlbRht,
                      &hGlbRes,
-                      lpMemLft,         // Points to Sig.nature
-                      lpMemRht,         // ...
+                      lpMemHdrLft,      // Ptr to left arg header
+                      lpMemHdrRht,      // ...    right ...
                       lpMemAxisHead,    // Ptr to axis values, fleshed out by CheckAxis_EM
                       lpMemAxisTail,    // Ptr to grade up of AxisHead
                       aplRankLft,
@@ -3073,42 +3137,40 @@ DOMAIN_EXIT:
 ERROR_EXIT:
     bRet = FALSE;
 
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
     // If the result is valid, ...
-    if (lpYYRes)
+    if (lpYYRes NE NULL)
         // Fill in the character index
         lpYYRes->tkToken.tkCharIndex = lptkFunc->tkCharIndex;
 
-    if (hGlbLft && lpMemLft)
+    if (hGlbLft NE NULL && lpMemHdrLft NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
+        MyGlobalUnlock (hGlbLft); lpMemHdrLft = NULL;
     } // End IF
 
-    if (hGlbRht && lpMemRht)
+    if (hGlbRht NE NULL && lpMemHdrRht NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
+        MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
     } // End IF
 
-    if (hGlbAxis && lpMemAxisHead)
+    if (hGlbAxis NE NULL && lpMemAxisHead NE NULL)
     {
         // We no longer need this ptr
         MyGlobalUnlock (hGlbAxis); lpMemAxisHead = lpMemAxisTail = NULL;
     } // End IF
 
     // If we failed and there's a result, free it
-    if (!bRet && lpYYRes)
+    if (!bRet && lpYYRes NE NULL)
     {
         YYFree (lpYYRes); lpYYRes = NULL;
     } // End IF/ELSE
-
-    DBGLEAVE;
 
     return lpYYRes;
 } // End PrimFnDyd_EM_YY
@@ -3128,65 +3190,68 @@ NORMAL_EXIT:
 #endif
 
 UBOOL PrimFnDydSimpNest_EM
-    (LPPL_YYSTYPE  lpYYRes,         // Ptr to the result
+    (LPPL_YYSTYPE      lpYYRes,         // Ptr to the result
 
-     LPTOKEN       lptkLftArg,      // Ptr to left arg token
-     LPTOKEN       lptkFunc,        // ...    function ...
-     LPTOKEN       lptkRhtArg,      // ...    right arg ...
+     LPTOKEN           lptkLftArg,      // Ptr to left arg token
+     LPTOKEN           lptkFunc,        // ...    function ...
+     LPTOKEN           lptkRhtArg,      // ...    right arg ...
 
-     HGLOBAL       hGlbLft,         // Left arg handle
-     HGLOBAL       hGlbRht,         // Right ...
-     HGLOBAL      *lphGlbRes,       // Ptr to result handle
+     HGLOBAL           hGlbLft,         // Left arg handle
+     HGLOBAL           hGlbRht,         // Right ...
+     HGLOBAL          *lphGlbRes,       // Ptr to result handle
 
-     LPVOID        lpMemLft,        // Points to Sig.nature
-     LPVOID        lpMemRht,        // ...
+     LPVARARRAY_HEADER lpMemHdrLft,     // Ptr to left arg header
+     LPVARARRAY_HEADER lpMemHdrRht,     // ...    right    ...
 
-     LPAPLUINT     lpMemAxisHead,   // Ptr to axis values, fleshed out by CheckAxis_EM
-     LPAPLUINT     lpMemAxisTail,   // Ptr to grade up of AxisHead
-                                    //
-     APLRANK       aplRankLft,      // Left arg rank
-     APLRANK       aplRankRht,      // Right ...
-     APLRANK       aplRankRes,      // Result ...
-                                    //
-     APLSTYPE      aplTypeLft,      // Left arg type
-     APLSTYPE      aplTypeRht,      // Right ...
-     APLSTYPE      aplTypeRes,      // Result ...
+     LPAPLUINT         lpMemAxisHead,   // Ptr to axis values, fleshed out by CheckAxis_EM
+     LPAPLUINT         lpMemAxisTail,   // Ptr to grade up of AxisHead
+                                        //
+     APLRANK           aplRankLft,      // Left arg rank
+     APLRANK           aplRankRht,      // Right ...
+     APLRANK           aplRankRes,      // Result ...
+                                        //
+     APLSTYPE          aplTypeLft,      // Left arg type
+     APLSTYPE          aplTypeRht,      // Right ...
+     APLSTYPE          aplTypeRes,      // Result ...
 
-     APLNELM       aplNELMLft,      // Left arg NELM
-     APLNELM       aplNELMRht,      // Right ...
-     APLNELM       aplNELMRes,      // Result ...
-     APLNELM       aplNELMAxis,     // Axis ...
+     APLNELM           aplNELMLft,      // Left arg NELM
+     APLNELM           aplNELMRht,      // Right ...
+     APLNELM           aplNELMRes,      // Result ...
+     APLNELM           aplNELMAxis,     // Axis ...
 
-     UBOOL         bLftIdent,       // TRUE iff the function has a left identity element and the Axis tail is valid
-     UBOOL         bRhtIdent,       // ...                         right ...
+     UBOOL             bLftIdent,       // TRUE iff the function has a left identity element and the Axis tail is valid
+     UBOOL             bRhtIdent,       // ...                         right ...
 
-     LPPRIMSPEC    lpPrimSpec)      // Ptr to local PRIMSPEC
+     LPPRIMSPEC        lpPrimSpec)      // Ptr to local PRIMSPEC
 
 {
-    LPVOID        lpMemRes = NULL;  // Ptr to result global memory
-    UBOOL         bRet = TRUE;      // TRUE iff result is valid
-    APLINT        uRes;             // Loop counter
-    APLINT        aplIntegerLft,
-                  aplIntegerRht,
-                  apaOffLft,
-                  apaMulLft,
-                  iDim;
-    APLUINT       ByteAlloc;
-    APLFLOAT      aplFloatLft,
-                  aplFloatRht;
-    HGLOBAL       hGlbWVec = NULL,
-                  hGlbOdo = NULL,
-                  lpSymGlbLft,
-                  hGlbSub;
-    LPAPLUINT     lpMemWVec = NULL,
-                  lpMemDimLft,
-                  lpMemDimRht,
-                  lpMemDimRes,
-                  lpMemOdo = NULL;
-    APLCHAR       aplCharLft,
-                  aplCharRht;
-    LPPLLOCALVARS lpplLocalVars;    // Ptr to re-entrant vars
-    LPUBOOL       lpbCtrlBreak;     // Ptr to Ctrl-Break flag
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // Ptr to result header
+    LPVOID            lpMemLft,             // Ptr to left arg global memory
+                      lpMemRht,             // ...    right    ...
+                      lpMemRes;             // ...    result   ...
+    UBOOL             bRet = TRUE;          // TRUE iff result is valid
+    APLINT            uRes;                 // Loop counter
+    APLINT            aplIntegerLft,
+                      aplIntegerRht,
+                      apaOffLft,
+                      apaMulLft,
+                      iDim;
+    APLUINT           ByteAlloc;
+    APLFLOAT          aplFloatLft,
+                      aplFloatRht;
+    HGLOBAL           hGlbWVec = NULL,
+                      hGlbOdo = NULL,
+                      lpSymGlbLft,
+                      hGlbSub;
+    LPAPLUINT         lpMemWVec = NULL,
+                      lpMemDimLft,
+                      lpMemDimRht,
+                      lpMemDimRes,
+                      lpMemOdo = NULL;
+    APLCHAR           aplCharLft,
+                      aplCharRht;
+    LPPLLOCALVARS     lpplLocalVars;    // Ptr to re-entrant vars
+    LPUBOOL           lpbCtrlBreak;     // Ptr to Ctrl-Break flag
 
     // Get the thread's ptr to local vars
     lpplLocalVars = TlsGetValue (dwTlsPlLocalVars);
@@ -3194,10 +3259,8 @@ UBOOL PrimFnDydSimpNest_EM
     // Get the ptr to the Ctrl-Break flag
     lpbCtrlBreak = &lpplLocalVars->bCtrlBreak;
 
-    DBGENTER;
-
     // If the left arg is immediate, get the one and only value
-    if (!lpMemLft)
+    if (lpMemHdrLft EQ NULL)
         GetFirstValueToken (lptkLftArg,     // Ptr to left arg token
                            &aplIntegerLft,  // Ptr to integer result
                            &aplFloatLft,    // Ptr to float ...
@@ -3209,10 +3272,10 @@ UBOOL PrimFnDydSimpNest_EM
     else
     {
         // Skip over the header to the dimensions
-        lpMemDimLft = VarArrayBaseToDim (lpMemLft);
+        lpMemDimLft = VarArrayBaseToDim (lpMemHdrLft);
 
         // Skip over the header and dimensions to the data
-        lpMemLft = VarArrayDataFmBase (lpMemLft);
+        lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
     } // End IF/ELSE
 
     // If the left arg is APA, ...
@@ -3226,15 +3289,15 @@ UBOOL PrimFnDydSimpNest_EM
     } // End IF
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (*lphGlbRes);
+    lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
     // Skip over the header to the dimensions
-    lpMemDimRht = VarArrayBaseToDim (lpMemRht);
-    lpMemDimRes = VarArrayBaseToDim (lpMemRes);
+    lpMemDimRht = VarArrayBaseToDim (lpMemHdrRht);
+    lpMemDimRes = VarArrayBaseToDim (lpMemHdrRes);
 
     // Skip over the header and dimensions to the data
-    lpMemRht = VarArrayDataFmBase (lpMemRht);
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // Handle axis if present
     if (aplNELMAxis NE aplRankRes)
@@ -3251,11 +3314,11 @@ UBOOL PrimFnDydSimpNest_EM
         //   {times}{backscan}1{drop}({rho}Z),1
         //***************************************************************
         hGlbWVec = DbgGlobalAlloc (GHND, (APLU3264) ByteAlloc);
-        if (!hGlbWVec)
+        if (hGlbWVec EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemWVec = MyGlobalLock (hGlbWVec);
+        lpMemWVec = MyGlobalLock000 (hGlbWVec);
 
         // Loop through the dimensions of the result in reverse
         //   order {backscan} and compute the cumulative product
@@ -3281,11 +3344,11 @@ UBOOL PrimFnDydSimpNest_EM
         //   in the right arg, with values initially all zero (thanks to GHND).
         //***************************************************************
         hGlbOdo = DbgGlobalAlloc (GHND, (APLU3264) ByteAlloc);
-        if (!hGlbOdo)
+        if (hGlbOdo EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemOdo = MyGlobalLock (hGlbOdo);
+        lpMemOdo = MyGlobalLock000 (hGlbOdo);
     } // End IF
 
     // Loop through the result
@@ -3303,7 +3366,7 @@ UBOOL PrimFnDydSimpNest_EM
         aplTypeHetLft = aplTypeLft;
 
         // If the left arg is not immediate, get the next value
-        if (lpMemLft)
+        if (lpMemHdrLft NE NULL)
         {
             if (aplNELMAxis NE aplRankRes)
             {
@@ -3396,21 +3459,27 @@ UBOOL PrimFnDydSimpNest_EM
                                                 aplIntegerLft,
                                                 aplFloatLft,
                                                 aplCharLft,
-                                                NULL,
+                                                lpSymGlbLft,
                                                 aplTypeHetRht,
                                                 aplIntegerRht,
                                                 aplFloatRht,
                                                 aplCharRht,
                                                 NULL,
                                                 lpPrimSpec);
-                if (!hGlbSub)
+                if (hGlbSub EQ NULL)
                     goto ERROR_EXIT;
                 else
-                    // Save in result
-                    *((LPAPLNESTED) lpMemRes)++ = hGlbSub;
+                // If the result is not already filled in, ...
+                if (((LPAPLNESTED) lpMemRes)[0] EQ NULL)
+                    // Save in the result
+                    ((LPAPLNESTED) lpMemRes)[0] = hGlbSub;
+                // Skip to the next result
+                ((LPAPLNESTED) lpMemRes)++;
+
                 break;
 
             case PTRTYPE_HGLOBAL:
+                // 2 4-({enclose}0 1)(0 1 2)
                 hGlbSub = PrimFnDydSiScNest_EM (lptkFunc,
                                                 aplTypeHetLft,
                                                 aplIntegerLft,
@@ -3421,10 +3490,10 @@ UBOOL PrimFnDydSimpNest_EM
                                                 bLftIdent,
                                                 bRhtIdent,
                                                 lpPrimSpec);
-                if (!hGlbSub)
+                if (hGlbSub EQ NULL)
                     goto ERROR_EXIT;
                 else
-                    // Save in result
+                    // Save in the result
                     *((LPAPLNESTED) lpMemRes)++ = MakePtrTypeGlb (hGlbSub);
                 break;
 
@@ -3450,49 +3519,29 @@ WSFULL_EXIT:
 ERROR_EXIT:
     bRet = FALSE;
 
-    if (*lphGlbRes)
+    if (*lphGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (*lphGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (*lphGlbRes); *lphGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (*lphGlbRes && lpMemRes)
+    if (*lphGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (*lphGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
-    if (lpMemWVec)
-    {
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbWVec); lpMemWVec = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWVec, lpMemWVec);
 
-    if (lpMemOdo)
-    {
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbOdo); lpMemOdo = NULL;
-    } // End IF
-
-    if (hGlbWVec)
-    {
-        // We no longer need this storage
-        DbgGlobalFree (hGlbWVec); hGlbWVec = NULL;
-    } // End IF
-
-    if (hGlbOdo)
-    {
-        // We no longer need this storage
-        DbgGlobalFree (hGlbOdo); hGlbOdo = NULL;
-    } // End IF
-
-    DBGLEAVE;
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdo, lpMemOdo);
 
     return bRet;
 } // End PrimFnDydSimpNest_EM
@@ -3522,8 +3571,8 @@ UBOOL PrimFnDydNestSimp_EM
      HGLOBAL       hGlbRht,         // Right ...
      HGLOBAL      *lphGlbRes,       // Ptr to result handle
 
-     LPVOID        lpMemLft,        // Points to Sig.nature
-     LPVOID        lpMemRht,        // ...
+     LPVARARRAY_HEADER lpMemHdrLft, // Ptr to left arg header
+     LPVARARRAY_HEADER lpMemHdrRht, // Ptr to right ...
 
      LPAPLUINT     lpMemAxisHead,   // Ptr to axis values, fleshed out by CheckAxis_EM
      LPAPLUINT     lpMemAxisTail,   // Ptr to grade up of AxisHead
@@ -3531,7 +3580,7 @@ UBOOL PrimFnDydNestSimp_EM
      APLRANK       aplRankLft,      // Left arg rank
      APLRANK       aplRankRht,      // Right ...
      APLRANK       aplRankRes,      // Result ...
-                                    //
+
      APLSTYPE      aplTypeLft,      // Left arg type
      APLSTYPE      aplTypeRht,      // Right ...
      APLSTYPE      aplTypeRes,      // Result ...
@@ -3547,30 +3596,33 @@ UBOOL PrimFnDydNestSimp_EM
      LPPRIMSPEC    lpPrimSpec)      // Ptr to local PRIMSPEC
 
 {
-    LPVOID        lpMemRes = NULL;  // Ptr to result global memory
-    UBOOL         bRet = TRUE;      // TRUE iff result is valid
-    APLINT        uRes;             // Loop counter
-    APLINT        aplIntegerLft,
-                  aplIntegerRht,
-                  apaOffRht,
-                  apaMulRht,
-                  ByteAlloc,
-                  iDim;
-    APLFLOAT      aplFloatLft,
-                  aplFloatRht;
-    HGLOBAL       hGlbWVec = NULL,
-                  hGlbOdo = NULL,
-                  lpSymGlbRht,
-                  hGlbSub;
-    LPAPLUINT     lpMemWVec = NULL,
-                  lpMemDimLft,
-                  lpMemDimRht,
-                  lpMemDimRes,
-                  lpMemOdo = NULL;
-    APLCHAR       aplCharLft,
-                  aplCharRht;
-    LPPLLOCALVARS lpplLocalVars;    // Ptr to re-entrant vars
-    LPUBOOL       lpbCtrlBreak;     // Ptr to Ctrl-Break flag
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // Ptr to result header
+    LPVOID            lpMemLft,             // Ptr to left arg global memory
+                      lpMemRht,             // ...    right    ...
+                      lpMemRes;             // ...    result   ...
+    UBOOL             bRet = TRUE;          // TRUE iff result is valid
+    APLINT            uRes;                 // Loop counter
+    APLINT            aplIntegerLft,
+                      aplIntegerRht,
+                      apaOffRht,
+                      apaMulRht,
+                      ByteAlloc,
+                      iDim;
+    APLFLOAT          aplFloatLft,
+                      aplFloatRht;
+    HGLOBAL           hGlbWVec = NULL,
+                      hGlbOdo = NULL,
+                      lpSymGlbRht,
+                      hGlbSub;
+    LPAPLUINT         lpMemWVec = NULL,
+                      lpMemDimLft,
+                      lpMemDimRht,
+                      lpMemDimRes,
+                      lpMemOdo = NULL;
+    APLCHAR           aplCharLft,
+                      aplCharRht;
+    LPPLLOCALVARS     lpplLocalVars;    // Ptr to re-entrant vars
+    LPUBOOL           lpbCtrlBreak;     // Ptr to Ctrl-Break flag
 
     // Get the thread's ptr to local vars
     lpplLocalVars = TlsGetValue (dwTlsPlLocalVars);
@@ -3578,10 +3630,8 @@ UBOOL PrimFnDydNestSimp_EM
     // Get the ptr to the Ctrl-Break flag
     lpbCtrlBreak = &lpplLocalVars->bCtrlBreak;
 
-    DBGENTER;
-
     // If the right arg is immediate, get the one and only value
-    if (!lpMemRht)
+    if (lpMemHdrRht EQ NULL)
        GetFirstValueToken (lptkRhtArg,      // Ptr to right arg token
                           &aplIntegerRht,   // Ptr to integer result
                           &aplFloatRht,     // Ptr to float ...
@@ -3593,10 +3643,10 @@ UBOOL PrimFnDydNestSimp_EM
     else
     {
         // Skip over the header to the dimensions
-        lpMemDimRht = VarArrayBaseToDim (lpMemRht);
+        lpMemDimRht = VarArrayBaseToDim (lpMemHdrRht);
 
         // Skip over the header and dimensions to the data
-        lpMemRht = VarArrayDataFmBase (lpMemRht);
+        lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
     } // End IF/ELSE
 
     // If the right arg is APA, ...
@@ -3610,15 +3660,15 @@ UBOOL PrimFnDydNestSimp_EM
     } // End IF
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (*lphGlbRes);
+    lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
     // Skip over the header to the dimensions
-    lpMemDimLft = VarArrayBaseToDim (lpMemLft);
-    lpMemDimRes = VarArrayBaseToDim (lpMemRes);
+    lpMemDimLft = VarArrayBaseToDim (lpMemHdrLft);
+    lpMemDimRes = VarArrayBaseToDim (lpMemHdrRes);
 
     // Skip over the header and dimensions to the data
-    lpMemLft = VarArrayDataFmBase (lpMemLft);
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // Handle axis if present
     if (aplNELMAxis NE aplRankRes)
@@ -3635,11 +3685,11 @@ UBOOL PrimFnDydNestSimp_EM
         //   {times}{backscan}1{drop}({rho}Z),1
         //***************************************************************
         hGlbWVec = DbgGlobalAlloc (GHND, (APLU3264) ByteAlloc);
-        if (!hGlbWVec)
+        if (hGlbWVec EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemWVec = MyGlobalLock (hGlbWVec);
+        lpMemWVec = MyGlobalLock000 (hGlbWVec);
 
         // Loop through the dimensions of the result in reverse
         //   order {backscan} and compute the cumulative product
@@ -3665,11 +3715,11 @@ UBOOL PrimFnDydNestSimp_EM
         //   in the right arg, with values initially all zero (thanks to GHND).
         //***************************************************************
         hGlbOdo = DbgGlobalAlloc (GHND, (APLU3264) ByteAlloc);
-        if (!hGlbOdo)
+        if (hGlbOdo EQ NULL)
             goto WSFULL_EXIT;
 
         // Lock the memory to get a ptr to it
-        lpMemOdo = MyGlobalLock (hGlbOdo);
+        lpMemOdo = MyGlobalLock000 (hGlbOdo);
     } // End IF
 
     // Loop through the result
@@ -3687,7 +3737,7 @@ UBOOL PrimFnDydNestSimp_EM
         aplTypeHetRht = aplTypeRht;
 
         // If the right arg is not immediate, get the next value
-        if (lpMemRht)
+        if (lpMemHdrRht NE NULL)
         {
             if (aplNELMAxis NE aplRankRes)
             {
@@ -3785,16 +3835,22 @@ UBOOL PrimFnDydNestSimp_EM
                                                 aplIntegerRht,
                                                 aplFloatRht,
                                                 aplCharRht,
-                                                NULL,
+                                                lpSymGlbRht,
                                                 lpPrimSpec);
-                if (!hGlbSub)
+                if (hGlbSub EQ NULL)
                     goto ERROR_EXIT;
                 else
-                    // Save in result
-                    *((LPAPLNESTED) lpMemRes)++ = hGlbSub;
+                // If the result is not already filled in, ...
+                if (((LPAPLNESTED) lpMemRes)[0] EQ NULL)
+                    // Save in the result
+                    ((LPAPLNESTED) lpMemRes)[0] = hGlbSub;
+                // Skip to the next result
+                ((LPAPLNESTED) lpMemRes)++;
+
                 break;
 
             case PTRTYPE_HGLOBAL:
+                // ({enclose}0 1)(0 1 2)-2 4
                 hGlbSub = PrimFnDydNestSiSc_EM (lptkFunc,
                                                 aplTypeHetRht,
                                                 aplIntegerRht,
@@ -3805,10 +3861,10 @@ UBOOL PrimFnDydNestSimp_EM
                                                 bLftIdent,
                                                 bRhtIdent,
                                                 lpPrimSpec);
-                if (!hGlbSub)
+                if (hGlbSub EQ NULL)
                     goto ERROR_EXIT;
                 else
-                    // Save in result
+                    // Save in the result
                     *((LPAPLNESTED) lpMemRes)++ = MakePtrTypeGlb (hGlbSub);
                 break;
 
@@ -3834,49 +3890,29 @@ WSFULL_EXIT:
 ERROR_EXIT:
     bRet = FALSE;
 
-    if (*lphGlbRes)
+    if (*lphGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (*lphGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (*lphGlbRes); *lphGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (*lphGlbRes && lpMemRes)
+    if (*lphGlbRes NE NULL && lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (*lphGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
-    if (lpMemWVec)
-    {
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbWVec); lpMemWVec = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWVec, lpMemWVec);
 
-    if (lpMemOdo)
-    {
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbOdo); lpMemOdo = NULL;
-    } // End IF
-
-    if (hGlbWVec)
-    {
-        // We no longer need this storage
-        DbgGlobalFree (hGlbWVec); hGlbWVec = NULL;
-    } // End IF
-
-    if (hGlbOdo)
-    {
-        // We no longer need this storage
-        DbgGlobalFree (hGlbOdo); hGlbOdo = NULL;
-    } // End IF
-
-    DBGLEAVE;
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdo, lpMemOdo);
 
     return bRet;
 } // End PrimFnDydNestSimp_EM
@@ -3912,10 +3948,10 @@ HGLOBAL PrimFnDydNestSiSc_EM
     HGLOBAL           hGlbLft = NULL,
                       hGlbRes = NULL,
                       hGlbSub;
-    LPVOID            lpMemLft = NULL,
-                      lpMemRes = NULL;
-    LPVARARRAY_HEADER lpMemHdrRes,
-                      lpMemHdrLft;
+    LPVARARRAY_HEADER lpMemHdrRes = NULL,
+                      lpMemHdrLft = NULL;
+    LPVOID            lpMemLft,
+                      lpMemRes;
     APLSTYPE          aplTypeLft,
                       aplTypeRes;
     APLNELM           aplNELMLft,
@@ -3932,7 +3968,6 @@ HGLOBAL PrimFnDydNestSiSc_EM
     APLCHAR           aplCharLft;
     UINT              uBitIndex = 0;
 
-    DBGENTER;
 
     // The left arg data is a valid HGLOBAL array
     Assert (IsGlbTypeVarDir_PTB (aplNestedLft));
@@ -3941,9 +3976,9 @@ HGLOBAL PrimFnDydNestSiSc_EM
     hGlbLft = aplNestedLft;
 
     // Lock the memory to get a ptr to it
-    lpMemLft = MyGlobalLock (hGlbLft);
+    lpMemHdrLft = MyGlobalLockVar (hGlbLft);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemLft)
+#define lpHeader    lpMemHdrLft
     // Get the Array Type, NELM, and Rank
     aplTypeLft = lpHeader->ArrType;
     aplNELMLft = lpHeader->NELM;
@@ -3988,7 +4023,7 @@ HGLOBAL PrimFnDydNestSiSc_EM
     if (!PrimScalarFnDydAllocate_EM (lptkFunc,
                                     &hGlbRes,
                                      NULL,
-                                     lpMemLft,
+                                     lpMemHdrLft,
                                      aplRankRht,
                                      aplRankLft,
                                     &aplRankRes,
@@ -4001,14 +4036,11 @@ HGLOBAL PrimFnDydNestSiSc_EM
         goto ERROR_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = lpMemHdrRes = MyGlobalLock (hGlbRes);
-
-    // Save ptr to header
-    lpMemHdrLft = lpMemLft;
+    lpMemHdrRes = MyGlobalLockVar (hGlbRes);
 
     // Skip over the header and dimensions to the data
-    lpMemLft = VarArrayDataFmBase (lpMemLft);
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // If the left arg is an APA, ...
     if (IsSimpleAPA (aplTypeLft))
@@ -4079,16 +4111,22 @@ HGLOBAL PrimFnDydNestSiSc_EM
                                                     aplIntegerRht,
                                                     aplFloatRht,
                                                     aplCharRht,
-                                                    NULL,
+                                                    lpSymGlbRht,
                                                     lpPrimSpec);
-                    if (!hGlbSub)
+                    if (hGlbSub EQ NULL)
                         goto ERROR_EXIT;
                     else
-                        // Save in result
-                        *((LPAPLNESTED) lpMemRes)++ = hGlbSub;
+                    // If the result is not already filled in, ...
+                    if (((LPAPLNESTED) lpMemRes)[0] EQ NULL)
+                        // Save in the result
+                        ((LPAPLNESTED) lpMemRes)[0] = hGlbSub;
+                    // Skip to the next result
+                    ((LPAPLNESTED) lpMemRes)++;
+
                     break;
 
                 case PTRTYPE_HGLOBAL:
+                    // ({enclose}0 1)(0 1 2)-2 4
                     hGlbSub = PrimFnDydNestSiSc_EM (lptkFunc,
                                                     aplTypeRht,
                                                     aplIntegerRht,
@@ -4099,10 +4137,10 @@ HGLOBAL PrimFnDydNestSiSc_EM
                                                     bLftIdent,
                                                     bRhtIdent,
                                                     lpPrimSpec);
-                    if (!hGlbSub)
+                    if (hGlbSub EQ NULL)
                         goto ERROR_EXIT;
                     else
-                        // Save in result
+                        // Save in the result
                         *((LPAPLNESTED) lpMemRes)++ = MakePtrTypeGlb (hGlbSub);
                     break;
 
@@ -4126,28 +4164,26 @@ DOMAIN_EXIT:
 ERROR_EXIT:
     bRet = FALSE;
 
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (lpMemRes)
+    if (lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
     // We no longer need this ptr
-    MyGlobalUnlock (hGlbLft); lpMemLft = NULL;
-
-    DBGLEAVE;
+    MyGlobalUnlock (hGlbLft); lpMemHdrLft = NULL;
 
     if (bRet)
         return hGlbRes;
@@ -4209,56 +4245,57 @@ void FillToken_PTB
 #endif
 
 UBOOL PrimFnDydNestNest_EM
-    (LPPL_YYSTYPE lpYYRes,          // Ptr to the result
+    (LPPL_YYSTYPE      lpYYRes,         // Ptr to the result
 
-     LPTOKEN      lptkLftArg,       // Ptr to left arg token
-     LPTOKEN      lptkFunc,         // ...    function ...
-     LPTOKEN      lptkRhtArg,       // ...    right arg ...
+     LPTOKEN           lptkLftArg,      // Ptr to left arg token
+     LPTOKEN           lptkFunc,        // ...    function ...
+     LPTOKEN           lptkRhtArg,      // ...    right arg ...
 
-     HGLOBAL      hGlbLft,          // Left arg handle
-     HGLOBAL      hGlbRht,          // Right ...
-     HGLOBAL     *lphGlbRes,        // Ptr to result handle
+     HGLOBAL           hGlbLft,         // Left arg handle
+     HGLOBAL           hGlbRht,         // Right ...
+     HGLOBAL          *lphGlbRes,       // Ptr to result handle
 
-     LPVOID       lpMemLft,         // Points to Sig.nature
-     LPVOID       lpMemRht,         // ...
+     LPVARARRAY_HEADER lpMemHdrLft,     // Ptr to left arg header
+     LPVARARRAY_HEADER lpMemHdrRht,     // ...    right ...
 
-     LPAPLUINT    lpMemAxisHead,    // Ptr to axis values, fleshed out by CheckAxis_EM
-     LPAPLUINT    lpMemAxisTail,    // Ptr to grade up of AxisHead
+     LPAPLUINT         lpMemAxisHead,   // Ptr to axis values, fleshed out by CheckAxis_EM
+     LPAPLUINT         lpMemAxisTail,   // Ptr to grade up of AxisHead
 
-     APLRANK      aplRankLft,       // Left arg rank
-     APLRANK      aplRankRht,       // Right ...
-     APLRANK      aplRankRes,       // Result ...
+     APLRANK           aplRankLft,      // Left arg rank
+     APLRANK           aplRankRht,      // Right ...
+     APLRANK           aplRankRes,      // Result ...
 
-     APLSTYPE     aplTypeLft,       // Left arg type
-     APLSTYPE     aplTypeRht,       // Right ...
-     APLSTYPE     aplTypeRes,       // Result ...
+     APLSTYPE          aplTypeLft,      // Left arg type
+     APLSTYPE          aplTypeRht,      // Right ...
+     APLSTYPE          aplTypeRes,      // Result ...
 
-     APLNELM      aplNELMLft,       // Left arg NELM
-     APLNELM      aplNELMRht,       // Right ...
-     APLNELM      aplNELMRes,       // Result ...
-     APLNELM      aplNELMAxis,      // Axis ...
+     APLNELM           aplNELMLft,      // Left arg NELM
+     APLNELM           aplNELMRht,      // Right ...
+     APLNELM           aplNELMRes,      // Result ...
+     APLNELM           aplNELMAxis,     // Axis ...
 
-     UBOOL        bLftIdent,        // TRUE iff the function has a left identity element and the Axis tail is valid
-     UBOOL        bRhtIdent,        // ...                         right ...
+     UBOOL             bLftIdent,       // TRUE iff the function has a left identity element and the Axis tail is valid
+     UBOOL             bRhtIdent,       // ...                         right ...
 
-     LPPRIMSPEC   lpPrimSpec)       // Ptr to local PRIMSPEC
+     LPPRIMSPEC        lpPrimSpec)      // Ptr to local PRIMSPEC
 
 {
-    UBOOL        bRet = TRUE;       // TRUE iff result is valid
-    APLINT       uRes;              // Loop counter
-    LPVOID       lpMemRes = NULL;   // Ptr to result global memory
-    LPPL_YYSTYPE lpYYRes2;          // Ptr to the secondary result
-
-    DBGENTER;
+    UBOOL             bRet = TRUE;          // TRUE iff result is valid
+    APLINT            uRes;                 // Loop counter
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // Ptr to result header
+    LPVOID            lpMemLft,             // Ptr to left arg global memory
+                      lpMemRht,             // ...    right ...
+                      lpMemRes;             // ...    result   ...
+    LPPL_YYSTYPE      lpYYRes2;             // Ptr to the secondary result
 
     // Check for INNER RANK and LENGTH ERRORs
     if (!CheckRankLengthError_EM (aplRankRes,
                                   aplRankLft,
                                   aplNELMLft,
-                                  lpMemLft,
+                                  lpMemHdrLft,
                                   aplRankRht,
                                   aplNELMRht,
-                                  lpMemRht,
+                                  lpMemHdrRht,
                                   aplNELMAxis,
                                   lpMemAxisTail,
                                   bLftIdent,
@@ -4267,12 +4304,12 @@ UBOOL PrimFnDydNestNest_EM
         goto ERROR_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (*lphGlbRes);
+    lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
     // Skip over the headers and dimensions to the data
-    lpMemLft = VarArrayDataFmBase (lpMemLft);
-    lpMemRht = VarArrayDataFmBase (lpMemRht);
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
+    lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // Loop through the left and right args
     for (uRes = 0; bRet && uRes < (APLNELMSIGN) aplNELMRes; uRes++)
@@ -4292,17 +4329,17 @@ UBOOL PrimFnDydNestNest_EM
         lpYYRes2 =
           (*lpPrimSpec->PrimFnDyd_EM_YY) (&tkLft,           // Ptr to left arg token
                                            lptkFunc,        // Ptr to function token
-                                           &tkRht,          // Ptr to right arg token
-                                            NULL,           // Ptr to axis token
-                                            lpPrimSpec);    // Ptr to local PRIMSPEC
-        if (lpYYRes2)
+                                          &tkRht,           // Ptr to right arg token
+                                           NULL,            // Ptr to axis token
+                                           lpPrimSpec);     // Ptr to local PRIMSPEC
+        if (lpYYRes2 NE NULL)
         {
             // If the result is immediate, make it into a SYMENTRY
             // Split cases based upon the result token type
             switch (lpYYRes2->tkToken.tkFlags.TknType)
             {
                 case TKT_VARIMMED:
-                    // Save in result
+                    // Save in the result
                     ((LPAPLNESTED) lpMemRes)[uRes] =
                       MakeSymEntry_EM (lpYYRes2->tkToken.tkFlags.ImmType,   // Immediate type
                                       &lpYYRes2->tkToken.tkData.tkLongest,  // Ptr to immediate value
@@ -4310,7 +4347,7 @@ UBOOL PrimFnDydNestNest_EM
                     break;
 
                 case TKT_VARARRAY:
-                    // Save in result
+                    // Save in the result
                     ((LPAPLNESTED) lpMemRes)[uRes] =
                       lpYYRes2->tkToken.tkData.tkGlbData;
                     break;
@@ -4326,7 +4363,7 @@ UBOOL PrimFnDydNestNest_EM
     } // End FOR
 
     // We no longer need this ptr
-    MyGlobalUnlock (*lphGlbRes); lpMemRes = NULL;
+    MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
 
     if (bRet)
     {
@@ -4338,8 +4375,6 @@ UBOOL PrimFnDydNestNest_EM
         lpYYRes->tkToken.tkCharIndex       = lptkFunc->tkCharIndex;
     } // End IF
 ERROR_EXIT:
-    DBGLEAVE;
-
     return bRet;
 } // End PrimFnDydNestNest_EM
 #undef  APPEND_NAME
@@ -4452,7 +4487,7 @@ RESTART_EXCEPTION:
                         if (CheckCtrlBreak (*lpbCtrlBreak))
                             goto ERROR_EXIT;
 
-                        // Save in result
+                        // Save in the result
                         *((LPAPLBOOL)  lpMemRes) |=
                           (*lpPrimSpec->BisCvC) (aplCharLft,
                                                  *((LPAPLCHAR) lpMemRht)++,
@@ -4477,7 +4512,7 @@ RESTART_EXCEPTION:
                         if (CheckCtrlBreak (*lpbCtrlBreak))
                             goto ERROR_EXIT;
 
-                        // Save in result
+                        // Save in the result
                         *((LPAPLBOOL)  lpMemRes) |= (bCvN << uBitIndex);
 
                         // Check for end-of-byte
@@ -4516,7 +4551,7 @@ RESTART_EXCEPTION:
                                 {
                                     case ARRAY_BOOL:    // Res = BOOL, Lft = BOOL/INT (S), Rht = HETERO:BOOL (M)
                                     case ARRAY_INT:     // Res = BOOL, Lft = BOOL/INT (S), Rht = HETERO:INT  (M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisIvI) (aplIntegerLft,
                                                                  aplIntegerRht,
@@ -4524,7 +4559,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_FLOAT:   // Res = BOOL, Lft = BOOL/INT (S), Rht = HETERO:FLOAT(M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                                  aplFloatRht,
@@ -4532,7 +4567,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_CHAR:    // Res = BOOL, Lft = BOOL/INT (S), Rht = HETERO:CHAR (M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |= (bCvN << uBitIndex);
 
                                         break;
@@ -4541,7 +4576,7 @@ RESTART_EXCEPTION:
                                         // Convert the BOOL/INT to a RAT
                                         mpq_set_sx (&aplRatLft, aplIntegerLft, 1);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisRvR) (aplRatLft,
                                                                 *(LPAPLRAT) lpSymGlbRht,
@@ -4552,7 +4587,7 @@ RESTART_EXCEPTION:
                                         // Convert the BOOL/INT to a VFP
                                         mpfr_set_sx (&aplVfpLft, aplIntegerLft, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                 *(LPAPLVFP) lpSymGlbRht,
@@ -4598,7 +4633,7 @@ RESTART_EXCEPTION:
                                     case ARRAY_BOOL:    // Res = BOOL, Lft = FLOAT (S), Rht = HETERO:BOOL (M)
                                     case ARRAY_INT:     // Res = BOOL, Lft = FLOAT (S), Rht = HETERO:INT  (M)
                                     case ARRAY_FLOAT:   // Res = BOOL, Lft = FLOAT (S), Rht = HETERO:FLOAT(M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                                  aplFloatRht,
@@ -4606,7 +4641,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_CHAR:    // Res = BOOL, Lft = FLOAT (S), Rht = HETERO:CHAR (M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |= (bCvN << uBitIndex);
 
                                         break;
@@ -4618,7 +4653,7 @@ RESTART_EXCEPTION:
                                         // Convert the RAT to a VFP
                                         mpfr_set_q (&aplVfpRht, (LPAPLRAT) lpSymGlbRht, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                  aplVfpRht,
@@ -4629,7 +4664,7 @@ RESTART_EXCEPTION:
                                         // Convert the FLOAT to a VFP
                                         mpfr_set_d (&aplVfpLft, aplFloatLft, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                 *(LPAPLVFP) lpSymGlbRht,
@@ -4678,7 +4713,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_CHAR:    // Res = BOOL, Lft = CHAR  (S), Rht = HETERO:CHAR (M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisCvC) (aplCharLft,
                                                                  aplCharRht,
@@ -4722,7 +4757,7 @@ RESTART_EXCEPTION:
                                         // Convert the BOOL/INT to a RAT
                                         mpq_set_sx (&aplRatRht, aplIntegerRht, 1);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                                   aplRatRht,
@@ -4736,7 +4771,7 @@ RESTART_EXCEPTION:
                                         // Convert the FLOAT to a VFP
                                         mpfr_set_d (&aplVfpRht, aplFloatRht, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                  aplVfpRht,
@@ -4744,13 +4779,13 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_CHAR:    // Res = BOOL, Lft = RAT (S), Rht = HETERO:CHAR (M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |= (bCvN << uBitIndex);
 
                                         break;
 
                                     case ARRAY_RAT:     // Res = BOOL, Lft = RAT (S), Rht = HETERO:RAT  (M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                                  *(LPAPLRAT) lpSymGlbRht,
@@ -4761,7 +4796,7 @@ RESTART_EXCEPTION:
                                         // Convert the RAT to a VFP
                                         mpfr_set_q (&aplVfpLft, (LPAPLRAT) lpSymGlbLft, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                 *(LPAPLVFP) lpSymGlbRht,
@@ -4809,7 +4844,7 @@ RESTART_EXCEPTION:
                                         // Convert the BOOL/INT to a VFP
                                         mpfr_set_sx (&aplVfpRht, aplIntegerRht, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                   aplVfpRht,
@@ -4820,7 +4855,7 @@ RESTART_EXCEPTION:
                                         // Convert the FLOAT to a VFP
                                         mpfr_set_d (&aplVfpRht, aplFloatRht, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                   aplVfpRht,
@@ -4828,7 +4863,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_CHAR:    // Res = BOOL, Lft = VFP (S), Rht = HETERO:CHAR (M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |= (bCvN << uBitIndex);
 
                                         break;
@@ -4837,7 +4872,7 @@ RESTART_EXCEPTION:
                                         // Convert the RAT to a VFP
                                         mpfr_set_q (&aplVfpRht, (LPAPLRAT) lpSymGlbRht, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                   aplVfpRht,
@@ -4845,7 +4880,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_VFP:     // Res = BOOL, Lft = VFP (S), Rht = HETERO:VFP  (M)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                  *(LPAPLVFP) lpSymGlbRht,
@@ -4886,7 +4921,7 @@ RESTART_EXCEPTION:
                         aplNELMRem = aplNELMRes;
 
                         // Check for optimized chunking
-                        if (lpPrimSpec->B64isB64vB64)
+                        if (lpPrimSpec->B64isB64vB64 NE NULL)
                         {
                             APLB64 aplB64Lft;
 
@@ -4906,7 +4941,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB64) lpMemRes)++ =
                                   (*lpPrimSpec->B64isB64vB64) ((APLB64) aplB64Lft, *((LPAPLB64) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -4922,7 +4957,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB32) lpMemRes)++ =
                                   (*lpPrimSpec->B32isB32vB32) ((APLB32) aplB64Lft, *((LPAPLB32) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -4938,7 +4973,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB16) lpMemRes)++ =
                                   (*lpPrimSpec->B16isB16vB16) ((APLB16) aplB64Lft, *((LPAPLB16) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -4954,7 +4989,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB08) lpMemRes)++ =
                                   (*lpPrimSpec->B08isB08vB08) ((APLB08) aplB64Lft, *((LPAPLB08) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -4967,7 +5002,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisBvB) ((APLBOOL) aplIntegerLft,
                                                      (APLBOOL) (BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex)),
@@ -4993,12 +5028,12 @@ RESTART_EXCEPTION:
                                aplB64APA;
                         APLB08 aplB08Res;
 
-                        if (lpAPA->Off)
+                        if (lpAPA->Off NE 0)
                             aplB64APA = 0xFFFFFFFFFFFFFFFF;
                         else
                             aplB64APA = 0x0000000000000000;
 #undef  lpAPA
-                        if (aplIntegerLft)
+                        if (aplIntegerLft NE 0)
                             aplB64Lft = 0xFFFFFFFFFFFFFFFF;
                         else
                             aplB64Lft = 0x0000000000000000;
@@ -5007,7 +5042,7 @@ RESTART_EXCEPTION:
                         aplB08Res = (*lpPrimSpec->B08isB08vB08) ((APLB08) aplB64Lft, (APLB08) aplB64APA, lpPrimSpec);
 
                         // If it's not all zero, ...
-                        if (aplB08Res)
+                        if (aplB08Res NE 0)
                             FillMemory (lpMemRes, (APLU3264) RoundUpBitsToBytes (aplNELMRes), aplB08Res);
                         break;
                     } // End IF/ELSE
@@ -5027,7 +5062,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisIvI) (aplIntegerLft,
                                                          BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex),
@@ -5051,7 +5086,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisIvI) (aplIntegerLft,
                                                          *((LPAPLINT) lpMemRht)++,
@@ -5074,7 +5109,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisIvI) (aplIntegerLft,
                                                          apaOffRht + apaMulRht * uRes,
@@ -5097,7 +5132,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                          *((LPAPLFLOAT) lpMemRht)++,
@@ -5126,7 +5161,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a RAT
                                 mpq_set_sx (&aplRatLft, aplIntegerLft, 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (aplRatLft,
                                                         *((LPAPLRAT) lpMemRht)++,
@@ -5158,7 +5193,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a VFP
                                 mpfr_set_sx (&aplVfpLft, aplIntegerLft, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                         *((LPAPLVFP) lpMemRht)++,
@@ -5194,7 +5229,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                          BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex),
@@ -5218,7 +5253,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                          (APLFLOAT) *((LPAPLINT) lpMemRht)++,
@@ -5241,7 +5276,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                          (APLFLOAT) (apaOffRht + apaMulRht * uRes),
@@ -5264,7 +5299,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                          *((LPAPLFLOAT) lpMemRht)++,
@@ -5297,7 +5332,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpRht, ((LPAPLRAT) lpMemRht)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -5330,7 +5365,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a VFP
                                 mpfr_set_d (&aplVfpLft, aplFloatLft, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                         *((LPAPLVFP) lpMemRht)++,
@@ -5374,7 +5409,7 @@ RESTART_EXCEPTION:
                                 // Convert the BOOL to a RAT
                                 mpq_set_sx (&aplRatRht, BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex), 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                           aplRatRht,
@@ -5401,7 +5436,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a RAT
                                 mpq_set_sx (&aplRatRht, *((LPAPLINT) lpMemRht)++, 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                           aplRatRht,
@@ -5427,7 +5462,7 @@ RESTART_EXCEPTION:
                                 // Convert the APA to a RAT
                                 mpq_set_sx (&aplRatRht, apaOffRht + apaMulRht * uRes, 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                           aplRatRht,
@@ -5456,7 +5491,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a VFP
                                 mpfr_set_d (&aplVfpRht, *((LPAPLFLOAT) lpMemRht)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -5479,7 +5514,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                          *((LPAPLRAT) lpMemRht)++,
@@ -5505,7 +5540,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpLft, (LPAPLRAT) lpSymGlbLft, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                         *((LPAPLVFP) lpMemRht)++,
@@ -5550,7 +5585,7 @@ RESTART_EXCEPTION:
                                 // Convert the BOOL to a VFP
                                 mpfr_set_sx (&aplVfpRht, BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex), MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                           aplVfpRht,
@@ -5577,7 +5612,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a VFP
                                 mpfr_set_sx (&aplVfpRht, *((LPAPLINT) lpMemRht)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                           aplVfpRht,
@@ -5603,7 +5638,7 @@ RESTART_EXCEPTION:
                                 // Convert the APA to a VFP
                                 mpfr_set_sx (&aplVfpRht, apaOffRht + apaMulRht * uRes, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                           aplVfpRht,
@@ -5629,7 +5664,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a VFP
                                 mpfr_set_d (&aplVfpRht, *((LPAPLFLOAT) lpMemRht)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                           aplVfpRht,
@@ -5655,7 +5690,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpRht, ((LPAPLRAT) lpMemRht)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                           aplVfpRht,
@@ -5678,7 +5713,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                          *((LPAPLVFP) lpMemRht)++,
@@ -5727,7 +5762,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisIvI) (aplIntegerLft,
                                                          BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex),
@@ -5750,7 +5785,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisIvI) (aplIntegerLft,
                                                          *((LPAPLINT) lpMemRht)++,
@@ -5767,7 +5802,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisIvI) (aplIntegerLft,
                                                          apaOffRht + apaMulRht * uRes,
@@ -5784,7 +5819,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT) lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) (aplFloatLft,
                                                          *((LPAPLFLOAT) lpMemRht)++,
@@ -5811,7 +5846,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT) lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) (aplFloatLft,
                                                          BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex),
@@ -5834,7 +5869,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) (aplFloatLft,
                                                          (APLFLOAT) *((LPAPLINT) lpMemRht)++,
@@ -5851,7 +5886,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) (aplFloatLft,
                                                          (APLFLOAT) (apaOffRht + apaMulRht * uRes),
@@ -5868,7 +5903,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) (aplFloatLft,
                                                          *((LPAPLFLOAT) lpMemRht)++,
@@ -5907,7 +5942,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisIvI) (aplIntegerLft,
                                                          BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex),
@@ -5930,7 +5965,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisIvI) (aplIntegerLft,
                                                          *((LPAPLINT) lpMemRht)++,
@@ -5947,7 +5982,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisIvI) (aplIntegerLft,
                                                          apaOffRht + apaMulRht * uRes,
@@ -5964,7 +5999,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (aplFloatLft,
                                                          *((LPAPLFLOAT) lpMemRht)++,
@@ -5991,7 +6026,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (aplFloatLft,
                                                          BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex),
@@ -6014,7 +6049,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (aplFloatLft,
                                                          (APLFLOAT) *((LPAPLINT) lpMemRht)++,
@@ -6031,7 +6066,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (aplFloatLft,
                                                          (APLFLOAT) (apaOffRht + apaMulRht * uRes),
@@ -6048,7 +6083,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (aplFloatLft,
                                                          *((LPAPLFLOAT) lpMemRht)++,
@@ -6065,7 +6100,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (aplFloatLft,
                                                          mpq_get_d (((LPAPLRAT) lpMemRht)++),
@@ -6082,7 +6117,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (aplFloatLft,
                                                          mpfr_get_d (((LPAPLVFP) lpMemRht)++, MPFR_RNDN),
@@ -6111,7 +6146,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (mpq_get_d ((LPAPLRAT) lpSymGlbLft),
                                                          BIT0 & ((*(LPAPLBOOL) lpMemRht) >> uBitIndex),
@@ -6136,7 +6171,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (mpq_get_d ((LPAPLRAT) lpSymGlbLft),
                                                          (APLFLOAT) *((LPAPLINT) lpMemRht)++,
@@ -6155,7 +6190,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (mpq_get_d ((LPAPLRAT) lpSymGlbLft),
                                                         *((LPAPLFLOAT) lpMemRht)++,
@@ -6174,7 +6209,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (mpq_get_d (( LPAPLRAT) lpSymGlbLft),
                                                          mpq_get_d (((LPAPLRAT) lpMemRht)++),
@@ -6193,7 +6228,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (mpq_get_d (( LPAPLRAT) lpSymGlbLft),
                                                          mpfr_get_d (((LPAPLVFP) lpMemRht)++, MPFR_RNDN),
@@ -6244,7 +6279,7 @@ RESTART_EXCEPTION:
                                 mpq_set_sx (&aplRatRht,
                                              GetNextInteger (lpMemRht, aplTypeRht, uRes),
                                              1);
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT) lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          aplRatRht,
@@ -6270,7 +6305,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a RAT
                                 mpq_set_d  (&aplRatRht,
                                              GetNextFloat   (lpMemRht, aplTypeRht, uRes));
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT) lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          aplRatRht,
@@ -6290,7 +6325,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT) lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          *((LPAPLRAT) lpMemRht)++,
@@ -6332,7 +6367,7 @@ RESTART_EXCEPTION:
                                 mpq_set_sx (&aplRatRht,
                                              GetNextInteger (lpMemRht, aplTypeRht, uRes),
                                              1);
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT) lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          aplRatRht,
@@ -6358,7 +6393,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a RAT
                                 mpq_set_d  (&aplRatRht,
                                              GetNextFloat   (lpMemRht, aplTypeRht, uRes));
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT) lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          aplRatRht,
@@ -6378,7 +6413,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT) lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          *((LPAPLRAT) lpMemRht)++,
@@ -6417,7 +6452,7 @@ RESTART_EXCEPTION:
                                 mpq_set_sx (&aplRatRht,
                                              GetNextInteger (lpMemRht, aplTypeRht, uRes),
                                              1);
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT) lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                          aplRatRht,
@@ -6437,7 +6472,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT) lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                          *((LPAPLRAT) lpMemRht)++,
@@ -6486,7 +6521,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpRht, ((LPAPLRAT) lpMemRht)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -6503,7 +6538,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                         *((LPAPLVFP) lpMemRht)++,
@@ -6536,7 +6571,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpRht, ((LPAPLRAT) lpMemRht)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -6553,7 +6588,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                         *((LPAPLVFP) lpMemRht)++,
@@ -6589,7 +6624,7 @@ RESTART_EXCEPTION:
                                 mpfr_set_sx (&aplVfpRht,
                                               GetNextInteger (lpMemRht, aplTypeRht, uRes),
                                               MPFR_RNDN);
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -6613,7 +6648,7 @@ RESTART_EXCEPTION:
                                 mpfr_set_d (&aplVfpRht,
                                              *((LPAPLFLOAT) lpMemRht)++,
                                              MPFR_RNDN);
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -6637,7 +6672,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpRht, ((LPAPLRAT) lpMemRht)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -6657,7 +6692,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                         *((LPAPLVFP) lpMemRht)++,
@@ -6690,7 +6725,7 @@ RESTART_EXCEPTION:
                                 mpfr_set_sx (&aplVfpRht,
                                               GetNextInteger (lpMemRht, aplTypeRht, uRes),
                                               MPFR_RNDN);
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                           aplVfpRht,
@@ -6711,7 +6746,7 @@ RESTART_EXCEPTION:
                                 mpfr_set_d (&aplVfpRht,
                                             *((LPAPLFLOAT) lpMemRht)++,
                                             MPFR_RNDN);
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                          aplVfpRht,
@@ -6732,7 +6767,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpRht, ((LPAPLRAT) lpMemRht)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                          aplVfpRht,
@@ -6749,7 +6784,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP) lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                         *((LPAPLVFP) lpMemRht)++,
@@ -6779,10 +6814,12 @@ RESTART_EXCEPTION:
     } // End SWITCH
     } __except (CheckException (GetExceptionInformation (), L"PrimFnDydSingMult_EM"))
     {
-        dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+        EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+        dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #5: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
         // Split cases based upon the ExceptionCode
-        switch (MyGetExceptionCode ())
+        switch (ExceptionCode)
         {
             case EXCEPTION_DOMAIN_ERROR:
             case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -6809,7 +6846,7 @@ RESTART_EXCEPTION:
                     aplTypeRes = ARRAY_RAT;
 
                     // We need to start over with the result
-                    MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                    MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                     FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                     if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -6828,12 +6865,12 @@ RESTART_EXCEPTION:
                         goto ERROR_EXIT;
 
                     // Lock the memory to get a ptr to it
-                    lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                    lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
                     // Restart the pointer
                     lpMemRht = lpMemRhtStart;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #5: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION;
                 } // End IF
@@ -6853,7 +6890,7 @@ RESTART_EXCEPTION:
                     aplTypeRes = ARRAY_VFP;
 
                     // We need to start over with the result
-                    MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                    MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                     FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                     if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -6872,12 +6909,12 @@ RESTART_EXCEPTION:
                         goto ERROR_EXIT;
 
                     // Lock the memory to get a ptr to it
-                    lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                    lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
                     // Restart the pointer
                     lpMemRht = lpMemRhtStart;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #5: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION;
                 } // End IF
@@ -6901,7 +6938,7 @@ RESTART_EXCEPTION:
                         aplTypeRes = ARRAY_FLOAT;
 
                         // We need to start over with the result
-                        MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                        MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                         FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                         if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -6920,7 +6957,7 @@ RESTART_EXCEPTION:
                             goto ERROR_EXIT;
 
                         // Lock the memory to get a ptr to it
-                        lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                        lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
                     } else
                     // The previous result must have been INT which is
                     //   the same size as FLOAT, so there's no need to
@@ -6929,8 +6966,10 @@ RESTART_EXCEPTION:
                         // It's now a FLOAT result
                         aplTypeRes = ARRAY_FLOAT;
 
-                        // Tell the header about it
-                        lpMemHdrRes->ArrType = aplTypeRes;
+                        // If the result is not nested, ...
+                        if (!IsNested (lpMemHdrRes->ArrType))
+                            // Tell the header about it
+                            lpMemHdrRes->ArrType = aplTypeRes;
 
                         // Restart the pointer
                         lpMemRes = lpMemHdrRes;
@@ -6939,7 +6978,7 @@ RESTART_EXCEPTION:
                     // Restart the pointer
                     lpMemRht = lpMemRhtStart;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #5: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION;
                 } // End IF
@@ -7097,7 +7136,7 @@ RESTART_EXCEPTION:
                         if (CheckCtrlBreak (*lpbCtrlBreak))
                             goto ERROR_EXIT;
 
-                        // Save in result
+                        // Save in the result
                         *((LPAPLBOOL)  lpMemRes) |=
                           (*lpPrimSpec->BisCvC) (*((LPAPLCHAR) lpMemLft)++,
                                                  aplCharRht,
@@ -7122,7 +7161,7 @@ RESTART_EXCEPTION:
                         if (CheckCtrlBreak (*lpbCtrlBreak))
                             goto ERROR_EXIT;
 
-                        // Save in result
+                        // Save in the result
                         *((LPAPLBOOL)  lpMemRes) |= (bCvN << uBitIndex);
 
                         // Check for end-of-byte
@@ -7161,7 +7200,7 @@ RESTART_EXCEPTION:
                                 {
                                     case ARRAY_BOOL:    // Res = BOOL, Lft = HETERO:BOOL (M), Rht = BOOL/INT/APA (S)
                                     case ARRAY_INT:     // Res = BOOL, Lft = HETERO:INT  (M), Rht = BOOL/INT/APA (S)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisIvI) (aplIntegerLft,
                                                                  aplIntegerRht,
@@ -7169,7 +7208,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_FLOAT:   // Res = BOOL, Lft = HETERO:FLOAT(M), Rht = BOOL/INT/APA (S)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                                  aplFloatRht,
@@ -7177,13 +7216,13 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_CHAR:    // Res = BOOL, Lft = HETERO:CHAR (M), Rht = BOOL/INT/APA (S)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |= (bCvN << uBitIndex);
 
                                         break;
 
                                     case ARRAY_RAT:     // Res = BOOL, Lft = HETERO:RAT  (M), Rht = BOOL/INT/APA (S)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                                   aplRatRht,
@@ -7191,7 +7230,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_VFP:     // Res = BOOL, Lft = HETERO:VFP  (M), Rht = BOOL/INT/APA (S)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                   aplVfpRht,
@@ -7248,7 +7287,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_RAT:     // Res = BOOL, Lft = HETERO:RAT  (M), Rht = FLOAT (S)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                                   aplRatRht,
@@ -7256,7 +7295,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_VFP:     // Res = BOOL, Lft = HETERO:VFP  (M), Rht = FLOAT (S)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                   aplVfpRht,
@@ -7364,7 +7403,7 @@ RESTART_EXCEPTION:
                                         // Convert the RAT to a VFP
                                         mpfr_set_q (&aplVfpRht, (LPAPLRAT) lpSymGlbRht, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                  aplVfpRht,
@@ -7372,7 +7411,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_RAT:     // Res = BOOL, Lft = HETERO:RAT  (M), Rht = RAT (S)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                                  *(LPAPLRAT) lpSymGlbRht,
@@ -7383,7 +7422,7 @@ RESTART_EXCEPTION:
                                         // Convert the RAT to a VFP
                                         mpfr_set_q (&aplVfpRht, (LPAPLRAT) lpSymGlbRht, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                   aplVfpRht,
@@ -7444,7 +7483,7 @@ RESTART_EXCEPTION:
                                         // Convert the FLOAT to a VFP
                                         mpfr_set_d (&aplVfpLft, aplFloatLft, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                 *(LPAPLVFP) lpSymGlbRht,
@@ -7455,7 +7494,7 @@ RESTART_EXCEPTION:
                                         // Convert the RAT to a VFP
                                         mpfr_set_q (&aplVfpLft, (LPAPLRAT) lpSymGlbLft, MPFR_RNDN);
 
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                 *(LPAPLVFP) lpSymGlbRht,
@@ -7463,7 +7502,7 @@ RESTART_EXCEPTION:
                                         break;
 
                                     case ARRAY_VFP:     // Res = BOOL, Lft = HETERO:VFP  (M), Rht = VFP (S)
-                                        // Save in result
+                                        // Save in the result
                                         *((LPAPLBOOL)  lpMemRes) |=
                                           (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                  *(LPAPLVFP) lpSymGlbRht,
@@ -7503,11 +7542,11 @@ RESTART_EXCEPTION:
                         aplNELMRem = aplNELMRes;
 
                         // Check for optimized chunking
-                        if (lpPrimSpec->B64isB64vB64)
+                        if (lpPrimSpec->B64isB64vB64 NE NULL)
                         {
                             APLB64 aplB64Rht;
 
-                            if (aplIntegerRht)
+                            if (aplIntegerRht NE 0)
                                 aplB64Rht = 0xFFFFFFFFFFFFFFFF;
                             else
                                 aplB64Rht = 0x0000000000000000;
@@ -7523,7 +7562,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB64) lpMemRes)++ =
                                   (*lpPrimSpec->B64isB64vB64) (*((LPAPLB64) lpMemLft)++, (APLB64) aplB64Rht, lpPrimSpec);
                             } // End FOR
@@ -7539,7 +7578,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB32) lpMemRes)++ =
                                   (*lpPrimSpec->B32isB32vB32) (*((LPAPLB32) lpMemLft)++, (APLB32) aplB64Rht, lpPrimSpec);
                             } // End FOR
@@ -7555,7 +7594,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB16) lpMemRes)++ =
                                   (*lpPrimSpec->B16isB16vB16) (*((LPAPLB16) lpMemLft)++, (APLB16) aplB64Rht, lpPrimSpec);
                             } // End FOR
@@ -7571,7 +7610,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB08) lpMemRes)++ =
                                   (*lpPrimSpec->B08isB08vB08) (*((LPAPLB08) lpMemLft)++, (APLB08) aplB64Rht, lpPrimSpec);
                             } // End FOR
@@ -7584,7 +7623,7 @@ RESTART_EXCEPTION:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisBvB) ((APLBOOL) (BIT0 & ((*(LPAPLBOOL) lpMemLft) >> uBitIndex)),
                                                      (APLBOOL) aplIntegerRht,
@@ -7610,12 +7649,12 @@ RESTART_EXCEPTION:
                                aplB64APA;
                         APLB08 aplB08Res;
 
-                        if (lpAPA->Off)
+                        if (lpAPA->Off NE 0)
                             aplB64APA = 0xFFFFFFFFFFFFFFFF;
                         else
                             aplB64APA = 0x0000000000000000;
 #undef  lpAPA
-                        if (aplIntegerRht)
+                        if (aplIntegerRht NE 0)
                             aplB64Rht = 0xFFFFFFFFFFFFFFFF;
                         else
                             aplB64Rht = 0x0000000000000000;
@@ -7624,7 +7663,7 @@ RESTART_EXCEPTION:
                         aplB08Res = (*lpPrimSpec->B08isB08vB08) ((APLB08) aplB64APA, (APLB08) aplB64Rht, lpPrimSpec);
 
                         // If it's not all zero, ...
-                        if (aplB08Res)
+                        if (aplB08Res NE 0)
                             FillMemory (lpMemRes, (APLU3264) RoundUpBitsToBytes (aplNELMRes), aplB08Res);
                         break;
                     } // End IF/ELSE
@@ -7643,7 +7682,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisIvI) (BIT0 & ((*(LPAPLBOOL) lpMemLft) >> uBitIndex),
                                                          aplIntegerRht,
@@ -7667,7 +7706,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisIvI) (*((LPAPLINT) lpMemLft)++,
                                                          aplIntegerRht,
@@ -7690,7 +7729,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisIvI) (apaOffLft + apaMulLft * uRes,
                                                          aplIntegerRht,
@@ -7713,7 +7752,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) (*((LPAPLFLOAT) lpMemLft)++,
                                                          aplFloatRht,
@@ -7739,7 +7778,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (*((LPAPLRAT) lpMemLft)++,
                                                           aplRatRht,
@@ -7768,7 +7807,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*((LPAPLVFP) lpMemLft)++,
                                                           aplVfpRht,
@@ -7804,7 +7843,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisIvI) (BIT0 & ((*(LPAPLBOOL) lpMemLft) >> uBitIndex),
                                                          aplIntegerRht,
@@ -7828,7 +7867,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisIvI) (*((LPAPLINT) lpMemLft)++,
                                                          aplIntegerRht,
@@ -7851,7 +7890,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisIvI) (apaOffLft + apaMulLft * uRes,
                                                          aplIntegerRht,
@@ -7874,7 +7913,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) (*((LPAPLFLOAT) lpMemLft)++,
                                                          aplFloatRht,
@@ -7900,7 +7939,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (*((LPAPLRAT) lpMemLft)++,
                                                           aplRatRht,
@@ -7929,7 +7968,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*((LPAPLVFP) lpMemLft)++,
                                                           aplVfpRht,
@@ -7965,7 +8004,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) (BIT0 & ((*(LPAPLBOOL) lpMemLft) >> uBitIndex),
                                                          aplFloatRht,
@@ -7989,7 +8028,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) ((APLFLOAT) *((LPAPLINT) lpMemLft)++,
                                                          aplFloatRht,
@@ -8012,7 +8051,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) ((APLFLOAT) (apaOffLft + apaMulLft * uRes),
                                                          aplFloatRht,
@@ -8035,7 +8074,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisFvF) (*((LPAPLFLOAT) lpMemLft)++,
                                                          aplFloatRht,
@@ -8068,7 +8107,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpLft, ((LPAPLRAT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -8101,7 +8140,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a RAT
                                 mpfr_set_d (&aplVfpRht, aplFloatRht, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*((LPAPLVFP) lpMemLft)++,
                                                          aplVfpRht,
@@ -8145,7 +8184,7 @@ RESTART_EXCEPTION:
                                 // Convert the BOOL to a RAT
                                 mpq_set_sx (&aplRatLft, BIT0 & (*(LPAPLBOOL) lpMemLft) >> uBitIndex, 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (aplRatLft,
                                                         *(LPAPLRAT) lpSymGlbRht,
@@ -8172,7 +8211,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a RAT
                                 mpq_set_sx (&aplRatLft, *((LPAPLINT) lpMemLft)++, 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (aplRatLft,
                                                         *(LPAPLRAT) lpSymGlbRht,
@@ -8198,7 +8237,7 @@ RESTART_EXCEPTION:
                                 // Convert the APA to a RAT
                                 mpq_set_sx (&aplRatLft, apaOffLft + apaMulLft * uRes, 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (aplRatLft,
                                                         *(LPAPLRAT) lpSymGlbRht,
@@ -8227,7 +8266,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpRht, (LPAPLRAT) lpSymGlbRht, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -8250,7 +8289,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisRvR) (*((LPAPLRAT) lpMemLft)++,
                                                          *(LPAPLRAT) lpSymGlbRht,
@@ -8279,7 +8318,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpRht, (LPAPLRAT) lpSymGlbRht, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*((LPAPLVFP) lpMemLft)++,
                                                           aplVfpRht,
@@ -8324,7 +8363,7 @@ RESTART_EXCEPTION:
                                 // Convert the BOOL to a VFP
                                 mpfr_set_sx (&aplVfpLft, BIT0 & (*(LPAPLBOOL) lpMemLft) >> uBitIndex, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                         *(LPAPLVFP) lpSymGlbRht,
@@ -8351,7 +8390,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a VFP
                                 mpfr_set_sx (&aplVfpLft, *((LPAPLINT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                         *(LPAPLVFP) lpSymGlbRht,
@@ -8377,7 +8416,7 @@ RESTART_EXCEPTION:
                                 // Convert the APA to a VFP
                                 mpfr_set_sx (&aplVfpLft, apaOffLft + apaMulLft * uRes, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                         *(LPAPLVFP) lpSymGlbRht,
@@ -8403,7 +8442,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a VFP
                                 mpfr_set_d (&aplVfpLft, *((LPAPLFLOAT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                         *(LPAPLVFP) lpSymGlbRht,
@@ -8429,7 +8468,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpLft, ((LPAPLRAT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                         *(LPAPLVFP) lpSymGlbRht,
@@ -8455,7 +8494,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLBOOL)  lpMemRes) |=
                                   (*lpPrimSpec->BisVvV) (*((LPAPLVFP) lpMemLft)++,
                                                          *(LPAPLVFP) lpSymGlbRht,
@@ -8504,7 +8543,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisIvI) (BIT0 & ((*(LPAPLBOOL) lpMemLft) >> uBitIndex),
                                                          aplIntegerRht,
@@ -8527,7 +8566,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisIvI) (*((LPAPLINT) lpMemLft)++,
                                                          aplIntegerRht,
@@ -8544,7 +8583,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisIvI) (apaOffLft + apaMulLft * uRes,
                                                          aplIntegerRht,
@@ -8561,7 +8600,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) (*((LPAPLFLOAT) lpMemLft)++,
                                                          aplFloatRht,
@@ -8588,7 +8627,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) (BIT0 & ((*(LPAPLBOOL) lpMemLft) >> uBitIndex),
                                                          aplFloatRht,
@@ -8611,7 +8650,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) ((APLFLOAT) *((LPAPLINT) lpMemLft)++,
                                                          aplFloatRht,
@@ -8628,7 +8667,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) ((APLFLOAT) (apaOffLft + apaMulLft * uRes),
                                                          aplFloatRht,
@@ -8645,7 +8684,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLINT)   lpMemRes)++ =
                                   (*lpPrimSpec->IisFvF) (*((LPAPLFLOAT) lpMemLft)++,
                                                          aplFloatRht,
@@ -8684,7 +8723,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisIvI) (BIT0 & ((*(LPAPLBOOL) lpMemLft) >> uBitIndex),
                                                          aplIntegerRht,
@@ -8707,7 +8746,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisIvI) (*((LPAPLINT) lpMemLft)++,
                                                          aplIntegerRht,
@@ -8724,7 +8763,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisIvI) (apaOffLft + apaMulLft * uRes,
                                                          aplIntegerRht,
@@ -8741,7 +8780,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (*((LPAPLFLOAT) lpMemLft)++,
                                                          aplFloatRht,
@@ -8768,7 +8807,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (BIT0 & ((*(LPAPLBOOL) lpMemLft) >> uBitIndex),
                                                          aplFloatRht,
@@ -8791,7 +8830,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) ((APLFLOAT) *((LPAPLINT) lpMemLft)++,
                                                          aplFloatRht,
@@ -8808,7 +8847,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) ((APLFLOAT) (apaOffLft + apaMulLft * uRes),
                                                          aplFloatRht,
@@ -8825,7 +8864,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLFLOAT) lpMemRes)++ =
                                   (*lpPrimSpec->FisFvF) (*((LPAPLFLOAT) lpMemLft)++,
                                                          aplFloatRht,
@@ -8875,7 +8914,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a RAT
                                 mpq_set_sx (&aplRatLft, GetNextInteger (lpMemLft, aplTypeLft, uRes), 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT)   lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          aplRatRht,
@@ -8901,7 +8940,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a RAT
                                 mpq_set_d (&aplRatLft, GetNextFloat (lpMemLft, aplTypeLft, uRes));
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT)   lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          aplRatRht,
@@ -8921,7 +8960,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT)   lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (*((LPAPLRAT) lpMemLft)++,
                                                           aplRatRht,
@@ -8962,7 +9001,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a RAT
                                 mpq_set_sx (&aplRatLft, GetNextInteger (lpMemLft, aplTypeLft, uRes), 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT)   lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          aplRatRht,
@@ -8988,7 +9027,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a RAT
                                 mpq_set_d (&aplRatLft, GetNextFloat (lpMemLft, aplTypeLft, uRes));
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT)   lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                          aplRatRht,
@@ -9008,7 +9047,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT)   lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (*((LPAPLRAT) lpMemLft)++,
                                                           aplRatRht,
@@ -9046,7 +9085,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a RAT
                                 mpq_set_sx (&aplRatLft, GetNextInteger (lpMemLft, aplTypeLft, uRes), 1);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT)   lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                                         *(LPAPLRAT) lpSymGlbRht,
@@ -9066,7 +9105,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLRAT)   lpMemRes)++ =
                                   (*lpPrimSpec->RisRvR) (*((LPAPLRAT) lpMemLft)++,
                                                          *(LPAPLRAT) lpSymGlbRht,
@@ -9115,7 +9154,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpLft, ((LPAPLRAT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -9132,7 +9171,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (*((LPAPLVFP) lpMemLft)++,
                                                           aplVfpRht,
@@ -9165,7 +9204,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpLft, ((LPAPLRAT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -9182,7 +9221,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (*((LPAPLVFP) lpMemLft)++,
                                                           aplVfpRht,
@@ -9217,7 +9256,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a VFP
                                 mpfr_set_sx (&aplVfpLft, GetNextInteger (lpMemLft, aplTypeLft, uRes), MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -9237,7 +9276,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a VFP
                                 mpfr_set_d (&aplVfpLft, *((LPAPLFLOAT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -9257,7 +9296,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpLft, ((LPAPLRAT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                          aplVfpRht,
@@ -9274,7 +9313,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (*((LPAPLVFP) lpMemLft)++,
                                                           aplVfpRht,
@@ -9306,7 +9345,7 @@ RESTART_EXCEPTION:
                                 // Convert the INT to a VFP
                                 mpfr_set_sx (&aplVfpLft, GetNextInteger (lpMemLft, aplTypeLft, uRes), MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                         *(LPAPLVFP) lpSymGlbRht,
@@ -9326,7 +9365,7 @@ RESTART_EXCEPTION:
                                 // Convert the FLOAT to a VFP
                                 mpfr_set_d (&aplVfpLft, *((LPAPLFLOAT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                         *(LPAPLVFP) lpSymGlbRht,
@@ -9346,7 +9385,7 @@ RESTART_EXCEPTION:
                                 // Convert the RAT to a VFP
                                 mpfr_set_q (&aplVfpLft, ((LPAPLRAT) lpMemLft)++, MPFR_RNDN);
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                         *(LPAPLVFP) lpSymGlbRht,
@@ -9363,7 +9402,7 @@ RESTART_EXCEPTION:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLVFP)   lpMemRes)++ =
                                   (*lpPrimSpec->VisVvV) (*((LPAPLVFP) lpMemLft)++,
                                                          *(LPAPLVFP) lpSymGlbRht,
@@ -9393,10 +9432,12 @@ RESTART_EXCEPTION:
     } // End SWITCH
     } __except (CheckException (GetExceptionInformation (), L"PrimFnDydMultSing_EM"))
     {
-        dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+        EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+        dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #6: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
         // Split cases based upon the ExceptionCode
-        switch (MyGetExceptionCode ())
+        switch (ExceptionCode)
         {
             case EXCEPTION_DOMAIN_ERROR:
             case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -9423,7 +9464,7 @@ RESTART_EXCEPTION:
                     aplTypeRes = ARRAY_RAT;
 
                     // We need to start over with the result
-                    MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                    MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                     FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                     if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -9442,12 +9483,12 @@ RESTART_EXCEPTION:
                         goto ERROR_EXIT;
 
                     // Lock the memory to get a ptr to it
-                    lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                    lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
                     // Restart the pointer
                     lpMemLft = lpMemLftStart;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #6: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION;
                 } // End IF
@@ -9467,7 +9508,7 @@ RESTART_EXCEPTION:
                     aplTypeRes = ARRAY_VFP;
 
                     // We need to start over with the result
-                    MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                    MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                     FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                     if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -9486,12 +9527,12 @@ RESTART_EXCEPTION:
                         goto ERROR_EXIT;
 
                     // Lock the memory to get a ptr to it
-                    lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                    lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
                     // Restart the pointer
                     lpMemLft = lpMemLftStart;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #6: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION;
                 } // End IF
@@ -9515,7 +9556,7 @@ RESTART_EXCEPTION:
                         aplTypeRes = ARRAY_FLOAT;
 
                         // We need to start over with the result
-                        MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                        MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                         FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                         if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -9534,7 +9575,7 @@ RESTART_EXCEPTION:
                             goto ERROR_EXIT;
 
                         // Lock the memory to get a ptr to it
-                        lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                        lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
                     } else
                     // The previous result must have been INT which is
                     //   the same size as FLOAT, so there's no need to
@@ -9543,8 +9584,10 @@ RESTART_EXCEPTION:
                         // It's now a FLOAT result
                         aplTypeRes = ARRAY_FLOAT;
 
-                        // Tell the header about it
-                        lpMemHdrRes->ArrType = aplTypeRes;
+                        // If the result is not nested, ...
+                        if (!IsNested (lpMemHdrRes->ArrType))
+                            // Tell the header about it
+                            lpMemHdrRes->ArrType = aplTypeRes;
 
                         // Restart the pointers
                         lpMemRes = lpMemHdrRes;
@@ -9553,7 +9596,7 @@ RESTART_EXCEPTION:
                     // Restart the pointer
                     lpMemLft = lpMemLftStart;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #6: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION;
                 } // End IF
@@ -9633,10 +9676,10 @@ HGLOBAL PrimFnDydSiScNest_EM
     HGLOBAL           hGlbRht = NULL,
                       hGlbRes = NULL,
                       hGlbSub;
-    LPVOID            lpMemRht = NULL,
-                      lpMemRes = NULL;
-    LPVARARRAY_HEADER lpMemHdrRes,
-                      lpMemHdrRht;
+    LPVOID            lpMemRht,
+                      lpMemRes;
+    LPVARARRAY_HEADER lpMemHdrRes = NULL,
+                      lpMemHdrRht = NULL;
     APLSTYPE          aplTypeRht,
                       aplTypeRes;
     APLNELM           aplNELMLft = 1,
@@ -9653,8 +9696,6 @@ HGLOBAL PrimFnDydSiScNest_EM
     APLCHAR           aplCharRht;
     UINT              uBitIndex = 0;
 
-    DBGENTER;
-
     // The right arg data is a valid HGLOBAL array
     Assert (IsGlbTypeVarDir_PTB (aplNestedRht));
 
@@ -9662,9 +9703,9 @@ HGLOBAL PrimFnDydSiScNest_EM
     hGlbRht = aplNestedRht;
 
     // Lock the memory to get a ptr to it
-    lpMemRht = lpMemHdrRht = MyGlobalLock (hGlbRht);
+    lpMemHdrRht = MyGlobalLockVar (hGlbRht);
 
-#define lpHeader    ((LPVARARRAY_HEADER) lpMemRht)
+#define lpHeader    lpMemHdrRht
     // Get the Array Type, NELM, and Rank
     aplTypeRht = lpHeader->ArrType;
     aplNELMRht = lpHeader->NELM;
@@ -9709,7 +9750,7 @@ HGLOBAL PrimFnDydSiScNest_EM
     if (!PrimScalarFnDydAllocate_EM (lptkFunc,
                                     &hGlbRes,
                                      NULL,
-                                     lpMemRht,
+                                     lpMemHdrRht,
                                      aplRankLft,
                                      aplRankRht,
                                     &aplRankRes,
@@ -9722,11 +9763,11 @@ HGLOBAL PrimFnDydSiScNest_EM
         goto ERROR_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = lpMemHdrRes = MyGlobalLock (hGlbRes);
+    lpMemHdrRes = MyGlobalLockVar (hGlbRes);
 
     // Skip over the header and dimensions to the data
-    lpMemRht = VarArrayDataFmBase (lpMemRht);
-    lpMemRes = VarArrayDataFmBase (lpMemRes);
+    lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
+    lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
     // If the right arg is an APA, ...
     if (IsSimpleAPA (aplTypeRht))
@@ -9792,22 +9833,28 @@ HGLOBAL PrimFnDydSiScNest_EM
                                                     aplIntegerLft,
                                                     aplFloatLft,
                                                     aplCharLft,
-                                                    NULL,
+                                                    lpSymGlbLft,
                                                     aplTypeHetRht,
                                                     aplIntegerRht,
                                                     aplFloatRht,
                                                     aplCharRht,
                                                     NULL,
                                                     lpPrimSpec);
-                    if (!hGlbSub)
+                    if (hGlbSub EQ NULL)
                         goto ERROR_EXIT;
                     else
-                        // Save in result
-                        *((LPAPLNESTED) lpMemRes)++ = hGlbSub;
+                    // If the result is not already filled in, ...
+                    if (((LPAPLNESTED) lpMemRes)[0] EQ NULL)
+                        // Save in the result
+                        ((LPAPLNESTED) lpMemRes)[0] = hGlbSub;
+                    // Skip to the next result
+                    ((LPAPLNESTED) lpMemRes)++;
+
                     break;
 
                 case PTRTYPE_HGLOBAL:
-                    hGlbSub = PrimFnDydNestSiSc_EM (lptkFunc,
+                    // 2 4-({enclose}0 1)(0 1 2)
+                    hGlbSub = PrimFnDydSiScNest_EM (lptkFunc,
                                                     aplTypeLft,
                                                     aplIntegerLft,
                                                     aplFloatLft,
@@ -9817,10 +9864,10 @@ HGLOBAL PrimFnDydSiScNest_EM
                                                     bLftIdent,
                                                     bRhtIdent,
                                                     lpPrimSpec);
-                    if (!hGlbSub)
+                    if (hGlbSub EQ NULL)
                         goto ERROR_EXIT;
                     else
-                        // Save in result
+                        // Save in the result
                         *((LPAPLNESTED) lpMemRes)++ = MakePtrTypeGlb (hGlbSub);
                     break;
 
@@ -9844,28 +9891,26 @@ DOMAIN_EXIT:
 ERROR_EXIT:
     bRet = FALSE;
 
-    if (hGlbRes)
+    if (hGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalIncompleteVar (hGlbRes); hGlbRes = NULL;
     } // End IF
 NORMAL_EXIT:
-    if (lpMemRes)
+    if (lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
     // We no longer need this ptr
-    MyGlobalUnlock (hGlbRht); lpMemRht = NULL;
-
-    DBGLEAVE;
+    MyGlobalUnlock (hGlbRht); lpMemHdrRht = NULL;
 
     if (bRet)
         return hGlbRes;
@@ -9894,12 +9939,12 @@ HGLOBAL PrimFnDydSiScSiSc_EM
      APLINT     aplIntegerLft,      // ...      as integer
      APLFLOAT   aplFloatLft,        // ...         float
      APLCHAR    aplCharLft,         // ...         char
-     HGLOBAL    lpSymGlbLft,        // ...         Sym/Glb
+     HGLOBAL    lpSymGlbLft,        // ...         Sym/Glb (may be NULL)
      APLSTYPE   aplTypeRht,         // Right arg storage type
      APLINT     aplIntegerRht,      // ...       as integer
      APLFLOAT   aplFloatRht,        // ...          float
      APLCHAR    aplCharRht,         // ...          char
-     HGLOBAL    lpSymGlbRht,        // ...          Sym/Glb
+     HGLOBAL    lpSymGlbRht,        // ...          Sym/Glb (may be NULL)
      LPPRIMSPEC lpPrimSpec)         // Ptr to local PRIMSPEC
 
 {
@@ -9923,20 +9968,25 @@ HGLOBAL PrimFnDydSiScSiSc_EM
                                   aplIntegerLft,
                                   aplFloatLft,
                                   aplCharLft,
-                                  NULL,
+                                  lpSymGlbLft,
                                   aplTypeRht,
                                   aplIntegerRht,
                                   aplFloatRht,
                                   aplCharRht,
-                                  NULL,
+                                  lpSymGlbRht,
                                  &aplTypeRes,
                                   lpPrimSpec))
-        // Convert the immediate type and value in tkRes
-        //   into an LPSYMENTRY
-        return MakeSymEntry_EM (tkRes.tkFlags.ImmType,      // Immediate type
-                               &tkRes.tkData.tkLongest,     // Ptr to immediate value
-                                lptkFunc);                  // Ptr to function token
-    else
+    {
+        // If the result is an immediate, ...
+        if (IsTknImmed (&tkRes))
+            // Convert the immediate type and value in tkRes
+            //   into an LPSYMENTRY
+            return MakeSymEntry_EM (tkRes.tkFlags.ImmType,      // Immediate type
+                                   &tkRes.tkData.tkLongest,     // Ptr to immediate value
+                                    lptkFunc);                  // Ptr to function token
+        else
+            return tkRes.tkData.tkGlbData;
+    } else
         return NULL;
 
 DOMAIN_EXIT:
@@ -9978,23 +10028,26 @@ UBOOL PrimFnDydSiScSiScSub_EM
      LPPRIMSPEC lpPrimSpec)         // Ptr to local PRIMSPEC
 
 {
-    IMM_TYPES immType;              // Result immediate type
-    UBOOL     bRet = TRUE;          // TRUE iff result is valid
-    APLUINT   ByteRes;              // # bytes in the result
-    LPVOID    lpMemRes = NULL;      // Ptr to result global memory
-    APLRAT    aplRatLft = {0},      // Left arg as Rational
-              aplRatRht = {0};      // Right ...
-    APLVFP    aplVfpLft = {0},      // Left arg as VFP
-              aplVfpRht = {0};      // Right ...
-    APLSTYPE  aplTypeCom;           // Common storage type
-    HGLOBAL   hGlbTmp = NULL;       // Temporary hGlbRes
+    IMM_TYPES         immType;              // Result immediate type
+    UBOOL             bRet = TRUE;          // TRUE iff result is valid
+    APLUINT           ByteRes;              // # bytes in the result
+    LPVARARRAY_HEADER lpMemHdrRes = NULL;   // Ptr to result header
+    LPVOID            lpMemRes;             // Ptr to result global memory
+    APLRAT            aplRatLft = {0},      // Left arg as Rational
+                      aplRatRht = {0},      // Right ...
+                      aplRatRes = {0};      // Result ...
+    APLVFP            aplVfpLft = {0},      // Left arg as VFP
+                      aplVfpRht = {0},      // Right ...
+                      aplVfpRes = {0};      // Result ...
+    APLSTYPE          aplTypeCom;           // Common storage type
+    HGLOBAL           hGlbTmp = NULL;       // Temporary hGlbRes
 
 RESTART_EXCEPTION_IMMED:
     // In case we restart, ...
-    if (lpMemRes)
+    if (lpMemHdrRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbTmp); lpMemRes = NULL;
+        MyGlobalUnlock (hGlbTmp); lpMemHdrRes = NULL;
     } // End IF
 
     // If the result is simple, ...
@@ -10345,12 +10398,14 @@ RESTART_EXCEPTION_IMMED:
                     // Now we can allocate the storage for the result
                     //***************************************************************
                     hGlbTmp = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-                    if (!hGlbTmp)
+                    if (lphGlbRes NE NULL)
+                       *lphGlbRes = hGlbTmp;
+                    if (hGlbTmp EQ NULL)
                         goto WSFULL_EXIT;
                     // Lock the memory to get a ptr to it
-                    lpMemRes = MyGlobalLock (hGlbTmp);
+                    lpMemHdrRes = MyGlobalLock000 (hGlbTmp);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader        lpMemHdrRes
                     // Fill in the header
                     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
                     lpHeader->ArrType    = aplTypeRes;
@@ -10365,14 +10420,16 @@ RESTART_EXCEPTION_IMMED:
                     hGlbTmp = *lphGlbRes;
 
                     // Lock the memory to get a ptr to it
-                    lpMemRes = MyGlobalLock (hGlbTmp);
+                    lpMemHdrRes = MyGlobalLockVar (hGlbTmp);
 
-                    // In case we promoted the result, ...
-                    ((LPVARARRAY_HEADER) lpMemRes)->ArrType = aplTypeRes;
+                    // If the result is not nested, ...
+                    if (!IsNested (lpMemHdrRes->ArrType))
+                        // In case we promoted the result, ...
+                        lpMemHdrRes->ArrType = aplTypeRes;
                 } // End IF/ELSE
 
                 // Skip over the header and dimensions to the data
-                lpMemRes = VarArrayDataFmBase (lpMemRes);
+                lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
                 // Promote the left arg to Rational
                 // Split cases based upon the left arg type
@@ -10429,12 +10486,24 @@ RESTART_EXCEPTION_IMMED:
                 } // End SWITCH
 
                 // Save the result
-                ((LPAPLRAT) lpMemRes)[0] =
+                aplRatRes =
                   (*lpPrimSpec->RisRvR) (aplRatLft,
                                          aplRatRht,
                                          lpPrimSpec);
+                // If the result is nested, ...
+                if (IsNested (lpMemHdrRes->ArrType))
+                    // Make a global entry and save in the nested result
+                    ((LPAPLNESTED) lpMemRes)[0] =
+                      MakeGlbEntry_EM (ARRAY_RAT,   // Entry type
+                                      &aplRatRes,   // Ptr to the value
+                                       FALSE,       // TRUE iff we should initialize the target first
+                                       lptkFunc);   // Ptr to function token
+                else
+                    // Save in the result
+                    ((LPAPLRAT) lpMemRes)[0] = aplRatRes;
+
                 // We no longer need this ptr
-                MyGlobalUnlock (hGlbTmp); lpMemRes = NULL;
+                MyGlobalUnlock (hGlbTmp); lpMemHdrRes = NULL;
 
                 // Save in the result
                 lptkRes->tkData.tkGlbData = MakePtrTypeGlb (hGlbTmp);
@@ -10466,12 +10535,14 @@ RESTART_EXCEPTION_IMMED:
                     // Now we can allocate the storage for the result
                     //***************************************************************
                     hGlbTmp = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-                    if (!hGlbTmp)
+                    if (lphGlbRes NE NULL)
+                       *lphGlbRes = hGlbTmp;
+                    if (hGlbTmp EQ NULL)
                         goto WSFULL_EXIT;
                     // Lock the memory to get a ptr to it
-                    lpMemRes = MyGlobalLock (hGlbTmp);
+                    lpMemHdrRes = MyGlobalLock000 (hGlbTmp);
 
-#define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
+#define lpHeader        lpMemHdrRes
                     // Fill in the header
                     lpHeader->Sig.nature = VARARRAY_HEADER_SIGNATURE;
                     lpHeader->ArrType    = aplTypeRes;
@@ -10486,14 +10557,16 @@ RESTART_EXCEPTION_IMMED:
                     hGlbTmp = *lphGlbRes;
 
                     // Lock the memory to get a ptr to it
-                    lpMemRes = MyGlobalLock (hGlbTmp);
+                    lpMemHdrRes = MyGlobalLockVar (hGlbTmp);
 
-                    // In case we promoted the result, ...
-                    ((LPVARARRAY_HEADER) lpMemRes)->ArrType = aplTypeRes;
+                    // If the result is not nested, ...
+                    if (!IsNested (lpMemHdrRes->ArrType))
+                        // In case we promoted the result, ...
+                        lpMemHdrRes->ArrType = aplTypeRes;
                 } // End IF/ELSE
 
                 // Skip over the header and dimensions to the data
-                lpMemRes = VarArrayDataFmBase (lpMemRes);
+                lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
 
                 // Promote the left arg to VFP
                 // Split cases based upon the left arg type
@@ -10558,16 +10631,28 @@ RESTART_EXCEPTION_IMMED:
                 } // End SWITCH
 
                 // Save the result
-                ((LPAPLVFP) lpMemRes)[0] =
+                aplVfpRes =
                   (*lpPrimSpec->VisVvV) (aplVfpLft,
                                          aplVfpRht,
                                          lpPrimSpec);
+                // If the result is nested, ...
+                if (IsNested (lpMemHdrRes->ArrType))
+                    // Make a global entry and save in the nested result
+                    ((LPAPLNESTED) lpMemRes)[0] =
+                      MakeGlbEntry_EM (ARRAY_VFP,   // Entry type
+                                      &aplVfpRes,   // Ptr to the value
+                                       FALSE,       // TRUE iff we should initialize the target first
+                                       lptkFunc);   // Ptr to function token
+                else
+                    // Save in the result
+                    ((LPAPLVFP) lpMemRes)[0] = aplVfpRes;
+
                 // We no longer need this storage
                 Myf_clear (&aplVfpRht);
                 Myf_clear (&aplVfpLft);
 
                 // We no longer need this ptr
-                MyGlobalUnlock (hGlbTmp); lpMemRes = NULL;
+                MyGlobalUnlock (hGlbTmp); lpMemHdrRes = NULL;
 
                 // Save in the result
                 lptkRes->tkData.tkGlbData = MakePtrTypeGlb (hGlbTmp);
@@ -10579,10 +10664,12 @@ RESTART_EXCEPTION_IMMED:
         } // End SWITCH
     } __except (CheckException (GetExceptionInformation (), L"PrimFnDydSiScSiScSub_EM"))
     {
-        dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+        EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+        dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #7: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
         // Split cases based upon the ExceptionCode
-        switch (MyGetExceptionCode ())
+        switch (ExceptionCode)
         {
             case EXCEPTION_DOMAIN_ERROR:
             case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -10605,10 +10692,33 @@ RESTART_EXCEPTION_IMMED:
                 if (IsNumeric (aplTypeRes)
                  && !IsRat    (aplTypeRes))
                 {
+                    if (lphGlbRes NE NULL && *lphGlbRes NE NULL)
+                    {
+                        if (lpMemHdrRes NE NULL)
+                        {
+                            // We need to start over with the result
+                            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
+                        } // End IF
+
+                        // We no longer need this storage
+                        FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
+                    } else
+                    if (hGlbTmp NE NULL)
+                    {
+                        if (lpMemHdrRes NE NULL)
+                        {
+                            // We need to start over with the result
+                            MyGlobalUnlock (hGlbTmp); lpMemHdrRes = NULL;
+                        } // End IF
+
+                        // We no longer need this storage
+                        FreeResultGlobalVar (hGlbTmp); hGlbTmp = NULL;
+                    } // End IF/ELSE
+
                     // It's now a RAT result
                     aplTypeRes = ARRAY_RAT;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #7: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION_IMMED;
                 } // End IF
@@ -10624,10 +10734,33 @@ RESTART_EXCEPTION_IMMED:
                 if (IsNumeric (aplTypeRes)
                  && !IsVfp    (aplTypeRes))
                 {
+                    if (lphGlbRes NE NULL && *lphGlbRes NE NULL)
+                    {
+                        if (lpMemHdrRes NE NULL)
+                        {
+                            // We need to start over with the result
+                            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
+                        } // End IF
+
+                        // We no longer need this storage
+                        FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
+                    } else
+                    if (hGlbTmp NE NULL)
+                    {
+                        if (lpMemHdrRes NE NULL)
+                        {
+                            // We need to start over with the result
+                            MyGlobalUnlock (hGlbTmp); lpMemHdrRes = NULL;
+                        } // End IF
+
+                        // We no longer need this storage
+                        FreeResultGlobalVar (hGlbTmp); hGlbTmp = NULL;
+                    } // End IF/ELSE
+
                     // It's now a VFP result
                     aplTypeRes = ARRAY_VFP;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #7: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION_IMMED;
                 } // End IF
@@ -10643,10 +10776,33 @@ RESTART_EXCEPTION_IMMED:
                 if (IsNumeric (aplTypeRes)
                  && !IsSimpleFlt (aplTypeRes))
                 {
+                    if (lphGlbRes NE NULL && *lphGlbRes NE NULL)
+                    {
+                        if (lpMemHdrRes NE NULL)
+                        {
+                            // We need to start over with the result
+                            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
+                        } // End IF
+
+                        // We no longer need this storage
+                        FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
+                    } else
+                    if (hGlbTmp NE NULL)
+                    {
+                        if (lpMemHdrRes NE NULL)
+                        {
+                            // We need to start over with the result
+                            MyGlobalUnlock (hGlbTmp); lpMemHdrRes = NULL;
+                        } // End IF
+
+                        // We no longer need this storage
+                        FreeResultGlobalVar (hGlbTmp); hGlbTmp = NULL;
+                    } // End IF/ELSE
+
                     // It's now a FLOAT result
                     aplTypeRes = ARRAY_FLOAT;
 
-                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L": %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                    dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #7: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                     goto RESTART_EXCEPTION_IMMED;
                 } // End IF
@@ -10679,19 +10835,19 @@ WSFULL_EXIT:
     goto ERROR_EXIT;
 
 ERROR_EXIT:
-    if (hGlbTmp)
+    if (hGlbTmp NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (hGlbTmp); lpMemRes = NULL;
+            MyGlobalUnlock (hGlbTmp); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
         FreeResultGlobalVar (hGlbTmp); hGlbTmp = NULL;
 
         // If the caller passed it in, ...
-        if (lphGlbRes)
+        if (lphGlbRes NE NULL)
             *lphGlbRes = NULL;
     } // End IF
 
@@ -10725,47 +10881,47 @@ NORMAL_EXIT:
 #endif
 
 UBOOL PrimFnDydSimpSimp_EM
-    (LPPL_YYSTYPE lpYYRes,          // Ptr to the result
+    (LPPL_YYSTYPE      lpYYRes,         // Ptr to the result
 
-     LPTOKEN      lptkLftArg,       // Ptr to left arg token
-     LPTOKEN      lptkFunc,         // ...    function ...
-     LPTOKEN      lptkRhtArg,       // ...    right arg ...
+     LPTOKEN           lptkLftArg,      // Ptr to left arg token
+     LPTOKEN           lptkFunc,        // ...    function ...
+     LPTOKEN           lptkRhtArg,      // ...    right arg ...
 
-     HGLOBAL      hGlbLft,          // Left arg handle
-     HGLOBAL      hGlbRht,          // Right ...
-     HGLOBAL     *lphGlbRes,        // Ptr to result handle
+     HGLOBAL           hGlbLft,         // Left arg handle
+     HGLOBAL           hGlbRht,         // Right ...
+     HGLOBAL          *lphGlbRes,       // Ptr to result handle
 
-     LPVOID       lpMemLft,         // Points to Sig.nature
-     LPVOID       lpMemRht,         // ...
+     LPVARARRAY_HEADER lpMemHdrLft,     // Ptr to left arg header
+     LPVARARRAY_HEADER lpMemHdrRht,     // ...    right ...
 
-     LPAPLUINT    lpMemAxisHead,    // Ptr to axis values, fleshed out by CheckAxis_EM
-     LPAPLUINT    lpMemAxisTail,    // Ptr to grade up of AxisHead
+     LPAPLUINT         lpMemAxisHead,   // Ptr to axis values, fleshed out by CheckAxis_EM
+     LPAPLUINT         lpMemAxisTail,   // Ptr to grade up of AxisHead
 
-     APLRANK      aplRankLft,       // Left arg rank
-     APLRANK      aplRankRht,       // Right ...
-     APLRANK      aplRankRes,       // Result ...
+     APLRANK           aplRankLft,      // Left arg rank
+     APLRANK           aplRankRht,      // Right ...
+     APLRANK           aplRankRes,      // Result ...
 
-     APLSTYPE     aplTypeLft,       // Left arg type
-     APLSTYPE     aplTypeRht,       // Right ...
-     APLSTYPE     aplTypeRes,       // Result ...
+     APLSTYPE          aplTypeLft,      // Left arg type
+     APLSTYPE          aplTypeRht,      // Right ...
+     APLSTYPE          aplTypeRes,      // Result ...
 
-     APLNELM      aplNELMLft,       // Left arg NELM
-     APLNELM      aplNELMRht,       // Right ...
-     APLNELM      aplNELMRes,       // Result ...
-     APLNELM      aplNELMAxis,      // Axis ...
+     APLNELM           aplNELMLft,      // Left arg NELM
+     APLNELM           aplNELMRht,      // Right ...
+     APLNELM           aplNELMRes,      // Result ...
+     APLNELM           aplNELMAxis,     // Axis ...
 
-     UBOOL        bLftIdent,        // TRUE iff the function has a left identity element and the Axis tail is valid
-     UBOOL        bRhtIdent,        // ...                         right ...
+     UBOOL             bLftIdent,       // TRUE iff the function has a left identity element and the Axis tail is valid
+     UBOOL             bRhtIdent,       // ...                         right ...
 
-     LPPRIMSPEC   lpPrimSpec)       // Ptr to local PRIMSPEC
+     LPPRIMSPEC        lpPrimSpec)      // Ptr to local PRIMSPEC
 
 {
-    LPVOID            lpMemRes = NULL;  // Ptr to result global memory
-    LPVARARRAY_HEADER lpMemHdrRes,      // Ptr to result header (in case we blow up)
-                      lpMemHdrLft,      // Ptr to left arg ...
-                      lpMemHdrRht,      // Ptr to right ...
-                      lpMemHdrArg;      // Ptr to left/right ...
-    UBOOL             bRet = TRUE;      // TRUE iff result is valid
+    LPVOID            lpMemLft,             // Ptr to left arg global memory
+                      lpMemRht,             // Ptr to right ...
+                      lpMemRes;             // Ptr to result   ...
+    LPVARARRAY_HEADER lpMemHdrRes = NULL,   // Ptr to result header (in case we blow up)
+                      lpMemHdrArg = NULL;   // Ptr to left/right ...
+    UBOOL             bRet = TRUE;          // TRUE iff result is valid
     APLSTYPE          aplTypeArg;
     APLINT            aplIntegerLft,
                       aplIntegerRht;
@@ -10810,19 +10966,13 @@ UBOOL PrimFnDydSimpSimp_EM
     // Get the ptr to the Ctrl-Break flag
     lpbCtrlBreak = &lpplLocalVars->bCtrlBreak;
 
-    DBGENTER;
-
     //***************************************************************
     // Both arguments are simple
     //***************************************************************
 
-    // Save the starting values
-    lpMemHdrLft = lpMemLft;
-    lpMemHdrRht = lpMemRht;
-
     // Lock the memory to get a ptr to it
-    if (*lphGlbRes)
-        lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+    if (*lphGlbRes NE NULL)
+        lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
     if (IsSingleton (aplNELMLft)
      && IsSingleton (aplNELMRht))
@@ -11182,7 +11332,7 @@ RESTART_EXCEPTION_SINGLETON:
                     if (IsSimpleInt (aplTypeLft)
                      && IsSimpleInt (aplTypeRht))  // Res = FLOAT, Lft = BOOL/INT/APA(S), Rht = BOOL/INT/APA(S)
                     {
-                        // Save in result
+                        // Save in the result
                         *((LPAPLFLOAT) lpMemRes) =
                           (*lpPrimSpec->FisIvI) (aplIntegerLft,
                                                  aplIntegerRht,
@@ -11193,7 +11343,7 @@ RESTART_EXCEPTION_SINGLETON:
                     if (IsSimpleNum (aplTypeLft)
                      && IsSimpleNum (aplTypeRht))  // Res = FLOAT, Lft = BOOL/INT/APA/FLOAT(S), Rht = BOOL/INT/APA/FLOAT(S)
                     {
-                        // Save in result
+                        // Save in the result
                         *((LPAPLFLOAT) lpMemRes) =
                           (*lpPrimSpec->FisFvF) (aplFloatLft,
                                                  aplFloatRht,
@@ -11269,7 +11419,7 @@ RESTART_EXCEPTION_SINGLETON:
                             break;
                     } // End SWITCH
 
-                    // Save in result
+                    // Save in the result
                     *((LPAPLRAT)   lpMemRes) =
                       (*lpPrimSpec->RisRvR) (aplRatLft,
                                              aplRatRht,
@@ -11343,7 +11493,7 @@ RESTART_EXCEPTION_SINGLETON:
                             break;
                     } // End SWITCH
 
-                    // Save in result
+                    // Save in the result
                     *((LPAPLVFP)   lpMemRes) =
                       (*lpPrimSpec->VisVvV) (aplVfpLft,
                                              aplVfpRht,
@@ -11359,10 +11509,12 @@ RESTART_EXCEPTION_SINGLETON:
             } // End SWITCH
             } __except (CheckException (GetExceptionInformation (), L"PrimFnDydSimpSimp_EM #1"))
             {
-                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #8: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                 // Split cases based upon the ExceptionCode
-                switch (GetExceptionCode ())
+                switch (ExceptionCode)
                 {
                     case EXCEPTION_DOMAIN_ERROR:
                     case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -11386,7 +11538,7 @@ RESTART_EXCEPTION_SINGLETON:
                             aplTypeRes = ARRAY_RAT;
 
                             // We need to start over with the result
-                            MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                             FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                             if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -11405,12 +11557,14 @@ RESTART_EXCEPTION_SINGLETON:
                                 goto ERROR_EXIT;
 
                             // Lock the memory to get a ptr to it
-                            lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                            lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
-                            // Tell the header about it
-                            lpMemHdrRes->ArrType = aplTypeRes;
+                            // If the result is not nested, ...
+                            if (!IsNested (lpMemHdrRes->ArrType))
+                                // Tell the header about it
+                                lpMemHdrRes->ArrType = aplTypeRes;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #8: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_SINGLETON;
                         } // End IF
@@ -11430,7 +11584,7 @@ RESTART_EXCEPTION_SINGLETON:
                             aplTypeRes = ARRAY_VFP;
 
                             // We need to start over with the result
-                            MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                             FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                             if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -11449,12 +11603,14 @@ RESTART_EXCEPTION_SINGLETON:
                                 goto ERROR_EXIT;
 
                             // Lock the memory to get a ptr to it
-                            lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                            lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
-                            // Tell the header about it
-                            lpMemHdrRes->ArrType = aplTypeRes;
+                            // If the result is not nested, ...
+                            if (!IsNested (lpMemHdrRes->ArrType))
+                                // Tell the header about it
+                                lpMemHdrRes->ArrType = aplTypeRes;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #8: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_SINGLETON;
                         } // End IF
@@ -11478,7 +11634,7 @@ RESTART_EXCEPTION_SINGLETON:
                                 aplTypeRes = ARRAY_FLOAT;
 
                                 // We need to start over with the result
-                                MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                                MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                                 FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                                 if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -11497,7 +11653,7 @@ RESTART_EXCEPTION_SINGLETON:
                                     goto ERROR_EXIT;
 
                                 // Lock the memory to get a ptr to it
-                                lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                                lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
                             } else
                             // The previous result must have been INT which is
                             //   the same size as FLOAT, so there's no need to
@@ -11510,10 +11666,12 @@ RESTART_EXCEPTION_SINGLETON:
                                 lpMemRes = lpMemHdrRes;
                             } // End IF/ELSE
 
-                            // Tell the header about it
-                            lpMemHdrRes->ArrType = aplTypeRes;
+                            // If the result is not nested, ...
+                            if (!IsNested (lpMemHdrRes->ArrType))
+                                // Tell the header about it
+                                lpMemHdrRes->ArrType = aplTypeRes;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #1: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #8: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_SINGLETON;
                         } // End IF
@@ -11550,20 +11708,17 @@ RESTART_EXCEPTION_SINGLETON:
         // Copy the ptr of the non-singleton argument
         if (!IsSingleton (aplNELMLft))
         {
-            lpMemDimArg = lpMemLft;
+            lpMemHdrArg = lpMemHdrLft;
             aplTypeArg  = aplTypeLft;
         } else
         {
-            lpMemDimArg = lpMemRht;
+            lpMemHdrArg = lpMemHdrRht;
             aplTypeArg  = aplTypeRht;
         } // End IF/ELSE
 
-        // Save the ptr to the header
-        lpMemHdrArg = (LPVARARRAY_HEADER) lpMemDimArg;
-
         // Skip over the header and dimensions to the data
-        lpMemRes    = VarArrayDataFmBase (lpMemRes   );
-        lpMemDimArg = VarArrayDataFmBase (lpMemDimArg);
+        lpMemRes    = VarArrayDataFmBase (lpMemHdrRes);
+        lpMemDimArg = VarArrayDataFmBase (lpMemHdrArg);
 
         // If the non-singleton arg is an APA, ...
         if (IsSimpleAPA (aplTypeArg))
@@ -11682,7 +11837,7 @@ RESTART_EXCEPTION_SINGLETON:
         } // End IF
 
         // If the axis is significant, ...
-        if (lpMemAxisHead)
+        if (lpMemAxisHead NE NULL)
         {
             // Calculate space needed for the weighting vector
             ByteRes = aplRankRes * sizeof (APLUINT);
@@ -11700,11 +11855,11 @@ RESTART_EXCEPTION_SINGLETON:
             //   Cx contains the remaining axes.
             //***************************************************************
             hGlbWVec = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-            if (!hGlbWVec)
+            if (hGlbWVec EQ NULL)
                 goto WSFULL_EXIT;
 
             // Lock the memory to get a ptr to it
-            lpMemWVec = MyGlobalLock (hGlbWVec);
+            lpMemWVec = MyGlobalLock000 (hGlbWVec);
 
             // Loop through the dimensions of the result in reverse
             //   order {backscan} and compute the cumulative product
@@ -11730,11 +11885,11 @@ RESTART_EXCEPTION_SINGLETON:
             //   in the right arg, with values initially all zero (thanks to GHND).
             //***************************************************************
             hGlbOdo = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-            if (!hGlbOdo)
+            if (hGlbOdo EQ NULL)
                 goto WSFULL_EXIT;
 
             // Lock the memory to get a ptr to it
-            lpMemOdo = MyGlobalLock (hGlbOdo);
+            lpMemOdo = MyGlobalLock000 (hGlbOdo);
 RESTART_EXCEPTION_AXIS:
             // Skip over the header and dimensions to the data
             lpMemRes = VarArrayDataFmBase (lpMemHdrRes);
@@ -11776,7 +11931,7 @@ RESTART_EXCEPTION_AXIS:
                                                   lpMemOdo,
                                                   lpMemWVec,
                                                   lpMemDimRes);
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisBvB) ((APLBOOL) GetNextInteger (lpMemLft, aplTypeLft, uLft),
                                                      (APLBOOL) GetNextInteger (lpMemRht, aplTypeRht, uRht),
@@ -11815,7 +11970,7 @@ RESTART_EXCEPTION_AXIS:
                                                   lpMemOdo,
                                                   lpMemWVec,
                                                   lpMemDimRes);
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisIvI) (GetNextInteger (lpMemLft, aplTypeLft, uLft),
                                                      GetNextInteger (lpMemRht, aplTypeRht, uRht),
@@ -11854,7 +12009,7 @@ RESTART_EXCEPTION_AXIS:
                                                   lpMemOdo,
                                                   lpMemWVec,
                                                   lpMemDimRes);
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisCvC) (((LPAPLCHAR) lpMemLft)[uLft],
                                                      ((LPAPLCHAR) lpMemRht)[uRht],
@@ -11893,7 +12048,7 @@ RESTART_EXCEPTION_AXIS:
                                                   lpMemOdo,
                                                   lpMemWVec,
                                                   lpMemDimRes);
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisFvF) (GetNextFloat (lpMemLft, aplTypeLft, uLft),
                                                      GetNextFloat (lpMemRht, aplTypeRht, uRht),
@@ -11945,13 +12100,25 @@ RESTART_EXCEPTION_AXIS:
                             if (IsSimpleHet (aplTypeLft))
                                 aplTypeHetLft = GetNextHetero (lpMemLft, uLft, &aplIntegerLft, &aplFloatLft, &aplCharLft, &lpSymGlbLft);
                             else
-                                GetNextSimple (lpMemLft, aplTypeLft, uLft, &aplIntegerLft, &aplFloatLft, &aplCharLft, &lpSymGlbLft);
-
+                                GetNextSimple (lpMemLft,        // Ptr to item global memory data
+                                               aplTypeLft,      // Item storage type
+                                               aplNELMLft,      // Item NELM
+                                               uLft,            // Index into item
+                                              &aplIntegerLft,   // Ptr to Boolean/Integer result
+                                              &aplFloatLft,     // Ptr to Float result
+                                              &aplCharLft,      // Ptr to Char result
+                                              &lpSymGlbLft);    // Ptr to global memory handle (may be NULL)
                             if (IsSimpleHet (aplTypeRht))
                                 aplTypeHetRht = GetNextHetero (lpMemRht, uRht, &aplIntegerRht, &aplFloatRht, &aplCharRht, &lpSymGlbRht);
                             else
-                                GetNextSimple (lpMemRht, aplTypeRht, uRht, &aplIntegerRht, &aplFloatRht, &aplCharRht, &lpSymGlbRht);
-
+                                GetNextSimple (lpMemRht,        // Ptr to item global memory data
+                                               aplTypeRht,      // Item storage type
+                                               aplNELMRht,      // Item NELM
+                                               uRht,            // Index into item
+                                              &aplIntegerRht,   // Ptr to Boolean/Integer result
+                                              &aplFloatRht,     // Ptr to Float result
+                                              &aplCharRht,      // Ptr to Char result
+                                              &lpSymGlbRht);    // Ptr to global memory handle (may be NULL)
                             // Split cases based upon the left hetero's storage type
                             switch (aplTypeHetLft)
                             {
@@ -11960,7 +12127,7 @@ RESTART_EXCEPTION_AXIS:
                                     switch (aplTypeHetRht)
                                     {
                                         case ARRAY_BOOL:    // Res = BOOL(Axis), Lft = BOOL, Rht = BOOL  (one hetero, one simple)
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisBvB) ((APLBOOL) aplIntegerLft,
                                                                      (APLBOOL) aplIntegerRht,
@@ -11968,7 +12135,7 @@ RESTART_EXCEPTION_AXIS:
                                             break;
 
                                         case ARRAY_INT:     // Res = BOOL(Axis), Lft = BOOL, Rht = INT   (one hetero, one simple)
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisIvI) ((APLBOOL) aplIntegerLft,
                                                                                aplIntegerRht,
@@ -11976,7 +12143,7 @@ RESTART_EXCEPTION_AXIS:
                                             break;
 
                                         case ARRAY_FLOAT:   // Res = BOOL(Axis), Lft = BOOL, Rht = FLOAT (one hetero, one simple)
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisFvF) ((APLFLOAT) aplIntegerLft,
                                                                                 aplFloatRht,
@@ -11988,7 +12155,7 @@ RESTART_EXCEPTION_AXIS:
                                             Assert (lptkFunc->tkData.tkChar EQ UTF16_EQUAL
                                                  || lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL);
                                             // If the function is UTF16_NOTEQUAL, the result is one
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL) << uBitIndex;
 
@@ -11998,7 +12165,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the Boolean to a RAT
                                             mpq_set_sx (&aplRatLft, aplIntegerLft, 1);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisRvR) (aplRatLft,
                                                                     *(LPAPLRAT) lpSymGlbRht,
@@ -12009,7 +12176,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the Boolean to a VFP
                                             mpfr_set_sx (&aplVfpLft, aplIntegerLft, MPFR_RNDN);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                     *(LPAPLVFP) lpSymGlbRht,
@@ -12028,7 +12195,7 @@ RESTART_EXCEPTION_AXIS:
                                     {
                                         case ARRAY_BOOL:    // Res = BOOL(Axis), Lft = INT,   Rht = BOOL  (one hetero, one simple)
                                         case ARRAY_INT:     // Res = BOOL(Axis), Lft = INT,   Rht = INT   (one hetero, one simple)
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisIvI) (aplIntegerLft,
                                                                      aplIntegerRht,
@@ -12036,7 +12203,7 @@ RESTART_EXCEPTION_AXIS:
                                             break;
 
                                         case ARRAY_FLOAT:   // Res = BOOL(Axis), Lft = INT,   Rht = FLOAT (one hetero, one simple)
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                                      aplFloatRht,
@@ -12048,7 +12215,7 @@ RESTART_EXCEPTION_AXIS:
                                             Assert (lptkFunc->tkData.tkChar EQ UTF16_EQUAL
                                                  || lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL);
                                             // If the function is UTF16_NOTEQUAL, the result is one
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL) << uBitIndex;
 
@@ -12058,7 +12225,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the integer to a RAT
                                             mpq_set_sx (&aplRatLft, aplIntegerLft, 1);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisRvR) (aplRatLft,
                                                                     *(LPAPLRAT) lpSymGlbRht,
@@ -12069,7 +12236,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the integer to a VFP
                                             mpfr_set_sx (&aplVfpLft, aplIntegerLft, MPFR_RNDN);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                     *(LPAPLVFP) lpSymGlbRht,
@@ -12089,7 +12256,7 @@ RESTART_EXCEPTION_AXIS:
                                         case ARRAY_BOOL:    // Res = BOOL(Axis), Lft = FLOAT, Rht = BOOL (one hetero, one simple)
                                         case ARRAY_INT:     // Res = BOOL(Axis), Lft = FLOAT, Rht = INT  (one hetero, one simple)
                                         case ARRAY_FLOAT:   // Res = BOOL(Axis), Lft = FLOAT, Rht = FLOAT(one hetero, one simple)
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisFvF) (aplFloatLft,
                                                                      aplFloatRht,
@@ -12101,7 +12268,7 @@ RESTART_EXCEPTION_AXIS:
                                             Assert (lptkFunc->tkData.tkChar EQ UTF16_EQUAL
                                                  || lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL);
                                             // If the function is UTF16_NOTEQUAL, the result is one
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL) << uBitIndex;
 
@@ -12112,7 +12279,7 @@ RESTART_EXCEPTION_AXIS:
                                             mpfr_set_d (&aplVfpLft, aplFloatLft, MPFR_RNDN);
                                             mpfr_set_q (&aplVfpRht, (LPAPLRAT) lpSymGlbRht, MPFR_RNDN);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                      aplVfpRht,
@@ -12123,7 +12290,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the FLOAT to a VFP
                                             mpfr_set_d (&aplVfpLft, aplFloatLft, MPFR_RNDN);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                     *(LPAPLVFP) lpSymGlbRht,
@@ -12149,14 +12316,14 @@ RESTART_EXCEPTION_AXIS:
                                             Assert (lptkFunc->tkData.tkChar EQ UTF16_EQUAL
                                                  || lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL);
                                             // If the function is UTF16_NOTEQUAL, the result is one
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL) << uBitIndex;
 
                                             break;
 
                                         case ARRAY_CHAR:    // Res = BOOL(Axis), Lft = CHAR,  Rht = CHAR  (one hetero, one simple)
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisCvC) (aplCharLft,
                                                                      aplCharRht,
@@ -12178,7 +12345,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the INT to a RAT
                                             mpq_set_sx (&aplRatRht, aplIntegerRht, 1);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                                      aplRatRht,
@@ -12190,7 +12357,7 @@ RESTART_EXCEPTION_AXIS:
                                             mpfr_set_q (&aplVfpLft, (LPAPLRAT) lpSymGlbLft, MPFR_RNDN);
                                             mpfr_set_d (&aplVfpRht, aplFloatRht, MPFR_RNDN);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                      aplVfpRht,
@@ -12202,14 +12369,14 @@ RESTART_EXCEPTION_AXIS:
                                             Assert (lptkFunc->tkData.tkChar EQ UTF16_EQUAL
                                                  || lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL);
                                             // If the function is UTF16_NOTEQUAL, the result is one
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL) << uBitIndex;
 
                                             break;
 
                                         case ARRAY_RAT:     // Res = BOOL(Axis), Lft = RAT, Rht = RAT  (one hetero, one simple)
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisRvR) (*(LPAPLRAT) lpSymGlbLft,
                                                                      *(LPAPLRAT) lpSymGlbRht,
@@ -12220,7 +12387,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the RAT to a VFP
                                             mpfr_set_q (&aplVfpLft, (LPAPLRAT) lpSymGlbLft, MPFR_RNDN);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (aplVfpLft,
                                                                     *(LPAPLVFP) lpSymGlbRht,
@@ -12242,7 +12409,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the INT to a VFP
                                             mpfr_set_sx (&aplVfpRht, aplIntegerRht, MPFR_RNDN);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                      aplVfpRht,
@@ -12253,7 +12420,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the FLOAT to a VFP
                                             mpfr_set_d (&aplVfpRht, aplFloatRht, MPFR_RNDN);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                      aplVfpRht,
@@ -12265,7 +12432,7 @@ RESTART_EXCEPTION_AXIS:
                                             Assert (lptkFunc->tkData.tkChar EQ UTF16_EQUAL
                                                  || lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL);
                                             // If the function is UTF16_NOTEQUAL, the result is one
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (lptkFunc->tkData.tkChar EQ UTF16_NOTEQUAL) << uBitIndex;
 
@@ -12275,7 +12442,7 @@ RESTART_EXCEPTION_AXIS:
                                             // Convert the RAT to a VFP
                                             mpfr_set_q (&aplVfpRht, (LPAPLRAT) lpSymGlbRht, MPFR_RNDN);
 
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                       aplVfpRht,
@@ -12283,7 +12450,7 @@ RESTART_EXCEPTION_AXIS:
                                             break;
 
                                         case ARRAY_VFP:     // Res = BOOL(Axis), Lft = VFP, Rht = VFP  (one hetero, one simple)
-                                            // Save in result
+                                            // Save in the result
                                             *((LPAPLBOOL)  lpMemRes) |=
                                               (*lpPrimSpec->BisVvV) (*(LPAPLVFP) lpSymGlbLft,
                                                                      *(LPAPLVFP) lpSymGlbRht,
@@ -12578,7 +12745,7 @@ RESTART_EXCEPTION_AXIS:
                                                   lpMemOdo,
                                                   lpMemWVec,
                                                   lpMemDimRes);
-                            // Save in result
+                            // Save in the result
                             *((LPAPLINT)   lpMemRes)++ =
                               (*lpPrimSpec->IisIvI) (GetNextInteger (lpMemLft, aplTypeLft, uLft),
                                                      GetNextInteger (lpMemRht, aplTypeRht, uRht),
@@ -12611,7 +12778,7 @@ RESTART_EXCEPTION_AXIS:
                                                   lpMemOdo,
                                                   lpMemWVec,
                                                   lpMemDimRes);
-                            // Save in result
+                            // Save in the result
                             *((LPAPLINT)   lpMemRes)++ =
                               (*lpPrimSpec->IisFvF) (GetNextFloat (lpMemLft, aplTypeLft, uLft),
                                                      GetNextFloat (lpMemRht, aplTypeRht, uRht),
@@ -12658,7 +12825,7 @@ RESTART_EXCEPTION_AXIS:
                                                   lpMemOdo,
                                                   lpMemWVec,
                                                   lpMemDimRes);
-                            // Save in result
+                            // Save in the result
                             *((LPAPLFLOAT) lpMemRes)++ =
                               (*lpPrimSpec->FisIvI) (GetNextInteger (lpMemLft, aplTypeLft, uLft),
                                                      GetNextInteger (lpMemRht, aplTypeRht, uRht),
@@ -12691,7 +12858,7 @@ RESTART_EXCEPTION_AXIS:
                                                   lpMemOdo,
                                                   lpMemWVec,
                                                   lpMemDimRes);
-                            // Save in result
+                            // Save in the result
                             *((LPAPLFLOAT) lpMemRes)++ =
                               (*lpPrimSpec->FisFvF) (GetNextFloat (lpMemLft, aplTypeLft, uLft),
                                                      GetNextFloat (lpMemRht, aplTypeRht, uRht),
@@ -12797,7 +12964,7 @@ RESTART_EXCEPTION_AXIS:
                                 break;
                         } // End SWITCH
 
-                        // Save in result
+                        // Save in the result
                         *((LPAPLRAT  ) lpMemRes)++ =
                           (*lpPrimSpec->RisRvR) (aplRatLft,
                                                  aplRatRht,
@@ -12906,7 +13073,7 @@ RESTART_EXCEPTION_AXIS:
                                 break;
                         } // End SWITCH
 
-                        // Save in result
+                        // Save in the result
                         *((LPAPLVFP  ) lpMemRes)++ =
                           (*lpPrimSpec->VisVvV) (aplVfpLft,
                                                  aplVfpRht,
@@ -12924,10 +13091,12 @@ RESTART_EXCEPTION_AXIS:
             } // End SWITCH
             } __except (CheckException (GetExceptionInformation (), L"PrimFnDydSimpSimp_EM #2"))
             {
-                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #2: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #9: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                 // Split cases based upon the ExceptionCode
-                switch (GetExceptionCode ())
+                switch (ExceptionCode)
                 {
                     case EXCEPTION_DOMAIN_ERROR:
                     case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -12951,7 +13120,7 @@ RESTART_EXCEPTION_AXIS:
                             aplTypeRes = ARRAY_RAT;
 
                             // We need to start over with the result
-                            MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                             FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                             if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -12970,16 +13139,18 @@ RESTART_EXCEPTION_AXIS:
                                 goto ERROR_EXIT;
 
                             // Lock the memory to get a ptr to it
-                            lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                            lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
-                            // Tell the header about it
-                            lpMemHdrRes->ArrType = aplTypeRes;
+                            // If the result is not nested, ...
+                            if (!IsNested (lpMemHdrRes->ArrType))
+                                // Tell the header about it
+                                lpMemHdrRes->ArrType = aplTypeRes;
 
                             // Re-initialize lpMemOdo
                             for (uRes = 0 ; uRes < (APLRANKSIGN) aplRankRes; uRes++)
                                 lpMemOdo[uRes] = 0;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #2: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #9: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_AXIS;
                         } // End IF
@@ -12999,7 +13170,7 @@ RESTART_EXCEPTION_AXIS:
                             aplTypeRes = ARRAY_VFP;
 
                             // We need to start over with the result
-                            MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                             FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                             if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -13018,16 +13189,18 @@ RESTART_EXCEPTION_AXIS:
                                 goto ERROR_EXIT;
 
                             // Lock the memory to get a ptr to it
-                            lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                            lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
-                            // Tell the header about it
-                            lpMemHdrRes->ArrType = aplTypeRes;
+                            // If the result is not nested, ...
+                            if (!IsNested (lpMemHdrRes->ArrType))
+                                // Tell the header about it
+                                lpMemHdrRes->ArrType = aplTypeRes;
 
                             // Re-initialize lpMemOdo
                             for (uRes = 0 ; uRes < (APLRANKSIGN) aplRankRes; uRes++)
                                 lpMemOdo[uRes] = 0;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #2: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #9: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_AXIS;
                         } // End IF
@@ -13051,7 +13224,7 @@ RESTART_EXCEPTION_AXIS:
                                 aplTypeRes = ARRAY_FLOAT;
 
                                 // We need to start over with the result
-                                MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                                MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                                 FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                                 if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -13070,7 +13243,7 @@ RESTART_EXCEPTION_AXIS:
                                     goto ERROR_EXIT;
 
                                 // Lock the memory to get a ptr to it
-                                lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                                lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
                             } else
                             // The previous result must have been INT which is
                             //   the same size as FLOAT, so there's no need to
@@ -13083,14 +13256,16 @@ RESTART_EXCEPTION_AXIS:
                                 lpMemRes = lpMemHdrRes;
                             } // End IF/ELSE
 
-                            // Tell the header about it
-                            lpMemHdrRes->ArrType = aplTypeRes;
+                            // If the result is not nested, ...
+                            if (!IsNested (lpMemHdrRes->ArrType))
+                                // Tell the header about it
+                                lpMemHdrRes->ArrType = aplTypeRes;
 
                             // Re-initialize lpMemOdo
                             for (uRes = 0 ; uRes < (APLRANKSIGN) aplRankRes; uRes++)
                                 lpMemOdo[uRes] = 0;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #2: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #9: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_AXIS;
                         } // End IF
@@ -13128,7 +13303,7 @@ RESTART_EXCEPTION_NOAXIS:
                         aplNELMRem = aplNELMRes;
 
                         // Check for optimized chunking
-                        if (lpPrimSpec->B64isB64vB64)
+                        if (lpPrimSpec->B64isB64vB64 NE NULL)
                         {
                             // Calculate the # 64-bit chunks
                             aplNELMTmp  = aplNELMRem / 64;
@@ -13141,7 +13316,7 @@ RESTART_EXCEPTION_NOAXIS:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB64) lpMemRes)++ =
                                   (*lpPrimSpec->B64isB64vB64) (*((LPAPLB64) lpMemLft)++, *((LPAPLB64) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -13157,7 +13332,7 @@ RESTART_EXCEPTION_NOAXIS:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB32) lpMemRes)++ =
                                   (*lpPrimSpec->B32isB32vB32) (*((LPAPLB32) lpMemLft)++, *((LPAPLB32) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -13173,7 +13348,7 @@ RESTART_EXCEPTION_NOAXIS:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB16) lpMemRes)++ =
                                   (*lpPrimSpec->B16isB16vB16) (*((LPAPLB16) lpMemLft)++, *((LPAPLB16) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -13189,7 +13364,7 @@ RESTART_EXCEPTION_NOAXIS:
                                 if (CheckCtrlBreak (*lpbCtrlBreak))
                                     goto ERROR_EXIT;
 
-                                // Save in result
+                                // Save in the result
                                 *((LPAPLB08) lpMemRes)++ =
                                   (*lpPrimSpec->B08isB08vB08) (*((LPAPLB08) lpMemLft)++, *((LPAPLB08) lpMemRht)++, lpPrimSpec);
                             } // End FOR
@@ -13202,7 +13377,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisBvB) ((APLBOOL) GetNextInteger (lpMemLft, aplTypeLft, uRes),
                                                      (APLBOOL) GetNextInteger (lpMemRht, aplTypeRht, uRes),
@@ -13224,7 +13399,7 @@ RESTART_EXCEPTION_NOAXIS:
                     {
                         APLB64 aplB64APA;
 
-                        if (lpAPA->Off)
+                        if (lpAPA->Off NE 0)
                             aplB64APA = 0xFFFFFFFFFFFFFFFF;
                         else
                             aplB64APA = 0x0000000000000000;
@@ -13243,7 +13418,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLB64) lpMemRes)++ =
                               (*lpPrimSpec->B64isB64vB64) ((APLB64) aplB64APA, *((LPAPLB64) lpMemRht)++, lpPrimSpec);
                         } // End FOR
@@ -13259,7 +13434,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLB32) lpMemRes)++ =
                               (*lpPrimSpec->B32isB32vB32) ((APLB32) aplB64APA, *((LPAPLB32) lpMemRht)++, lpPrimSpec);
                         } // End FOR
@@ -13275,7 +13450,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLB16) lpMemRes)++ =
                               (*lpPrimSpec->B16isB16vB16) ((APLB16) aplB64APA, *((LPAPLB16) lpMemRht)++, lpPrimSpec);
                         } // End FOR
@@ -13291,13 +13466,13 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLB08) lpMemRes)++ =
                               (*lpPrimSpec->B08isB08vB08) ((APLB08) aplB64APA, *((LPAPLB08) lpMemRht)++, lpPrimSpec);
                         } // End FOR
 
                         // If any bits remain, ...
-                        if (aplNELMRem)
+                        if (!IsEmpty (aplNELMRem))
                             *((LPAPLB08) lpMemRes) =
                               (*lpPrimSpec->B08isB08vB08) ((APLB08) aplB64APA, *(LPAPLB08) lpMemRht, lpPrimSpec)
                             & (BIT0 << (UINT) aplNELMRem) - 1;
@@ -13311,7 +13486,7 @@ RESTART_EXCEPTION_NOAXIS:
                     {
                         APLB64 aplB64APA;
 
-                        if (lpAPA->Off)
+                        if (lpAPA->Off NE 0)
                             aplB64APA = 0xFFFFFFFFFFFFFFFF;
                         else
                             aplB64APA = 0x0000000000000000;
@@ -13330,7 +13505,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLB64) lpMemRes)++ =
                               (*lpPrimSpec->B64isB64vB64) (*((LPAPLB64) lpMemLft)++, (APLB64) aplB64APA, lpPrimSpec);
                         } // End FOR
@@ -13346,7 +13521,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLB32) lpMemRes)++ =
                               (*lpPrimSpec->B32isB32vB32) (*((LPAPLB32) lpMemLft)++, (APLB32) aplB64APA, lpPrimSpec);
                         } // End FOR
@@ -13362,7 +13537,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLB16) lpMemRes)++ =
                               (*lpPrimSpec->B16isB16vB16) (*((LPAPLB16) lpMemLft)++, (APLB16) aplB64APA, lpPrimSpec);
                         } // End FOR
@@ -13378,13 +13553,13 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLB08) lpMemRes)++ =
                               (*lpPrimSpec->B08isB08vB08) (*((LPAPLB08) lpMemLft)++, (APLB08) aplB64APA, lpPrimSpec);
                         } // End FOR
 
                         // If any bits remain, ...
-                        if (aplNELMRem)
+                        if (!IsEmpty (aplNELMRem))
                             *((LPAPLB08) lpMemRes) =
                               (*lpPrimSpec->B08isB08vB08) (*(LPAPLB08) lpMemLft, (APLB08) aplB64APA, lpPrimSpec)
                             & (BIT0 << (UINT) aplNELMRem) - 1;
@@ -13401,7 +13576,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisIvI) (GetNextInteger (lpMemLft, aplTypeLft, uRes),
                                                      GetNextInteger (lpMemRht, aplTypeRht, uRes),
@@ -13426,7 +13601,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisCvC) (((LPAPLCHAR) lpMemLft)[uRes],
                                                      ((LPAPLCHAR) lpMemRht)[uRes],
@@ -13451,7 +13626,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLBOOL)  lpMemRes) |=
                               (*lpPrimSpec->BisFvF) (GetNextFloat (lpMemLft, aplTypeLft, uRes),
                                                      GetNextFloat (lpMemRht, aplTypeRht, uRes),
@@ -13489,13 +13664,25 @@ RESTART_EXCEPTION_NOAXIS:
                             if (IsSimpleHet (aplTypeLft))
                                 aplTypeHetLft = GetNextHetero (lpMemLft, uRes, &aplIntegerLft, &aplFloatLft, &aplCharLft, &lpSymGlbLft);
                             else
-                                GetNextSimple (lpMemLft, aplTypeLft, uRes, &aplIntegerLft, &aplFloatLft, &aplCharLft, &lpSymGlbLft);
-
+                                GetNextSimple (lpMemLft,        // Ptr to item global memory data
+                                               aplTypeLft,      // Item storage type
+                                               aplNELMLft,      // Item NELM
+                                               uRes,            // Index into item
+                                              &aplIntegerLft,   // Ptr to Boolean/Integer result
+                                              &aplFloatLft,     // Ptr to Float result
+                                              &aplCharLft,      // Ptr to Char result
+                                              &lpSymGlbLft);    // Ptr to global memory handle (may be NULL)
                             if (IsSimpleHet (aplTypeRht))
                                 aplTypeHetRht = GetNextHetero (lpMemRht, uRes, &aplIntegerRht, &aplFloatRht, &aplCharRht, &lpSymGlbRht);
                             else
-                                GetNextSimple (lpMemRht, aplTypeRht, uRes, &aplIntegerRht, &aplFloatRht, &aplCharRht, &lpSymGlbRht);
-
+                                GetNextSimple (lpMemRht,        // Ptr to item global memory data
+                                               aplTypeRht,      // Item storage type
+                                               aplNELMRht,      // Item NELM
+                                               uRes,            // Index into item
+                                              &aplIntegerRht,   // Ptr to Boolean/Integer result
+                                              &aplFloatRht,     // Ptr to Float result
+                                              &aplCharRht,      // Ptr to Char result
+                                              &lpSymGlbRht);    // Ptr to global memory handle (may be NULL)
                             // Split cases based upon the left hetero's storage type
                             switch (aplTypeHetLft)
                             {
@@ -14073,7 +14260,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLINT)   lpMemRes)++ =
                               (*lpPrimSpec->IisIvI) (GetNextInteger (lpMemLft, aplTypeLft, uRes),
                                                      GetNextInteger (lpMemRht, aplTypeRht, uRes),
@@ -14092,7 +14279,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLINT)   lpMemRes)++ =
                               (*lpPrimSpec->IisFvF) (GetNextFloat (lpMemLft, aplTypeLft, uRes),
                                                      GetNextFloat (lpMemRht, aplTypeRht, uRes),
@@ -14115,7 +14302,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLFLOAT) lpMemRes)++ =
                               (*lpPrimSpec->FisIvI) (GetNextInteger (lpMemLft, aplTypeLft, uRes),
                                                      GetNextInteger (lpMemRht, aplTypeRht, uRes),
@@ -14134,7 +14321,7 @@ RESTART_EXCEPTION_NOAXIS:
                             if (CheckCtrlBreak (*lpbCtrlBreak))
                                 goto ERROR_EXIT;
 
-                            // Save in result
+                            // Save in the result
                             *((LPAPLFLOAT) lpMemRes)++ =
                               (*lpPrimSpec->FisFvF) (GetNextFloat (lpMemLft, aplTypeLft, uRes),
                                                      GetNextFloat (lpMemRht, aplTypeRht, uRes),
@@ -14339,10 +14526,12 @@ RESTART_EXCEPTION_NOAXIS:
             } // End SWITCH
             } __except (CheckException (GetExceptionInformation (), L"PrimFnDydSimpSimp_EM #3"))
             {
-                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #3: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                EXCEPTION_CODES ExceptionCode = MyGetExceptionCode ();  // The exception code
+
+                dprintfWL9 (L"!!Initiating Exception in " APPEND_NAME L" #10: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                 // Split cases based upon the ExceptionCode
-                switch (GetExceptionCode ())
+                switch (ExceptionCode)
                 {
                     case EXCEPTION_DOMAIN_ERROR:
                     case EXCEPTION_FLT_DIVIDE_BY_ZERO:
@@ -14365,9 +14554,13 @@ RESTART_EXCEPTION_NOAXIS:
                             // It's now a RAT result
                             aplTypeRes = ARRAY_RAT;
 
-                            // We need to start over with the result
-                            MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
-                            FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
+                            // If the old result is not immediate, ...
+                            if (lpMemHdrRes NE NULL)
+                            {
+                                // We need to start over with the result
+                                MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
+                                FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
+                            } // End IF
 
                             if (!PrimScalarFnDydAllocate_EM (lptkFunc,
                                                              lphGlbRes,
@@ -14385,12 +14578,18 @@ RESTART_EXCEPTION_NOAXIS:
                                 goto ERROR_EXIT;
 
                             // Lock the memory to get a ptr to it
-                            lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                            lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
-                            // Tell the header about it
-                            lpMemHdrRes->ArrType = aplTypeRes;
+                            // Skip over the header and dimension to the data
+                            lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
+                            lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #3: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            // If the result is not nested, ...
+                            if (!IsNested (lpMemHdrRes->ArrType))
+                                // Tell the header about it
+                                lpMemHdrRes->ArrType = aplTypeRes;
+
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #10: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_NOAXIS;
                         } // End IF
@@ -14410,7 +14609,7 @@ RESTART_EXCEPTION_NOAXIS:
                             aplTypeRes = ARRAY_VFP;
 
                             // We need to start over with the result
-                            MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                             FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                             if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -14429,12 +14628,18 @@ RESTART_EXCEPTION_NOAXIS:
                                 goto ERROR_EXIT;
 
                             // Lock the memory to get a ptr to it
-                            lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                            lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
 
-                            // Tell the header about it
-                            lpMemHdrRes->ArrType = aplTypeRes;
+                            // Skip over the header and dimension to the data
+                            lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
+                            lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #3: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            // If the result is not nested, ...
+                            if (!IsNested (lpMemHdrRes->ArrType))
+                                // Tell the header about it
+                                lpMemHdrRes->ArrType = aplTypeRes;
+
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #10: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_NOAXIS;
                         } // End IF
@@ -14458,7 +14663,7 @@ RESTART_EXCEPTION_NOAXIS:
                                 aplTypeRes = ARRAY_FLOAT;
 
                                 // We need to start over with the result
-                                MyGlobalUnlock (*lphGlbRes); lpMemRes = lpMemHdrRes = NULL;
+                                MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
                                 FreeResultGlobalVar (*lphGlbRes); *lphGlbRes = NULL;
 
                                 if (!PrimScalarFnDydAllocate_EM (lptkFunc,
@@ -14477,7 +14682,7 @@ RESTART_EXCEPTION_NOAXIS:
                                     goto ERROR_EXIT;
 
                                 // Lock the memory to get a ptr to it
-                                lpMemRes = lpMemHdrRes = MyGlobalLock (*lphGlbRes);
+                                lpMemHdrRes = MyGlobalLockVar (*lphGlbRes);
                             } else
                             // The previous result must have been INT which is
                             //   the same size as FLOAT, so there's no need to
@@ -14485,15 +14690,18 @@ RESTART_EXCEPTION_NOAXIS:
                             {
                                 // It's now a FLOAT result
                                 aplTypeRes = ARRAY_FLOAT;
-
-                                // Restart the pointers
-                                lpMemRes = lpMemHdrRes;
                             } // End IF/ELSE
 
-                            // Tell the header about it
-                            lpMemHdrRes->ArrType = aplTypeRes;
+                            // If the result is not nested, ...
+                            if (!IsNested (lpMemHdrRes->ArrType))
+                                // Tell the header about it
+                                lpMemHdrRes->ArrType = aplTypeRes;
 
-                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #3: %2d (%S#%d)", MyGetExceptionCode (), FNLN);
+                            // Skip over the header and dimension to the data
+                            lpMemLft = VarArrayDataFmBase (lpMemHdrLft);
+                            lpMemRht = VarArrayDataFmBase (lpMemHdrRht);
+
+                            dprintfWL9 (L"!!Restarting Exception in " APPEND_NAME L" #10: %s (%S#%d)", MyGetExceptionStr (ExceptionCode), FNLN);
 
                             goto RESTART_EXCEPTION_NOAXIS;
                         } // End IF
@@ -14521,10 +14729,10 @@ RESTART_EXCEPTION_NOAXIS:
         goto ERROR_EXIT;
 
     // Unlock the result global memory in case TypeDemote actually demotes
-    if (*lphGlbRes && lpMemRes)
+    if (*lphGlbRes NE NULL && lpMemRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (*lphGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
     // See if it fits into a lower (but not necessarily smaller) datatype
@@ -14551,12 +14759,12 @@ ERROR_EXIT:
     // Mark as in error
     bRet = FALSE;
 
-    if (*lphGlbRes)
+    if (*lphGlbRes NE NULL)
     {
-        if (lpMemRes)
+        if (lpMemHdrRes NE NULL)
         {
             // We no longer need this ptr
-            MyGlobalUnlock (*lphGlbRes); lpMemRes = NULL;
+            MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
         } // End IF
 
         // We no longer need this storage
@@ -14569,37 +14777,17 @@ NORMAL_EXIT:
     Myf_clear (&aplVfpRht);
     Myf_clear (&aplVfpLft);
 
-    if (*lphGlbRes && lpMemRes)
+    if (*lphGlbRes NE NULL && lpMemRes NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (*lphGlbRes); lpMemRes = NULL;
+        MyGlobalUnlock (*lphGlbRes); lpMemHdrRes = NULL;
     } // End IF
 
-    if (hGlbOdo && lpMemOdo)
-    {
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbOdo); lpMemOdo = NULL;
-    } // End IF
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbWVec, lpMemWVec);
 
-    if (hGlbWVec && lpMemWVec)
-    {
-        // We no longer need this ptr
-        MyGlobalUnlock (hGlbWVec); lpMemWVec = NULL;
-    } // End IF
-
-    if (hGlbWVec)
-    {
-        // We no longer need this storage
-        DbgGlobalFree (hGlbWVec); hGlbWVec = NULL;
-    } // End IF
-
-    if (hGlbOdo)
-    {
-        // We no longer need this storage
-        DbgGlobalFree (hGlbOdo); hGlbOdo = NULL;
-    } // End IF
-
-    DBGLEAVE;
+    // Unlock and free (and set to NULL) a global name and ptr
+    UnlFreeGlbName (hGlbOdo, lpMemOdo);
 
     return bRet;
 } // End PrimFnDydSimpSimp_EM
@@ -14677,11 +14865,12 @@ UBOOL IsTknBooleanAPA
     (LPTOKEN lptkArg)               // Ptr to token arg
 
 {
-    UBOOL    bRet = FALSE;          // TRUE iff the result is valid
-    APLSTYPE aplTypeArg;            // Arg storage type
-    APLRANK  aplRankArg;            // Arg rank
-    HGLOBAL  hGlbArg = NULL;        // Arg global memory handle
-    LPAPLAPA lpMemArg = NULL;       // Ptr to arg global memory
+    UBOOL             bRet = FALSE;         // TRUE iff the result is valid
+    APLSTYPE          aplTypeArg;           // Arg storage type
+    APLRANK           aplRankArg;           // Arg rank
+    HGLOBAL           hGlbArg = NULL;       // Arg global memory handle
+    LPVARARRAY_HEADER lpMemHdrArg = NULL;   // Ptr to arg header
+    LPAPLAPA          lpMemArg;             // Ptr to arg global memory
 
     // Get the attributes (Type, NELM, and Rank)
     //   of the arg
@@ -14692,18 +14881,18 @@ UBOOL IsTknBooleanAPA
         goto NORMAL_EXIT;
 
     // Get arg global ptrs
-    GetGlbPtrs_LOCK (lptkArg, &hGlbArg, &lpMemArg);
+    GetGlbPtrs_LOCK (lptkArg, &hGlbArg, &lpMemHdrArg);
 
     // Skip over the header to the data
-    lpMemArg = VarArrayDataFmBase (lpMemArg);
+    lpMemArg = VarArrayDataFmBase (lpMemHdrArg);
 
     // Check for Boolean APA
     bRet = IsBooleanAPA (lpMemArg);
 NORMAL_EXIT:
-    if (hGlbArg && lpMemArg)
+    if (hGlbArg NE NULL && lpMemHdrArg NE NULL)
     {
         // We no longer need this ptr
-        MyGlobalUnlock (hGlbArg); lpMemArg = NULL;
+        MyGlobalUnlock (hGlbArg); lpMemHdrArg = NULL;
     } // End IF
 
     return bRet;

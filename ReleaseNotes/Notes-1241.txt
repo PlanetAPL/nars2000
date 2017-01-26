@@ -1,0 +1,20 @@
+Build #1241 -- Version 0.4.8.xx
+-------------------------------
+
+* Fix Bug In Bracket Indexing Of Scalars, II
+
+Directory trunk:
+
+PF_INDEX.C:
+  In <ArrayIndexValidZilde_EM>, allow {enclose}{zilde} and a nested vector of {zilde}s only.
+
+PF_RSHOE.C:
+  Update copyright year.
+  In <PrimFnDydRightShoeImm_EM_YY>, allow {zilde} and a nested vector of {zilde}s only.
+  In <PrimFnDydRightShoeGlbImm_EM>, miscellaneous simplifications.
+
+Directory trunk\htdocs\Download:
+
+DOWNLOAD-BODY.PHP:
+DOWNLOAD-LEFT.HTML:
+  Include new section on "Beta Versions".

@@ -1,0 +1,9 @@
+Build #1531 -- Version 0.4.15.xx
+--------------------------------
+
+* Mention GCD/LCM in Language bar Tooltip
+
+Directory trunk:
+
+REBAR.C:
+  Mention GCD and LCM in the Language Bar tooltip.

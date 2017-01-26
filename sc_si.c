@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -63,17 +63,17 @@ UBOOL CmdSinl_EM
 //***************************************************************************
 
 UBOOL CmdSiSinlCom_EM
-    (LPWCHAR   lpwszTail,       // Ptr to command line tail
-     UBOOL     bSINL,           // TRUE iff )SINL
-     LPAPLCHAR lpMemSaveWSID)   // Ptr to the file name (NULL = not called from CmdSave_EM)
+    (LPWCHAR      lpwszTail,    // Ptr to command line tail
+     UBOOL        bSINL,        // TRUE iff )SINL
+     LPDICTIONARY lpDict)       // Ptr to the dictionary (NULL = not called from CmdSave_EM)
 
 {
-    LPPERTABDATA lpMemPTD;      // Ptr to PerTabData global memory
-    LPSIS_HEADER lpSISCur;      // Ptr to current SIS_HEADER srtuc
-    UINT         SILevel;       // SI level (for CmdSave_EM)
-    APLCHAR      szSILevel[10]; // Formatted SI level
-    LPWCHAR      lpwszFormat,   // Ptr to formatting save area
-                 lpwszTemp;     // Ptr to temporary storage
+    LPPERTABDATA lpMemPTD;          // Ptr to PerTabData global memory
+    LPSIS_HEADER lpSISCur;          // Ptr to current SIS_HEADER srtuc
+    UINT         SILevel;           // SI level (for CmdSave_EM)
+    WCHAR        wszSILevel[10];    // Formatted SI level
+    LPWCHAR      lpwszFormat,       // Ptr to formatting save area
+                 lpwszTemp;         // Ptr to temporary storage
     VARS_TEMP_OPEN
 
     // Get ptr to PerTabData global memory
@@ -87,7 +87,7 @@ UBOOL CmdSiSinlCom_EM
     // ***FIXME*** -- Make sensitive to [n] in lpwszTail
 
 #ifdef DEBUG
-    if (lpMemPTD->lpSISCur EQ NULL && lpMemSaveWSID EQ NULL)
+    if (lpMemPTD->lpSISCur EQ NULL && lpDict EQ NULL)
        AppendLine (WS_UTF16_ZILDE, FALSE, TRUE);
     else
 #endif
@@ -99,16 +99,17 @@ UBOOL CmdSiSinlCom_EM
         LPAPLCHAR lpMemName;            // Ptr to function name global memory
 
         // Format the SI level
-        wsprintfW (szSILevel,
+        MySprintfW (wszSILevel,
+                    sizeof (wszSILevel),
                    L"%d",
-                   SILevel);
+                    SILevel);
         // Split cases based upon the caller's function type
         switch (lpSISCur->DfnType)
         {
             case DFNTYPE_IMM:
 #ifdef DEBUG
                 // If it's not CmdSave_EM, ...
-                if (lpMemSaveWSID EQ NULL)
+                if (lpDict EQ NULL)
                 {
                     AppendLine (WS_UTF16_IOTA, FALSE, TRUE);
                 } // End IF
@@ -120,14 +121,14 @@ UBOOL CmdSiSinlCom_EM
             case DFNTYPE_FCN:
 #ifndef DEBUG
                 // If it's a Magic Function/Operator, skip it
-                if (lpSISCur->PermFn)
+                if (lpSISCur->bMFO)
                     break;
 #endif
                 // Lock the memory to get a ptr to it
-                lpMemName = MyGlobalLock (lpSISCur->hGlbFcnName);
+                lpMemName = MyGlobalLockWsz (lpSISCur->hGlbFcnName);
 
                 // If it's CmdSave_EM, ...
-                if (lpMemSaveWSID)
+                if (lpDict NE NULL)
                     // Format the text as an ASCII string with non-ASCII chars
                     //   represented as either {symbol} or {\xXXXX} where XXXX is
                     //   a four-digit hex number.
@@ -136,21 +137,21 @@ UBOOL CmdSiSinlCom_EM
                 // Format the Name, Line #, and Suspension marker
                 wsprintfW (lpwszTemp,
                            L"%s[%d] %c",
-                           (lpMemSaveWSID EQ NULL) ? lpMemName : lpwszFormat,
+                           (lpDict EQ NULL) ? lpMemName : lpwszFormat,
                            lpSISCur->CurLineNum,
-                           " *"[lpSISCur->Suspended]);
+                           " *"[lpSISCur->bSuspended]);
                 // We no longer need this ptr
                 MyGlobalUnlock (lpSISCur->hGlbFcnName); lpMemName = NULL;
 
                 // If it's not CmdSave_EM, ...
-                if (lpMemSaveWSID EQ NULL)
+                if (lpDict EQ NULL)
                     // Display the function name & line #
                     AppendLine (lpwszTemp, FALSE, !bSINL);
                 else
-                    WritePrivateProfileStringW (SECTNAME_SI,    // Ptr to the section name
-                                                szSILevel,      // Ptr to the key name
-                                                lpwszTemp,      // Ptr to the key value
-                                                lpMemSaveWSID); // Ptr to the file name
+                    ProfileSetString (SECTNAME_SI,    // Ptr to the section name
+                                      wszSILevel,     // Ptr to the key name
+                                      lpwszTemp,      // Ptr to the key value
+                                      lpDict);        // Ptr to the dictionary
                 // If it's )SINL, display the namelist
                 if (bSINL)
                 {
@@ -213,24 +214,24 @@ UBOOL CmdSiSinlCom_EM
 
             case DFNTYPE_EXEC:
                 // If it's not CmdSave_EM, ...
-                if (lpMemSaveWSID EQ NULL)
+                if (lpDict EQ NULL)
                     AppendLine (WS_UTF16_UPTACKJOT, FALSE, TRUE);
                 else
-                    WritePrivateProfileStringW (SECTNAME_SI,        // Ptr to the section name
-                                                szSILevel,          // Ptr to the key name
-                                                L"{uptackjot}",     // Ptr to the key value
-                                                lpMemSaveWSID);     // Ptr to the file name
+                    ProfileSetString (SECTNAME_SI,      // Ptr to the section name
+                                      wszSILevel,       // Ptr to the key name
+                                     L"{uptackjot}",    // Ptr to the key value
+                                      lpDict);          // Ptr to the dictionary
                 break;
 
             case DFNTYPE_QUAD:
                 // If it's not CmdSave_EM, ...
-                if (lpMemSaveWSID EQ NULL)
+                if (lpDict EQ NULL)
                     AppendLine (WS_UTF16_QUAD, FALSE, TRUE);
                 else
-                    WritePrivateProfileStringW (SECTNAME_SI,        // Ptr to the section name
-                                                szSILevel,          // Ptr to the key name
-                                                L"{quad}",          // Ptr to the key value
-                                                lpMemSaveWSID);     // Ptr to the file name
+                    ProfileSetString (SECTNAME_SI,      // Ptr to the section name
+                                      wszSILevel,       // Ptr to the key name
+                                     L"{quad}",         // Ptr to the key value
+                                      lpDict);          // Ptr to the dictionary
                 break;
 
             case DFNTYPE_UNK:

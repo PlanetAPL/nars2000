@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -127,25 +127,42 @@ APLSTYPE PrimSpecRootStorageTypeMon
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
-
-    if (IsSimpleChar (*lpaplTypeRht)
-     || *lpaplTypeRht EQ ARRAY_LIST)
-        return ARRAY_ERROR;
 
     // The storage type of the result is
     //   the same as that of the right arg
     aplTypeRes = *lpaplTypeRht;
 
-    // Except that APA and INT become FLOAT
-    if (IsSimpleAPA (aplTypeRes)
-     || IsSimpleInt (aplTypeRes))
-        return ARRAY_FLOAT;
+    // Split cases based upon the storage type
+    switch (aplTypeRes)
+    {
+        case ARRAY_BOOL:
+        case ARRAY_INT:
+        case ARRAY_FLOAT:
+        case ARRAY_APA:
+            aplTypeRes = ARRAY_FLOAT;
 
-    // Except that RAT becomes VFP
-    if (IsRat (aplTypeRes))
-        return ARRAY_VFP;
+            break;
+
+        case ARRAY_RAT:
+            aplTypeRes = ARRAY_VFP;
+
+            break;
+
+        case ARRAY_VFP:
+        case ARRAY_NESTED:
+            break;
+
+        case ARRAY_CHAR:
+        case ARRAY_HETERO:
+            aplTypeRes = ARRAY_ERROR;
+
+            break;
+
+        defstop
+            break;
+    } // End SWITCH
 
     return aplTypeRes;
 } // End PrimSpecRootStorageTypeMon
@@ -197,7 +214,7 @@ APLFLOAT PrimFnMonRootFisF
 
 {
     // Check for Complex result
-    if (aplFloatRht < 0)
+    if (aplFloatRht < 0)    // Not SIGN_APLFLOAT as that'll catch -0 whose sqrt is -0
         RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
 
     return sqrt (aplFloatRht);
@@ -249,12 +266,12 @@ APLSTYPE PrimSpecRootStorageTypeDyd
 
     // In case the left arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMLft) && IsSimpleChar (*lpaplTypeLft))
+    if (IsCharEmpty (*lpaplTypeLft, aplNELMLft))
         *lpaplTypeLft = ARRAY_BOOL;
 
     // In case the right arg is an empty char,
     //   change its type to BOOL
-    if (IsEmpty (aplNELMRht) && IsSimpleChar (*lpaplTypeRht))
+    if (IsCharEmpty (*lpaplTypeRht, aplNELMRht))
         *lpaplTypeRht = ARRAY_BOOL;
 
     // Calculate the storage type of the result
@@ -287,9 +304,11 @@ APLBOOL PrimFnDydRootBisBvB
      && aplBooleanRht EQ 0)
     {
         // See what the []IC oracle has to say
-        aplFloatRes = TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
-                                            ICNDX_0EXPPi,
-                                            (APLFLOAT) aplBooleanRht);
+        aplFloatRes =
+          TranslateQuadICIndex ((APLFLOAT) aplBooleanLft,
+                                           ICNDX_0EXPPi,
+                                (APLFLOAT) aplBooleanRht,
+                                           FALSE);
         // If the result is Boolean
         if (aplFloatRes EQ 0)
             return 0;
@@ -333,8 +352,9 @@ APLINT PrimFnDydRootIisIvI
         // Check for indeterminate:  0 {root} R where R <= -1
         if (aplIntegerRht <= -1)
             aplFloatRes = TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-                                                ICNDX_NEXPPi,
-                                                (APLFLOAT) aplIntegerRht);
+                                                           ICNDX_NEXPPi,
+                                                (APLFLOAT) aplIntegerRht,
+                                                           FALSE);
         else
 ////////// Check for special case:  0 {root} R where -1 < R < 0 <==> 0
 ////////if (-1 < aplIntegerRht
@@ -344,8 +364,9 @@ APLINT PrimFnDydRootIisIvI
         // Check for indeterminate:  0 {root} 0 <==> 0 * _
         if (aplIntegerRht EQ 0)
             aplFloatRes = TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-                                                ICNDX_0EXPPi,
-                                                (APLFLOAT) aplIntegerRht);
+                                                           ICNDX_0EXPPi,
+                                                (APLFLOAT) aplIntegerRht,
+                                                           FALSE);
         else
 ////////// Check for special case:  0 {root} R where 0 < R < 1
 ////////if (0 < aplIntegerRht
@@ -393,8 +414,9 @@ APLFLOAT PrimFnDydRootFisIvI
     if (aplIntegerLft EQ 0
      && aplIntegerRht EQ 0)
         return TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-                                     ICNDX_0EXPPi,
-                                     (APLFLOAT) aplIntegerRht);
+                                                ICNDX_0EXPPi,
+                                     (APLFLOAT) aplIntegerRht,
+                                                FALSE);
 
     // Check for special case:  1 {root} R <==> R * 1 <==> R
     if (aplIntegerLft EQ 1)
@@ -406,8 +428,9 @@ APLFLOAT PrimFnDydRootFisIvI
         // Check for indeterminate:  0 {root} R where R <= -1
         if (aplIntegerRht <= -1)
             return TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-                                         ICNDX_NEXPPi,
-                                         (APLFLOAT) aplIntegerRht);
+                                                    ICNDX_NEXPPi,
+                                         (APLFLOAT) aplIntegerRht,
+                                                    FALSE);
 
 ////////// Check for special case:  0 {root} R where -1 < R < 0 <==> 0
 ////////if (-1 < aplIntegerRht
@@ -417,8 +440,9 @@ APLFLOAT PrimFnDydRootFisIvI
         // Check for indeterminate:  0 {root} 0 <==> 0 * _
         if (aplIntegerRht EQ 0)
             return TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-                                         ICNDX_0EXPPi,
-                                         (APLFLOAT) aplIntegerRht);
+                                                    ICNDX_0EXPPi,
+                                         (APLFLOAT) aplIntegerRht,
+                                                    FALSE);
 
 ////////// Check for special case:  0 {root} R where 0 < R < 1
 ////////if (0 < aplIntegerRht
@@ -427,15 +451,16 @@ APLFLOAT PrimFnDydRootFisIvI
 
         // Check for special case:  0 {root} R where R > 1 <==> R * _ <==> _
         if (aplIntegerRht > 1)
-            return PosInfinity;
+            return fltPosInfinity;
     } // End IF
 
 ////// Check for indeterminate:  PoM_ {root} 0 <==> 0 * 0
-////if (IsInfinity (aplIntegerLft)
+////if (IsFltInfinity (aplIntegerLft)
 //// && aplIntegerRht EQ 0)
 ////    return TranslateQuadICIndex ((APLFLOAT) aplIntegerLft,
-////                                 ICNDX_0EXP0,
-////                                 (APLFLOAT) aplIntegerRht);
+////                                            ICNDX_0EXP0,
+////                                 (APLFLOAT) aplIntegerRht,
+////                                            FALSE);
     // Check for Complex result
     if (aplIntegerRht < 0)
         RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
@@ -466,7 +491,8 @@ APLFLOAT PrimFnDydRootFisFvF
      && aplFloatRht EQ 0)
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_0EXPPi,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     FALSE);
     // Check for special case:  1 {root} R <==> R * 1 <==> R
     if (aplFloatLft EQ 1)
         return aplFloatRht;
@@ -478,7 +504,8 @@ APLFLOAT PrimFnDydRootFisFvF
         if (aplFloatRht <= -1)
             return TranslateQuadICIndex (aplFloatLft,
                                          ICNDX_NEXPPi,
-                                         aplFloatRht);
+                                         aplFloatRht,
+                                         FALSE);
         // Check for special case:  0 {root} R where -1 < R < 0 <==> 0
         if (-1 < aplFloatRht
          &&      aplFloatRht < 0)
@@ -488,7 +515,8 @@ APLFLOAT PrimFnDydRootFisFvF
         if (aplFloatRht EQ 0)
             return TranslateQuadICIndex (aplFloatLft,
                                          ICNDX_0EXPPi,
-                                         aplFloatRht);
+                                         aplFloatRht,
+                                         FALSE);
         // Check for special case:  0 {root} R where 0 < R < 1
         if (0 < aplFloatRht
          &&     aplFloatRht < 1)
@@ -496,18 +524,30 @@ APLFLOAT PrimFnDydRootFisFvF
 
         // Check for special case:  0 {root} R where R > 1 <==> R * _ <==> _
         if (aplFloatRht > 1)
-            return PosInfinity;
+            return fltPosInfinity;
     } // End IF
 
     // Check for indeterminate:  PoM_ {root} 0 <==> 0 * 0
-    if (IsInfinity (aplFloatLft)
+    if (IsFltInfinity (aplFloatLft)
      && aplFloatRht EQ 0)
         return TranslateQuadICIndex (aplFloatLft,
                                      ICNDX_0EXP0,
-                                     aplFloatRht);
+                                     aplFloatRht,
+                                     FALSE);
     // Check for Complex result
-    if (aplFloatRht < 0)
+    if (aplFloatRht < 0)    // Not SIGN_APLFLOAT as that'll catch -0 whose root is -0
         RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
+
+    // Handle L {root} -0
+    if (aplFloatRht EQ 0)
+    {
+        // If L < 0, ...
+        if (aplFloatLft < 0)
+            return SIGN_APLFLOAT (aplFloatRht) ? fltNegInfinity
+                                               : fltPosInfinity;
+        else
+            return aplFloatRht;
+    } // End IF
 
     // Calculate the root
     aplFloatRes = pow (aplFloatRht, 1 / aplFloatLft);
@@ -537,7 +577,8 @@ APLVFP PrimFnDydRootVisVvV
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_0EXPPi,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for special case:  1 {root} R <==> R * 1 <==> R
     if (IsMpf1 (&aplVfpLft))
     {
@@ -553,7 +594,8 @@ APLVFP PrimFnDydRootVisVvV
             return *mpfr_QuadICValue (&aplVfpLft,
                                        ICNDX_NEXPPi,
                                       &aplVfpRht,
-                                      &mpfRes);
+                                      &mpfRes,
+                                       FALSE);
         // Check for special case:  0 {root} R where -1 < R < 0 <==> 0
         if (mpfr_si_cmp (-1, &aplVfpRht   ) < 0 // -1 < R
          && mpfr_cmp_si (    &aplVfpRht, 0) < 0)    //      R < 0)
@@ -567,7 +609,8 @@ APLVFP PrimFnDydRootVisVvV
             return *mpfr_QuadICValue (&aplVfpLft,
                                        ICNDX_0EXPPi,
                                       &aplVfpRht,
-                                      &mpfRes);
+                                      &mpfRes,
+                                       FALSE);
         // Check for special case:  0 {root} R where 0 < R < 1
         if (mpfr_ui_cmp (0, &aplVfpRht   ) < 0  // 0 < R
          && mpfr_cmp_ui (   &aplVfpRht, 1) < 0) //     R < 1
@@ -587,24 +630,41 @@ APLVFP PrimFnDydRootVisVvV
         return *mpfr_QuadICValue (&aplVfpLft,
                                    ICNDX_0EXP0,
                                   &aplVfpRht,
-                                  &mpfRes);
+                                  &mpfRes,
+                                   FALSE);
     // Check for Complex result
-    if (mpfr_cmp_ui (&aplVfpRht, 0) < 0)        // R < 0
+    if (mpfr_cmp_ui (&aplVfpRht, 0) < 0)        // R < 0:  Not SIGN_APLVFP as that'll catch -0 whose root is -0
         RaiseException (EXCEPTION_NONCE_ERROR, 0, 0, NULL);
 
-    // Nth root (V) = exp (ln (a) / N)
+    // Handle L {root} -0
+    if (IsMpf0 (&aplVfpRht))
+    {
+        // If L < 0, ...
+        if (mpfr_sgn (&aplVfpLft) < 0)
+        {
+            // Initialize the result to NaN
+            mpfr_init (&mpfRes);
 
-    // Calculate ln (a)
-    mpfTmp = PrimFnMonCircleStarVisV (aplVfpRht, NULL);
+            // Set it to +/- Infinity
+            mpfr_set_inf (&mpfRes, SIGN_APLVFP (&aplVfpRht) ? -1 : 1);
+        } else
+            mpfr_init_copy (&mpfRes, &aplVfpRht);
+    } else
+    {
+        // Nth root (V) = exp (ln (V) / N)      for V > 0
 
-    // Divide by N
-    mpfr_div (&mpfTmp, &mpfTmp, &aplVfpLft, MPFR_RNDN);
+        // Calculate ln (V)
+        mpfTmp = PrimFnMonCircleStarVisV (aplVfpRht, NULL);
 
-    // Exp that
-    mpfRes = PrimFnMonStarVisV (mpfTmp, NULL);
+        // Divide by N
+        mpfr_div (&mpfTmp, &mpfTmp, &aplVfpLft, MPFR_RNDN);
 
-    // We no longer need this storage
-    Myf_clear (&mpfTmp);
+        // Exp that
+        mpfRes = PrimFnMonStarVisV (mpfTmp, NULL);
+
+        // We no longer need this storage
+        Myf_clear (&mpfTmp);
+    } // End IF/ELSE
 
     return mpfRes;
 } // End PrimFnDydRootVisVvV

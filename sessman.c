@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ void SetAttrs
     SetMapMode (hDC, MM_TEXT);
 
     // Select the font into the DC
-    if (hFont)
+    if (hFont NE NULL)
         SelectObject (hDC, hFont);
 
     // Set the color of the foreground text
@@ -151,15 +151,12 @@ void AppendLine
     if (bEndingCRLF)
         // Replace the selection (none) with WS_CRLF
         SendMessageW (hWndEC, EM_REPLACESEL, FALSE, (LPARAM) WS_CRLF);
-////#ifdef PERFMONON
-////    UpdateWindow (hWndEC);
-////#endif
 #ifdef DEBUG
     // To aid in debugging, output the text immediately
     UpdateWindow (hWndEC);
 #endif
     PERFMON
-    PERFMONSHOW
+    PERFMONSHOW (NULL)
 } // End AppendLine
 
 
@@ -270,128 +267,410 @@ UBOOL IzitLastLine
     (HWND hWndEC)           // Window handle of the Edit Ctrl
 
 {
-    UINT uLineCnt,
-         uLinePos,
-         uLineLen,
-         uCharPos;
+    UINT uLineNum,          // Current line #
+         uLineEnd,          // Ending line of the block containing uLineNum
+         uLineCnt;          // # lines in the Edit Ctrl
+
+    // Get the current line # (origin-0)
+    uLineNum = (DWORD) SendMessageW (hWndEC, EM_LINEFROMCHAR, (WPARAM) -1, 0);
+
+    // Get the last line # in this block (origin-0)
+    uLineEnd = GetBlockEndLine (hWndEC, uLineNum);
 
     // Get the # lines in the text
     uLineCnt = (UINT) SendMessageW (hWndEC, EM_GETLINECOUNT, 0, 0);
 
-    // Get the line position of the last line
-    uLinePos = (UINT) SendMessageW (hWndEC, EM_LINEINDEX, (WPARAM) (uLineCnt - 1), 0);
-
-    // Get the length of the line
-    uLineLen = (UINT) SendMessageW (hWndEC, EM_LINELENGTH, uLinePos, 0);
-
-    // Get the char position of the caret
-    uCharPos = GetCurCharPos (hWndEC);
-
-    return (uLinePos <= uCharPos) && (uCharPos <= (uLinePos + uLineLen));
+    return (uLineEnd EQ (uLineCnt - 1));
 } // End IzitlastLine
 
 
-//// //***************************************************************************
-//// //  $DrawLineCont
-//// //
-//// //  Draw a line continuation char
-//// //***************************************************************************
-////
-//// void DrawLineCont
-////     (HDC hDC,
-////      int iLineNum)
-////
-//// {
-////     DrawBitmap (hDC,
-////                 hBitMapLineCont,
-////                 0,
-////                 (iLineNum * GetFSIndAveCharSize (FONTENUM_SM)->cy)
-////               + (GetFSIndAveCharSize (FONTENUM_SM)->cy - bmLineCont.bmHeight) / 2   // Vertically centered
-////                );
-//// } // End DrawLineCont
+//***************************************************************************
+//  $WidthLC
+//
+//  Calculate the width of the Line Continuation marker
+//***************************************************************************
+
+UINT WidthLC
+    (FONTENUM fontEnum)             // Font enum index (see FONTENUM)
+
+{
+    HDC   hDC;                      // Temporary DC
+    RECT  rcScr = {0};              // Screen rectangle
+    WCHAR wcLC[2];                  // Temp save area for LC marker
+    HFONT hFontOld;                 // Old font handle
+
+    // Get a device context
+    hDC = MyGetDC (HWND_DESKTOP);
+
+    // Save LC char as string
+    wcLC[0] = uUserChar;
+    wcLC[1] = WC_EOS;
+
+    // Set the mapping mode
+    SetMapMode (hDC, MM_TEXT);
+
+    // Install the appropriate font
+    hFontOld = SelectObject (hDC, GetFSIndFontHandle (fontEnum));
+
+    // Calculate the width & height of the Line Continuation marker
+    //   in screen coordinates
+    DrawTextW (hDC,
+               wcLC,
+               1,
+              &rcScr,
+               0
+             | DT_CALCRECT
+             | DT_NOPREFIX
+             | DT_NOCLIP);
+    // Restore the old font
+    SelectObject (hDC, hFontOld);
+
+    // We no longer need this resource
+    MyReleaseDC (HWND_DESKTOP, hDC); hDC = NULL;
+
+    return rcScr.right - rcScr.left;
+} // End WidthLC
 
 
-//// //***************************************************************************
-//// //  $DrawBitmap
-//// //
-//// //  Draw a bitmap
-//// //***************************************************************************
-////
-//// void DrawBitmap
-////     (HDC     hDC,
-////      HBITMAP hBitmap,
-////      UINT    xDstOrg,
-////      UINT    yDstOrg) // Destin bit origin (upper left corner)
-////
-//// {
-////     BITMAP  bm;
-////     HDC     hDCMem;
-////     POINT   ptSize, ptOrg;
-////     HBITMAP hBitmapMem, hBitmapOld;
-////
-////     // Get the size of the bitmap
-////     GetObjectW (hBitmap, sizeof (BITMAP), (LPVOID) &bm);
-////
-////     // Create a compatible DC and bitmap
-////     hDCMem = MyCreateCompatibleDC (hDC);    // Get device context handle
-//// #ifdef USE_COPYIMAGE
-////     hBitmapMem = CopyImage (hBitmap, IMAGE_BITMAP, 0, 0, LR_COPYRETURNORG);
-////     hBitmapOld = SelectObject (hDCMem, hBitmapMem);
-//// #else
-////     // To avoid screen flicker, we use a temporary DC
-////     hBitmapMem = MyCreateCompatibleBitmap (hDC,
-////                                            bm.bmWidth,
-////                                            bm.bmHeight);
-////     hBitmapOld = SelectObject (hDCMem, hBitmapMem);
-////
-////     {
-////         HDC hDCTmp;
-////         HBITMAP hBitmapTmp;
-////
-////         // Create a temporary compatible DC
-////         // and select our bitmap into it
-////         hDCTmp = MyCreateCompatibleDC (hDC);
-////         hBitmapTmp = SelectObject (hDCTmp, hBitmap);
-////
-////         // Copy the original bitmap from the temporary DC to the memory DC
-////         BitBlt (hDCMem,
-////                 0,
-////                 0,
-////                 bm.bmWidth,
-////                 bm.bmHeight,
-////                 hDCTmp,
-////                 0,
-////                 0,
-////                 SRCCOPY);
-////         SelectObject (hDCTmp, hBitmapTmp);
-////         MyDeleteDC (hDCTmp); hDCTmp = NULL;
-////     }
-//// #endif
-////     SetMapMode (hDCMem, GetMapMode (hDC));  // Set the mapping mode
-////
-////     // Convert the bitmap size from device units to logical units
-////     ptSize.x = bm.bmWidth;
-////     ptSize.y = bm.bmHeight;
-////     DPtoLP (hDC, &ptSize, 1);
-////
-////     ptOrg.x = ptOrg.y = 0;
-////     DPtoLP (hDCMem, &ptOrg, 1);
-////
-////     // Copy the memory DC to the screen DC
-////     BitBlt (hDC,
-////             xDstOrg, yDstOrg,
-////             ptSize.x, ptSize.y,
-////             hDCMem,
-////             ptOrg.x, ptOrg.y,
-////             SRCCOPY);
-////     // Put the old one in place before we delete the DC
-////     //   or we'll delete the new bitmap when we delete the DC.
-////     SelectObject (hDCMem, hBitmapOld);
-////
-////     // Free resources
-////     MyDeleteObject (hBitmapMem); hBitmapMem = NULL;
-////     MyDeleteDC (hDCMem); hDCMem = NULL;
-//// } // End DrawBitmap ()
+//***************************************************************************
+//  $DrawAllLineCont
+//
+//  Draw all line continuation markers
+//***************************************************************************
+
+void DrawAllLineCont
+    (HWND hWndEC)                   // Edit Ctrl window handle
+
+{
+    HWND     hWndParent;            // Parent window handle
+    UINT     uLineCnt,              // # lines in the Edit Ctrl
+             uLineTop,              // # of topmost visible line
+             uLeft;                 // Left margin in rcLC
+    HDC      hDC;                   // Window DC
+    RECT     rcLC;                  // Rectangle for the Line Continuation markers
+    FONTENUM fontEnum;              // Font enum index
+    HBRUSH   hBrush;                // Background brush
+
+    // Get the handle to the parent window (hWndFE or hWndSM)
+    hWndParent = GetParent (hWndEC);
+
+    // If our parent is SM, ...
+    if (IzitSM (hWndParent))
+    {
+        fontEnum = FONTENUM_SM;
+        uLeft = 0;
+    } else
+    if (IzitFE (hWndParent))
+    {
+        fontEnum = FONTENUM_FE;
+        uLeft = LftMarginsFE (hWndEC, FALSE);
+#ifdef DEBUG
+    } else
+    {
+        DbgBrk ();
+#endif
+    } // End IF/ELSE/...
+
+    // Get the window DC
+    hDC = MyGetDC (hWndEC);
+
+    // Get the # lines in the text
+    uLineCnt = (UINT) SendMessageW (hWndEC, EM_GETLINECOUNT, 0, 0);
+
+    // Get the # of the topmost visible line
+    uLineTop = (UINT) SendMessageW (hWndEC, EM_GETFIRSTVISIBLELINE, 0, 0);
+
+    // Get the client rectangle
+    GetClientRect (hWndEC, &rcLC);
+
+    // Fill in the rest of the rectangle
+    rcLC.left  = uLeft;
+    rcLC.right = rcLC.left + uWidthLC[fontEnum];
+
+    // If the background color is transparent, ...
+    if (gSyntaxColorLC.crBack EQ DEF_SCN_TRANSPARENT)
+    {
+        // Get the background brush
+        hBrush = (HBRUSH) GetClassLongPtrW (hWndEC, GCLP_HBRBACKGROUND);
+
+        // Fill in the rectangle with the background color
+        FillRect (hDC, &rcLC, hBrush);
+    } else
+    {
+        // Create a brush with the background color
+        hBrush = MyCreateSolidBrush (gSyntaxColorName[SC_LINECONT].syntClr.crBack);
+
+        // Fill in the rectangle with the background color
+        FillRect (hDC, &rcLC, hBrush);
+
+        // We no longer need this resource
+        MyDeleteObject (hBrush); hBrush = NULL;
+    } // End IF/ELSE
+
+    // We no longer need this resource
+    MyReleaseDC (hWndEC, hDC); hDC = NULL;
+
+    // Ensure topmost line has a preceding line
+    uLineTop = max (uLineTop, 1);
+
+    // Loop through the line #s
+    for (; uLineTop < uLineCnt; uLineTop++)
+    // If the preceding physical line continues to the current line, ...
+    if (SendMessageW (hWndEC, MYEM_ISLINECONT, uLineTop - 1, 0) EQ TRUE)
+        // Draw a Line Continuation marker
+        DrawLineCont (hWndEC, uLineTop);
+} // End DrawAllLineCont
+
+
+//***************************************************************************
+//  $DrawLineCont
+//
+//  Draw a line continuation marker
+//***************************************************************************
+
+void DrawLineCont
+    (HWND  hWndEC,                  // Edit Ctrl window handle
+     UINT  uLineNum)                // Line number
+
+{
+    HWND         hWndParent;        // Parent window handle
+    HDC          hDC;               // Screen DC
+    FONTENUM     fontEnum;          // Font enum index
+    SIZE         charSize;          // cx & cy of the average char in the font
+    UINT         uLineTop,          // # of topmost visible line
+                 uLeft;             // Left margin in rcLC
+    RECT         rcLC;              // Rectangle for the Line Continuation char
+    HFONT        hFontOld;          // Handle to the old font
+
+    // Get the handle to the parent window (hWndFE or hWndSM)
+    hWndParent = GetParent (hWndEC);
+
+    // If our parent is SM, ...
+    if (IzitSM (hWndParent))
+    {
+        fontEnum = FONTENUM_SM;
+        uLeft    = 0;
+    } else
+    if (IzitFE (hWndParent))
+    {
+        fontEnum = FONTENUM_FE;
+        uLeft    = LftMarginsFE (hWndEC, FALSE);
+#ifdef DEBUG
+    } else
+    {
+        DbgBrk ();
+#endif
+    } // End IF/ELSE/...
+
+    // Get a DC for the Edit Ctrl
+    hDC = MyGetDC (hWndEC);
+
+    // Put the fontEnum font into effect
+    hFontOld = SelectObject (hDC, GetFSIndFontHandle (fontEnum));
+
+    // Get the font average char size
+    charSize = *GetFSIndAveCharSize (fontEnum);
+
+    // Get the # of the topmost visible line
+    uLineTop = (UINT) SendMessageW (hWndEC, EM_GETFIRSTVISIBLELINE, 0, 0);
+
+    // Fill in the top/left of the RECT
+    rcLC.top  = (uLineNum - uLineTop) * charSize.cy;
+    rcLC.left = uLeft + uWidthLC[fontEnum];
+
+    // Handle via subroutine
+    DrawLineContSub (hWndEC, hDC, rcLC.left, rcLC.top, fontEnum EQ FONTENUM_PR);
+
+    // Restore the old font
+    SelectObject (hDC, hFontOld);
+
+    // We no longer need this resource
+    MyReleaseDC (hWndEC, hDC); hDC = NULL;
+} // End DrawLineCont
+
+
+//***************************************************************************
+//  $DrawLineContSub
+//
+//  Subroutine to DrawLineCont
+//***************************************************************************
+
+void DrawLineContSub
+    (HWND  hWndEC,              // Edit Ctrl window handle
+     HDC   hDC,                 // Device context
+     int   x,                   // Left side of RECT (NOT including the LC marker)
+     int   y,                   // Top  ...
+     UBOOL bPrinting)           // TRUE iff we're printing
+
+{
+    SIZE     charSize;          // cx & cy of the average char in the font
+    RECT     rcLC;              // Rectangle for the Line Continuation char
+    UBOOL    bSyntClr;          // TRUE iff we're Syntax Coloring
+    FONTENUM fontEnum;          // FONTENUM index
+    HFONT    hFontOld;          // Old font (to be resored)
+    UINT     uWidth;            // Width of the LC marker
+    int      mmOld;             // Old mapping mode
+    SIZE     GLP_DC,            // GetLogPixels[X|Y] (hDC)
+             GLP_NULL;          // GetLogPixels[X|Y] (NULL)
+    HFONT    hFontCur;          // Current font
+
+    // Set the mapping mode
+    mmOld = SetMapMode (hDC, MM_TEXT);
+
+    //If we're printing, ...
+    if (bPrinting)
+    {
+        LOGFONTW    lfPR;       // LOGFONT for PR
+        TEXTMETRICW tmPR;       // TEXTMETRICWs for the Printer Font
+
+        fontEnum = FONTENUM_PR;
+        bSyntClr = OptionFlags.bSyntClrPrnt;
+
+        // Get the font average char size
+        charSize = *GetFSIndAveCharSize (fontEnum);
+
+        // Get the width of the LC marker
+        uWidth = uWidthLC[fontEnum];
+
+        // Get the current font for PR
+        hFontCur = *fontStruc[glbSameFontAs[fontEnum]].lphFont;
+
+        // Get the LOGFONTW structure for the font
+        GetObjectW (hFontCur, sizeof (lfPR), &lfPR);
+
+        // Get the log pixels for DC and NULL
+////    GLP_DC.cx   = GetLogPixelsX (hDC);
+        GLP_DC.cy   = GetLogPixelsY (hDC);
+////    GLP_NULL.cx = GetLogPixelsX (NULL);
+        GLP_NULL.cy = GetLogPixelsY (NULL);
+
+        // Respecify the horizontal & vertical positions in printer coordinates
+        lfPR.lfHeight = MulDiv (lfPR.lfHeight, GLP_DC.cy, GLP_NULL.cy);
+
+        // Make a font of it
+        hFontCur = MyCreateFontIndirectW (&lfPR);
+
+        // Install the current font
+        hFontOld = SelectObject (hDC, hFontCur);
+
+        // Get the text metrics for this font
+        GetTextMetricsW (hDC, &tmPR);
+
+        // Convert the x & y & cx & cy values from screen coords to printer coords
+        x             = MulDiv (x            , tmPR.tmAveCharWidth, charSize.cx);
+        y             = MulDiv (y            , tmPR.tmHeight      , charSize.cy);
+        uWidth        = MulDiv (uWidth       , tmPR.tmAveCharWidth, charSize.cx);
+
+        charSize.cx   = MulDiv (charSize.cx  , tmPR.tmAveCharWidth, charSize.cx);
+        charSize.cy   = MulDiv (charSize.cy  , tmPR.tmHeight      , charSize.cy);
+    } else
+    {
+        // If our parent is SM, ...
+        if (IzitSM (GetParent (hWndEC)))
+        {
+            fontEnum = FONTENUM_SM;
+            bSyntClr = OptionFlags.bSyntClrSess;
+        } else
+        if (IzitFE (GetParent (hWndEC)))
+        {
+            fontEnum = FONTENUM_FE;
+            bSyntClr = OptionFlags.bSyntClrFcns;
+#ifdef DEBUG
+        } else
+        {
+            DbgBrk ();
+            bSyntClr = FALSE;
+#endif
+        } // End IF/ELSE/...
+
+        // Get the font average char size
+        charSize = *GetFSIndAveCharSize (fontEnum);
+
+        // Get the width of the LC marker
+        uWidth = uWidthLC[fontEnum];
+
+        // Get the current font
+        hFontCur = *fontStruc[glbSameFontAs[fontEnum]].lphFont;
+
+        // Install the current font
+        hFontOld = SelectObject (hDC, hFontCur);
+    } // End IF/ELSE
+
+    // Fill in the RECT
+    rcLC.top    = y;
+    rcLC.left   = x - uWidth;
+    rcLC.right  = x;
+    rcLC.bottom = rcLC.top  + charSize.cy;
+
+    // If we're Syntax Coloring, ...
+    if (bSyntClr)
+    {
+        // Set the foreground color
+        SetTextColor (hDC, gSyntaxColorLC.crFore);
+
+        // If the background color is not transparent, ...
+        if (gSyntaxColorLC.crBack NE DEF_SCN_TRANSPARENT)
+            // Set it
+            SetBkColor (hDC, gSyntaxColorLC.crBack);
+    } // End IF
+
+    // Draw the Line Continuation marker
+    DrawTextW (hDC,
+    (LPWCHAR) &uUserChar,
+               1,
+              &rcLC,
+               0
+             | DT_SINGLELINE
+             | DT_NOPREFIX
+             | DT_VCENTER);
+    // Restore the old font
+    SelectObject (hDC, hFontOld);
+
+    // Restore the old mapping mode
+    SetMapMode (hDC, mmOld);
+
+    // If we're printing, ...
+    if (bPrinting)
+    {
+        // Delete the font we created
+        DeleteObject (hFontCur); hFontCur = NULL;
+    } // End IF
+} // End DrawLineContSub
+
+
+//***************************************************************************
+//  $LftMarginsSM
+//
+//  Return the left margin for a Session Manager window
+//***************************************************************************
+
+UINT LftMarginsSM
+    (void)
+
+{
+    // Make room for Line Continuation markers
+    return uWidthLC[FONTENUM_SM];
+} // End LftMarginsSM
+
+
+//***************************************************************************
+//  $SetMarginsSM
+//
+//  Set the margins for a Session Manager window
+//***************************************************************************
+
+void SetMarginsSM
+    (HWND hWndEC)           // Window handle to the Edit Ctrl
+
+{
+    UINT uLeft;             // Left margin
+
+    // Calculate the left margin for the SM
+    uLeft = LftMarginsSM ();
+
+    // Tell the Edit Ctrl about it
+    SendMessageW (hWndEC, EM_SETMARGINS, EC_LEFTMARGIN, MAKELONG (uLeft, 0));
+} // End SetMarginsSM
 
 
 //***************************************************************************
@@ -401,7 +680,7 @@ UBOOL IzitLastLine
 //***************************************************************************
 
 void MoveCaretEOB
-    (HWND hWndEC)           // Window handle of Edit Ctrl
+    (HWND  hWndEC)          // Window handle of Edit Ctrl
 
 {
     UINT uLineCnt,
@@ -412,7 +691,7 @@ void MoveCaretEOB
     // Get the # lines in the text
     uLineCnt = (UINT) SendMessageW (hWndEC, EM_GETLINECOUNT, 0, 0);
 
-    // Get the initial char pos of the last line
+    // Get the initial char pos of the last line (origin-0)
     uLinePos = (UINT) SendMessageW (hWndEC, EM_LINEINDEX, uLineCnt - 1, 0);
 
     // Get the length of the last line
@@ -456,7 +735,7 @@ void DisplayPrompt
     ForceSendCursorMsg (hWndEC, FALSE);
 
     // Check for exiting semaphore
-    if (lpMemPTD->hExitphore)
+    if (lpMemPTD->hExitphore NE NULL)
     {
         // Start executing at the Tab Delete code
         MyReleaseSemaphore (lpMemPTD->hExitphore, 1, NULL);
@@ -471,7 +750,7 @@ void DisplayPrompt
     AppendLine (wszIndent, FALSE, FALSE);
 
     PERFMON
-////PERFMONSHOW
+////PERFMONSHOW (NULL)
 } // End DisplayPrompt
 
 
@@ -509,9 +788,9 @@ UINT GetLineLength
 #endif
 
 void FormatQQuadInput
-    (UINT          uLineNum,        // Line #
-     HWND          hWndEC,          // Handle of Edit Ctrl window
-     LPPERTABDATA lpMemPTD)         // Ptr to PerTabData global memory
+    (UINT         uLineNum,     // Line #
+     HWND         hWndEC,       // Handle of Edit Ctrl window
+     LPPERTABDATA lpMemPTD)     // Ptr to PerTabData global memory
 
 {
     UINT         uLineLen;      // Line length
@@ -535,11 +814,11 @@ void FormatQQuadInput
 
     // Allocate space for the result
     hGlbRes = DbgGlobalAlloc (GHND, (APLU3264) ByteRes);
-    if (!hGlbRes)
+    if (hGlbRes EQ NULL)
         goto WSFULL_EXIT;
 
     // Lock the memory to get a ptr to it
-    lpMemRes = MyGlobalLock (hGlbRes);
+    lpMemRes = MyGlobalLock000 (hGlbRes);
 
 #define lpHeader        ((LPVARARRAY_HEADER) lpMemRes)
     // Fill in the header
@@ -556,7 +835,7 @@ void FormatQQuadInput
     *VarArrayBaseToDim (lpMemRes) = uLineLen;
 
     // Skip over the header and dimensions to the data
-    lpMemRes = VarArrayBaseToData (lpMemRes, 1);
+    lpMemRes = VarArrayDataFmBase (lpMemRes);
 
     // Tell EM_GETLINE maximum # chars in the buffer
     // Because we allocated space for max (uLineLen, 1)
@@ -615,16 +894,11 @@ NORMAL_EXIT:
 
     Assert (lpMemPTD->lpSISCur->hSemaphore NE NULL);
 
-    if (lpMemPTD->lpSISCur->hSemaphore)
-    {
-        dprintfWL9 (L"~~Releasing semaphore:  %p (%S#%d)", lpMemPTD->lpSISCur->hSemaphore, FNLN);
+    // Signal WaitForInput that we have a result
+    MyReleaseSemaphore (lpMemPTD->lpSISCur->hSemaphore, 1, NULL);
 
-        // Signal WaitForInput that we have a result
-        MyReleaseSemaphore (lpMemPTD->lpSISCur->hSemaphore, 1, NULL);
-
-        // Release our time slice so the released thread can act
-        Sleep (0);
-    } // End IF
+    // Release our time slice so the released thread can act
+    Sleep (0);
 } // End FormatQQuadInput
 #undef  APPEND_NAME
 
@@ -717,13 +991,69 @@ LRESULT APIENTRY SMWndProc
                               PTDMEMVIRT_LENGTH * sizeof (MEMVIRTSTR),
                               MEM_COMMIT | MEM_RESERVE | MEM_TOP_DOWN,
                               PAGE_READWRITE);
-            if (!lpLclMemVirtStr)
+            if (lpLclMemVirtStr EQ NULL)
             {
                 // ***FIXME*** -- Display error msg
-                DbgMsgW (L"SMWndProc/WM_NCCREATE:  MyVirtualAlloc for <lpLclMemVirtStr> failed");
+                MBW (L"SMWndProc/WM_NCCREATE:  MyVirtualAlloc for <lpLclMemVirtStr> failed");
 
                 goto WM_NCCREATE_FAIL;
             } // End IF
+
+            // Allocate room for PTDMEMVIRT_LFTSTK
+            lpLclMemVirtStr[PTDMEMVIRT_LFTSTK].lpText   = "lpMemPTD->lpplLftStk in <SMWndProc>";
+            lpLclMemVirtStr[PTDMEMVIRT_LFTSTK].IncrSize = DEF_LFTSTK_INCRNELM * sizeof (lpMemPTD->lpplLftStk[0]);
+            lpLclMemVirtStr[PTDMEMVIRT_LFTSTK].MaxSize  = DEF_LFTSTK_MAXNELM  * sizeof (lpMemPTD->lpplLftStk[0]);
+            lpLclMemVirtStr[PTDMEMVIRT_LFTSTK].IniAddr  = (LPVOID)
+            lpMemPTD->lpplLftStk =
+            lpMemPTD->lpplOrgLftStk =
+              GuardAlloc (NULL,             // Any address
+                          lpLclMemVirtStr[PTDMEMVIRT_LFTSTK].MaxSize,
+                          MEM_RESERVE,
+                          PAGE_READWRITE);
+            if (!lpLclMemVirtStr[PTDMEMVIRT_LFTSTK].IniAddr)
+            {
+                // ***FIXME*** -- WS FULL before we got started???
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpplLftStk> failed");
+
+                goto WM_CREATE_FAIL;    // Mark as failed
+            } // End IF
+
+            // Link this struc into the chain
+            LinkMVS (&lpLclMemVirtStr[PTDMEMVIRT_LFTSTK]);
+
+            // Commit the intial size
+            MyVirtualAlloc (lpLclMemVirtStr[PTDMEMVIRT_LFTSTK].IniAddr,
+                            DEF_LFTSTK_INITNELM * sizeof (lpMemPTD->lpplLftStk[0]),
+                            MEM_COMMIT,
+                            PAGE_READWRITE);
+
+            // Allocate room for PTDMEMVIRT_RHTSTK
+            lpLclMemVirtStr[PTDMEMVIRT_RHTSTK].lpText   = "lpMemPTD->lpplRhtStk in <SMWndProc>";
+            lpLclMemVirtStr[PTDMEMVIRT_RHTSTK].IncrSize = DEF_RHTSTK_INCRNELM * sizeof (lpMemPTD->lpplRhtStk[0]);
+            lpLclMemVirtStr[PTDMEMVIRT_RHTSTK].MaxSize  = DEF_RHTSTK_MAXNELM  * sizeof (lpMemPTD->lpplRhtStk[0]);
+            lpLclMemVirtStr[PTDMEMVIRT_RHTSTK].IniAddr  = (LPVOID)
+            lpMemPTD->lpplRhtStk =
+            lpMemPTD->lpplOrgRhtStk =
+              GuardAlloc (NULL,             // Any address
+                          lpLclMemVirtStr[PTDMEMVIRT_RHTSTK].MaxSize,
+                          MEM_RESERVE,
+                          PAGE_READWRITE);
+            if (!lpLclMemVirtStr[PTDMEMVIRT_RHTSTK].IniAddr)
+            {
+                // ***FIXME*** -- WS FULL before we got started???
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpplRhtStk> failed");
+
+                goto WM_CREATE_FAIL;    // Mark as failed
+            } // End IF
+
+            // Link this struc into the chain
+            LinkMVS (&lpLclMemVirtStr[PTDMEMVIRT_RHTSTK]);
+
+            // Commit the intial size
+            MyVirtualAlloc (lpLclMemVirtStr[PTDMEMVIRT_RHTSTK].IniAddr,
+                            DEF_RHTSTK_INITNELM * sizeof (lpMemPTD->lpplRhtStk[0]),
+                            MEM_COMMIT,
+                            PAGE_READWRITE);
 
             // Save in window extra bytes
             SetWindowLongPtrW (hWnd, GWLSF_LPMVS, (APLU3264) (LONG_PTR) lpLclMemVirtStr);
@@ -774,10 +1104,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_QUADERROR].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_QUADERROR].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_QUADERROR].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpwszQuadErrorMsg> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpwszQuadErrorMsg> failed");
 
                 goto WM_CREATE_FAIL;    // Mark as failed
             } // End IF
@@ -808,10 +1138,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_UNDOBEG].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_UNDOBEG].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_UNDOBEG].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpUndoBeg> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpUndoBeg> failed");
 
                 goto WM_CREATE_FAIL;    // Mark as failed
             } // End IF
@@ -849,14 +1179,15 @@ WM_NCCREATE_FAIL:
             lpLclMemVirtStr[PTDMEMVIRT_HTSPTD].MaxSize  = sizeof (HSHTABSTR);
             lpLclMemVirtStr[PTDMEMVIRT_HTSPTD].IniAddr  = (LPVOID)
             lpMemPTD->lphtsPTD =
+            lpMemPTD->lphtsGLB =
               GuardAlloc (NULL,             // Any address
                           lpLclMemVirtStr[PTDMEMVIRT_HTSPTD].MaxSize,
                           MEM_COMMIT | MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_HTSPTD].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_HTSPTD].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lphtsPTD> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lphtsPTD> failed");
 
                 goto WM_CREATE_FAIL;    // Mark as failed
             } // End IF
@@ -873,11 +1204,11 @@ WM_NCCREATE_FAIL:
                                  lpMemPTD->lphtsPTD,                    // Ptr to this HSHTABSTR
                                  DEF_HSHTAB_NBLKS,                      // Initial # blocks in HshTab
                                  DEF_HSHTAB_INCRNELM,                   // # HTEs by which to resize when low
-                                 DEF_HSHTAB_MAXNELM);                   // Maximum # HTEs
+                                 gHshTabSize);                          // Maximum # HTEs
             if (!bRet)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  AllocHshTab for <lpMemPTD->lpHshTab> failed");
+                MBW (L"SMWndProc/WM_CREATE:  AllocHshTab for <lpMemPTD->lpHshTab> failed");
 
                 goto WM_CREATE_FAIL;    // Mark as failed
             } // End IF
@@ -892,11 +1223,11 @@ WM_NCCREATE_FAIL:
                                  lpMemPTD->lphtsPTD,                    // Ptr to this HSHTABSTR
                                  DEF_SYMTAB_INITNELM,                   // Initial # STEs in SymTab
                                  DEF_SYMTAB_INCRNELM,                   // # STEs by which to resize when low
-                                 DEF_SYMTAB_MAXNELM);                   // Maximum # STEs
+                                 gSymTabSize);                          // Maximum # STEs
             if (!bRet)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  AllocSymTab for <lpMemPTD->lpSymTab> failed");
+                MBW (L"SMWndProc/WM_CREATE:  AllocSymTab for <lpMemPTD->lpSymTab> failed");
 
                 goto WM_CREATE_FAIL;    // Mark as failed
             } // End IF
@@ -913,10 +1244,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_SIS].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_SIS].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_SIS].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpSISBeg> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpSISBeg> failed");
 
                 goto WM_CREATE_FAIL;    // Mark as failed
             } // End IF
@@ -942,10 +1273,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_CS].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_CS].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_CS].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lptkCSIni> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lptkCSIni> failed");
 
                 goto WM_CREATE_FAIL;    // Mark as failed
             } // End IF
@@ -971,10 +1302,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_YYRES].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_YYRES].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_YYRES].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpYYRes> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpYYRes> failed");
 
                 goto WM_CREATE_FAIL;    // Mark as failed
             } // End IF
@@ -1004,10 +1335,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_STRAND_VAR].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_STRAND_VAR].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_STRAND_VAR].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpStrand[STRAND_VAR]> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpStrand[STRAND_VAR]> failed");
 
                 return FALSE;           // Mark as failed
             } // End IF
@@ -1032,10 +1363,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_STRAND_FCN].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_STRAND_FCN].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_STRAND_FCN].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpStrand[STRAND_FCN]> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpStrand[STRAND_FCN]> failed");
 
                 return FALSE;           // Mark as failed
             } // End IF
@@ -1061,10 +1392,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_STRAND_LST].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_STRAND_LST].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_STRAND_LST].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpStrand[STRAND_LST]> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpStrand[STRAND_LST]> failed");
 
                 return FALSE;           // Mark as failed
             } // End IF
@@ -1090,10 +1421,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_STRAND_NAM].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_STRAND_NAM].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_STRAND_NAM].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpStrand[STRAND_NAM]> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpMemPTD->lpStrand[STRAND_NAM]> failed");
 
                 return FALSE;           // Mark as failed
             } // End IF
@@ -1119,10 +1450,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_WSZFORMAT].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_WSZFORMAT].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_WSZFORMAT].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpwszFormat> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpwszFormat> failed");
 
                 return FALSE;           // Mark as failed
             } // End IF
@@ -1150,12 +1481,12 @@ WM_NCCREATE_FAIL:
                           MEM_RESERVE,
                           PAGE_READWRITE);
             // Save the maximum size
-            lpMemPTD->uTempMaxSize = lpLclMemVirtStr[PTDMEMVIRT_WSZTEMP].MaxSize;
+            lpMemPTD->iTempMaxSize = lpLclMemVirtStr[PTDMEMVIRT_WSZTEMP].MaxSize;
 
-            if (!lpLclMemVirtStr[PTDMEMVIRT_WSZTEMP].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_WSZTEMP].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpwszTemp> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpwszTemp> failed");
 
                 return FALSE;           // Mark as failed
             } // End IF
@@ -1181,10 +1512,10 @@ WM_NCCREATE_FAIL:
                           lpLclMemVirtStr[PTDMEMVIRT_FORSTMT].MaxSize,
                           MEM_RESERVE,
                           PAGE_READWRITE);
-            if (!lpLclMemVirtStr[PTDMEMVIRT_FORSTMT].IniAddr)
+            if (lpLclMemVirtStr[PTDMEMVIRT_FORSTMT].IniAddr EQ NULL)
             {
                 // ***FIXME*** -- WS FULL before we got started???
-                DbgMsgW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpForStmtBase> failed");
+                MBW (L"SMWndProc/WM_CREATE:  GuardAlloc for <lpForStmtBase> failed");
 
                 return FALSE;           // Mark as failed
             } // End IF
@@ -1203,7 +1534,7 @@ WM_NCCREATE_FAIL:
             // Initialize all system names (functions and variables) as reserved
             if (!InitSystemNames_EM ())
             {
-                DbgMsgW (L"WM_CREATE:  InitSystemNames_EM failed");
+                MBW (L"WM_CREATE:  InitSystemNames_EM failed");
 
                 goto WM_CREATE_FAIL;    // Mark as failed
             } // End IF
@@ -1252,8 +1583,11 @@ WM_NCCREATE_FAIL:
             // Save the Window Background brush
             SetClassLongPtrW (hWndEC, GCLP_HBRBACKGROUND, (HANDLE_PTR) ghBrushBG);
 
-////////////// Set the soft-break flag (not supported by WineHQ edit ctrl)
-////////////SendMessageW (hWndEC, EM_FMTLINES, TRUE, 0);
+            // Set the margins for a Session Manager window
+            SetMarginsSM (hWndEC);
+
+            // Set the soft-break flag
+            SendMessageW (hWndEC, EM_FMTLINES, TRUE, 0);
 
             // Paint the window
             ShowWindow (hWndEC, SW_SHOWNORMAL);
@@ -1264,7 +1598,7 @@ WM_NCCREATE_FAIL:
             // Initialize all magic functions/operators
             if (!InitMagicFunctions (lpMemPTD, hWndEC, lpLclMemVirtStr, PTDMEMVIRT_MFO1, PTDMEMVIRT_LENGTH))
             {
-                DbgMsgW (L"WM_CREATE:  InitMagicFunctions failed");
+                MBW (L"WM_CREATE:  InitMagicFunctions failed");
 
                 goto WM_CREATE_FAIL_UNHOOK;
             } // End IF
@@ -1326,10 +1660,10 @@ LOAD_WORKSPACE_FAIL:
             FreeGlobalStorage (lpMemPTD);
 NORMAL_EXIT:
             // Free the workspace global
-            MyGlobalFree ((*(LPSM_CREATESTRUCTW *) &lpMDIcs->lParam)->hGlbDPFE); (*(LPSM_CREATESTRUCTW *) &lpMDIcs->lParam)->hGlbDPFE = NULL;
+            DbgGlobalFree ((*(LPSM_CREATESTRUCTW *) &lpMDIcs->lParam)->hGlbDPFE); (*(LPSM_CREATESTRUCTW *) &lpMDIcs->lParam)->hGlbDPFE = NULL;
 
             PERFMON
-////////////PERFMONSHOW
+////////////PERFMONSHOW (NULL)
 
             return lResult;         // Mark as failed
         } // End WM_CREATE
@@ -1385,7 +1719,7 @@ NORMAL_EXIT:
 #ifdef DEBUG
         case MYWM_INIT_SMDB:
             // If the Debugger window handle is active, ...
-            if (lpMemPTD->hWndDB)
+            if (lpMemPTD->hWndDB NE NULL)
                 PostMessageW (hWnd, MYWM_KEYDOWN, VK_F9, 0);
             else
                 PostMessageW (hWnd, MYWM_INIT_SMDB, 0, 0);
@@ -1410,7 +1744,7 @@ NORMAL_EXIT:
                     RemovePropW (hWnd, L"INIT_EC");
 
                     PERFMON
-////////////////////PERFMONSHOW
+////////////////////PERFMONSHOW (NULL)
 
                     break;
 
@@ -1441,17 +1775,18 @@ NORMAL_EXIT:
                 // Reset the flag
                 lpMemPTD->bExecLX = FALSE;
 
+#define EXECUTE_QUADLX  WS_UTF16_UPTACKJOT $QUAD_LX
+
                 // Execute the statement in immediate execution mode
-                ImmExecStmt (WS_UTF16_UPTACKJOT $QUAD_LX,   // Ptr to line to execute
-                             4,                             // NELM of line to execute
+                ImmExecStmt (EXECUTE_QUADLX,                // Ptr to line to execute
+                             strcountof (EXECUTE_QUADLX),   // NELM of line to execute
                              FALSE,                         // TRUE iff free the line on completion
-                             FALSE,                         // TRUE iff wait until finished
                              hWndEC,                        // Edit Ctrl window handle
                              TRUE);                         // TRUE iff errors are acted upon
             } else
             {
                 // If the SI level is for Quad Input
-                if (lpMemPTD->lpSISCur
+                if (lpMemPTD->lpSISCur NE NULL
                  && lpMemPTD->lpSISCur->DfnType EQ DFNTYPE_QUAD)
                     PostMessageW (hWnd, MYWM_QUOTEQUAD, FALSE, 105);
                 else
@@ -1522,6 +1857,12 @@ NORMAL_EXIT:
 
         case WM_SETFONT:            // hFont = (HFONT) wParam;
                                     // fRedraw = LOWORD (lParam);
+            // Changing the font also means changing the size
+            //   of the margins as the character width might change
+            SetMarginsSM (hWndEC);
+
+            // Fall through to common code
+
         case WM_KILLFOCUS:          // hwndGainFocus = (HWND) wParam; // handle of window gaining focus
             // Pass these messages through to the EditCtrl
             SendMessageW (hWndEC, message, wParam, lParam);
@@ -1540,6 +1881,7 @@ NORMAL_EXIT:
             {
                 ActivateMDIMenu (WINDOWCLASS_SM, hWnd);
                 SetFocus (hWnd);
+                SendMessageW (hWndEC, EM_SCROLLCARET, 0, 0);
             } // End IF
 
             break;                  // Continue with DefMDIChildProc
@@ -1566,7 +1908,8 @@ NORMAL_EXIT:
 
         case MYWM_CREATEFCN:
             // If there's an active program, ignore this message
-            if (!(lpMemPTD->lpSISCur && !lpMemPTD->lpSISCur->Suspended))
+            if (!(lpMemPTD->lpSISCur NE NULL
+              && !lpMemPTD->lpSISCur->bSuspended))
                 CreateFcnWindow (L"");
             return FALSE;           // We handled the msg
 
@@ -1578,7 +1921,13 @@ NORMAL_EXIT:
         {
             UINT uLineLen,
                  uLineCnt;
-            UBOOL bRet;
+            UBOOL bRet,
+                  ksCtrl,
+                  ksShift;
+
+            // Set the shift-key state
+            ksCtrl  = (GetKeyState (VK_CONTROL) & BIT15) ? TRUE : FALSE;
+            ksShift = (GetKeyState (VK_SHIFT  ) & BIT15) ? TRUE : FALSE;
 
             // Special cases for SM windows:
             //   * Up/Dn arrows:
@@ -1589,7 +1938,7 @@ NORMAL_EXIT:
             //     * Pass changed line to parent for execution
             //
             //   * Shift-CR
-            //     * Insert a soft-break (line continuation) ***FIXME*** -- Not done as yet
+            //     * Insert a soft-break (line continuation)
 
             switch (nVirtKey)
             {
@@ -1597,18 +1946,18 @@ NORMAL_EXIT:
                 {
                     EnterCriticalSection (&CSOPL);
 
-                    // Mark as Ctrl-Break
-                    if (lpMemPTD->lpPLCur)
+                    // If there's a current SIS level, ...
+                    if (lpMemPTD->lpPLCur NE NULL)
                     {
                         HANDLE hWaitEvent = lpMemPTD->hWaitEvent;
 
                         // If there's a delay active, ...
-                        if (lpMemPTD->hSemaDelay)
+                        if (lpMemPTD->hSemaDelay NE NULL)
                             // Release the semaphore
                             MyReleaseSemaphore (lpMemPTD->hSemaDelay, 1, NULL);
                         else
                         // If there's a wait event active, ...
-                        if (hWaitEvent)
+                        if (hWaitEvent NE NULL)
                         {
                             // Clear the event handle
                             lpMemPTD->hWaitEvent = NULL;
@@ -1626,74 +1975,128 @@ NORMAL_EXIT:
 
                 case VK_RETURN:
                     // If there's an active program, ignore this key
-                    bRet = (lpMemPTD->lpSISCur && !lpMemPTD->lpSISCur->Suspended);
+                    bRet = (lpMemPTD->lpSISCur NE NULL
+                        && !lpMemPTD->lpSISCur->bSuspended);
                     if (!bRet)
                     {
                         // If we're not on the last line,
                         //   copy it and append it to the buffer
-                        if (!IzitLastLine (hWndEC))
+                        if (ksShift || ksCtrl || !IzitLastLine (hWndEC))
                         {
                             UINT    uLastNum;
                             LPWCHAR lpwTmpLine;
 
-                            // Get the line length of a given line #
-                            uLineLen = GetLineLength (hWndEC, uLineNum);
+                            // If we're inserting a soft line-break, ...
+                            if (ksShift)
+                            {
+                                POINT ptCaret;                  // The caret position
+                                UINT  uCharPos;                 // The line position (start of line)
 
-                            // Allocate space for the line including a terminating CR/LF/zero
-                            lpwTmpLine =
-                              MyGlobalAlloc (GPTR, (uLineLen + 3) * sizeof (lpwTmpLine[0]));
+                                // Get the char index (from the beginning of the edit text) given
+                                //   a point in screen coordinates
 
-                            // Tell EM_GETLINE maximum # chars in the buffer
-                            ((LPWORD) lpwTmpLine)[0] = uLineLen;
+                                // Get the caret position in client coords
+                                GetCaretPos (&ptCaret);
 
-                            // Get the current line
-                            SendMessageW (hWndEC, EM_GETLINE, uLineNum, (LPARAM) lpwTmpLine);
+                                // Get the position of the char under the caret
+                                CharFromPos (hWndEC, SendMessageW (hWndEC, EM_CHARFROMPOS, 0, MAKELPARAM (ptCaret.x, ptCaret.y)), NULL, &uCharPos);
 
-                            // Append CRLF
-                            lstrcatW (lpwTmpLine, WS_CRLF);
+                                // Select the insertion point
+                                SendMessageW (hWndEC, EM_SETSEL, uCharPos, uCharPos);
 
-                            // Move the text caret to the end of the buffer
-                            MoveCaretEOB (hWndEC);
+                                // Split the line at the current position as a Line Continuation
+                                SendMessageW (hWndEC, EM_REPLACESEL, FALSE, (LPARAM) WS_CRCRLF);
+                            } else
+                            {
+                                // If we're not on the last line, ...
+                                if (!IzitLastLine (hWndEC))
+                                {
+                                    UINT uLineBeg;
 
-                            // Get the # of the last line
-                            uLastNum = (UINT) SendMessageW (hWndEC, EM_LINEFROMCHAR, (WPARAM) -1, 0);
+                                    // Get the line # of the start of a block of a Line Continuations
+                                    uLineBeg = GetBlockStartLine (hWndEC, uLineNum);
 
-                            // Replace the last line in the buffer
-                            ReplaceLine (hWndEC, lpwTmpLine, uLastNum);
+                                    // Get the overall block length
+                                    //   not including a terminating zero
+                                    uLineLen = GetBlockLength (hWndEC, uLineBeg);
 
-                            // We no longer need this storage
-                            MyGlobalFree (lpwTmpLine); lpwTmpLine = NULL;
+                                    // Allocate space for the line including the terminating CRLF and zero
+                                    lpwTmpLine =
+                                      DbgGlobalAlloc (GPTR, (uLineLen + strcountof (WS_CRLF) + 1)   // "+ 1" for the terminating zero
+                                                           * sizeof (lpwTmpLine[0]));
 
-                            // Lock the memory to get a ptr to it
-                            lpwCurLine = MyGlobalLock (lpMemPTD->hGlbCurLine);
+                                    // Check for error
+                                    if (lpwTmpLine EQ NULL)
+                                    {
+                                        MBW (L"MYWM_KEYDOWN/VK_RETURN:  Unable to allocate memory for block of lines in the Session Manager");
 
-                            // Restore the original of the current line
-                            ReplaceLine (hWndEC, lpwCurLine, uLineNum);
+                                        return FALSE;
+                                    } // End IF
 
-                            // We no longer need this ptr
-                            MyGlobalUnlock (lpMemPTD->hGlbCurLine); lpwCurLine = NULL;
+                                    // Copy a block of lines
+                                    //   including a terminating zero if there's enough room
+                                    CopyBlockLines (hWndEC, uLineBeg, lpwTmpLine);
 
-                            // Move the text caret to the end of the buffer
-                            MoveCaretEOB (hWndEC);
+                                    Assert (lpwTmpLine[uLineLen] EQ WC_EOS);
 
-                            // Get the current line #
-                            uLineNum = uLastNum;
+////////////////////////////////////// Ensure properly terminated
+////////////////////////////////////lpwTmpLine[uLineLen] = WC_EOS;      // Unnecessary as GPTR fills with zeros
+
+                                    // If it's not Ctrl-CR, ...
+                                    if (!ksCtrl)
+                                        // Append CRLF
+                                        strcatW (lpwTmpLine, WS_CRLF);
+
+                                    // Move the text caret to the end of the buffer
+                                    MoveCaretEOB (hWndEC);
+
+                                    // Get the # of the last line
+                                    uLastNum = (UINT) SendMessageW (hWndEC, EM_LINEFROMCHAR, (WPARAM) -1, 0);
+
+                                    // Replace the last line in the buffer
+                                    ReplaceLine (hWndEC, lpwTmpLine, uLastNum);
+
+                                    // We no longer need this storage
+                                    DbgGlobalFree (lpwTmpLine); lpwTmpLine = NULL;
+                                } // End IF
+
+                                Assert (lpMemPTD->hGlbCurLine NE NULL);
+
+                                // If the current line is valid, ...
+                                // ***FIXME*** -- happens at top of buffer in timing glitch
+                                //                when the CR is handled before hGlbCurLine is saved
+                                if (lpMemPTD->hGlbCurLine NE NULL)
+                                {
+                                    // Lock the memory to get a ptr to it
+                                    lpwCurLine = MyGlobalLockWsz (lpMemPTD->hGlbCurLine);
+
+                                    // Restore the original of the current line
+                                    ReplaceLine (hWndEC, lpwCurLine, uLineNum);
+
+                                    // We no longer need this ptr
+                                    MyGlobalUnlock (lpMemPTD->hGlbCurLine); lpwCurLine = NULL;
+                                } // End IF
+
+                                // Move the text caret to the end of the buffer
+                                MoveCaretEOB (hWndEC);
+
+                                // Get the current line #
+                                uLineNum = uLastNum;
+                            } // End IF/ELSE
                         } // End IF
                     } // End IF
 
                     // If we're in Quote-Quad input, ...
-                    if (lpMemPTD->lpSISCur
+                    if (lpMemPTD->lpSISCur NE NULL
                      && lpMemPTD->lpSISCur->DfnType EQ DFNTYPE_QQUAD)
-                    {
                         // Format QQ input and save in global memory
                         FormatQQuadInput (uLineNum, hWndEC, lpMemPTD);
-
-                        bRet = TRUE;        // Mark as not ImmExecLine material
-                    } // End IF
-
+                    else
                     // Execute the line if no other program is active
-                    if (!bRet)
-                        ImmExecLine (uLineNum, hWndEC);
+                    //   and not a soft line-break,
+                    //   and not copy w/o execute
+                    if (!bRet && !ksShift && !ksCtrl)
+                        ImmExecLine (hWndEC, uLineNum);
                     break;
 
                 case VK_UP:
@@ -1727,11 +2130,32 @@ NORMAL_EXIT:
 #endif
 #ifdef DEBUG
                 case VK_F2:             // Display hash table entries
-                    DbgBrk ();
-                    DisplayHshTab (lpMemPTD->lphtsPTD);
-                    DisplayHshTab (&htsGLB);
+                {
+                    LPSYMENTRY lpSymEntry;
+                    STFLAGS    stFlags = {0};
+                    static WCHAR wFcn[32] = L"test";
+                    extern HGLOBAL hGlbRC1,
+                                   hGlbRC2;
+                    DbgBrk ();          // #ifdef DEBUG
+
+                    // Set the flags for what we're looking up
+                    stFlags.Inuse   = TRUE;
+                    stFlags.ObjName = OBJNAME_USR;
+
+                    // Look up the function name
+                    lpSymEntry =
+                      SymTabLookupName (wFcn, &stFlags);
+                    if (lpSymEntry NE NULL)
+                    {
+                        // Save so as to monitor RefCnt changes
+                        hGlbRC1 = ClrPtrTypeDir (lpSymEntry->stData.stGlbData);
+                    } // End IF
+
+////                DisplayHshTab (lpMemPTD->lphtsPTD);
+////                DisplayHshTab (&htsGLB);
 
                     return FALSE;
+                } // VK_F2
 #endif
 ////#ifdef DEBUG
 ////                case VK_F3:             // Display current token entries
@@ -1742,7 +2166,7 @@ NORMAL_EXIT:
 #ifdef DEBUG
                 case VK_F4:             // Display symbol table entries
                                         //   with non-zero reference counts
-                    DbgBrk ();
+                    DbgBrk ();          // #ifdef DEBUG
                     // If it's Shift-, then display all
                     if (GetKeyState (VK_SHIFT) & BIT15)
                         DisplaySymTab (lpMemPTD->lphtsPTD, TRUE);
@@ -1791,8 +2215,8 @@ NORMAL_EXIT:
                     nHeightMC = rc.bottom - rc.top;
 
                     // Calculate the height of the DB & SM windows
-                    nHeightSM = 550;
-                    nHeightDB = nHeightMC - nHeightSM;
+                    nHeightDB = nHeightMC / 3;
+                    nHeightSM = nHeightMC - nHeightDB;
 
                     // Resize the Debugger window
                     //   to the top of the client area
@@ -1831,9 +2255,11 @@ NORMAL_EXIT:
                     lpMemPTD = GetMemPTD ();
 
                     // Signal a breakpoint to invoke the debugger
-                    DbgBrk ();
+                    DbgBrk ();      // #ifdef DEBUG
 
                     HeapCompact (GetProcessHeap (), 0);
+
+                    CheckMemStat ();
 
                     return FALSE;
 
@@ -1844,9 +2270,9 @@ NORMAL_EXIT:
 #endif
 #ifdef DEBUG
                 case VK_F12:            // Clear the debugging display
-                    // If it's Shift-, then set the gDbgLvl to 9
+                    // If it's Shift-, then toggle gDbgLvl between 0 and 9
                     if (GetKeyState (VK_SHIFT) & BIT15)
-                        gDbgLvl = 9;
+                        gDbgLvl = (gDbgLvl EQ 0) ? 9 : 0;
                     else
                         // Clear the debugger listbox
                         DbgClr ();
@@ -1898,7 +2324,7 @@ NORMAL_EXIT:
 
 #define wNotifyCode     (HIWORD (wParam))
 #define wID             (LOWORD (wParam))
-#define hWndCtrl        (*(HWND *) &lParam)
+#define hWndCtrl        MakeGlbFromVal (lParam)
         case WM_COMMAND:            // wNotifyCode = HIWORD (wParam); // Notification code
                                     // wID = LOWORD (wParam);         // Item, control, or accelerator identifier
                                     // hwndCtrl = (HWND) lParam;      // Handle of control
@@ -1966,35 +2392,32 @@ NORMAL_EXIT:
 
             // Free global storage
             FreeGlobalStorage (lpMemPTD);
-
-            // Remove all saved window properties
-            EnumPropsW (hWnd, EnumCallbackRemoveProp);
 #ifdef DEBUG
             // If the debugger is still active, close it
-            if (lpMemPTD->hWndDB)
+            if (lpMemPTD->hWndDB NE NULL)
                 SendMessageW (lpMemPTD->hWndMC, WM_MDIDESTROY, (WPARAM) lpMemPTD->hWndDB, 0);
 #endif
 ////////////// *************** lptkStackBase ***************************
-////////////if (lpMemPTD->lptkStackBase)
+////////////if (lpMemPTD->lptkStackBase NE NULL)
 ////////////{
 ////////////    MyVirtualFree (lpMemPTD->lptkStackBase, 0, MEM_RELEASE); lpMemPTD->lptkStackBase = NULL;
 ////////////} // End IF
 
             // *************** hGlbCurLine *****************************
-            if (lpMemPTD->hGlbCurLine)
+            if (lpMemPTD->hGlbCurLine NE NULL)
             {
-                MyGlobalFree (lpMemPTD->hGlbCurLine); lpMemPTD->hGlbCurLine = NULL;
+                DbgGlobalFree (lpMemPTD->hGlbCurLine); lpMemPTD->hGlbCurLine = NULL;
             } // End IF
 
             // *************** PTDMEMVIRTENUM Entries ******************
             // Get the MemVirtStr ptr
             (HANDLE_PTR) lpLclMemVirtStr = GetWindowLongPtrW (hWnd, GWLSF_LPMVS);
-            if (lpLclMemVirtStr)
+            if (lpLclMemVirtStr NE NULL)
             {
                 UINT uCnt;                  // Loop counter
 
                 // If it's valid, ...
-                if (lpMemPTD->lphtsPTD)
+                if (lpMemPTD->lphtsPTD NE NULL)
                 {
                     // Free the hash & sym tabs
                     FreeHshSymTabs (lpMemPTD->lphtsPTD, TRUE); lpMemPTD->lphtsPTD = NULL;
@@ -2033,15 +2456,11 @@ NORMAL_EXIT:
 
 #ifndef UNISCRIBE
             // Release the FontLink ptr
-            if (lpMemPTD->lpFontLink)
+            if (lpMemPTD->lpFontLink NE NULL)
             {
                 IMLangFontLink_Release (lpMemPTD->lpFontLink); lpMemPTD->lpFontLink = NULL;
             } // End IF
-#endif
-            // Tell the thread to quit, too
-            PostQuitMessage (0);
 
-#ifndef UNISCRIBE
             // Uninitialize the OLE libraries
             CoUninitialize ();
 #endif
@@ -2060,6 +2479,12 @@ NORMAL_EXIT:
 //  Common routine when moving the text cursor to a new line
 //***************************************************************************
 
+#ifdef DEBUG
+#define APPEND_NAME     L" -- MoveToLine"
+#else
+#define APPEND_NAME
+#endif
+
 void MoveToLine
     (APLU3264     uLineNum,             // The given line #
      LPPERTABDATA lpMemPTD,             // Ptr to PerTabData global memory
@@ -2074,14 +2499,14 @@ void MoveToLine
 
     // If there's a previous current line global memory handle,
     //   free it
-    if (lpMemPTD->hGlbCurLine)
+    if (lpMemPTD->hGlbCurLine NE NULL)
     {
-        MyGlobalFree (lpMemPTD->hGlbCurLine); lpMemPTD->hGlbCurLine = NULL;
+        DbgGlobalFree (lpMemPTD->hGlbCurLine); lpMemPTD->hGlbCurLine = NULL;
     } // End IF
 
     // Allocate space for the line including a terminating zero
     lpMemPTD->hGlbCurLine =
-      MyGlobalAlloc (GHND, (uLineLen + 1) * sizeof (lpwCurLine[0]));
+      DbgGlobalAlloc (GHND, (uLineLen + 1) * sizeof (lpwCurLine[0]));
 
     // Check for error
     if (lpMemPTD->hGlbCurLine EQ NULL)
@@ -2092,7 +2517,7 @@ void MoveToLine
     } // End IF
 
     // Lock the memory to get a ptr to it
-    lpwCurLine = MyGlobalLock (lpMemPTD->hGlbCurLine);
+    lpwCurLine = MyGlobalLockInt (lpMemPTD->hGlbCurLine);   // Might be only 1 byte
 
     // Tell EM_GETLINE maximum # chars in the buffer
     ((LPWORD) lpwCurLine)[0] = uLineLen;
@@ -2106,6 +2531,7 @@ void MoveToLine
     // Reset the changed line flag
     SetWindowLongW (lpMemPTD->hWndSM, GWLSF_CHANGED, FALSE);
 } // End MoveToLine
+#undef  APPEND_NAME
 
 
 //***************************************************************************

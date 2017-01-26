@@ -4,7 +4,7 @@
 
 /***************************************************************************
     NARS2000 -- An Experimental APL Interpreter
-    Copyright (C) 2006-2013 Sudley Place Software
+    Copyright (C) 2006-2016 Sudley Place Software
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,37 +43,37 @@ typedef LPPL_YYSTYPE PRIMFN_DYD
 typedef PRIMFN_DYD *LPPRIMFN_DYD;
 
 typedef UBOOL PRIMFN_DYD_SNvSN
-    (LPPL_YYSTYPE lpYYRes,                  // Ptr to the result
+    (LPPL_YYSTYPE      lpYYRes,             // Ptr to the result
 
-     LPTOKEN      lptkLftArg,               // Ptr to left arg token
-     LPTOKEN      lptkFunc,                 // Ptr to function token
-     LPTOKEN      lptkRhtArg,               // Ptr to right arg token
+     LPTOKEN           lptkLftArg,          // Ptr to left arg token
+     LPTOKEN           lptkFunc,            // Ptr to function token
+     LPTOKEN           lptkRhtArg,          // Ptr to right arg token
 
-     HGLOBAL      hGlbLft,                  // Handle to left arg
-     HGLOBAL      hGlbRht,                  // ...       right ...
-     HGLOBAL     *lphGlbRes,                // Ptr to handle to result
+     HGLOBAL           hGlbLft,             // Handle to left arg
+     HGLOBAL           hGlbRht,             // ...       right ...
+     HGLOBAL          *lphGlbRes,           // Ptr to handle to result
 
-     LPVOID       lpMemLft,                 // Points to Sig.nature
-     LPVOID       lpMemRht,                 // ...
+     LPVARARRAY_HEADER lpMemHdrLft,         // Ptr to left arg header
+     LPVARARRAY_HEADER lpMemHdrRht,         // ...    right ...
 
-     LPAPLUINT    lpMemAxisHead,            // Ptr to axis values, fleshed out by CheckAxis_EM (may be NULL)
-     LPAPLUINT    lpMemAxisTail,            // Ptr to grade up of AxisHead
+     LPAPLUINT         lpMemAxisHead,       // Ptr to axis values, fleshed out by CheckAxis_EM (may be NULL)
+     LPAPLUINT         lpMemAxisTail,       // Ptr to grade up of AxisHead
 
-     APLRANK      aplRankLft,               // Left arg rank
-     APLRANK      aplRankRht,               // Right ...
-     APLRANK      aplRankRes,               // Result ...
+     APLRANK           aplRankLft,          // Left arg rank
+     APLRANK           aplRankRht,          // Right ...
+     APLRANK           aplRankRes,          // Result ...
 
-     APLSTYPE     aplTypeLft,               // Left arg storage type
-     APLSTYPE     aplTypeRht,               // Right ...
-     APLSTYPE     aplTypeRes,               // Result ...
+     APLSTYPE          aplTypeLft,          // Left arg storage type
+     APLSTYPE          aplTypeRht,          // Right ...
+     APLSTYPE          aplTypeRes,          // Result ...
 
-     APLNELM      aplNELMLft,               // Left arg NELM
-     APLNELM      aplNELMRht,               // Right ...
-     APLNELM      aplNELMRes,               // Result ...
-     APLNELM      aplNELMAxis,              // Axis ...
+     APLNELM           aplNELMLft,          // Left arg NELM
+     APLNELM           aplNELMRht,          // Right ...
+     APLNELM           aplNELMRes,          // Result ...
+     APLNELM           aplNELMAxis,         // Axis ...
 
-     UBOOL        bLftIdent,                // TRUE iff the function has a left identity element and the Axis tail is valid
-     UBOOL        bRhtIdent,                // ...                         right ...
+     UBOOL             bLftIdent,           // TRUE iff the function has a left identity element and the Axis tail is valid
+     UBOOL             bRhtIdent,           // ...                         right ...
 
      struct tagPRIMSPEC *lpPrimSpec);       // Ptr to local PRIMSPEC
 
@@ -285,7 +285,7 @@ typedef struct tagPRIMSPEC
     B16ISB16VB16       *B16isB16vB16;       // Dyadic B16 {is} B16 v B16
     B08ISB08VB08       *B08isB08vB08;       // Dyadic B08 {is} B08 v B08
 
-    APLUINT             QuadRL;             // []RL for atomicity
+    APLUINT             uQuadRL;            // []RL for atomicity
 } PRIMSPEC, *LPPRIMSPEC;
 
 

@@ -1,0 +1,15 @@
+Build #1508 -- Version 0.4.15.xx
+--------------------------------
+
+* Disallow SysVars As Named Var In :FOR ... :IN Stmts
+
+Directory trunk:
+
+ERRMSG.C:
+  In <ErrorMessageSetCharIndex>, if not inside <ParseLine>, save error message char index in <lpMemPTD>.
+  Define new function <ErrorMessageGetCharIndex> to return error message char index.
+
+TOKENIZE.C:
+  In IF stmts always compare ptr against NULL.
+  In <fnCtrlDone>, disallow system vars as named var in :FOR ... :IN stmts.
+  In <fnPointDone>, fix scoping bug.

@@ -1,0 +1,9 @@
+Build #1356 -- Version 0.4.9.xx
+-------------------------------
+
+* Fix Bug In Display Of Quote-Quad Output
+
+Directory trunk:
+
+DISPLAY.C:
+  In <DisplayGlbArr_EM> at the end when deciding whether or not to display a blank line, the flag for an ending CR was ignored, but not anymore.
